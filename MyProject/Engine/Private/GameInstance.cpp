@@ -11,7 +11,9 @@ CGameInstance::CGameInstance()
 	, m_pTimer_Manager(CTimer_Manager::Get_Instance())	
 	, m_pPipeLine(CPipeLine::Get_Instance())
 	, m_pLight_Manager(CLight_Manager::Get_Instance())
+	, m_pPicking(CPicking::Get_Instance())
 {	
+	Safe_AddRef(m_pPicking);
 	Safe_AddRef(m_pLight_Manager);
 	Safe_AddRef(m_pPipeLine);
 	Safe_AddRef(m_pTimer_Manager);
@@ -38,7 +40,8 @@ HRESULT CGameInstance::Initialize_Engine(_uint iNumLevels, HINSTANCE hInst, cons
 		return E_FAIL;
 
 	/* 사운드 초기화. */
-
+	if (FAILED(m_pPicking->Initialize(GraphicDesc.hWnd, GraphicDesc.iWinSizeX, GraphicDesc.iWinSizeY, *ppDevice, *ppContext)))
+		return E_FAIL;
 
 	if (FAILED(m_pObject_Manager->Reserve_Container(iNumLevels)))
 		return E_FAIL;
@@ -265,6 +268,8 @@ void CGameInstance::Release_Engine()
 	CPipeLine::Get_Instance()->Destroy_Instance();
 
 	CLight_Manager::Get_Instance()->Destroy_Instance();
+
+	CPicking::Get_Instance()->Destroy_Instance();
 
 	CInput_Device::Get_Instance()->Destroy_Instance();	
 	

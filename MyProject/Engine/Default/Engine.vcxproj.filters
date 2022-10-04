@@ -91,6 +91,9 @@
     <ClCompile Include="..\private\Channel.cpp">
       <Filter>03.Components\06.Model\Animation\Channel</Filter>
     </ClCompile>
+    <ClCompile Include="..\Private\Picking.cpp">
+      <Filter>04.Utility\03.Picking</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Public\Engine_Defines.h">
@@ -198,6 +201,9 @@
     <ClInclude Include="..\public\Channel.h">
       <Filter>03.Components\06.Model\Animation\Channel</Filter>
     </ClInclude>
+    <ClInclude Include="..\Public\Picking.h">
+      <Filter>04.Utility\03.Picking</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="99.Defines">
@@ -295,6 +301,9 @@
     </Filter>
     <Filter Include="03.Components\06.Model\Animation\Channel">
       <UniqueIdentifier>{eaf46b2e-7adf-448e-b337-37e974509e75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04.Utility\03.Picking">
+      <UniqueIdentifier>{d8b05d3a-93a7-4519-8b20-fdb570d4e79b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

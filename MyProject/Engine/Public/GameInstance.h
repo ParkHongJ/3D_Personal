@@ -8,6 +8,7 @@
 #include "Component_Manager.h"
 #include "Light_Manager.h"
 #include "PipeLine.h"
+#include "Picking.h"
 
 
 /* 클라이언트로 보여주기위한 가장 대표적인 클래스이다. */
@@ -80,6 +81,7 @@ private:
 	CTimer_Manager*					m_pTimer_Manager = nullptr;
 	CPipeLine*						m_pPipeLine = nullptr;
 	CLight_Manager*					m_pLight_Manager = nullptr;
+	CPicking*						m_pPicking = nullptr;
 
 
 public:

@@ -14,10 +14,12 @@ private:
 public:
 	virtual HRESULT Initialize_Prototype(const _tchar* pHeighitMapFilePath);
 	virtual HRESULT Initialize(void* pArg);
-
+public:
+	virtual _bool Picking(class CTransform* pTransform, _float3* pOut);
 private:
 	_uint			m_iNumVerticesX = 0;
 	_uint			m_iNumVerticesZ = 0;
+	_float3*		m_pVerticesPos = nullptr;
 
 public:
 	static CVIBuffer_Terrain* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, const _tchar* pHeighitMapFilePath);

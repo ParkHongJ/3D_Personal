@@ -16,6 +16,8 @@ public:
 	virtual HRESULT Initialize(void* pArg);
 
 public:
+	virtual _bool Picking(class CTransform* pTransform, _float3* pOut) { return true; }
+public:
 	HRESULT Render();
 
 protected:
