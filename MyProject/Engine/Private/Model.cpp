@@ -63,11 +63,14 @@ _uint CModel::Get_MaterialIndex(_uint iMeshIndex)
 
 void CModel::Change_Animation(_uint iAnimIndex)
 {
-	_uint iPrevAnimIndex = m_iCurrentAnimIndex;
-	m_iCurrentAnimIndex = iAnimIndex;
+	if (m_iCurrentAnimIndex != iAnimIndex)
+	{
+		_uint iPrevAnimIndex = m_iCurrentAnimIndex;
+		m_iCurrentAnimIndex = iAnimIndex;
 
-	m_Animations[m_iCurrentAnimIndex]->Change_Animation(m_Animations[iPrevAnimIndex]);
-	m_Animations[iPrevAnimIndex]->ResetKeyFrames();
+		m_Animations[m_iCurrentAnimIndex]->Change_Animation(m_Animations[iPrevAnimIndex]);
+		m_Animations[iPrevAnimIndex]->ResetKeyFrames();
+	}
 }
 
 _uint CModel::Get_AnimBoneSize(_uint iAnimIndex)
@@ -75,20 +78,14 @@ _uint CModel::Get_AnimBoneSize(_uint iAnimIndex)
 	return m_Animations[iAnimIndex]->Get_BoneSize();
 }
 
-void CModel::TempFunc(_uint iAnimIndex, _uint iNextAnimIndex)
-{
-	m_Animations[m_iCurrentAnimIndex]->TempFunc(m_Animations[iNextAnimIndex]);
-}
-
 _uint CModel::GetAnimSize()
 {
 	return m_Animations.size();
 }
 
-HRESULT CModel::LoadBinary()
+HRESULT CModel::LoadBinary(const _tchar* ModelFilePath)
 {
-	chrono::system_clock::time_point start = chrono::system_clock::now();
-	HANDLE		hFile = CreateFile(L"../Bin/Resources/Meshes/Fiona/LEVEL_8.txt", GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+	HANDLE		hFile = CreateFile(ModelFilePath, GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 
 	if (INVALID_HANDLE_VALUE == hFile)
 		return E_FAIL;
@@ -276,7 +273,6 @@ HRESULT CModel::LoadBinary()
 	}
 
 	CloseHandle(hFile);
-	std::chrono::duration<double>sec = std::chrono::system_clock::now() - start;
 	return S_OK;
 }
 
@@ -300,10 +296,9 @@ void CModel::LoadNode(HANDLE hFile, Node * pNode, DWORD & dwByte, DWORD & dwStrB
 	}
 }
 
-HRESULT CModel::Initialize_Prototype(TYPE eType, const char * pModelFilePath, const char * pModelFileName, _fmatrix PivotMatrix)
+HRESULT CModel::Initialize_Prototype(TYPE eType, const _tchar * pModelFilePath, _fmatrix PivotMatrix)
 {
-
-	LoadBinary();
+	LoadBinary(pModelFilePath);
 	XMStoreFloat4x4(&m_PivotMatrix, PivotMatrix);
 
 	m_eModelType = eType;
@@ -312,7 +307,7 @@ HRESULT CModel::Initialize_Prototype(TYPE eType, const char * pModelFilePath, co
 	if (FAILED(Ready_MeshContainers(PivotMatrix)))
 		return E_FAIL;
 
-	if (FAILED(Ready_Materials(pModelFilePath)))
+	if (FAILED(Ready_Materials()))
 		return E_FAIL;
 
 	if (FAILED(Ready_Animations()))
@@ -389,13 +384,10 @@ HRESULT CModel::SetUp_OnShader(CShader * pShader, _uint iMaterialIndex, aiTextur
 	return m_Materials[iMaterialIndex].pTexture[eTextureType]->Set_SRV(pShader, pConstantName);	
 }
 
-HRESULT CModel::Play_Animation(_float fTimeDelta)
+_bool CModel::Play_Animation(_float fTimeDelta)
 {
-	if (m_iCurrentAnimIndex >= m_iNumAnimations)
-		return E_FAIL;
-
 	/* 현재 재생하고자하는 애니메이션이 제어해야할 뼈들의 지역행렬을 갱신해낸다. */
-	m_Animations[m_iCurrentAnimIndex]->Play_Animation(fTimeDelta, m_iCurrentAnimIndex);
+	_bool AnimEnd = m_Animations[m_iCurrentAnimIndex]->Play_Animation(fTimeDelta, m_iCurrentAnimIndex);
 
 	/* 지역행렬을 순차적으로(부모에서 자식으로) 누적하여 m_CombinedTransformation를 만든다.  */
 	for (auto& pHierarchyNode : m_HierarchyNodes)
@@ -403,7 +395,7 @@ HRESULT CModel::Play_Animation(_float fTimeDelta)
 		pHierarchyNode->Set_CombinedTransformation();
 	}
 
-	return S_OK;
+	return AnimEnd;
 }
 
 HRESULT CModel::Render(CShader* pShader, _uint iMeshIndex)
@@ -440,7 +432,7 @@ HRESULT CModel::Ready_MeshContainers(_fmatrix PivotMatrix)
 	return S_OK;
 }
 
-HRESULT CModel::Ready_Materials(const char* pModelFilePath)
+HRESULT CModel::Ready_Materials()
 {
 	if (nullptr == m_TempScene)
 		return E_FAIL;
@@ -493,11 +485,11 @@ HRESULT CModel::Ready_Animations()
 	return S_OK;
 }
 
-CModel * CModel::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, TYPE eType, const char * pModelFilePath, const char * pModelFileName, _fmatrix PivotMatrix)
+CModel * CModel::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, TYPE eType, const _tchar* ModelFilePath, _fmatrix PivotMatrix)
 {
 	CModel*			pInstance = new CModel(pDevice, pContext);
 
-	if (FAILED(pInstance->Initialize_Prototype(eType, pModelFilePath, pModelFileName, PivotMatrix)))
+	if (FAILED(pInstance->Initialize_Prototype(eType, ModelFilePath, PivotMatrix)))
 	{
 		MSG_BOX(TEXT("Failed To Created : CTexture"));
 		Safe_Release(pInstance);

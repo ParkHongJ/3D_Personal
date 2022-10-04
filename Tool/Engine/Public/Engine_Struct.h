@@ -153,60 +153,27 @@ namespace Engine
 	typedef struct Bone {
 		char mName[MAX_PATH] = "";
 		unsigned int mNumWeights;
-		VertexWeight* mWeights;
+		std::vector<VertexWeight> mWeights;
 		XMFLOAT4X4 mOffsetMatrix;
-		~Bone()
-		{
-			delete[] mWeights;
-		}
 	}BONE;
 
-	typedef struct Face {
-		unsigned int* mIndices;
-		Face()
-		{
-			mIndices = new unsigned int[3];
-		}
-		~Face()
-		{
-			delete[] mIndices;
-		}
-	}FACE;
-
+	typedef struct VerticesInfo {
+		//mNumVertices만큼 갖고있음
+		XMFLOAT3 mVertices;
+		XMFLOAT3 mNormals;
+		XMFLOAT2 mTextureCoords;
+		XMFLOAT3 mTangents;
+	}VERTICESINFO;
 	typedef struct Mesh {
 		char mName[MAX_PATH] = "";
 		unsigned int mMaterialIndex;
 		unsigned int mNumVertices;
 		unsigned int mNumFaces;
 		unsigned int mNumBones;
-
-		//mNumVertices만큼 갖고있음
-		XMFLOAT3* mVertices;
-		XMFLOAT3* mNormals;
-		XMFLOAT3* mTangents;
-
-		XMFLOAT3* mTextureCoords[0x8];
-		Bone** mBones;
-		Face* mFaces;
-
-		~Mesh()
-		{
-			if (nullptr != mVertices) delete[] mVertices;
-			if (nullptr != mNormals) delete[] mNormals;
-			if (nullptr != mTangents) delete[] mTangents;
-
-			for (unsigned int i = 0; i < mNumBones; ++i)
-			{
-				if (nullptr != mBones[i]) delete[] mBones[i];
-			}
-			unsigned int j = sizeof(*mTextureCoords) / sizeof(mTextureCoords[0]);
-			for (unsigned int i = 0; i < j; ++i)
-			{
-				if (nullptr != mTextureCoords[i]) delete[] mTextureCoords[i];
-			}
-
-			if (nullptr != mFaces) delete[] mFaces;
-		}
+		std::vector<VerticesInfo> mVertices;
+		std::vector<FACEINDICES32> mFaces;
+		std::vector<Bone> mBones;
+		//Bone** mBones;
 	}MESH;
 
 	typedef struct VectorKey
@@ -257,20 +224,14 @@ namespace Engine
 		unsigned int mNumMaterials;
 		unsigned int mNumAnimations;
 		Node* mRootNode;
-		Mesh* mMesh;
 		ANIMATION** mAnimations;
 		std::list<Material*> mMaterials;
-		
-
-		~TempScene()
-		{
-			if (nullptr != mMesh)
-			{
-				delete[] mMesh;
-			}
-		}
-
+		std::vector<Mesh> mMesh;
 	}TEMPSCENE;
+
+	typedef struct MyTest {
+
+	}MYTEST;
 }
 
 

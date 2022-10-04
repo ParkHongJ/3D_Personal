@@ -31,79 +31,17 @@ HRESULT CPlayer::Initialize(void * pArg)
 	RELEASE_INSTANCE(CGameInstance);
 	m_pModelCom->Set_AnimIndex(13);
 
+	m_eCurrentState = CPlayer::STATE_IDLE;
 	m_pTransformCom->Set_Scale(XMVectorSet(0.01f, 0.01f, 0.01f, 1.f));
 	return S_OK;
 }
 
 void CPlayer::Tick(_float fTimeDelta)
 {
-	//if (Key_Down(DIK_U))
-	//{
-	//	m_pModelCom->Change_Animation(++i);
-	//	/*m_pModelCom->TempFunc(1, 2);*/
-	//}
-	//if (Key_Down(DIK_I))
-	//{
-	//	m_pModelCom->Change_Animation(--i);
-	//}
+	
+	StateMachine(m_eCurrentState);
 
-	/*if (Key_Down(DIK_W))
-	{
-		m_pModelCom->Change_Animation(38);
-	}
-	else if (Key_Pressing(DIK_S))
-	{
-
-	}
-	else if (Key_Pressing(DIK_A))
-	{
-
-	}
-	else if (Key_Pressing(DIK_D))
-	{
-
-	}
-	else if (Key_Down(DIK_SPACE))
-	{
-		m_pModelCom->Change_Animation(58);
-	}*/
-	/*else
-	{
-		m_eCurrentState = STATE_IDLE;
-	}
-
-	if (Key_Down(DIK_SPACE))
-	{
-		m_eCurrentState = STATE_ATTACK;
-	}
-
-	if (m_ePrevState != m_eCurrentState)
-	{
-		m_ePrevState = m_eCurrentState;
-
-		switch (m_eCurrentState)
-		{
-		case CPlayer::STATE_IDLE:
-			m_pModelCom->Change_Animation(13);
-			break;
-		case CPlayer::STATE_WALK:
-			m_pModelCom->Change_Animation(38);
-			break;
-		case CPlayer::STATE_RUN:
-			break;
-		case CPlayer::STATE_ATTACK:
-			m_pModelCom->Change_Animation(58);
-			break;
-		case CPlayer::STATE_JUMP:
-			break;
-		case CPlayer::STATE_END:
-			break;
-		default:
-			break;
-		}
-	}*/
 	Update_Weapon();
-
 	for (auto& pPart : m_Parts)
 		pPart->Tick(fTimeDelta);
 }
@@ -291,6 +229,74 @@ void CPlayer::SetState(STATE_PLAYER eState)
 		default:
 			break;
 		}
+	}
+}
+
+void CPlayer::StateMachine(STATE_PLAYER eState)
+{
+	switch (eState)
+	{
+	case Client::CPlayer::STATE_IDLE:
+		Idle_State();
+		break;
+	case Client::CPlayer::STATE_WALK:
+		Walk_State();
+		break;
+	case Client::CPlayer::STATE_RUN:
+		break;
+	case Client::CPlayer::STATE_ATTACK:
+		break;
+	case Client::CPlayer::STATE_JUMP:
+		break;
+	case Client::CPlayer::STATE_END:
+		break;
+	default:
+		break;
+	}
+}
+
+void CPlayer::Idle_State()
+{
+	if (Key_Down(DIK_UP))
+	{
+		m_eCurrentState = CPlayer::STATE_WALK;
+	}
+	else if (Key_Down(DIK_UP))
+	{
+		m_eCurrentState = CPlayer::STATE_WALK;
+	}
+	else if (Key_Down(DIK_UP))
+	{
+		m_eCurrentState = CPlayer::STATE_WALK;
+	}
+	else if (Key_Down(DIK_UP))
+	{
+		m_eCurrentState = CPlayer::STATE_WALK;
+	}
+}
+
+void CPlayer::Walk_State()
+{
+	if (Key_Pressing(DIK_UP))
+	{
+		m_pModelCom->Change_Animation(38);
+	}
+	else if (Key_Pressing(DIK_DOWN))
+	{
+		m_pModelCom->Change_Animation(38);
+	}
+	else if (Key_Pressing(DIK_LEFT))
+	{
+		m_pModelCom->Change_Animation(38);
+	}
+	else if (Key_Pressing(DIK_RIGHT))
+	{
+		m_pModelCom->Change_Animation(38);
+	}
+	else
+	{
+		m_pModelCom->Change_Animation(14);
+		m_eCurrentState = CPlayer::STATE_IDLE;
 	}
 }
 

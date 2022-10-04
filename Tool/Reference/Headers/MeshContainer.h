@@ -23,7 +23,7 @@ public:
 	}
 
 public:
-	virtual HRESULT Initialize_Prototype(CModel::TYPE eModelType, const aiMesh* pAIMesh, class CModel* pModel, _fmatrix PivotMatrix, Mesh* pMesh);
+	virtual HRESULT Initialize_Prototype(CModel::TYPE eModelType, const aiMesh* pAIMesh, class CModel* pModel, _fmatrix PivotMatrix, vector<Mesh>* pMesh);
 	virtual HRESULT Initialize(void* pArg);	
 
 public:
@@ -47,7 +47,7 @@ private:
 	HRESULT Ready_AnimVertices(const aiMesh* pAIMesh, CModel* pModel, Mesh* pMesh);
 
 public:
-	static CMeshContainer* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, CModel::TYPE eModelType, const aiMesh* pAIMesh, class CModel* pModel, _fmatrix PivotMatrix, Mesh* pMesh);
+	static CMeshContainer* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, CModel::TYPE eModelType, const aiMesh* pAIMesh, class CModel* pModel, _fmatrix PivotMatrix, vector<Mesh>* pMesh);
 	virtual CComponent* Clone(void* pArg = nullptr) override;
 	virtual void Free() override;
 };

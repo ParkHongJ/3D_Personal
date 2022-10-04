@@ -61,6 +61,12 @@ public:
 	_bool Key_Down(_uchar KeyInput);
 	_bool Key_Pressing(_uchar KeyInput);
 	void SetState(STATE_PLAYER eState);
+	void StateMachine(STATE_PLAYER eState);
+
+public:
+	//State
+	void Idle_State();
+	void Walk_State();
 public:
 	static CPlayer* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg);

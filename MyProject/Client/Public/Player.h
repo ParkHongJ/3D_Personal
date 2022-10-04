@@ -17,6 +17,8 @@ class CPlayer final : public CGameObject
 {
 private:
 	enum STATE_PLAYER { STATE_IDLE, STATE_WALK, STATE_RUN, STATE_ATTACK, STATE_JUMP, STATE_END };
+	enum PLAYER_DIR { DIR_FORWARD, DIR_LEFT, DIR_RIGHT, DIR_BACK, DIR_END};
+
 	CPlayer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	CPlayer(const CPlayer& rhs);
 	virtual ~CPlayer() = default;
@@ -39,12 +41,22 @@ private:
 	_bool					m_bChangeAnm = false;
 	STATE_PLAYER			m_eCurrentState = STATE_END;
 	_bool m_bKeyState[256] = { false };
-	_uint i = 0;
+	_bool m_bAnimEnd = false;
+
+	PLAYER_DIR m_eDir = DIR_END;
 private:
 	HRESULT Ready_Components();
 public:
 	_bool Key_Down(_uchar KeyInput);
-	void SetState(STATE_PLAYER eState);
+	_bool Key_Pressing(_uchar KeyInput);
+	void SetState(STATE_PLAYER eState, _float fTimeDelta);
+
+public:
+	//State
+	void Idle_State(_float fTimeDelta);
+	void Walk_State(_float fTimeDelta);
+	void Attack_State(_float fTimeDelta);
+
 public:
 	static CPlayer* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg);

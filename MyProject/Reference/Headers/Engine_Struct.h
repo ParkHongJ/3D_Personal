@@ -265,11 +265,11 @@ namespace Engine
 		XMFLOAT4X4 mTransformation;
 
 		~Node() {
-			/*for (unsigned int i = 0; i < mNumChildren; ++i)
+			for (unsigned int i = 0; i < mNumChildren; ++i)
 			{
 				delete[] mChildren[i];
 			}
-			delete mChildren;*/
+			delete mChildren;
 		}
 		
 		
@@ -299,7 +299,7 @@ namespace Engine
 		//}
 		void Free()
 		{
-			//delete mRootNode;
+			delete mRootNode;
 			/*delete[] mMesh;
 
 

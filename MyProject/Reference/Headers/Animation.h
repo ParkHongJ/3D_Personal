@@ -14,10 +14,9 @@ private:
 public:
 	HRESULT Initialize_Prototype(ANIMATION* pMyAnimation);
 	HRESULT Initialize(class CModel* pModel);
-	HRESULT Play_Animation(_float fTimeDelta, _uint& CurrentAnimIndex);
+	_bool Play_Animation(_float fTimeDelta, _uint& CurrentAnimIndex);
 	_uint Get_BoneSize() { return m_Channels.size(); }
 	void Change_Animation(CAnimation* pPrevAnimation);
-	void TempFunc(CAnimation* pNextAnimation);
 	void ResetKeyFrames();
 	class CChannel* Get_Channel(_uint iChannelIndex);
 private:

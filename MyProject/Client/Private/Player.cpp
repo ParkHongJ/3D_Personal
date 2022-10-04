@@ -24,25 +24,14 @@ HRESULT CPlayer::Initialize(void * pArg)
 
 	m_pModelCom->Set_AnimIndex(0);
 
+	m_eCurrentState = CPlayer::STATE_IDLE;
 	m_pTransformCom->Set_Scale(XMVectorSet(0.01f, 0.01f, 0.01f, 1.f));
 	return S_OK;
 }
 
 void CPlayer::Tick(_float fTimeDelta)
 {
-	//m_fTime += fTimeDelta;
-	if (Key_Down(DIK_U))
-	{
-		m_pModelCom->Change_Animation(++i);
-	}
-	if (Key_Down(DIK_I))
-	{
-		m_pModelCom->Change_Animation(--i);
-	}
-	/*if (Key_Down(DIK_U))
-	{
-		m_pModelCom->TempFunc(1, 2);
-	}*/
+	SetState(m_eCurrentState, fTimeDelta);
 }
 
 void CPlayer::LateTick(_float fTimeDelta)
@@ -50,7 +39,7 @@ void CPlayer::LateTick(_float fTimeDelta)
 	if (nullptr == m_pRendererCom)
 		return;
 
-	m_pModelCom->Play_Animation(fTimeDelta);
+	m_bAnimEnd = m_pModelCom->Play_Animation(fTimeDelta);
 
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
 }
@@ -93,8 +82,11 @@ HRESULT CPlayer::Render()
 
 HRESULT CPlayer::Ready_Components()
 {
+	CTransform::TRANSFORMDESC TransformDesc;
+	TransformDesc.fSpeedPerSec = 3.5f;
+	TransformDesc.fRotationPerSec = 3.f;
 	/* For.Com_Transform */
-	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Transform"), TEXT("Com_Transform"), (CComponent**)&m_pTransformCom)))
+	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Transform"), TEXT("Com_Transform"), (CComponent**)&m_pTransformCom, &TransformDesc)))
 		return E_FAIL;
 
 	/* For.Com_Renderer */
@@ -133,32 +125,116 @@ _bool CPlayer::Key_Down(_uchar KeyInput)
 	return false;
 }
 
-void CPlayer::SetState(STATE_PLAYER eState)
+void CPlayer::SetState(STATE_PLAYER eState, _float fTimeDelta)
 {
-	if (m_eCurrentState != eState)
+	switch (eState)
 	{
-		m_eCurrentState = eState;
-		switch (m_eCurrentState)
-		{
-		case Client::CPlayer::STATE_IDLE:
-			break;
-		case Client::CPlayer::STATE_WALK:
-			m_pModelCom->Change_Animation((_uint)m_eCurrentState);
-			break;
-		case Client::CPlayer::STATE_RUN:
-			break;
-		case Client::CPlayer::STATE_ATTACK:
-			break;
-		case Client::CPlayer::STATE_JUMP:
-			break;
-		case Client::CPlayer::STATE_END:
-			break;
-		default:
-			break;
-		}
+	case CPlayer::STATE_IDLE:
+		Idle_State(fTimeDelta);
+		break;
+	case CPlayer::STATE_WALK:
+		Walk_State(fTimeDelta);
+		break;
+	case CPlayer::STATE_RUN:
+		break;
+	case CPlayer::STATE_ATTACK:
+		Attack_State(fTimeDelta);
+		break;
+	case CPlayer::STATE_JUMP:
+		break;
+	case CPlayer::STATE_END:
+		break;
+	default:
+		break;
 	}
 }
 
+void CPlayer::Idle_State(_float fTimeDelta)
+{
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+	if (Key_Down(DIK_UP))
+	{
+		m_eCurrentState = CPlayer::STATE_WALK;
+	}
+	else if (Key_Down(DIK_DOWN))
+	{
+		m_eCurrentState = CPlayer::STATE_WALK;
+	}
+	else if (Key_Down(DIK_LEFT))
+	{
+		m_eCurrentState = CPlayer::STATE_WALK;
+	}
+	else if (Key_Down(DIK_RIGHT))
+	{
+		m_eCurrentState = CPlayer::STATE_WALK;
+	}
+	else if (pGameInstance->Get_DIMKeyState(DIMK_LBUTTON))
+	{
+		m_pModelCom->Change_Animation(58);
+		m_eCurrentState = CPlayer::STATE_ATTACK;
+	}
+	RELEASE_INSTANCE(CGameInstance);
+}
+
+void CPlayer::Walk_State(_float fTimeDelta)
+{
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+	if (Key_Pressing(DIK_UP))
+	{
+		m_pTransformCom->Go_Straight(fTimeDelta);
+		m_pModelCom->Change_Animation(38);
+	}
+	else if (Key_Pressing(DIK_DOWN))
+	{
+		m_pTransformCom->Go_Straight(fTimeDelta);
+		m_pModelCom->Change_Animation(38);
+	}
+	else if (Key_Pressing(DIK_LEFT))
+	{
+		m_pTransformCom->Go_Straight(fTimeDelta);
+		m_pModelCom->Change_Animation(38);
+	}
+	else if (Key_Pressing(DIK_RIGHT))
+	{
+		m_pTransformCom->Go_Straight(fTimeDelta);
+		m_pModelCom->Change_Animation(38);
+	}
+	else if (pGameInstance->Get_DIMKeyState(DIMK_LBUTTON))
+	{
+		m_pModelCom->Change_Animation(58);
+		m_eCurrentState = CPlayer::STATE_ATTACK;
+		m_bAnimEnd = false;
+	}
+	else
+	{
+		m_pModelCom->Change_Animation(14);
+		m_eCurrentState = CPlayer::STATE_IDLE;
+	}
+	RELEASE_INSTANCE(CGameInstance);
+}
+void CPlayer::Attack_State(_float fTimeDelta)
+{
+	if (m_bAnimEnd)
+	{
+		m_pModelCom->Change_Animation(14);
+		m_eCurrentState = CPlayer::STATE_IDLE;
+		m_bAnimEnd = false;
+	}
+}
+_bool CPlayer::Key_Pressing(_uchar KeyInput)
+{
+	CGameInstance* pGameInstance = CGameInstance::Get_Instance();
+	Safe_AddRef(pGameInstance);
+
+	if (pGameInstance->Get_DIKState(KeyInput) & 0x80) {
+		m_bKeyState[KeyInput] = true;
+		Safe_Release(pGameInstance);
+		return true;
+	}
+
+	Safe_Release(pGameInstance);
+	return false;
+}
 CPlayer * CPlayer::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 {
 	CPlayer*		pInstance = new CPlayer(pDevice, pContext);

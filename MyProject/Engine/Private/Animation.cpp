@@ -58,9 +58,9 @@ HRESULT CAnimation::Initialize(CModel* pModel)
 }
 
 
-HRESULT CAnimation::Play_Animation(_float fTimeDelta, _uint& CurrentAnimIndex)
+_bool CAnimation::Play_Animation(_float fTimeDelta, _uint& CurrentAnimIndex)
 {
-	if (m_bBlending)
+ 	if (m_bBlending)
 	{
 		m_fPlayTime += fTimeDelta;
 
@@ -68,50 +68,32 @@ HRESULT CAnimation::Play_Animation(_float fTimeDelta, _uint& CurrentAnimIndex)
 
 		for (auto& pChannel : m_Channels)
 		{
-			/*m_ChannelKeyFrames[iChannelIndex] = */pChannel->Blending_Transformation(m_fPlayTime, m_ChannelKeyFrames[iChannelIndex], m_HierarchyNodes[iChannelIndex]);
+			pChannel->Blending_Transformation(m_fPlayTime, m_ChannelKeyFrames[iChannelIndex], m_HierarchyNodes[iChannelIndex]);
 
 			++iChannelIndex;
 		}
 
-		if (m_fPlayTime >= 1.f)
+		if (m_fPlayTime >= .2f)
 		{
 			m_fPlayTime = 0.f;
 			m_bBlending = false;
-
-			/*for (auto& pChannel : m_Channels)
-			{
-			for (auto& iCurrentKeyFrame : m_ChannelKeyFrames)
-			iCurrentKeyFrame = 0;
-			}*/
 		}
+		return false;
 	}
 	else
 	{
+		_bool bAnimEnd = false;
 		m_fPlayTime += m_fTickPerSecond * fTimeDelta;
 
 		if (m_fPlayTime >= m_fDuration)
 		{
 			m_fPlayTime = 0.f;
-			for (auto& pChannel : m_Channels)
-			{
-				for (auto& iCurrentKeyFrame : m_ChannelKeyFrames)
-					iCurrentKeyFrame = 0;
-			}
-			//다음 애니메이션이 없다면 현재 애니메이션을 초기화해줌
-			//if (nullptr == m_pNextAnimation)
-			//{
-			//	//반복하는 애니메이션
-			//	for (auto& pChannel : m_Channels)
-			//	{
-			//		for (auto& iCurrentKeyFrame : m_ChannelKeyFrames)
-			//			iCurrentKeyFrame = 0;
-			//	}
-			//}
-			//else
-			//{
-			//	m_bEnd = true;
-			//}
+			for (auto& iCurrentKeyFrame : m_ChannelKeyFrames)
+				iCurrentKeyFrame = 0;
+			bAnimEnd = true;
 		}
+		else
+			bAnimEnd = false;
 
 
 		//영향을 주는 뼈들을 갱신해줌
@@ -123,16 +105,8 @@ HRESULT CAnimation::Play_Animation(_float fTimeDelta, _uint& CurrentAnimIndex)
 
 			++iChannelIndex;
 		}
-
-		//다음 애니메이션이 있고 현재 애니메이션이 끝났다면
-		/*if ( nullptr != m_pNextAnimation && m_bEnd)
-		{
-			++CurrentAnimIndex;
-			m_pNextAnimation->Change_Animation();
-			Safe_Release(m_pNextAnimation);
-		}*/
+		return bAnimEnd;
 	}
-	return S_OK;
 }
 
 void CAnimation::Change_Animation(CAnimation* pPrevAnimation)
@@ -150,20 +124,10 @@ void CAnimation::Change_Animation(CAnimation* pPrevAnimation)
 	m_bBlending = true;
 }
 
-void CAnimation::TempFunc(CAnimation* pNextAnimation)
-{
-	//m_fPlayTime = 0.0f;
-	m_pNextAnimation = pNextAnimation;
-	Safe_AddRef(m_pNextAnimation);
-}
-
 void CAnimation::ResetKeyFrames()
 {
-	for (auto& pChannel : m_Channels)
-	{
-		for (auto& iCurrentKeyFrame : m_ChannelKeyFrames)
-			iCurrentKeyFrame = 0;
-	}
+	for (auto& iCurrentKeyFrame : m_ChannelKeyFrames)
+		iCurrentKeyFrame = 0;
 }
 
 CChannel * CAnimation::Get_Channel(_uint iChannelIndex)
