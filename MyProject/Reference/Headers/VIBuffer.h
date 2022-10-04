@@ -38,6 +38,7 @@ protected:
 	_uint						m_iNumIndicesofPrimitive = 0;
 	DXGI_FORMAT					m_eIndexFormat;
 
+	_float3*		m_pVerticesPos = nullptr;
 
 protected:
 	HRESULT Create_VertexBuffer();

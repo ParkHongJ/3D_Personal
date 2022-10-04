@@ -187,9 +187,8 @@ _bool CVIBuffer_Terrain::Picking(CTransform * pTransform, _float3 * pOut)
 
 	pPicking->Compute_LocalRayInfo(&vRayDir, &vRayPos, pTransform);
 
-	XMVector3Normalize(XMLoadFloat3(&vRayDir));
-	//D3DXVec3Normalize(&vRayDir, &vRayDir);
-
+	XMStoreFloat3(&vRayDir,	XMVector3Normalize(XMLoadFloat3(&vRayDir)));
+		
 	for (_uint i = 0; i < m_iNumVerticesZ - 1; ++i)
 	{
 		for (_uint j = 0; j < m_iNumVerticesX - 1; ++j)
@@ -205,33 +204,43 @@ _bool CVIBuffer_Terrain::Picking(CTransform * pTransform, _float3 * pOut)
 
 			_float		fDist;
 			_float4x4	WorldMatrix;
-
 			XMStoreFloat4x4(&WorldMatrix, pTransform->Get_WorldMatrix());
-			///* 오른쪽 상단. */
-			//if (TRUE == TriangleTests::Intersects(XMLoadFloat3(&vRayPos), XMLoadFloat3(&vRayDir), XMLoadFloat3(&m_pVerticesPos[iIndices[0]]), XMLoadFloat3(&m_pVerticesPos[iIndices[1]]), XMLoadFloat3(&m_pVerticesPos[iIndices[2]]), &fDist))
-			//{
-			//	_float3	vPickPos;
-			//	XMStoreFloat3(&vPickPos, XMLoadFloat3(&vRayPos) + XMLoadFloat3(&vRayDir) * fDist); //vRayPos + vRayDir * fDist;
 
-			//	XMVector3TransformCoord(XMLoadFloat3(&vPickPos), XMLoadFloat4x4(&WorldMatrix));
-			//	XMStoreFloat3(&*pOut, XMLoadFloat3(&vPickPos));
+			//each vertex as XMVECTOR
+			XMVECTOR XMRayPos = XMLoadFloat3(&vRayPos);
+			XMVECTOR XMRayDir = XMLoadFloat3(&vRayDir);
 
-			//	RELEASE_INSTANCE(CPicking);
-			//	return true;
-			//}
+			_float vDist;
 
-			///* 왼쪽 하단. */
-			//if (TRUE == Intersects(XMLoadFloat3(&vRayPos), XMLoadFloat3(&vRayDir), XMLoadFloat3(&m_pVerticesPos[iIndices[0]]), XMLoadFloat3(&m_pVerticesPos[iIndices[2]]), XMLoadFloat3(&m_pVerticesPos[iIndices[3]]), &fDist))
-			//{
-			//	_float3	vPickPos;
-			//	XMStoreFloat3(&vPickPos, XMLoadFloat3(&vRayPos) + XMLoadFloat3(&vRayDir) * fDist); //vRayPos + vRayDir * fDist;
+			XMVECTOR XMVerticesPos0 = XMLoadFloat3(&m_pVerticesPos[iIndices[0]]);
+			XMVECTOR XMVerticesPos1 = XMLoadFloat3(&m_pVerticesPos[iIndices[1]]);
+			XMVECTOR XMVerticesPos2 = XMLoadFloat3(&m_pVerticesPos[iIndices[2]]);
+			XMVECTOR XMVerticesPos3 = XMLoadFloat3(&m_pVerticesPos[iIndices[3]]);
+			/* 오른쪽 상단. */
+			if (TRUE == TriangleTests::Intersects(XMRayPos, XMRayDir, XMVerticesPos0, XMVerticesPos1, XMVerticesPos2, fDist))
+			{
+				_float3	vPickPos;
+				XMStoreFloat3(&vPickPos, XMLoadFloat3(&vRayPos) + XMLoadFloat3(&vRayDir) * fDist); //vRayPos + vRayDir * fDist;
 
-			//	XMVector3TransformCoord(XMLoadFloat3(&vPickPos), XMLoadFloat4x4(&WorldMatrix));
-			//	XMStoreFloat3(&*pOut, XMLoadFloat3(&vPickPos));
+				XMVector3TransformCoord(XMLoadFloat3(&vPickPos), XMLoadFloat4x4(&WorldMatrix));
+				XMStoreFloat3(&*pOut, XMLoadFloat3(&vPickPos));
 
-			//	RELEASE_INSTANCE(CPicking);
-			//	return true;
-			//}
+				RELEASE_INSTANCE(CPicking);
+				return true;
+			}
+
+			/* 왼쪽 하단. */
+			if (TRUE == TriangleTests::Intersects(XMRayPos, XMRayDir, XMVerticesPos0, XMVerticesPos2, XMVerticesPos3, fDist))
+			{
+				_float3	vPickPos;
+				XMStoreFloat3(&vPickPos, XMLoadFloat3(&vRayPos) + XMLoadFloat3(&vRayDir) * fDist); //vRayPos + vRayDir * fDist;
+
+				XMVector3TransformCoord(XMLoadFloat3(&vPickPos), XMLoadFloat4x4(&WorldMatrix));
+				XMStoreFloat3(&*pOut, XMLoadFloat3(&vPickPos));
+
+				RELEASE_INSTANCE(CPicking);
+				return true;
+			}
 		}
 	}
 

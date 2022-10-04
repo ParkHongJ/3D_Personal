@@ -48,7 +48,7 @@ void CPicking::Tick()
 	XMStoreFloat4x4(&ProjMatrixInv, pPipeLine->Get_TransformMatrix(CPipeLine::D3DTS_PROJ));
 	XMStoreFloat4x4(&ProjMatrixInv, XMMatrixInverse(nullptr, XMLoadFloat4x4(&ProjMatrixInv)));
 
-	XMVector3TransformCoord(XMLoadFloat3(&vMousePos), XMLoadFloat4x4(&ProjMatrixInv));
+	XMStoreFloat3(&vMousePos, XMVector3TransformCoord(XMLoadFloat3(&vMousePos), XMLoadFloat4x4(&ProjMatrixInv)));
 
 	/* 뷰스페이스 상의 마우스 레이와 레이포스를 구하자. */
 	m_vRayPos = _float3(0.f, 0.f, 0.f);
@@ -60,9 +60,13 @@ void CPicking::Tick()
 	XMStoreFloat4x4(&ViewMatrixInv, pPipeLine->Get_TransformMatrix(CPipeLine::D3DTS_VIEW));
 	XMStoreFloat4x4(&ViewMatrixInv, XMMatrixInverse(nullptr, XMLoadFloat4x4(&ViewMatrixInv)));
 	
-	XMVector3TransformCoord(XMLoadFloat3(&m_vRayPos), XMLoadFloat4x4(&ViewMatrixInv));
-	XMVector3TransformNormal(XMLoadFloat3(&m_vRayDir), XMLoadFloat4x4(&ViewMatrixInv));
+	XMVECTOR xmRayPos = XMLoadFloat3(&m_vRayPos);
+	XMVECTOR xmRayDir = XMLoadFloat3(&m_vRayDir);
+	xmRayPos = XMVector3TransformCoord(xmRayPos, XMLoadFloat4x4(&ViewMatrixInv));
+	xmRayDir = XMVector3TransformNormal(xmRayDir, XMLoadFloat4x4(&ViewMatrixInv));
 
+	XMStoreFloat3(&m_vRayPos, xmRayPos);
+	XMStoreFloat3(&m_vRayDir, xmRayDir);
 	RELEASE_INSTANCE(CPipeLine);
 }
 
@@ -72,8 +76,10 @@ void CPicking::Compute_LocalRayInfo(_float3 * pRayDir, _float3 * pRayPos, CTrans
 	_float4x4		WorldMatrixInv;
 	XMStoreFloat4x4(&WorldMatrixInv, pTransform->Get_WorldMatrixInverse());
 
-	XMVector3TransformCoord(XMLoadFloat3(&*pRayPos), XMLoadFloat4x4(&WorldMatrixInv));
-	XMVector3TransformNormal(XMLoadFloat3(&*pRayDir), XMLoadFloat4x4(&WorldMatrixInv));
+	XMStoreFloat3(&*pRayPos, XMVector3TransformCoord(XMLoadFloat3(&m_vRayPos), XMLoadFloat4x4(&WorldMatrixInv)));
+	XMVECTOR Temp = XMVector3TransformNormal(XMLoadFloat3(&m_vRayDir), XMLoadFloat4x4(&WorldMatrixInv));
+	XMStoreFloat3(&*pRayPos, XMLoadFloat3(&m_vRayPos));
+	XMStoreFloat3(&*pRayDir, XMLoadFloat3(&m_vRayDir));
 }
 
 void CPicking::Free()
