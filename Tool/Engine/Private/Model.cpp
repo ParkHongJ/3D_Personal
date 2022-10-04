@@ -570,7 +570,7 @@ HRESULT CModel::Initialize(void * pArg)
 
 	m_Animations = Animations;
 
-	SaveFBXToBinary();
+	//SaveFBXToBinary();
 	return S_OK;
 }
 

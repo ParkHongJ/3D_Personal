@@ -4,7 +4,7 @@
 #include "HierarchyNode.h"
 #include "Animation.h"
 #include "Shader.h"
-
+#include <chrono>
 
 CModel::CModel(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CComponent(pDevice, pContext)
@@ -87,6 +87,7 @@ _uint CModel::GetAnimSize()
 
 HRESULT CModel::LoadBinary()
 {
+	chrono::system_clock::time_point start = chrono::system_clock::now();
 	HANDLE		hFile = CreateFile(L"../Bin/Resources/Meshes/Fiona/LEVEL_8.txt", GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 
 	if (INVALID_HANDLE_VALUE == hFile)
@@ -275,6 +276,7 @@ HRESULT CModel::LoadBinary()
 	}
 
 	CloseHandle(hFile);
+	std::chrono::duration<double>sec = std::chrono::system_clock::now() - start;
 	return S_OK;
 }
 
@@ -304,33 +306,7 @@ HRESULT CModel::Initialize_Prototype(TYPE eType, const char * pModelFilePath, co
 	LoadBinary();
 	XMStoreFloat4x4(&m_PivotMatrix, PivotMatrix);
 
-	char		szFullPath[MAX_PATH] = "";
-
-	strcpy_s(szFullPath, pModelFilePath);
-	strcat_s(szFullPath, pModelFileName);
-
-	_uint		iFlag = 0;
-
 	m_eModelType = eType;
-
-	if (TYPE_NONANIM == eType)
-		iFlag |= aiProcess_PreTransformVertices | aiProcess_ConvertToLeftHanded | aiProcess_CalcTangentSpace;
-	else
-		iFlag |= aiProcess_ConvertToLeftHanded | aiProcess_CalcTangentSpace;
-
-	//m_pAIScene = m_Importer.ReadFile(szFullPath, iFlag);
-
-	//m_TempScene = new TEMPSCENE;
-
-	/*if (nullptr == m_pAIScene)
-		return E_FAIL;*/
-
-	/*Ready_HierarchyNodes(m_pAIScene->mRootNode, nullptr, 0);
-
-	sort(m_HierarchyNodes.begin(), m_HierarchyNodes.end(), [](CHierarchyNode* pSour, CHierarchyNode* pDest) 
-	{	
-		return pSour->Get_Depth() < pDest->Get_Depth();
-	});*/
 
 	/* 모델을 구성하는 메시들을 만든다. */
 	if (FAILED(Ready_MeshContainers(PivotMatrix)))
@@ -547,7 +523,6 @@ void CModel::Free()
 {
 	__super::Free();
 
-//	delete m_TempScene;
 
 	for (auto& pHierarchyNode : m_HierarchyNodes)
 		Safe_Release(pHierarchyNode);

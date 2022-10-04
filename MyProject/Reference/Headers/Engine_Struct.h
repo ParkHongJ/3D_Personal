@@ -157,7 +157,7 @@ namespace Engine
 		XMFLOAT4X4 mOffsetMatrix;
 		~Bone()
 		{
-			delete[] mWeights;
+			delete mWeights;
 		}
 	}BONE;
 
@@ -184,14 +184,13 @@ namespace Engine
 		XMFLOAT3* mVertices;
 		XMFLOAT3* mNormals;
 		XMFLOAT3* mTangents;
-
 		XMFLOAT3* mTextureCoords[0x8];
+
 		Bone** mBones;
 		Face* mFaces;
 
 		~Mesh()
 		{
-
 			delete[] mVertices;
 			delete[] mNormals;
 			delete[] mTangents;
@@ -202,9 +201,9 @@ namespace Engine
 			
 			for (unsigned int i = 0; i < mNumBones; ++i)
 			{
-				delete mBones[i];
+				delete[] mBones[i];
 			}
-			delete[] mBones;
+			delete mBones;
 
 
 			delete[] mFaces;
@@ -266,11 +265,11 @@ namespace Engine
 		XMFLOAT4X4 mTransformation;
 
 		~Node() {
-			for (unsigned int i = 0; i < mNumChildren; ++i)
+			/*for (unsigned int i = 0; i < mNumChildren; ++i)
 			{
-				delete mChildren[i];
+				delete[] mChildren[i];
 			}
-			delete[] mChildren;
+			delete mChildren;*/
 		}
 		
 		
@@ -290,14 +289,19 @@ namespace Engine
 		ANIMATION** mAnimations;
 		std::list<Material*> mMaterials;
 		
+		//void DeleteNode(Node* pNode)
+		//{
+		//	/*delete pNode;
+		//	for (unsigned int i = 0; i < pNode->mNumChildren; ++i)
+		//	{
+		//		DeleteNode(pNode->mChildren[i]);
+		//	}*/
+		//}
 		void Free()
 		{
-			delete mRootNode;
-			for (unsigned int i = 0; i < mNumMeshes; ++i)
-			{
-				delete &mMesh[i];
-			}
-			
+			//delete mRootNode;
+			/*delete[] mMesh;
+
 
 			for (auto& iter : mMaterials)
 			{
@@ -313,7 +317,7 @@ namespace Engine
 					delete[] mAnimations[i];
 				}
 				delete[] mAnimations;
-			}
+			}*/
 			
 		}
 

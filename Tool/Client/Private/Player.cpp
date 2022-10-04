@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "..\Public\Player.h"
 #include "GameInstance.h"
+#include "HierarchyNode.h"
 
 CPlayer::CPlayer(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
@@ -21,7 +22,13 @@ HRESULT CPlayer::Initialize(void * pArg)
 {
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
+	if (FAILED(Ready_Sockets()))
+		return E_FAIL;
 
+	if (FAILED(Ready_PlayerParts()))
+		return E_FAIL;
+	
+	RELEASE_INSTANCE(CGameInstance);
 	m_pModelCom->Set_AnimIndex(13);
 
 	m_pTransformCom->Set_Scale(XMVectorSet(0.01f, 0.01f, 0.01f, 1.f));
@@ -95,6 +102,10 @@ void CPlayer::Tick(_float fTimeDelta)
 			break;
 		}
 	}*/
+	Update_Weapon();
+
+	for (auto& pPart : m_Parts)
+		pPart->Tick(fTimeDelta);
 }
 
 void CPlayer::LateTick(_float fTimeDelta)
@@ -104,6 +115,13 @@ void CPlayer::LateTick(_float fTimeDelta)
 
 	
 	m_pModelCom->Play_Animation(fTimeDelta);
+
+	for (auto& pPart : m_Parts)
+		pPart->LateTick(fTimeDelta);
+
+
+	for (auto& pPart : m_Parts)
+		m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, pPart);
 
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
 }
@@ -161,6 +179,55 @@ HRESULT CPlayer::Ready_Components()
 	/* For.Com_Model */
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Fiona"), TEXT("Com_Model"), (CComponent**)&m_pModelCom)))
 		return E_FAIL;
+
+	return S_OK;
+}
+
+HRESULT CPlayer::Ready_Sockets()
+{
+	if (nullptr == m_pModelCom)
+		return E_FAIL;
+
+	CHierarchyNode*		pWeaponSocket = m_pModelCom->Get_HierarchyNode("Bone_sword");
+	if (nullptr == pWeaponSocket)
+		return E_FAIL;
+
+	m_Sockets.push_back(pWeaponSocket);
+
+	return S_OK;
+}
+
+HRESULT CPlayer::Ready_PlayerParts()
+{
+	CGameInstance*		pGameInstance = GET_INSTANCE(CGameInstance);
+
+	/* For.Sword */
+	CGameObject*		pGameObject = pGameInstance->Clone_GameObject(TEXT("Prototype_GameObject_Sword"));
+
+	if (nullptr == pGameObject)
+		return E_FAIL;
+
+	m_Parts.push_back(pGameObject);
+
+	return S_OK;
+}
+
+HRESULT CPlayer::Update_Weapon()
+{
+	if (nullptr == m_Sockets[PART_WEAPON])
+		return E_FAIL;
+
+	/* 행렬. */
+	/*_matrix			WeaponMatrix = 뼈의 스페이스 변환(OffsetMatrix)
+	* 뼈의 행렬(CombinedTransformation)
+	* 모델의 PivotMatrix * 프렐이어의월드행렬. ;*/
+
+	_matrix WeaponMatrix = /*m_Sockets[PART_WEAPON]->Get_OffSetMatrix()
+						   **/ m_Sockets[PART_WEAPON]->Get_CombinedTransformation()
+		* m_pModelCom->Get_PivotMatrix()
+		* m_pTransformCom->Get_WorldMatrix();
+
+	m_Parts[PART_WEAPON]->SetUp_State(WeaponMatrix);
 
 	return S_OK;
 }

@@ -46,6 +46,9 @@
     <Filter Include="02.GameObjects\Monster">
       <UniqueIdentifier>{9f9aa060-c1d1-4c0c-9337-85dfe2c8a63d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\Sword">
+      <UniqueIdentifier>{cb933e91-a637-44ea-8a84-8421cb84908f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -96,6 +99,9 @@
     <ClInclude Include="..\Public\Monster.h">
       <Filter>02.GameObjects\Monster</Filter>
     </ClInclude>
+    <ClInclude Include="..\Public\Sword.h">
+      <Filter>02.GameObjects\Sword</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -133,6 +139,9 @@
     </ClCompile>
     <ClCompile Include="..\Private\Monster.cpp">
       <Filter>02.GameObjects\Monster</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Sword.cpp">
+      <Filter>02.GameObjects\Sword</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

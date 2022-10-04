@@ -29,6 +29,9 @@ public:
 	void Set_AnimIndex(_uint iAnimIndex) {
 		m_iCurrentAnimIndex = iAnimIndex;
 	}
+	_matrix Get_PivotMatrix() {
+		return XMLoadFloat4x4(&m_PivotMatrix);
+	}
 	void Change_Animation(_uint iAnimIndex);
 	_uint Get_AnimBoneSize(_uint iAnimIndex);
 	void TempFunc(_uint iAnimIndex, _uint iNextAnimIndex);

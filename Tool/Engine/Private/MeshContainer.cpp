@@ -161,6 +161,15 @@ HRESULT CMeshContainer::Ready_Vertices(const aiMesh* pAIMesh, _fmatrix PivotMatr
 	VTXMODEL*		pVertices = new VTXMODEL[m_iNumVertices];
 	ZeroMemory(pVertices, sizeof(VTXMODEL) * m_iNumVertices);
 
+	pMesh->mVertices = new XMFLOAT3[m_iNumVertices];
+	pMesh->mNormals = new XMFLOAT3[m_iNumVertices];
+	*pMesh->mTextureCoords = new XMFLOAT3[m_iNumVertices];
+	pMesh->mTangents = new XMFLOAT3[m_iNumVertices];
+
+	memset(pMesh->mVertices, 0, sizeof(XMFLOAT3) * m_iNumVertices);
+	memset(pMesh->mNormals, 0, sizeof(XMFLOAT3) * m_iNumVertices);
+	memset(*pMesh->mTextureCoords, 0, sizeof(XMFLOAT3) * m_iNumVertices);
+	memset(pMesh->mTangents, 0, sizeof(XMFLOAT3) * m_iNumVertices);
 	for (_uint i = 0; i < m_iNumVertices; ++i)
 	{
 		memcpy(&pVertices[i].vPosition, &pAIMesh->mVertices[i], sizeof(_float3));

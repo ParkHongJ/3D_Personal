@@ -9,6 +9,7 @@ class CTexture;
 class CRenderer;
 class CTransform;
 class CModel;
+class CHierarchyNode;
 END
 
 BEGIN(Client)
@@ -16,6 +17,8 @@ BEGIN(Client)
 class CPlayer final : public CGameObject
 {
 private:
+public:
+	enum PARTTYPE { PART_WEAPON, PART_END };
 	enum STATE_PLAYER { STATE_IDLE, STATE_WALK, STATE_RUN, STATE_ATTACK, STATE_JUMP, STATE_END };
 	CPlayer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	CPlayer(const CPlayer& rhs);
@@ -28,6 +31,12 @@ public:
 	virtual void LateTick(_float fTimeDelta);
 	virtual HRESULT Render();
 
+
+private:
+	vector<CGameObject*>				m_Parts;
+	typedef vector<CGameObject*>		PARTS;
+
+	vector<class CHierarchyNode*>		m_Sockets;
 private:
 	CShader*				m_pShaderCom = nullptr;
 
@@ -43,6 +52,11 @@ private:
 	_uint i = 0;
 private:
 	HRESULT Ready_Components();
+
+	HRESULT Ready_Sockets();
+	HRESULT Ready_PlayerParts();
+
+	HRESULT Update_Weapon();
 public:
 	_bool Key_Down(_uchar KeyInput);
 	_bool Key_Pressing(_uchar KeyInput);

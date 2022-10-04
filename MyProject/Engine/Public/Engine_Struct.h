@@ -157,7 +157,7 @@ namespace Engine
 		XMFLOAT4X4 mOffsetMatrix;
 		~Bone()
 		{
-			delete[] mWeights;
+			delete mWeights;
 		}
 	}BONE;
 
@@ -201,9 +201,9 @@ namespace Engine
 			
 			for (unsigned int i = 0; i < mNumBones; ++i)
 			{
-				delete mBones[i];
+				delete[] mBones[i];
 			}
-			delete[] mBones;
+			delete mBones;
 
 
 			delete[] mFaces;
@@ -267,9 +267,9 @@ namespace Engine
 		~Node() {
 			for (unsigned int i = 0; i < mNumChildren; ++i)
 			{
-				delete mChildren[i];
+				delete[] mChildren[i];
 			}
-			delete[] mChildren;
+			delete mChildren;
 		}
 		
 		
@@ -289,14 +289,19 @@ namespace Engine
 		ANIMATION** mAnimations;
 		std::list<Material*> mMaterials;
 		
+		//void DeleteNode(Node* pNode)
+		//{
+		//	/*delete pNode;
+		//	for (unsigned int i = 0; i < pNode->mNumChildren; ++i)
+		//	{
+		//		DeleteNode(pNode->mChildren[i]);
+		//	}*/
+		//}
 		void Free()
 		{
 			delete mRootNode;
-			for (unsigned int i = 0; i < mNumMeshes; ++i)
-			{
-				delete &mMesh[i];
-			}
-			
+			/*delete[] mMesh;
+
 
 			for (auto& iter : mMaterials)
 			{
@@ -312,7 +317,7 @@ namespace Engine
 					delete[] mAnimations[i];
 				}
 				delete[] mAnimations;
-			}
+			}*/
 			
 		}
 
