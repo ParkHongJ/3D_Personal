@@ -53,12 +53,14 @@ HRESULT CMeshContainer::Initialize_Prototype(CModel::TYPE eModelType, CModel* pM
 	FACEINDICES32*		pIndices = new FACEINDICES32[m_iNumPrimitives];
 	ZeroMemory(pIndices, sizeof(FACEINDICES32) * m_iNumPrimitives);
 
-	for (_uint i = 0; i < m_iNumPrimitives; ++i)
+	memcpy(pIndices, pMesh->mFaces.data(), sizeof(FACEINDICES32) * pMesh->mFaces.size());
+	//copy(pMesh->mFaces.begin(), pMesh->mFaces.end(), pIndices);
+	/*for (_uint i = 0; i < m_iNumPrimitives; ++i)
 	{
 		pIndices[i]._0 = pMesh->mFaces[i].mIndices[0];
 		pIndices[i]._1 = pMesh->mFaces[i].mIndices[1];
 		pIndices[i]._2 = pMesh->mFaces[i].mIndices[2];
-	}
+	}*/
 
 
 	ZeroMemory(&m_SubResourceData, sizeof(D3D11_SUBRESOURCE_DATA));
@@ -86,7 +88,7 @@ HRESULT CMeshContainer::SetUp_HierarchyNodes(CModel * pModel,Mesh* pMesh)
 	/* 현재 메시에 영향ㅇ르 ㅈ2ㅜ는 뼈들을 순회한다ㅏ. */
 	for (_uint i = 0; i < m_iNumBones; ++i)
 	{
-		Bone*		pBone = pMesh->mBones[i];
+		Bone*		pBone = &pMesh->mBones[i];
 		CHierarchyNode*		pHierarchyNode = pModel->Get_HierarchyNode(pBone->mName);
 
 		_float4x4			OffsetMatrix;
@@ -149,7 +151,11 @@ HRESULT CMeshContainer::Ready_Vertices(_fmatrix PivotMatrix, Mesh* pMesh)
 	VTXMODEL*		pVertices = new VTXMODEL[m_iNumVertices];
 	ZeroMemory(pVertices, sizeof(VTXMODEL) * m_iNumVertices);
 
-	for (_uint i = 0; i < m_iNumVertices; ++i)
+	memcpy(pVertices, pMesh->mVertices.data(), sizeof(VTXMODEL) * m_iNumVertices);
+
+	//memcpy(pIndices, pMesh->mFaces.data(), sizeof(FACEINDICES32) * pMesh->mFaces.size());
+	//copy(pMesh->mVertices.begin(), pMesh->mVertices.end(), &pVertices);
+	/*for (_uint i = 0; i < m_iNumVertices; ++i)
 	{
 		memcpy(&pVertices[i].vPosition, &pMesh->mVertices[i], sizeof(_float3));
 				
@@ -163,7 +169,7 @@ HRESULT CMeshContainer::Ready_Vertices(_fmatrix PivotMatrix, Mesh* pMesh)
 
 		memcpy(&pVertices[i].vTexture, &pMesh->mTextureCoords[0][i], sizeof(_float2));
 		memcpy(&pVertices[i].vTangent, &pMesh->mTangents[i], sizeof(_float3));
-	}
+	}*/
 
 	ZeroMemory(&m_SubResourceData, sizeof(D3D11_SUBRESOURCE_DATA));
 	m_SubResourceData.pSysMem = pVertices;
@@ -195,19 +201,20 @@ HRESULT CMeshContainer::Ready_AnimVertices(CModel* pModel, Mesh* pMesh)
 	ZeroMemory(pVertices, sizeof(VTXANIMMODEL) * m_iNumVertices);
 	
 
+	
 	for (_uint i = 0; i < m_iNumVertices; ++i)
 	{
-		memcpy(&pVertices[i].vPosition, &pMesh->mVertices[i], sizeof(_float3));
-		memcpy(&pVertices[i].vNormal, &pMesh->mNormals[i], sizeof(_float3));
-		memcpy(&pVertices[i].vTexture, &pMesh->mTextureCoords[0][i], sizeof(_float2));
-		memcpy(&pVertices[i].vTangent, &pMesh->mTangents[i], sizeof(_float3));
+		memcpy(&pVertices[i].vPosition, &pMesh->mVertices[i].mVertices, sizeof(_float3));
+		memcpy(&pVertices[i].vNormal, &pMesh->mVertices[i].mNormals, sizeof(_float3));
+		memcpy(&pVertices[i].vTexture, &pMesh->mVertices[i].mTextureCoords, sizeof(_float2));
+		memcpy(&pVertices[i].vTangent, &pMesh->mVertices[i].mTangents, sizeof(_float3));
 	}
 
 	
 	/* 현재 메시에 영향ㅇ르 ㅈ2ㅜ는 뼈들을 순회한다ㅏ. */
 	for (_uint i = 0; i < pMesh->mNumBones; ++i)
 	{
-		Bone*		pBone = pMesh->mBones[i];
+		Bone*		pBone = &pMesh->mBones[i];
 
 		/* i번째 뼈가 어떤 정점들에게 영향ㅇ르 주는지 순회한다. */
 		for (_uint j = 0; j < pBone->mNumWeights; ++j)

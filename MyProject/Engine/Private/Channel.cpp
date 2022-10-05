@@ -23,15 +23,17 @@ HRESULT CChannel::Initialize(NodeAnim* pNodeAnim)
 
 	/* 키프레임 정보들를 로드한다. */
 	/* 키프레임 : 전체애니메이션 동작 중, 특정 시간대에 이뼈가 표현해야할 동작의 상태 행렬정보이다. */
+	m_iNumKeyFrames = pNodeAnim->mNumKeyFrames;
+	m_KeyFrames.reserve(m_iNumKeyFrames);
+	copy(pNodeAnim->mKeyFrames.begin(), pNodeAnim->mKeyFrames.end(), back_inserter(m_KeyFrames));
+	//m_iNumKeyFrames = max(pNodeAnim->mNumScalingKeys, pNodeAnim->mNumRotationKeys);
+	//m_iNumKeyFrames = max(m_iNumKeyFrames, pNodeAnim->mNumPositionKeys);
 
-	m_iNumKeyFrames = max(pNodeAnim->mNumScalingKeys, pNodeAnim->mNumRotationKeys);
-	m_iNumKeyFrames = max(m_iNumKeyFrames, pNodeAnim->mNumPositionKeys);
-
-	_float3			vScale;
+	/*_float3			vScale;
 	_float4			vRotation;
-	_float3			vPosition;
+	_float3			vPosition;*/
 	
-	for (_uint i = 0; i < m_iNumKeyFrames; ++i)
+	/*for (_uint i = 0; i < m_iNumKeyFrames; ++i)
 	{
 		KEYFRAME			KeyFrame;
 		ZeroMemory(&KeyFrame, sizeof(KEYFRAME));
@@ -60,7 +62,7 @@ HRESULT CChannel::Initialize(NodeAnim* pNodeAnim)
 		KeyFrame.vPosition = vPosition;
 
 		m_KeyFrames.push_back(KeyFrame);
-	}	
+	}*/
 
 	return S_OK;
 }

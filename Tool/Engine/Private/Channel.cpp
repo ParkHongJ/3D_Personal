@@ -23,15 +23,15 @@ HRESULT CChannel::Initialize(aiNodeAnim * pAIChannel, NodeAnim* pNodeAnim)
 
 	/* 키프레임 정보들를 로드한다. */
 	/* 키프레임 : 전체애니메이션 동작 중, 특정 시간대에 이뼈가 표현해야할 동작의 상태 행렬정보이다. */
-	pNodeAnim->mNumPositionKeys = pAIChannel->mNumPositionKeys;
+	/*pNodeAnim->mNumPositionKeys = pAIChannel->mNumPositionKeys;
 	pNodeAnim->mNumRotationKeys = pAIChannel->mNumRotationKeys;
 	pNodeAnim->mNumScalingKeys = pAIChannel->mNumScalingKeys;
 
 	pNodeAnim->mPositionKeys = new VECTORKEY[pNodeAnim->mNumPositionKeys];
 	pNodeAnim->mRotationKeys = new QuatKey[pNodeAnim->mNumRotationKeys];
-	pNodeAnim->mScalingKeys = new VECTORKEY[pNodeAnim->mNumScalingKeys];
+	pNodeAnim->mScalingKeys = new VECTORKEY[pNodeAnim->mNumScalingKeys];*/
 
-	for (_uint i = 0; i < pNodeAnim->mNumPositionKeys; ++i)
+	/*for (_uint i = 0; i < pNodeAnim->mNumPositionKeys; ++i)
 	{
 		pNodeAnim->mPositionKeys[i].mTime = pAIChannel->mPositionKeys[i].mTime;
 		memcpy(&pNodeAnim->mPositionKeys[i].mValue, &pAIChannel->mPositionKeys[i].mValue, sizeof(_float3));
@@ -48,11 +48,12 @@ HRESULT CChannel::Initialize(aiNodeAnim * pAIChannel, NodeAnim* pNodeAnim)
 	{
 		pNodeAnim->mScalingKeys[i].mTime = pAIChannel->mScalingKeys[i].mTime;
 		memcpy(&pNodeAnim->mScalingKeys[i].mValue, &pAIChannel->mScalingKeys[i].mValue, sizeof(_float3));
-	}
+	}*/
 
 	m_iNumKeyFrames = max(pAIChannel->mNumScalingKeys, pAIChannel->mNumRotationKeys);
 	m_iNumKeyFrames = max(m_iNumKeyFrames, pAIChannel->mNumPositionKeys);
-
+	pNodeAnim->mNumKeyFrames = m_iNumKeyFrames;
+	pNodeAnim->mKeyFrames.reserve(m_iNumKeyFrames);
 	_float3			vScale;
 	_float4			vRotation;
 	_float3			vPosition;
@@ -86,6 +87,7 @@ HRESULT CChannel::Initialize(aiNodeAnim * pAIChannel, NodeAnim* pNodeAnim)
 		KeyFrame.vPosition = vPosition;
 
 		m_KeyFrames.push_back(KeyFrame);
+		pNodeAnim->mKeyFrames.push_back(KeyFrame);
 	}	
 
 	return S_OK;

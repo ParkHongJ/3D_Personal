@@ -171,6 +171,7 @@ namespace Engine
 		unsigned int mNumFaces;
 		unsigned int mNumBones;
 		std::vector<VerticesInfo> mVertices;
+		//std::vector<VTXANIMMODEL> mAnimVertices;
 		std::vector<FACEINDICES32> mFaces;
 		std::vector<Bone> mBones;
 		//Bone** mBones;
@@ -190,12 +191,14 @@ namespace Engine
 
 	typedef struct NodeAnim {
 		char mNodeName[MAX_PATH] = "";
-		unsigned int mNumScalingKeys;
+		/*unsigned int mNumScalingKeys;
 		unsigned int mNumRotationKeys;
-		unsigned int mNumPositionKeys;
-		VectorKey* mScalingKeys;
+		unsigned int mNumPositionKeys;*/
+		unsigned int mNumKeyFrames;
+		std::vector<KEYFRAME> mKeyFrames;
+		/*VectorKey* mScalingKeys;
 		QuatKey* mRotationKeys;
-		VectorKey* mPositionKeys;
+		VectorKey* mPositionKeys;*/
 	}NodeAnim;
 
 	typedef struct Animation {
@@ -203,14 +206,16 @@ namespace Engine
 		float mDuration;
 		float mTickPerSecond;
 		unsigned int mNumChannels;
-		NodeAnim** mChannels;
+		//NodeAnim** mChannels;
+		std::vector<NodeAnim> mChannels;
 	}ANIMATION;
 
 	typedef struct Node {
 		char mName[MAX_PATH] = "";
 		unsigned int mNumChildren;
-		Node* mParent;
-		Node** mChildren;
+		//Node* mParent;
+		//Node** mChildren;
+		std::vector<Node> mChildren;
 		XMFLOAT4X4 mTransformation;
 	}NODE;
 
@@ -223,8 +228,9 @@ namespace Engine
 		unsigned int mNumMeshes;
 		unsigned int mNumMaterials;
 		unsigned int mNumAnimations;
-		Node* mRootNode;
-		ANIMATION** mAnimations;
+		NODE mRootNode;
+		//ANIMATION** mAnimations;
+		std::vector<ANIMATION> mAnimations;
 		std::list<Material*> mMaterials;
 		std::vector<Mesh> mMesh;
 	}TEMPSCENE;
@@ -233,151 +239,3 @@ namespace Engine
 
 	}MYTEST;
 }
-
-
-//HANDLE		hFile = CreateFile(L"../Bin/Resources/Meshes/Fiona/LEVEL_8.txt", GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
-//
-//	if (INVALID_HANDLE_VALUE == hFile)
-//		return E_FAIL;
-//
-//	//읽은 바이트 
-//	DWORD	dwByte = 0;
-//	DWORD	dwStrByte = 0;
-//
-//	WriteFile(hFile, &m_TempScene->mNumMeshes, sizeof(_uint), &dwByte, nullptr);
-//	WriteFile(hFile, &m_TempScene->mNumMaterials, sizeof(_uint), &dwByte, nullptr);
-//	WriteFile(hFile, &m_TempScene->mNumAnimations, sizeof(_uint), &dwByte, nullptr);
-//
-//	//Mesh저장
-//	for (_uint i = 0; i < m_TempScene->mNumMeshes; ++i)
-//	{
-//		Mesh* pMesh = &m_TempScene->mMesh[i];
-//		//이름저장
-//		dwStrByte = DWORD(sizeof(char) * strlen(pMesh->mName));
-//		WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
-//		WriteFile(hFile, &pMesh->mName, dwStrByte, &dwByte, nullptr);
-//
-//		WriteFile(hFile, &pMesh->mMaterialIndex, sizeof(_uint), &dwByte, nullptr);
-//		WriteFile(hFile, &pMesh->mNumVertices, sizeof(_uint), &dwByte, nullptr);
-//		WriteFile(hFile, &pMesh->mNumFaces, sizeof(_uint), &dwByte, nullptr);
-//		WriteFile(hFile, &pMesh->mNumBones, sizeof(_uint), &dwByte, nullptr);
-//
-//		//Vertices저장
-//		for (_uint j = 0; j < pMesh->mNumVertices; ++j)
-//		{
-//			WriteFile(hFile, &pMesh->mVertices[j], sizeof(XMFLOAT3), &dwByte, nullptr);
-//			WriteFile(hFile, &pMesh->mNormals[j], sizeof(XMFLOAT3), &dwByte, nullptr);
-//			WriteFile(hFile, &pMesh->mTangents[j], sizeof(XMFLOAT3), &dwByte, nullptr);
-//		}
-//
-//		//TextureCoord저장
-//		for (_uint j = 0; j < 8; ++j)
-//		{
-//			WriteFile(hFile, &pMesh->mTextureCoords[0][j], sizeof(XMFLOAT3), &dwByte, nullptr);
-//		}
-//		
-//		//Bone저장
-//		for (_uint j = 0; j < pMesh->mNumBones; ++j)
-//		{
-//			Bone* pBone = pMesh->mBones[j];
-//			
-//			//BoneName저장
-//			dwStrByte = DWORD(sizeof(char) * strlen(pBone->mName));
-//			WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
-//			WriteFile(hFile, &pBone->mName, dwStrByte, &dwByte, nullptr);
-//
-//			//OffsetMatrix저장
-//			WriteFile(hFile, &pBone->mOffsetMatrix, sizeof(XMFLOAT4X4), &dwByte, nullptr);
-
-			//NumWeights저장
-//			WriteFile(hFile, &pBone->mNumWeights, sizeof(_uint), &dwByte, nullptr);//			
-
-//			for (_uint k = 0; k < pBone->mNumWeights; ++k)
-//			{
-//				//VertexWeight저장
-//				WriteFile(hFile, &pBone->mWeights[k].mVertexId, sizeof(_uint), &dwByte, nullptr);
-//				WriteFile(hFile, &pBone->mWeights[k].mWeight, sizeof(_float), &dwByte, nullptr);
-//			}
-//		}
-//
-//		//Face저장
-//		for (_uint j = 0; j < pMesh->mNumFaces; ++j)
-//		{
-//			WriteFile(hFile, &pMesh->mFaces[j].mIndices[0], sizeof(_uint), &dwByte, nullptr);
-//			WriteFile(hFile, &pMesh->mFaces[j].mIndices[1], sizeof(_uint), &dwByte, nullptr);
-//			WriteFile(hFile, &pMesh->mFaces[j].mIndices[2], sizeof(_uint), &dwByte, nullptr);
-//		}
-//	}
-//
-//	//Material저장
-//	for (_uint i = 0; i < m_TempScene->mNumMaterials; ++i)
-//	{
-//		//Texture경로 저장
-//		Material* pMaterial = m_TempScene->mMaterials.front();
-//		dwStrByte = DWORD(sizeof(_tchar) * wcslen(pMaterial->mName));
-//		WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
-//		WriteFile(hFile, &pMaterial->mName, dwStrByte, &dwByte, nullptr);
-//
-//		WriteFile(hFile, &pMaterial->TextureType, sizeof(_uint), &dwByte, nullptr);
-//		
-//		Safe_Delete(m_TempScene->mMaterials.front());
-//		m_TempScene->mMaterials.pop_front();
-//	}
-//
-//	//Aniamtion저장
-//	for (_uint i = 0; i < m_TempScene->mNumAnimations; ++i)
-//	{
-//		Animation* pAnimation = m_TempScene->mAnimations[i];
-//
-//		//AnimationName저장
-//		dwStrByte = DWORD(sizeof(char) * strlen(pAnimation->mName));
-//		WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
-//		WriteFile(hFile, &pAnimation->mName, dwStrByte, &dwByte, nullptr);
-//
-//		//Animation정보저장
-//		WriteFile(hFile, &pAnimation->mDuration, sizeof(_float), &dwByte, nullptr);
-//		WriteFile(hFile, &pAnimation->mTickPerSecond, sizeof(_float), &dwByte, nullptr);
-//		WriteFile(hFile, &pAnimation->mNumChannels, sizeof(_uint), &dwByte, nullptr);
-//
-//		for (_uint j = 0; j < pAnimation->mNumChannels; ++j)
-//		{
-//			NodeAnim*	pNodeAnim = pAnimation->mChannels[j];
-//
-//			//NodeName저장
-//			dwStrByte = DWORD(sizeof(char) * strlen(pNodeAnim->mNodeName));
-//			WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
-//			WriteFile(hFile, &pNodeAnim->mNodeName, dwStrByte, &dwByte, nullptr);
-//
-//			//NumPosition저장
-//			WriteFile(hFile, &pNodeAnim->mNumPositionKeys, sizeof(_uint), &dwByte, nullptr);
-//
-//			//PositionKey저장
-//			for (_uint k = 0; k < pNodeAnim->mNumPositionKeys; ++k)
-//			{
-//				WriteFile(hFile, &pNodeAnim->mPositionKeys[k].mTime, sizeof(_double), &dwByte, nullptr);
-//				WriteFile(hFile, &pNodeAnim->mPositionKeys[k].mValue, sizeof(XMFLOAT3), &dwByte, nullptr);
-//			}
-//
-//			//NumRotation저장
-//			WriteFile(hFile, &pNodeAnim->mNumRotationKeys, sizeof(_uint), &dwByte, nullptr);
-//
-//			//RotationKey저장
-//			for (_uint k = 0; k < pNodeAnim->mNumRotationKeys; ++k)
-//			{
-//				WriteFile(hFile, &pNodeAnim->mRotationKeys[k].mTime, sizeof(_double), &dwByte, nullptr);
-//				WriteFile(hFile, &pNodeAnim->mRotationKeys[k].mValue, sizeof(XMFLOAT4), &dwByte, nullptr);
-//			}
-//
-//			//NumScale저장
-//			WriteFile(hFile, &pNodeAnim->mNumScalingKeys, sizeof(_uint), &dwByte, nullptr);
-//			
-//			//ScalingKey저장
-//			for (_uint k = 0; k < pNodeAnim->mNumScalingKeys; ++k)
-//			{
-//				WriteFile(hFile, &pNodeAnim->mScalingKeys[k].mTime, sizeof(_double), &dwByte, nullptr);
-//				WriteFile(hFile, &pNodeAnim->mScalingKeys[k].mValue, sizeof(XMFLOAT3), &dwByte, nullptr);
-//			}
-//		}
-//	}
-//	CloseHandle(hFile);
-//	return S_OK;

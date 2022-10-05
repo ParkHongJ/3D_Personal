@@ -92,30 +92,27 @@ HRESULT CMeshContainer::Initialize(void * pArg)
 
 HRESULT CMeshContainer::SetUp_HierarchyNodes(CModel * pModel, aiMesh* pAIMesh, Mesh* pMesh)
 {
-	//m_iNumBones = pAIMesh->mNumBones;
+	m_iNumBones = pAIMesh->mNumBones;
+	/* 현재 메시에 영향ㅇ르 ㅈ2ㅜ는 뼈들을 순회한다ㅏ. */
+	for (_uint i = 0; i < m_iNumBones; ++i)
+	{
+		aiBone*		pAIBone = pAIMesh->mBones[i];
+		//Bone*		pBone = pMesh->mBones[i];
 
-	///* 현재 메시에 영향ㅇ르 ㅈ2ㅜ는 뼈들을 순회한다ㅏ. */
-	//for (_uint i = 0; i < m_iNumBones; ++i)
-	//{
-	//	aiBone*		pAIBone = pAIMesh->mBones[i];
-	//	//Bone*		pBone = pMesh->mBones[i];
-	//	Bone pBone;
-	//	ZeroMemory(&pBone, sizeof(Bone));
+		CHierarchyNode*		pHierarchyNode = pModel->Get_HierarchyNode(pAIBone->mName.data);
 
-	//	CHierarchyNode*		pHierarchyNode = pModel->Get_HierarchyNode(pAIBone->mName.data);
+		_float4x4			OffsetMatrix;
+		
+		memcpy(&pMesh->mBones[i].mOffsetMatrix, &pAIBone->mOffsetMatrix, sizeof(_float4x4));
 
-	//	_float4x4			OffsetMatrix;
-	//	
-	//	memcpy(&pBone->mOffsetMatrix, &pAIBone->mOffsetMatrix, sizeof(_float4x4));
+		memcpy(&OffsetMatrix, &pAIBone->mOffsetMatrix, sizeof(_float4x4));
 
-	//	memcpy(&OffsetMatrix, &pAIBone->mOffsetMatrix, sizeof(_float4x4));
+		pHierarchyNode->Set_OffsetMatrix(XMMatrixTranspose(XMLoadFloat4x4(&OffsetMatrix)));
 
-	//	pHierarchyNode->Set_OffsetMatrix(XMMatrixTranspose(XMLoadFloat4x4(&OffsetMatrix)));
+		m_Bones.push_back(pHierarchyNode);
 
-	//	m_Bones.push_back(pHierarchyNode);
-
-	//	Safe_AddRef(pHierarchyNode);
-	//}
+		Safe_AddRef(pHierarchyNode);
+	}
 
 	if (0 == m_iNumBones)
 	{
@@ -211,6 +208,7 @@ HRESULT CMeshContainer::Ready_AnimVertices(const aiMesh* pAIMesh, CModel* pModel
 	m_iNumVertexBuffers = 1;
 	m_iNumVertices = pAIMesh->mNumVertices;
 	pMesh->mNumVertices = pAIMesh->mNumVertices;
+	pMesh->mVertices.reserve(pMesh->mNumVertices);
 
 	m_iStride = sizeof(VTXANIMMODEL);
 
@@ -228,18 +226,18 @@ HRESULT CMeshContainer::Ready_AnimVertices(const aiMesh* pAIMesh, CModel* pModel
 
 	for (_uint i = 0; i < m_iNumVertices; ++i)
 	{
+		VerticesInfo vInfo;
+		ZeroMemory(&vInfo, sizeof(VerticesInfo));
 		memcpy(&pVertices[i].vPosition, &pAIMesh->mVertices[i], sizeof(_float3));
 		memcpy(&pVertices[i].vNormal, &pAIMesh->mNormals[i], sizeof(_float3));
 		memcpy(&pVertices[i].vTexture, &pAIMesh->mTextureCoords[0][i], sizeof(_float2));
 		memcpy(&pVertices[i].vTangent, &pAIMesh->mTangents[i], sizeof(_float3));
 
-		VerticesInfo tVertices;
-		ZeroMemory(&tVertices, sizeof(VerticesInfo));
-		memcpy(&tVertices.mNormals, &pAIMesh->mNormals[i], sizeof(_float3));
-		memcpy(&tVertices.mVertices, &pAIMesh->mVertices[i], sizeof(_float3));
-		memcpy(&tVertices.mTextureCoords, &pAIMesh->mTextureCoords[0][i], sizeof(_float2));
-		memcpy(&tVertices.mTangents, &pAIMesh->mTangents[i], sizeof(_float3));
-		pMesh->mVertices.push_back(tVertices);
+		memcpy(&vInfo.mVertices, &pAIMesh->mVertices[i], sizeof(_float3));
+		memcpy(&vInfo.mNormals, &pAIMesh->mNormals[i], sizeof(_float3));
+		memcpy(&vInfo.mTextureCoords, &pAIMesh->mTextureCoords[0][i], sizeof(_float2));
+		memcpy(&vInfo.mTangents, &pAIMesh->mTangents[i], sizeof(_float3));
+		pMesh->mVertices.push_back(vInfo);
 	}
 
 	pMesh->mNumBones = pAIMesh->mNumBones;
@@ -303,7 +301,7 @@ HRESULT CMeshContainer::Ready_AnimVertices(const aiMesh* pAIMesh, CModel* pModel
 		}
 		pMesh->mBones.push_back(pBone);
 	}
-	
+
 	ZeroMemory(&m_SubResourceData, sizeof(D3D11_SUBRESOURCE_DATA));
 	m_SubResourceData.pSysMem = pVertices;
 

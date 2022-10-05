@@ -153,64 +153,41 @@ namespace Engine
 	typedef struct Bone {
 		char mName[MAX_PATH] = "";
 		unsigned int mNumWeights;
-		VertexWeight* mWeights;
+		std::vector<VertexWeight> mWeights;
 		XMFLOAT4X4 mOffsetMatrix;
 		~Bone()
 		{
-			delete mWeights;
+			mWeights.clear();
+			std::vector<VertexWeight>().swap(mWeights);
 		}
 	}BONE;
 
-	typedef struct Face {
-		unsigned int* mIndices;
-		Face()
-		{
-			mIndices = new unsigned int[3];
-		}
-		~Face()
-		{
-			delete[] mIndices;
-		}
-	}FACE;
-
+	typedef struct VerticesInfo {
+		//mNumVertices만큼 갖고있음
+		XMFLOAT3 mVertices;
+		XMFLOAT3 mNormals;
+		XMFLOAT2 mTextureCoords;
+		XMFLOAT3 mTangents;
+	}VERTICESINFO;
 	typedef struct Mesh {
 		char mName[MAX_PATH] = "";
 		unsigned int mMaterialIndex;
 		unsigned int mNumVertices;
 		unsigned int mNumFaces;
 		unsigned int mNumBones;
-
-		//mNumVertices만큼 갖고있음
-		XMFLOAT3* mVertices;
-		XMFLOAT3* mNormals;
-		XMFLOAT3* mTangents;
-		XMFLOAT3* mTextureCoords[0x8];
-
-		Bone** mBones;
-		Face* mFaces;
-
+		std::vector<VerticesInfo> mVertices;
+		//std::vector<VTXANIMMODEL> mAnimVertices;
+		std::vector<FACEINDICES32> mFaces;
+		std::vector<Bone> mBones;
+		//Bone** mBones;
 		~Mesh()
 		{
-			delete[] mVertices;
-			delete[] mNormals;
-			delete[] mTangents;
-			delete[] mTextureCoords[0];
-			/*for (unsigned int i = 0; i < mNumVertices; ++i)
-			{
-			}*/
-			
-			for (unsigned int i = 0; i < mNumBones; ++i)
-			{
-				delete[] mBones[i];
-			}
-			delete mBones;
-
-
-			delete[] mFaces;
-			/*for (unsigned int i = 0; i < mNumFaces; ++i)
-			{
-				delete &mFaces[i];
-			}*/
+			mVertices.clear();
+			mFaces.clear();
+			mBones.clear();
+			std::vector<VerticesInfo>().swap(mVertices);
+			std::vector<FACEINDICES32>().swap(mFaces);
+			std::vector<Bone>().swap(mBones);
 		}
 	}MESH;
 
@@ -228,18 +205,18 @@ namespace Engine
 
 	typedef struct NodeAnim {
 		char mNodeName[MAX_PATH] = "";
-		unsigned int mNumScalingKeys;
+		/*unsigned int mNumScalingKeys;
 		unsigned int mNumRotationKeys;
-		unsigned int mNumPositionKeys;
-		VectorKey* mScalingKeys;
+		unsigned int mNumPositionKeys;*/
+		unsigned int mNumKeyFrames;
+		std::vector<KEYFRAME> mKeyFrames;
+		/*VectorKey* mScalingKeys;
 		QuatKey* mRotationKeys;
-		VectorKey* mPositionKeys;
-
+		VectorKey* mPositionKeys;*/
 		~NodeAnim()
 		{
-			delete[] mScalingKeys;
-			delete[] mRotationKeys;
-			delete[] mPositionKeys;
+			mKeyFrames.clear();
+			std::vector<KEYFRAME>().swap(mKeyFrames);
 		}
 	}NodeAnim;
 
@@ -248,31 +225,26 @@ namespace Engine
 		float mDuration;
 		float mTickPerSecond;
 		unsigned int mNumChannels;
-		NodeAnim** mChannels;
+		//NodeAnim** mChannels;
+		std::vector<NodeAnim> mChannels;
 		~Animation() {
-			for (unsigned int i = 0; i < mNumChannels; ++i)
-			{
-				delete[] & mChannels[i];
-			}
-			delete[] mChannels;
+			mChannels.clear();
+			std::vector<NodeAnim>().swap(mChannels);
 		}
 	}ANIMATION;
 
 	typedef struct Node {
 		char mName[MAX_PATH] = "";
 		unsigned int mNumChildren;
-		Node** mChildren;
+		//Node* mParent;
+		//Node** mChildren;
+		std::vector<Node> mChildren;
 		XMFLOAT4X4 mTransformation;
-
-		~Node() {
-			for (unsigned int i = 0; i < mNumChildren; ++i)
-			{
-				delete[] mChildren[i];
-			}
-			delete mChildren;
+		~Node()
+		{
+			mChildren.clear();
+			std::vector<Node>().swap(mChildren);
 		}
-		
-		
 	}NODE;
 
 	typedef struct Material {
@@ -284,216 +256,19 @@ namespace Engine
 		unsigned int mNumMeshes;
 		unsigned int mNumMaterials;
 		unsigned int mNumAnimations;
-		Node* mRootNode;
-		Mesh* mMesh;
-		ANIMATION** mAnimations;
-		std::list<Material*> mMaterials;
-		
-		//void DeleteNode(Node* pNode)
-		//{
-		//	/*delete pNode;
-		//	for (unsigned int i = 0; i < pNode->mNumChildren; ++i)
-		//	{
-		//		DeleteNode(pNode->mChildren[i]);
-		//	}*/
-		//}
-		void Free()
+		NODE mRootNode;
+		//ANIMATION** mAnimations;
+		std::vector<ANIMATION> mAnimations;
+		std::list<Material> mMaterials;
+		std::vector<Mesh> mMesh;
+		~TempScene()
 		{
-			delete mRootNode;
-			/*delete[] mMesh;
-
-
-			for (auto& iter : mMaterials)
-			{
-				delete iter;
-			}
+			mMesh.clear();
 			mMaterials.clear();
-
-
-			if (nullptr != mAnimations)
-			{
-				for (unsigned int i = 0; i < mNumAnimations; ++i)
-				{
-					delete[] mAnimations[i];
-				}
-				delete[] mAnimations;
-			}*/
-			
+			mAnimations.clear();
+			std::vector<Mesh>().swap(mMesh);
+			std::list<Material>().swap(mMaterials);
+			std::vector<ANIMATION>().swap(mAnimations);
 		}
-
-
-		unsigned int m_dwRefCnt = 0;
-
-		unsigned long Release()
-		{
-			if (0 == m_dwRefCnt)
-			{
-				int a = 10;
-
-				Free();
-
-				delete this;
-
-				return 0;
-			}
-			else
-				return m_dwRefCnt--;
-		}
-
-		unsigned long AddRef()
-		{
-			return ++m_dwRefCnt;
-		}
-
-		
-
 	}TEMPSCENE;
 }
-
-
-//HANDLE		hFile = CreateFile(L"../Bin/Resources/Meshes/Fiona/LEVEL_8.txt", GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
-//
-//	if (INVALID_HANDLE_VALUE == hFile)
-//		return E_FAIL;
-//
-//	//읽은 바이트 
-//	DWORD	dwByte = 0;
-//	DWORD	dwStrByte = 0;
-//
-//	WriteFile(hFile, &m_TempScene->mNumMeshes, sizeof(_uint), &dwByte, nullptr);
-//	WriteFile(hFile, &m_TempScene->mNumMaterials, sizeof(_uint), &dwByte, nullptr);
-//	WriteFile(hFile, &m_TempScene->mNumAnimations, sizeof(_uint), &dwByte, nullptr);
-//
-//	//Mesh저장
-//	for (_uint i = 0; i < m_TempScene->mNumMeshes; ++i)
-//	{
-//		Mesh* pMesh = &m_TempScene->mMesh[i];
-//		//이름저장
-//		dwStrByte = DWORD(sizeof(char) * strlen(pMesh->mName));
-//		WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
-//		WriteFile(hFile, &pMesh->mName, dwStrByte, &dwByte, nullptr);
-//
-//		WriteFile(hFile, &pMesh->mMaterialIndex, sizeof(_uint), &dwByte, nullptr);
-//		WriteFile(hFile, &pMesh->mNumVertices, sizeof(_uint), &dwByte, nullptr);
-//		WriteFile(hFile, &pMesh->mNumFaces, sizeof(_uint), &dwByte, nullptr);
-//		WriteFile(hFile, &pMesh->mNumBones, sizeof(_uint), &dwByte, nullptr);
-//
-//		//Vertices저장
-//		for (_uint j = 0; j < pMesh->mNumVertices; ++j)
-//		{
-//			WriteFile(hFile, &pMesh->mVertices[j], sizeof(XMFLOAT3), &dwByte, nullptr);
-//			WriteFile(hFile, &pMesh->mNormals[j], sizeof(XMFLOAT3), &dwByte, nullptr);
-//			WriteFile(hFile, &pMesh->mTangents[j], sizeof(XMFLOAT3), &dwByte, nullptr);
-//		}
-//
-//		//TextureCoord저장
-//		for (_uint j = 0; j < 8; ++j)
-//		{
-//			WriteFile(hFile, &pMesh->mTextureCoords[0][j], sizeof(XMFLOAT3), &dwByte, nullptr);
-//		}
-//		
-//		//Bone저장
-//		for (_uint j = 0; j < pMesh->mNumBones; ++j)
-//		{
-//			Bone* pBone = pMesh->mBones[j];
-//			
-//			//BoneName저장
-//			dwStrByte = DWORD(sizeof(char) * strlen(pBone->mName));
-//			WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
-//			WriteFile(hFile, &pBone->mName, dwStrByte, &dwByte, nullptr);
-//
-//			//OffsetMatrix저장
-//			WriteFile(hFile, &pBone->mOffsetMatrix, sizeof(XMFLOAT4X4), &dwByte, nullptr);
-
-			//NumWeights저장
-//			WriteFile(hFile, &pBone->mNumWeights, sizeof(_uint), &dwByte, nullptr);//			
-
-//			for (_uint k = 0; k < pBone->mNumWeights; ++k)
-//			{
-//				//VertexWeight저장
-//				WriteFile(hFile, &pBone->mWeights[k].mVertexId, sizeof(_uint), &dwByte, nullptr);
-//				WriteFile(hFile, &pBone->mWeights[k].mWeight, sizeof(_float), &dwByte, nullptr);
-//			}
-//		}
-//
-//		//Face저장
-//		for (_uint j = 0; j < pMesh->mNumFaces; ++j)
-//		{
-//			WriteFile(hFile, &pMesh->mFaces[j].mIndices[0], sizeof(_uint), &dwByte, nullptr);
-//			WriteFile(hFile, &pMesh->mFaces[j].mIndices[1], sizeof(_uint), &dwByte, nullptr);
-//			WriteFile(hFile, &pMesh->mFaces[j].mIndices[2], sizeof(_uint), &dwByte, nullptr);
-//		}
-//	}
-//
-//	//Material저장
-//	for (_uint i = 0; i < m_TempScene->mNumMaterials; ++i)
-//	{
-//		//Texture경로 저장
-//		Material* pMaterial = m_TempScene->mMaterials.front();
-//		dwStrByte = DWORD(sizeof(_tchar) * wcslen(pMaterial->mName));
-//		WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
-//		WriteFile(hFile, &pMaterial->mName, dwStrByte, &dwByte, nullptr);
-//
-//		WriteFile(hFile, &pMaterial->TextureType, sizeof(_uint), &dwByte, nullptr);
-//		
-//		Safe_Delete(m_TempScene->mMaterials.front());
-//		m_TempScene->mMaterials.pop_front();
-//	}
-//
-//	//Aniamtion저장
-//	for (_uint i = 0; i < m_TempScene->mNumAnimations; ++i)
-//	{
-//		Animation* pAnimation = m_TempScene->mAnimations[i];
-//
-//		//AnimationName저장
-//		dwStrByte = DWORD(sizeof(char) * strlen(pAnimation->mName));
-//		WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
-//		WriteFile(hFile, &pAnimation->mName, dwStrByte, &dwByte, nullptr);
-//
-//		//Animation정보저장
-//		WriteFile(hFile, &pAnimation->mDuration, sizeof(_float), &dwByte, nullptr);
-//		WriteFile(hFile, &pAnimation->mTickPerSecond, sizeof(_float), &dwByte, nullptr);
-//		WriteFile(hFile, &pAnimation->mNumChannels, sizeof(_uint), &dwByte, nullptr);
-//
-//		for (_uint j = 0; j < pAnimation->mNumChannels; ++j)
-//		{
-//			NodeAnim*	pNodeAnim = pAnimation->mChannels[j];
-//
-//			//NodeName저장
-//			dwStrByte = DWORD(sizeof(char) * strlen(pNodeAnim->mNodeName));
-//			WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
-//			WriteFile(hFile, &pNodeAnim->mNodeName, dwStrByte, &dwByte, nullptr);
-//
-//			//NumPosition저장
-//			WriteFile(hFile, &pNodeAnim->mNumPositionKeys, sizeof(_uint), &dwByte, nullptr);
-//
-//			//PositionKey저장
-//			for (_uint k = 0; k < pNodeAnim->mNumPositionKeys; ++k)
-//			{
-//				WriteFile(hFile, &pNodeAnim->mPositionKeys[k].mTime, sizeof(_double), &dwByte, nullptr);
-//				WriteFile(hFile, &pNodeAnim->mPositionKeys[k].mValue, sizeof(XMFLOAT3), &dwByte, nullptr);
-//			}
-//
-//			//NumRotation저장
-//			WriteFile(hFile, &pNodeAnim->mNumRotationKeys, sizeof(_uint), &dwByte, nullptr);
-//
-//			//RotationKey저장
-//			for (_uint k = 0; k < pNodeAnim->mNumRotationKeys; ++k)
-//			{
-//				WriteFile(hFile, &pNodeAnim->mRotationKeys[k].mTime, sizeof(_double), &dwByte, nullptr);
-//				WriteFile(hFile, &pNodeAnim->mRotationKeys[k].mValue, sizeof(XMFLOAT4), &dwByte, nullptr);
-//			}
-//
-//			//NumScale저장
-//			WriteFile(hFile, &pNodeAnim->mNumScalingKeys, sizeof(_uint), &dwByte, nullptr);
-//			
-//			//ScalingKey저장
-//			for (_uint k = 0; k < pNodeAnim->mNumScalingKeys; ++k)
-//			{
-//				WriteFile(hFile, &pNodeAnim->mScalingKeys[k].mTime, sizeof(_double), &dwByte, nullptr);
-//				WriteFile(hFile, &pNodeAnim->mScalingKeys[k].mValue, sizeof(XMFLOAT3), &dwByte, nullptr);
-//			}
-//		}
-//	}
-//	CloseHandle(hFile);
-//	return S_OK;

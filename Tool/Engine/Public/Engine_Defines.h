@@ -29,7 +29,7 @@ using namespace DirectX;
 #include <map>
 #include <algorithm>
 #include <typeinfo.h>
-
+#include <iterator>
 
 #include <process.h>
 

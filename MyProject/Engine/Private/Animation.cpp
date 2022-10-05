@@ -28,7 +28,7 @@ HRESULT CAnimation::Initialize_Prototype(ANIMATION* pMyAnimation)
 		/* 현재 애니메이션에서 제어해야할 뼈정보들을 생성하여 보관한다. */
 	for (_uint i = 0; i < m_iNumChannels; ++i)
 	{
-		CChannel*		pChannel = CChannel::Create(pMyAnimation->mChannels[i]);
+		CChannel*		pChannel = CChannel::Create(&pMyAnimation->mChannels[i]);
 		if (nullptr == pChannel)
 			return E_FAIL;
 

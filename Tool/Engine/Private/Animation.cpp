@@ -30,17 +30,20 @@ HRESULT CAnimation::Initialize_Prototype(aiAnimation * pAIAnimation, ANIMATION* 
 	pMyAnimation->mTickPerSecond = pAIAnimation->mTicksPerSecond;
 	pMyAnimation->mNumChannels = pAIAnimation->mNumChannels;
 
-	pMyAnimation->mChannels = new NodeAnim*[pMyAnimation->mNumChannels];
-
+	//pMyAnimation->mChannels = new NodeAnim*[pMyAnimation->mNumChannels];
+	pMyAnimation->mChannels.reserve(pMyAnimation->mNumChannels);
 	/* 현재 애니메이션에서 제어해야할 뼈정보들을 생성하여 보관한다. */
 	for (_uint i = 0; i < m_iNumChannels; ++i)
 	{
-		pMyAnimation->mChannels[i] = new NodeAnim;
-		CChannel*		pChannel = CChannel::Create(pAIAnimation->mChannels[i], pMyAnimation->mChannels[i]);
+		//pMyAnimation->mChannels[i] = new NodeAnim;
+		NodeAnim nodeAnim;
+		ZeroMemory(&nodeAnim, sizeof(nodeAnim));
+		CChannel*		pChannel = CChannel::Create(pAIAnimation->mChannels[i], &nodeAnim);//pMyAnimation->mChannels[i]);
 		if (nullptr == pChannel)
 			return E_FAIL;
 
 		m_Channels.push_back(pChannel);
+		pMyAnimation->mChannels.push_back(nodeAnim);
 	}
 
 	return S_OK;

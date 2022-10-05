@@ -46,12 +46,12 @@ public:
 	HRESULT Render(class CShader* pShader, _uint iMeshIndex);
 	
 private:
-	const aiScene*				m_pAIScene = nullptr;
+	//const aiScene*				m_pAIScene = nullptr;
 	Assimp::Importer			m_Importer;
 	TEMPSCENE*					m_TempScene = nullptr;
 	_float4x4					m_PivotMatrix;
 	TYPE						m_eModelType = TYPE_END;
-
+	_bool						m_bClone = false;
 private:
 	_uint									m_iNumMeshes = 0;
 	vector<class CMeshContainer*>			m_Meshes;
