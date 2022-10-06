@@ -171,34 +171,14 @@ namespace Engine
 		unsigned int mNumFaces;
 		unsigned int mNumBones;
 		std::vector<VerticesInfo> mVertices;
-		//std::vector<VTXANIMMODEL> mAnimVertices;
 		std::vector<FACEINDICES32> mFaces;
 		std::vector<Bone> mBones;
-		//Bone** mBones;
 	}MESH;
-
-	typedef struct VectorKey
-	{
-		double mTime;
-		XMFLOAT3 mValue;
-	}VECTORKEY;
-
-	typedef struct QuatKey
-	{
-		double mTime;
-		XMFLOAT4 mValue;
-	}QUATKEY;
-
+	
 	typedef struct NodeAnim {
 		char mNodeName[MAX_PATH] = "";
-		/*unsigned int mNumScalingKeys;
-		unsigned int mNumRotationKeys;
-		unsigned int mNumPositionKeys;*/
 		unsigned int mNumKeyFrames;
 		std::vector<KEYFRAME> mKeyFrames;
-		/*VectorKey* mScalingKeys;
-		QuatKey* mRotationKeys;
-		VectorKey* mPositionKeys;*/
 	}NodeAnim;
 
 	typedef struct Animation {
@@ -206,15 +186,12 @@ namespace Engine
 		float mDuration;
 		float mTickPerSecond;
 		unsigned int mNumChannels;
-		//NodeAnim** mChannels;
 		std::vector<NodeAnim> mChannels;
 	}ANIMATION;
 
 	typedef struct Node {
 		char mName[MAX_PATH] = "";
 		unsigned int mNumChildren;
-		//Node* mParent;
-		//Node** mChildren;
 		std::vector<Node> mChildren;
 		XMFLOAT4X4 mTransformation;
 	}NODE;
@@ -224,14 +201,13 @@ namespace Engine
 		unsigned int TextureType;
 	}MATERIAL;
 
-	typedef struct TempScene {
+	typedef struct HScene {
 		unsigned int mNumMeshes;
 		unsigned int mNumMaterials;
 		unsigned int mNumAnimations;
 		NODE mRootNode;
-		//ANIMATION** mAnimations;
 		std::vector<ANIMATION> mAnimations;
 		std::list<Material> mMaterials;
 		std::vector<Mesh> mMesh;
-	}TEMPSCENE;
+	}HSCENE;
 }

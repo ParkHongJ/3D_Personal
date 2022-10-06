@@ -16,6 +16,9 @@ public:
 	virtual HRESULT Initialize(void* pArg);
 
 public:
+	virtual _bool Picking(class CTransform* pTransform, _float3* pOut) { return true; }
+
+public:
 	HRESULT Render();
 
 protected:
@@ -35,6 +38,8 @@ protected:
 	_uint						m_iIndexSizeofPrimitive = 0;
 	_uint						m_iNumIndicesofPrimitive = 0;
 	DXGI_FORMAT					m_eIndexFormat;
+
+	_float3*					m_pVerticesPos = nullptr;
 
 
 protected:

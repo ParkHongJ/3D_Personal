@@ -10,6 +10,8 @@
 #include "PipeLine.h"
 #include "Collider_Manager.h"
 #include "Key_Manager.h"
+#include "Picking.h"
+
 /* 클라이언트로 보여주기위한 가장 대표적인 클래스이다. */
 /* 각종 매니져클래스들의 주요함수를 클라로 보여준다.  */
 /* 엔진초기화. */
@@ -95,6 +97,8 @@ private:
 	CLight_Manager*					m_pLight_Manager = nullptr;
 	CCollider_Manager*				m_pCollider_Manager = nullptr;
 	CKey_Manager*					m_pKey_Manager = nullptr;
+	CPicking*						m_pPicking = nullptr;
+
 public:
 	static void Release_Engine();
 	virtual void Free() override;

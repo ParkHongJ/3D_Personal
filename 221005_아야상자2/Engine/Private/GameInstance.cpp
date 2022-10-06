@@ -13,6 +13,7 @@ CGameInstance::CGameInstance()
 	, m_pLight_Manager(CLight_Manager::Get_Instance())
 	, m_pCollider_Manager(CCollider_Manager::Get_Instance())
 	, m_pKey_Manager(CKey_Manager::Get_Instance())
+	, m_pPicking(CPicking::Get_Instance())
 {	
 	Safe_AddRef(m_pLight_Manager);
 	Safe_AddRef(m_pPipeLine);
@@ -24,6 +25,7 @@ CGameInstance::CGameInstance()
 	Safe_AddRef(m_pGraphic_Device);
 	Safe_AddRef(m_pCollider_Manager);
 	Safe_AddRef(m_pKey_Manager);
+	Safe_AddRef(m_pPicking);
 }
 
 
@@ -42,7 +44,8 @@ HRESULT CGameInstance::Initialize_Engine(_uint iNumLevels, HINSTANCE hInst, cons
 		return E_FAIL;
 
 	/* 사운드 초기화. */
-
+	if (FAILED(m_pPicking->Initialize(GraphicDesc.hWnd, GraphicDesc.iWinSizeX, GraphicDesc.iWinSizeY, *ppDevice, *ppContext)))
+		return E_FAIL;
 
 	if (FAILED(m_pObject_Manager->Reserve_Container(iNumLevels)))
 		return E_FAIL;
@@ -65,6 +68,7 @@ void CGameInstance::Tick_Engine(_float fTimeDelta)
 	m_pObject_Manager->Tick(fTimeDelta);
 
 	m_pPipeLine->Update();
+	m_pPicking->Tick();
 
 	m_pObject_Manager->LateTick(fTimeDelta);
 
@@ -319,6 +323,8 @@ void CGameInstance::Release_Engine()
 
 	CTimer_Manager::Get_Instance()->Destroy_Instance();
 
+	CPicking::Get_Instance()->Destroy_Instance();
+
 	CPipeLine::Get_Instance()->Destroy_Instance();
 
 	CLight_Manager::Get_Instance()->Destroy_Instance();
@@ -331,6 +337,7 @@ void CGameInstance::Release_Engine()
 void CGameInstance::Free()
 {
 	Safe_Release(m_pLight_Manager);
+	Safe_Release(m_pPicking);
 	Safe_Release(m_pPipeLine);
 	Safe_Release(m_pTimer_Manager);
 	Safe_Release(m_pComponent_Manager);

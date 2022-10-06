@@ -73,7 +73,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // 기본 메시지 루프입니다.
 	while (!done)
 	{
-		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
 		{
 			if (WM_QUIT == msg.message)
 				done = true;

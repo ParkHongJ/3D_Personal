@@ -112,6 +112,9 @@
     <ClCompile Include="..\private\Key_Manager.cpp">
       <Filter>04.Utility\03.Key_Manager</Filter>
     </ClCompile>
+    <ClCompile Include="..\Private\Picking.cpp">
+      <Filter>04.Utility\04.Picking</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Public\Engine_Defines.h">
@@ -240,6 +243,9 @@
     <ClInclude Include="..\public\Key_Manager.h">
       <Filter>04.Utility\03.Key_Manager</Filter>
     </ClInclude>
+    <ClInclude Include="..\Public\Picking.h">
+      <Filter>04.Utility\04.Picking</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="99.Defines">
@@ -358,6 +364,9 @@
     </Filter>
     <Filter Include="04.Utility\03.Key_Manager">
       <UniqueIdentifier>{c5acb27e-c438-4de8-b1c4-064106f5ed23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04.Utility\04.Picking">
+      <UniqueIdentifier>{9d1aa909-ac25-4f44-a569-ead2f3f7ea70}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

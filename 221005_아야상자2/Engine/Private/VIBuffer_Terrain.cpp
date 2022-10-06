@@ -1,4 +1,6 @@
 #include "..\Public\VIBuffer_Terrain.h"
+#include "Picking.h"
+#include "Transform.h"
 
 CVIBuffer_Terrain::CVIBuffer_Terrain(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CVIBuffer(pDevice, pContext)
@@ -7,6 +9,8 @@ CVIBuffer_Terrain::CVIBuffer_Terrain(ID3D11Device * pDevice, ID3D11DeviceContext
 
 CVIBuffer_Terrain::CVIBuffer_Terrain(const CVIBuffer_Terrain & rhs)
 	: CVIBuffer(rhs)
+	, m_iNumVerticesX(rhs.m_iNumVerticesX)
+	, m_iNumVerticesZ(rhs.m_iNumVerticesZ)
 	
 {
 
@@ -37,7 +41,9 @@ HRESULT CVIBuffer_Terrain::Initialize_Prototype(const _tchar* pHeighitMapFilePat
 
 	m_iNumVertices = m_iNumVerticesX * m_iNumVerticesZ;
 	m_iStride = sizeof(VTXNORTEX);
-	
+
+	m_pVerticesPos = new _float3[m_iNumVertices];
+
 	VTXNORTEX*		pVertices = new VTXNORTEX[m_iNumVertices];
 	ZeroMemory(pVertices, sizeof(VTXNORTEX) * m_iNumVertices);
 
@@ -47,7 +53,8 @@ HRESULT CVIBuffer_Terrain::Initialize_Prototype(const _tchar* pHeighitMapFilePat
 		{
 			_uint		iIndex = i * m_iNumVerticesX + j;
 
-			pVertices[iIndex].vPosition = _float3(j, (pPixel[iIndex] & 0x000000ff) / 10.0f, i);
+			/*pVertices[iIndex].vPosition = m_pVerticesPos[iIndex] = _float3((_float)j, (pPixel[iIndex] & 0x000000ff) / 10.0f, (_float)i);*/
+			pVertices[iIndex].vPosition = m_pVerticesPos[iIndex] = _float3((_float)j, 0.0f, (_float)i);
 			pVertices[iIndex].vNormal = _float3(0.f, 0.f, 0.f);
 			pVertices[iIndex].vTexture = _float2(j / _float(m_iNumVerticesX - 1), i / _float(m_iNumVerticesZ - 1));
 		}
@@ -168,6 +175,68 @@ HRESULT CVIBuffer_Terrain::Initialize_Prototype(const _tchar* pHeighitMapFilePat
 HRESULT CVIBuffer_Terrain::Initialize(void * pArg)
 {
 	return S_OK;
+}
+
+_bool CVIBuffer_Terrain::Picking(CTransform * pTransform, _float3 * pOut)
+{
+	CPicking*		pPicking = GET_INSTANCE(CPicking);
+
+	_float4x4		WorldMatrixInv;
+	XMStoreFloat4x4(&WorldMatrixInv, pTransform->Get_WorldMatrixInverse());
+
+	_float3			vRayDir, vRayPos;
+
+	pPicking->Compute_LocalRayInfo(&vRayDir, &vRayPos, pTransform);
+
+	XMStoreFloat3(&vRayDir, XMVector3Normalize(XMLoadFloat3(&vRayDir)));
+
+	for (_uint i = 0; i < m_iNumVerticesZ - 1; ++i)
+	{
+		for (_uint j = 0; j < m_iNumVerticesX - 1; ++j)
+		{
+			_uint		iIndex = i * m_iNumVerticesX + j;
+
+			_uint		iIndices[] = {
+				iIndex + m_iNumVerticesX,
+				iIndex + m_iNumVerticesX + 1,
+				iIndex + 1,
+				iIndex
+			};
+
+			_float		fDist;
+			_float4x4	WorldMatrix;
+			XMStoreFloat4x4(&WorldMatrix, pTransform->Get_WorldMatrix());
+
+			/* 오른쪽 상단. */
+			if (TRUE == TriangleTests::Intersects(XMLoadFloat3(&vRayPos), XMLoadFloat3(&vRayDir), XMLoadFloat3(&m_pVerticesPos[iIndices[0]]), XMLoadFloat3(&m_pVerticesPos[iIndices[1]]), XMLoadFloat3(&m_pVerticesPos[iIndices[2]]), fDist))
+			{
+				_float3	vPickPos;
+				XMStoreFloat3(&vPickPos, XMLoadFloat3(&vRayPos) + XMLoadFloat3(&vRayDir) * fDist); //vRayPos + vRayDir * fDist;
+
+				XMVector3TransformCoord(XMLoadFloat3(&vPickPos), XMLoadFloat4x4(&WorldMatrix));
+				XMStoreFloat3(&*pOut, XMLoadFloat3(&vPickPos));
+
+				RELEASE_INSTANCE(CPicking);
+				return true;
+			}
+
+			/* 왼쪽 하단. */
+			if (TRUE == TriangleTests::Intersects(XMLoadFloat3(&vRayPos), XMLoadFloat3(&vRayDir), XMLoadFloat3(&m_pVerticesPos[iIndices[0]]), XMLoadFloat3(&m_pVerticesPos[iIndices[2]]), XMLoadFloat3(&m_pVerticesPos[iIndices[3]]), fDist))
+			{
+				_float3	vPickPos;
+				XMStoreFloat3(&vPickPos, XMLoadFloat3(&vRayPos) + XMLoadFloat3(&vRayDir) * fDist); //vRayPos + vRayDir * fDist;
+
+				XMVector3TransformCoord(XMLoadFloat3(&vPickPos), XMLoadFloat4x4(&WorldMatrix));
+				XMStoreFloat3(&*pOut, XMLoadFloat3(&vPickPos));
+
+				RELEASE_INSTANCE(CPicking);
+				return true;
+			}
+		}
+	}
+
+	RELEASE_INSTANCE(CPicking);
+	return false;
 }
 
 CVIBuffer_Terrain * CVIBuffer_Terrain::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, const _tchar* pHeighitMapFilePath)

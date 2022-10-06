@@ -48,7 +48,7 @@ public:
 private:
 	//const aiScene*				m_pAIScene = nullptr;
 	Assimp::Importer			m_Importer;
-	TEMPSCENE*					m_TempScene = nullptr;
+	HSCENE*						m_TempScene = nullptr;
 	_float4x4					m_PivotMatrix;
 	TYPE						m_eModelType = TYPE_END;
 	_bool						m_bClone = false;
