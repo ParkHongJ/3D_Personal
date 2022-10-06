@@ -90,7 +90,7 @@ HRESULT CModel::LoadBinary(const _tchar* ModelFilePath)
 	if (INVALID_HANDLE_VALUE == hFile)
 		return E_FAIL;
 
-	m_TempScene = new TEMPSCENE;
+	m_TempScene = new HSCENE;
 
 	//읽은 바이트 
 	DWORD	dwByte = 0;
@@ -111,7 +111,6 @@ HRESULT CModel::LoadBinary(const _tchar* ModelFilePath)
 	for (_uint i = 0; i < m_TempScene->mNumMeshes; ++i)
 	{
 		Mesh pMesh;/* = &m_TempScene->mMesh[i];*/
-		ZeroMemory(&pMesh, sizeof(Mesh));
 		//Mesh이름 로드
 		ReadFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
 		/*char*	pName = nullptr;
@@ -168,7 +167,6 @@ HRESULT CModel::LoadBinary(const _tchar* ModelFilePath)
 		{
 			//pMesh->mBones[j] = new Bone;
 			Bone pBone;// = pMesh->mBones[j];
-			ZeroMemory(&pBone, sizeof(Bone));
 
 			//BoneName로드
 			ReadFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
@@ -249,7 +247,6 @@ HRESULT CModel::LoadBinary(const _tchar* ModelFilePath)
 	{
 		//m_TempScene->mAnimations[i] = new ANIMATION;
 		Animation pAnimation;// = m_TempScene->mAnimations[i];
-		ZeroMemory(&pAnimation, sizeof(Animation));
 
 		//AnimationName로드
 		ReadFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
@@ -271,7 +268,6 @@ HRESULT CModel::LoadBinary(const _tchar* ModelFilePath)
 		{
 			//pAnimation->mChannels[j] = new NodeAnim;
 			NodeAnim pNodeAnim;// = pAnimation->mChannels[j];
-			ZeroMemory(&pNodeAnim, sizeof(NodeAnim));
 
 			//NodeName로드
 			ReadFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
@@ -326,7 +322,6 @@ void CModel::LoadNode(HANDLE hFile, Node * pNode, DWORD & dwByte, DWORD & dwStrB
 	{
 		//pNode->mChildren[i] = new Node;
 		Node tempNode;
-		ZeroMemory(&tempNode, sizeof(Node));
 		LoadNode(hFile, &tempNode, dwByte, dwStrByte);
 		pNode->mChildren.push_back(tempNode);
 	}

@@ -155,11 +155,6 @@ namespace Engine
 		unsigned int mNumWeights;
 		std::vector<VertexWeight> mWeights;
 		XMFLOAT4X4 mOffsetMatrix;
-		~Bone()
-		{
-			mWeights.clear();
-			std::vector<VertexWeight>().swap(mWeights);
-		}
 	}BONE;
 
 	typedef struct VerticesInfo {
@@ -180,15 +175,6 @@ namespace Engine
 		std::vector<FACEINDICES32> mFaces;
 		std::vector<Bone> mBones;
 		//Bone** mBones;
-		~Mesh()
-		{
-			mVertices.clear();
-			mFaces.clear();
-			mBones.clear();
-			std::vector<VerticesInfo>().swap(mVertices);
-			std::vector<FACEINDICES32>().swap(mFaces);
-			std::vector<Bone>().swap(mBones);
-		}
 	}MESH;
 
 	typedef struct VectorKey
@@ -213,11 +199,6 @@ namespace Engine
 		/*VectorKey* mScalingKeys;
 		QuatKey* mRotationKeys;
 		VectorKey* mPositionKeys;*/
-		~NodeAnim()
-		{
-			mKeyFrames.clear();
-			std::vector<KEYFRAME>().swap(mKeyFrames);
-		}
 	}NodeAnim;
 
 	typedef struct Animation {
@@ -227,10 +208,6 @@ namespace Engine
 		unsigned int mNumChannels;
 		//NodeAnim** mChannels;
 		std::vector<NodeAnim> mChannels;
-		~Animation() {
-			mChannels.clear();
-			std::vector<NodeAnim>().swap(mChannels);
-		}
 	}ANIMATION;
 
 	typedef struct Node {
@@ -240,11 +217,6 @@ namespace Engine
 		//Node** mChildren;
 		std::vector<Node> mChildren;
 		XMFLOAT4X4 mTransformation;
-		~Node()
-		{
-			mChildren.clear();
-			std::vector<Node>().swap(mChildren);
-		}
 	}NODE;
 
 	typedef struct Material {
@@ -261,14 +233,5 @@ namespace Engine
 		std::vector<ANIMATION> mAnimations;
 		std::list<Material> mMaterials;
 		std::vector<Mesh> mMesh;
-		~TempScene()
-		{
-			mMesh.clear();
-			mMaterials.clear();
-			mAnimations.clear();
-			std::vector<Mesh>().swap(mMesh);
-			std::list<Material>().swap(mMaterials);
-			std::vector<ANIMATION>().swap(mAnimations);
-		}
 	}TEMPSCENE;
 }

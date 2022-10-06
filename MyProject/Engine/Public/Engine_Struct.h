@@ -155,11 +155,6 @@ namespace Engine
 		unsigned int mNumWeights;
 		std::vector<VertexWeight> mWeights;
 		XMFLOAT4X4 mOffsetMatrix;
-		~Bone()
-		{
-			mWeights.clear();
-			std::vector<VertexWeight>().swap(mWeights);
-		}
 	}BONE;
 
 	typedef struct VerticesInfo {
@@ -176,19 +171,8 @@ namespace Engine
 		unsigned int mNumFaces;
 		unsigned int mNumBones;
 		std::vector<VerticesInfo> mVertices;
-		//std::vector<VTXANIMMODEL> mAnimVertices;
 		std::vector<FACEINDICES32> mFaces;
 		std::vector<Bone> mBones;
-		//Bone** mBones;
-		~Mesh()
-		{
-			mVertices.clear();
-			mFaces.clear();
-			mBones.clear();
-			std::vector<VerticesInfo>().swap(mVertices);
-			std::vector<FACEINDICES32>().swap(mFaces);
-			std::vector<Bone>().swap(mBones);
-		}
 	}MESH;
 
 	typedef struct VectorKey
@@ -205,19 +189,8 @@ namespace Engine
 
 	typedef struct NodeAnim {
 		char mNodeName[MAX_PATH] = "";
-		/*unsigned int mNumScalingKeys;
-		unsigned int mNumRotationKeys;
-		unsigned int mNumPositionKeys;*/
 		unsigned int mNumKeyFrames;
 		std::vector<KEYFRAME> mKeyFrames;
-		/*VectorKey* mScalingKeys;
-		QuatKey* mRotationKeys;
-		VectorKey* mPositionKeys;*/
-		~NodeAnim()
-		{
-			mKeyFrames.clear();
-			std::vector<KEYFRAME>().swap(mKeyFrames);
-		}
 	}NodeAnim;
 
 	typedef struct Animation {
@@ -225,26 +198,14 @@ namespace Engine
 		float mDuration;
 		float mTickPerSecond;
 		unsigned int mNumChannels;
-		//NodeAnim** mChannels;
 		std::vector<NodeAnim> mChannels;
-		~Animation() {
-			mChannels.clear();
-			std::vector<NodeAnim>().swap(mChannels);
-		}
 	}ANIMATION;
 
 	typedef struct Node {
 		char mName[MAX_PATH] = "";
 		unsigned int mNumChildren;
-		//Node* mParent;
-		//Node** mChildren;
 		std::vector<Node> mChildren;
 		XMFLOAT4X4 mTransformation;
-		~Node()
-		{
-			mChildren.clear();
-			std::vector<Node>().swap(mChildren);
-		}
 	}NODE;
 
 	typedef struct Material {
@@ -252,23 +213,13 @@ namespace Engine
 		unsigned int TextureType;
 	}MATERIAL;
 
-	typedef struct TempScene {
+	typedef struct HScene {
 		unsigned int mNumMeshes;
 		unsigned int mNumMaterials;
 		unsigned int mNumAnimations;
 		NODE mRootNode;
-		//ANIMATION** mAnimations;
 		std::vector<ANIMATION> mAnimations;
 		std::list<Material> mMaterials;
 		std::vector<Mesh> mMesh;
-		~TempScene()
-		{
-			mMesh.clear();
-			mMaterials.clear();
-			mAnimations.clear();
-			std::vector<Mesh>().swap(mMesh);
-			std::list<Material>().swap(mMaterials);
-			std::vector<ANIMATION>().swap(mAnimations);
-		}
-	}TEMPSCENE;
+	}HSCENE;
 }

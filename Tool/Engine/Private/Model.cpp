@@ -538,7 +538,7 @@ void CModel::LoadNode(HANDLE hFile, Node * pNode, DWORD & dwByte, DWORD & dwStrB
 HRESULT CModel::Initialize_Prototype(TYPE eType, const char * pModelFilePath, const char * pModelFileName, _fmatrix PivotMatrix)
 {
 
-	LoadBinary();
+	//LoadBinary();
 	XMStoreFloat4x4(&m_PivotMatrix, PivotMatrix);
 
 	char		szFullPath[MAX_PATH] = "";
