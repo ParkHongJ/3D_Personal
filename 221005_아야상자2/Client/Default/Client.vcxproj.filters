@@ -52,6 +52,12 @@
     <Filter Include="02.GameObjects\Sword">
       <UniqueIdentifier>{d72c527e-78f8-4271-aa66-c2a301396242}</UniqueIdentifier>
     </Filter>
+    <Filter Include="98.Default\Imgui">
+      <UniqueIdentifier>{d08824fd-4b7f-4ac9-83ff-0bfab31151ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ImguiMgr">
+      <UniqueIdentifier>{bd22358b-d307-40f1-983e-2a42c50d8a99}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -108,6 +114,33 @@
     <ClInclude Include="..\Public\Sword.h">
       <Filter>02.GameObjects\Sword</Filter>
     </ClInclude>
+    <ClInclude Include="Imgui\imconfig.h">
+      <Filter>98.Default\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imgui.h">
+      <Filter>98.Default\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imgui_impl_dx11.h">
+      <Filter>98.Default\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imgui_impl_win32.h">
+      <Filter>98.Default\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imgui_internal.h">
+      <Filter>98.Default\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imstb_rectpack.h">
+      <Filter>98.Default\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imstb_textedit.h">
+      <Filter>98.Default\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Imgui\imstb_truetype.h">
+      <Filter>98.Default\Imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\ImGui_Manager.h">
+      <Filter>ImguiMgr</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -151,6 +184,30 @@
     </ClCompile>
     <ClCompile Include="..\Private\Sword.cpp">
       <Filter>02.GameObjects\Sword</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui.cpp">
+      <Filter>98.Default\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui_demo.cpp">
+      <Filter>98.Default\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui_draw.cpp">
+      <Filter>98.Default\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui_impl_dx11.cpp">
+      <Filter>98.Default\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui_impl_win32.cpp">
+      <Filter>98.Default\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui_tables.cpp">
+      <Filter>98.Default\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="Imgui\imgui_widgets.cpp">
+      <Filter>98.Default\Imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\ImGui_Manager.cpp">
+      <Filter>ImguiMgr</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

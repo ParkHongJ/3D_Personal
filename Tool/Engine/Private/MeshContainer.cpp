@@ -20,7 +20,6 @@ HRESULT CMeshContainer::Initialize_Prototype(CModel::TYPE eModelType, const aiMe
 	strcpy_s(m_szName, pAIMesh->mName.data);
 	m_iMaterialIndex = pAIMesh->mMaterialIndex;
 	Mesh mesh;
-	ZeroMemory(&mesh, sizeof(Mesh));
 	strcpy_s(mesh.mName, pAIMesh->mName.data);
 	//strcpy_s(pMesh->mName, pAIMesh->mName.data);
 	//pMesh->mMaterialIndex = pAIMesh->mMaterialIndex;
@@ -254,7 +253,6 @@ HRESULT CMeshContainer::Ready_AnimVertices(const aiMesh* pAIMesh, CModel* pModel
 	{
 		aiBone*		pAIBone = pAIMesh->mBones[i];	
 		Bone		pBone;
-		ZeroMemory(&pBone, sizeof(Bone));
 
 		strcpy_s(pBone.mName, pAIBone->mName.data);
 		pBone.mNumWeights = pAIBone->mNumWeights;
@@ -266,7 +264,6 @@ HRESULT CMeshContainer::Ready_AnimVertices(const aiMesh* pAIMesh, CModel* pModel
 			_uint		iVertexIndex = pAIBone->mWeights[j].mVertexId;
 
 			VertexWeight tVertexWeight;
-			ZeroMemory(&tVertexWeight, sizeof(VertexWeight));
 
 			tVertexWeight.mVertexId = iVertexIndex;
 			tVertexWeight.mWeight = pAIBone->mWeights[j].mWeight;

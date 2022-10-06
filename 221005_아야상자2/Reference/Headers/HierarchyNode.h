@@ -35,7 +35,7 @@ public:
 	}
 
 public:
-	HRESULT Initialize(aiNode* pAINode, class CHierarchyNode* pParent, _uint iDepth);
+	HRESULT Initialize(Node* pNode, class CHierarchyNode* pParent, _uint iDepth);
 	void Set_CombinedTransformation();
 	void Set_OffsetMatrix(_fmatrix OffsetMatrix);
 private:
@@ -47,7 +47,7 @@ private:
 	_uint				m_iDepth = 0;
 
 public:
-	static CHierarchyNode* Create(aiNode* pAINode, class CHierarchyNode* pParent, _uint iDepth);
+	static CHierarchyNode* Create(Node* pNode, class CHierarchyNode* pParent, _uint iDepth);
 	virtual void Free();
 };
 

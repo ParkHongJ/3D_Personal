@@ -14,24 +14,24 @@ CMeshContainer::CMeshContainer(const CMeshContainer & rhs)
 	strcpy_s(m_szName, rhs.m_szName);
 }
 
-HRESULT CMeshContainer::Initialize_Prototype(CModel::TYPE eModelType, const aiMesh * pAIMesh, CModel* pModel, _fmatrix PivotMatrix)
+HRESULT CMeshContainer::Initialize_Prototype(CModel::TYPE eModelType, Mesh * pMesh, CModel* pModel, _fmatrix PivotMatrix)
 {
 	/* 이 메시와 이름이 같은 뼈대가 존재한다면. 
 	이 뼈대의 행렬을 메시를 구성하는 정점에 곱해질 수 있도록 유도하낟. */
-	strcpy_s(m_szName, pAIMesh->mName.data);
+	strcpy_s(m_szName, pMesh->mName);
 
 	/* 메시마다 사용하는 머테리얼(텍스쳐정보로 표현)이 다른다. */
 	/* 메시를 그릴때 마다 어떤 머테리얼을 솅디ㅓ로 던져야할 지르르 결정해주기위해서. */
-	m_iMaterialIndex = pAIMesh->mMaterialIndex;
+	m_iMaterialIndex = pMesh->mMaterialIndex;
 
 #pragma region VERTEXBUFFER
 
 	HRESULT		hr = 0;
 
 	if (CModel::TYPE_NONANIM == eModelType)
-		hr = Ready_Vertices(pAIMesh, PivotMatrix);
+		hr = Ready_Vertices(pMesh, PivotMatrix);
 	else 
-		hr = Ready_AnimVertices(pAIMesh, pModel);
+		hr = Ready_AnimVertices(pMesh, pModel);
 
 	if (FAILED(hr))
 		return E_FAIL;
@@ -39,7 +39,7 @@ HRESULT CMeshContainer::Initialize_Prototype(CModel::TYPE eModelType, const aiMe
 #pragma endregion
 
 #pragma region INDEXBUFFER
-	m_iNumPrimitives = pAIMesh->mNumFaces;
+	m_iNumPrimitives = pMesh->mNumFaces;
 	m_iIndexSizeofPrimitive = sizeof(FACEINDICES32);
 	m_iNumIndicesofPrimitive = 3;
 	m_eIndexFormat = DXGI_FORMAT_R32_UINT;
@@ -57,12 +57,7 @@ HRESULT CMeshContainer::Initialize_Prototype(CModel::TYPE eModelType, const aiMe
 	FACEINDICES32*		pIndices = new FACEINDICES32[m_iNumPrimitives];
 	ZeroMemory(pIndices, sizeof(FACEINDICES32) * m_iNumPrimitives);
 
-	for (_uint i = 0; i < m_iNumPrimitives; ++i)
-	{
-		pIndices[i]._0 = pAIMesh->mFaces[i].mIndices[0];
-		pIndices[i]._1 = pAIMesh->mFaces[i].mIndices[1];
-		pIndices[i]._2 = pAIMesh->mFaces[i].mIndices[2];
-	}
+	memcpy(pIndices, pMesh->mFaces.data(), sizeof(FACEINDICES32) * pMesh->mFaces.size());
 
 
 	ZeroMemory(&m_SubResourceData, sizeof(D3D11_SUBRESOURCE_DATA));
@@ -83,22 +78,22 @@ HRESULT CMeshContainer::Initialize(void * pArg)
 	return S_OK;
 }
 
-HRESULT CMeshContainer::SetUp_HierarchyNodes(CModel * pModel, aiMesh* pAIMesh)
+HRESULT CMeshContainer::SetUp_HierarchyNodes(CModel * pModel, Mesh* pMesh)
 {
-	m_iNumBones = pAIMesh->mNumBones;
+	m_iNumBones = pMesh->mNumBones;
 
 
 
 	/* 현재 메시에 영향ㅇ르 ㅈ2ㅜ는 뼈들을 순회한다ㅏ. */
 	for (_uint i = 0; i < m_iNumBones; ++i)
 	{
-		aiBone*		pAIBone = pAIMesh->mBones[i];
+		Bone*		pBone = &pMesh->mBones[i];
 
-		CHierarchyNode*		pHierarchyNode = pModel->Get_HierarchyNode(pAIBone->mName.data);
+		CHierarchyNode*		pHierarchyNode = pModel->Get_HierarchyNode(pBone->mName);
 
 		_float4x4			OffsetMatrix;
 
-		memcpy(&OffsetMatrix, &pAIBone->mOffsetMatrix, sizeof(_float4x4));
+		memcpy(&OffsetMatrix, &pBone->mOffsetMatrix, sizeof(_float4x4));
 
 		pHierarchyNode->Set_OffsetMatrix(XMMatrixTranspose(XMLoadFloat4x4(&OffsetMatrix)));
 
@@ -140,10 +135,10 @@ void CMeshContainer::SetUp_BoneMatrices(_float4x4 * pBoneMatrices, _fmatrix Pivo
 	
 }
 
-HRESULT CMeshContainer::Ready_Vertices(const aiMesh* pAIMesh, _fmatrix PivotMatrix)
+HRESULT CMeshContainer::Ready_Vertices(Mesh* pMesh, _fmatrix PivotMatrix)
 {
 	m_iNumVertexBuffers = 1;
-	m_iNumVertices = pAIMesh->mNumVertices;
+	m_iNumVertices = pMesh->mNumVertices;
 	m_iStride = sizeof(VTXMODEL);
 
 	ZeroMemory(&m_BufferDesc, sizeof(D3D11_BUFFER_DESC));
@@ -157,19 +152,7 @@ HRESULT CMeshContainer::Ready_Vertices(const aiMesh* pAIMesh, _fmatrix PivotMatr
 	VTXMODEL*		pVertices = new VTXMODEL[m_iNumVertices];
 	ZeroMemory(pVertices, sizeof(VTXMODEL) * m_iNumVertices);
 
-	for (_uint i = 0; i < m_iNumVertices; ++i)
-	{
-		/* 정점의 위치를 내가 원하느 ㄴ초기상태로 변화낳ㄴ나./ */
-		memcpy(&pVertices[i].vPosition, &pAIMesh->mVertices[i], sizeof(_float3));
-		XMStoreFloat3(&pVertices[i].vPosition, XMVector3TransformCoord(XMLoadFloat3(&pVertices[i].vPosition), PivotMatrix));
-
-		/* 정점의 위치가 바뀌었기때ㅑ문에 노멀도 바뀐다. */
-		memcpy(&pVertices[i].vNormal, &pAIMesh->mNormals[i], sizeof(_float3));
-		XMStoreFloat3(&pVertices[i].vNormal, XMVector3TransformNormal(XMLoadFloat3(&pVertices[i].vNormal), PivotMatrix));
-
-		memcpy(&pVertices[i].vTexture, &pAIMesh->mTextureCoords[0][i], sizeof(_float2));
-		memcpy(&pVertices[i].vTangent, &pAIMesh->mTangents[i], sizeof(_float3));
-	}
+	memcpy(pVertices, pMesh->mVertices.data(), sizeof(VTXMODEL) * m_iNumVertices);
 
 	ZeroMemory(&m_SubResourceData, sizeof(D3D11_SUBRESOURCE_DATA));
 	m_SubResourceData.pSysMem = pVertices;
@@ -182,10 +165,10 @@ HRESULT CMeshContainer::Ready_Vertices(const aiMesh* pAIMesh, _fmatrix PivotMatr
 	return S_OK;
 }
 
-HRESULT CMeshContainer::Ready_AnimVertices(const aiMesh* pAIMesh, CModel* pModel)
+HRESULT CMeshContainer::Ready_AnimVertices(Mesh* pMesh, CModel* pModel)
 {
 	m_iNumVertexBuffers = 1;
-	m_iNumVertices = pAIMesh->mNumVertices;
+	m_iNumVertices = pMesh->mNumVertices;
 	m_iStride = sizeof(VTXANIMMODEL);
 
 	ZeroMemory(&m_BufferDesc, sizeof(D3D11_BUFFER_DESC));
@@ -199,51 +182,53 @@ HRESULT CMeshContainer::Ready_AnimVertices(const aiMesh* pAIMesh, CModel* pModel
 	VTXANIMMODEL*		pVertices = new VTXANIMMODEL[m_iNumVertices];
 	ZeroMemory(pVertices, sizeof(VTXANIMMODEL) * m_iNumVertices);
 
+
+	/* 사전변환( x) : 뼈의 행렬과 곱해져서 그려진다.
+	사전변환에 대한 정보를 뼈에게 담아놓을 것이다. */
 	for (_uint i = 0; i < m_iNumVertices; ++i)
 	{
-		/* 사전변환( x) : 뼈의 행렬과 곱해져서 그려진다. 
-		사전변환에 대한 정보를 뼈에게 담아놓을 것이다. */
-		memcpy(&pVertices[i].vPosition, &pAIMesh->mVertices[i], sizeof(_float3));
-		memcpy(&pVertices[i].vNormal, &pAIMesh->mNormals[i], sizeof(_float3));
-		memcpy(&pVertices[i].vTexture, &pAIMesh->mTextureCoords[0][i], sizeof(_float2));
-		memcpy(&pVertices[i].vTangent, &pAIMesh->mTangents[i], sizeof(_float3));		
+		memcpy(&pVertices[i].vPosition, &pMesh->mVertices[i].mVertices, sizeof(_float3));
+		memcpy(&pVertices[i].vNormal, &pMesh->mVertices[i].mNormals, sizeof(_float3));
+		memcpy(&pVertices[i].vTexture, &pMesh->mVertices[i].mTextureCoords, sizeof(_float2));
+		memcpy(&pVertices[i].vTangent, &pMesh->mVertices[i].mTangents, sizeof(_float3));
 	}
 
 	/* 현재 메시에 영향ㅇ르 ㅈ2ㅜ는 뼈들을 순회한다ㅏ. */
 	/* 뼈(aiBone)안에 표현되어있는, 이뼈는 어떤 정점에게 영향을 주는지(mVertexId)를 받아와서. 
 	해당 정점에게 이뼈에 영향을 받는다(vBlendIndex), 얼마나(vBlendWeight)를 담아둔다. */
 
-	for (_uint i = 0; i <  pAIMesh->mNumBones; ++i)
+	/* 현재 메시에 영향ㅇ르 ㅈ2ㅜ는 뼈들을 순회한다ㅏ. */
+	for (_uint i = 0; i < pMesh->mNumBones; ++i)
 	{
-		aiBone*		pAIBone = pAIMesh->mBones[i];	
+		Bone*		pBone = &pMesh->mBones[i];
 
 		/* i번째 뼈가 어떤 정점들에게 영향ㅇ르 주는지 순회한다. */
-		for (_uint j = 0; j < pAIBone->mNumWeights; ++j)
+		for (_uint j = 0; j < pBone->mNumWeights; ++j)
 		{
-			_uint		iVertexIndex = pAIBone->mWeights[j].mVertexId;
+			_uint		iVertexIndex = pBone->mWeights[j].mVertexId;
 
-			if(0.0f == pVertices[iVertexIndex].vBlendWeight.x)
+			if (0.0f == pVertices[iVertexIndex].vBlendWeight.x)
 			{
 				pVertices[iVertexIndex].vBlendIndex.x = i;
-				pVertices[iVertexIndex].vBlendWeight.x = pAIBone->mWeights[j].mWeight;
+				pVertices[iVertexIndex].vBlendWeight.x = pBone->mWeights[j].mWeight;
 			}
 
 			else if (0.0f == pVertices[iVertexIndex].vBlendWeight.y)
 			{
 				pVertices[iVertexIndex].vBlendIndex.y = i;
-				pVertices[iVertexIndex].vBlendWeight.y = pAIBone->mWeights[j].mWeight;
+				pVertices[iVertexIndex].vBlendWeight.y = pBone->mWeights[j].mWeight;
 			}
 
 			else if (0.0f == pVertices[iVertexIndex].vBlendWeight.z)
 			{
 				pVertices[iVertexIndex].vBlendIndex.z = i;
-				pVertices[iVertexIndex].vBlendWeight.z = pAIBone->mWeights[j].mWeight;
+				pVertices[iVertexIndex].vBlendWeight.z = pBone->mWeights[j].mWeight;
 			}
 
 			else if (0.0f == pVertices[iVertexIndex].vBlendWeight.w)
 			{
 				pVertices[iVertexIndex].vBlendIndex.w = i;
-				pVertices[iVertexIndex].vBlendWeight.w = pAIBone->mWeights[j].mWeight;
+				pVertices[iVertexIndex].vBlendWeight.w = pBone->mWeights[j].mWeight;
 			}
 		}
 	}
@@ -259,11 +244,11 @@ HRESULT CMeshContainer::Ready_AnimVertices(const aiMesh* pAIMesh, CModel* pModel
 	return S_OK;
 }
 
-CMeshContainer * CMeshContainer::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, CModel::TYPE eModelType, const aiMesh * pAIMesh, CModel* pModel, _fmatrix PivotMatrix)
+CMeshContainer * CMeshContainer::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, CModel::TYPE eModelType, Mesh * pMesh, CModel* pModel, _fmatrix PivotMatrix)
 {
 	CMeshContainer*			pInstance = new CMeshContainer(pDevice, pContext);
 
-	if (FAILED(pInstance->Initialize_Prototype(eModelType, pAIMesh, pModel, PivotMatrix)))
+	if (FAILED(pInstance->Initialize_Prototype(eModelType, pMesh, pModel, PivotMatrix)))
 	{
 		MSG_BOX(TEXT("Failed To Created : CMeshContainer"));
 		Safe_Release(pInstance);

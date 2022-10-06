@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "..\Public\Monster.h"
 #include "GameInstance.h"
+#include <time.h>
 
 CMonster::CMonster(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
@@ -14,6 +15,7 @@ CMonster::CMonster(const CMonster & rhs)
 
 HRESULT CMonster::Initialize_Prototype()
 {
+	srand(unsigned int(time(NULL)));
 	return S_OK;
 }
 
@@ -22,21 +24,24 @@ HRESULT CMonster::Initialize(void * pArg)
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
 
-	m_pModelCom->Set_AnimIndex(rand() % 20);
-
-	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(rand() % 10, 0.f, rand() % 10, 1.f));
-
-
+	m_pModelCom->Set_AnimIndex(0);
+	//m_pTransformCom->Set_Scale(XMVectorSet(0.01f, 0.01f, 0.01f,0.f));
+	//m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(0.f,0.f,2.f,1.f));
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(rand() % 20, 0.f, rand() % 20, 1.f));
+	_float temp = rand() % 9;
+	m_pTransformCom->Rotation(XMVectorSet(0.f, 1.f, 0.f, 0.f), temp * 0.5f);
 	return S_OK;
 }
 
-void CMonster::Tick(_float fTimeDelta)
+_bool CMonster::Tick(_float fTimeDelta)
 {
+	
 	for (auto& pCollider : m_pColliderCom)
 	{
 		if (nullptr != pCollider)
 			pCollider->Update(m_pTransformCom->Get_WorldMatrix());
 	}
+	return false;
 }
 
 void CMonster::LateTick(_float fTimeDelta)
@@ -44,10 +49,11 @@ void CMonster::LateTick(_float fTimeDelta)
 	if (nullptr == m_pRendererCom)
 		return;
 
-	Collision_ToPlayer();
+	//Collision_ToPlayer();
 
 	m_pModelCom->Play_Animation(fTimeDelta);
 
+	m_pColliderCom[COLLIDERTYPE_OBB]->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom[COLLIDERTYPE_OBB]);
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
 }
 
@@ -110,7 +116,7 @@ HRESULT CMonster::Ready_Components()
 		return E_FAIL;
 
 	/* For.Com_Model */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Fiona"), TEXT("Com_Model"), (CComponent**)&m_pModelCom)))
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_ForkLift"), TEXT("Com_Model"), (CComponent**)&m_pModelCom)))
 		return E_FAIL;
 
 

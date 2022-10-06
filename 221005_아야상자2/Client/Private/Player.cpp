@@ -23,13 +23,14 @@ HRESULT CPlayer::Initialize(void * pArg)
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
 
-	m_pModelCom->Set_AnimIndex(3);
+	m_pModelCom->Set_AnimIndex(0);
 
-	if (FAILED(Ready_Sockets()))
+	m_eCurrentState = CPlayer::STATE_IDLE;
+	/*if (FAILED(Ready_Sockets()))
 		return E_FAIL;
 
 	if (FAILED(Ready_PlayerParts()))
-		return E_FAIL;
+		return E_FAIL;*/
 
 	
 
@@ -40,47 +41,28 @@ HRESULT CPlayer::Initialize(void * pArg)
 	return S_OK;
 }
 
-void CPlayer::Tick(_float fTimeDelta)
+_bool CPlayer::Tick(_float fTimeDelta)
 {
-	
+	if (m_bDestroy)
+		return true;
 
-	if (GetKeyState(VK_DOWN) < 0)
-	{
-		m_pTransformCom->Go_Backward(fTimeDelta);
-	}
+	SetState(m_eCurrentState, fTimeDelta);
 
-	if (GetKeyState(VK_LEFT) < 0)
-	{
-		m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), fTimeDelta * -1.f);
-	}
-
-	if (GetKeyState(VK_RIGHT) < 0)
-	{
-		m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), fTimeDelta);
-	}
-	if (GetKeyState(VK_UP) < 0)
-	{
-		m_pTransformCom->Go_Straight(fTimeDelta);
-		m_pModelCom->Set_AnimIndex(4);
-	}
-	else
-		m_pModelCom->Set_AnimIndex(3);
-
-
-	Update_Weapon();
+	/*Update_Weapon();
 
 	for (auto& pPart : m_Parts)
-		pPart->Tick(fTimeDelta);
+		pPart->Tick(fTimeDelta);*/
 
 
 	for (auto& pCollider : m_pColliderCom)
 	{
-		if(nullptr != pCollider)
+		if (nullptr != pCollider)
 			pCollider->Update(m_pTransformCom->Get_WorldMatrix());
 	}
-	
 
 
+
+	return false;
 }
 
 void CPlayer::LateTick(_float fTimeDelta)
@@ -88,15 +70,17 @@ void CPlayer::LateTick(_float fTimeDelta)
 	if (nullptr == m_pRendererCom)
 		return;
 
-	m_pModelCom->Play_Animation(fTimeDelta);
+	m_bAnimEnd = m_pModelCom->Play_Animation(fTimeDelta);
 
-	for (auto& pPart : m_Parts)
+	/*for (auto& pPart : m_Parts)
 		pPart->LateTick(fTimeDelta);
 
 
 	for (auto& pPart : m_Parts)
-		m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, pPart);
+		m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, pPart);*/
 	
+	//((CCollider*)m_pColliderCom[COLLIDERTYPE_OBB]).Add_CollisionGroup(0, m_pColliderCom[COLLIDERTYPE_OBB]);
+	m_pColliderCom[COLLIDERTYPE_OBB]->Add_CollisionGroup(CCollider_Manager::PLAYER, m_pColliderCom[COLLIDERTYPE_OBB]);
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
 }
 
@@ -143,6 +127,119 @@ HRESULT CPlayer::Render()
 #endif
 
 	return S_OK;
+}
+
+void CPlayer::SetState(STATE_PLAYER eState, _float fTimeDelta)
+{
+	switch (eState)
+	{
+	case CPlayer::STATE_IDLE:
+		Idle_State(fTimeDelta);
+		break;
+	case CPlayer::STATE_WALK:
+		Walk_State(fTimeDelta);
+		break;
+	case CPlayer::STATE_RUN:
+		break;
+	case CPlayer::STATE_ATTACK:
+		Attack_State(fTimeDelta);
+		break;
+	case CPlayer::STATE_JUMP:
+		break;
+	case CPlayer::STATE_END:
+		break;
+	default:
+		break;
+	}
+}
+
+void CPlayer::Idle_State(_float fTimeDelta)
+{
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+	if (pGameInstance->Key_Down(DIK_UP))
+	{
+		m_eCurrentState = CPlayer::STATE_WALK;
+	}
+	else if (pGameInstance->Key_Down(DIK_DOWN))
+	{
+		m_eCurrentState = CPlayer::STATE_WALK;
+	}
+	else if (pGameInstance->Key_Down(DIK_LEFT))
+	{
+		m_eCurrentState = CPlayer::STATE_WALK;
+	}
+	else if (pGameInstance->Key_Down(DIK_RIGHT))
+	{
+		m_eCurrentState = CPlayer::STATE_WALK;
+	}
+	else if (pGameInstance->Get_DIMKeyState(DIMK_LBUTTON))
+	{
+		m_pModelCom->Change_Animation(58);
+		m_eCurrentState = CPlayer::STATE_ATTACK;
+	}
+	RELEASE_INSTANCE(CGameInstance);
+}
+
+void CPlayer::Walk_State(_float fTimeDelta)
+{
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+	if (pGameInstance->Key_Pressing(DIK_UP))
+	{
+		m_pTransformCom->Go_Straight(fTimeDelta);
+		m_pModelCom->Change_Animation(38);
+	}
+	else if (pGameInstance->Key_Pressing(DIK_DOWN))
+	{
+		m_pTransformCom->Go_Backward(fTimeDelta);
+		m_pModelCom->Change_Animation(38);
+	}
+	else if (pGameInstance->Key_Pressing(DIK_LEFT))
+	{
+		m_pTransformCom->Go_Left(fTimeDelta);
+		m_pModelCom->Change_Animation(38);
+	}
+	else if (pGameInstance->Key_Pressing(DIK_RIGHT))
+	{
+		m_pTransformCom->Go_Right(fTimeDelta);
+		m_pModelCom->Change_Animation(38);
+	}
+	else if (pGameInstance->Get_DIMKeyState(DIMK_LBUTTON))
+	{
+		m_pModelCom->Change_Animation(58);
+		m_eCurrentState = CPlayer::STATE_ATTACK;
+		m_bAnimEnd = false;
+	}
+	else
+	{
+		m_pModelCom->Change_Animation(14);
+		m_eCurrentState = CPlayer::STATE_IDLE;
+	}
+	RELEASE_INSTANCE(CGameInstance);
+}
+
+void CPlayer::Attack_State(_float fTimeDelta)
+{
+	if (m_bAnimEnd)
+	{
+		m_pModelCom->Change_Animation(14);
+		m_eCurrentState = CPlayer::STATE_IDLE;
+		m_bAnimEnd = false;
+	}
+}
+
+void CPlayer::OnCollisionEnter(CGameObject * pOther, _float fTimeDelta)
+{
+	int a = 10;
+}
+
+void CPlayer::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
+{
+	int a = 10;
+}
+
+void CPlayer::OnCollisionExit(CGameObject * pOther, _float fTimeDelta)
+{
+	int a = 10;
 }
 
 HRESULT CPlayer::Ready_Components()

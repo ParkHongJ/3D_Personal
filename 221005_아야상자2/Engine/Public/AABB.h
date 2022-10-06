@@ -18,6 +18,7 @@ public:
 	
 
 public:
+	HRESULT Add_CollisionGroup(CCollider_Manager::COLLISIONGROUP eCollisionGroup, class CCollider* pCollider);
 	virtual HRESULT Initialize_Prototype(CCollider::TYPE eColliderType);
 	virtual HRESULT Initialize(void* pArg);
 	virtual void Update(_fmatrix TransformMatrix);

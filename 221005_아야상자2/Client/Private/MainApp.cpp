@@ -3,7 +3,7 @@
 
 #include "GameInstance.h"
 #include "Level_Loading.h"
-
+#include "ImGui_Manager.h"
 using namespace Client;
 
 CMainApp::CMainApp()
@@ -32,7 +32,12 @@ HRESULT CMainApp::Initialize()
 
 	if (FAILED(Open_Level(LEVEL_LOGO)))
 		return E_FAIL;
-	
+
+#ifdef _DEBUG
+	CImGui_Manager::Get_Instance()->Init(m_pDevice, m_pContext);
+#endif // _DEBUG
+
+
 	return S_OK;
 }
 
@@ -45,12 +50,21 @@ void CMainApp::Tick(_float fTimeDelta)
 	m_fTimeAcc += fTimeDelta;
 #endif // _DEBUG
 
+#ifdef _DEBUG
+	CImGui_Manager::Get_Instance()->RenderBegin();
+#endif // _DEBUG
+
+	
 	m_pGameInstance->Tick_Engine(fTimeDelta);
+	
+#ifdef _DEBUG
+	CImGui_Manager::Get_Instance()->Render();
+#endif // _DEBUG
+
 }
 
 HRESULT CMainApp::Render()
 {
-
 	if (nullptr == m_pGameInstance)
 		return E_FAIL;
 
@@ -59,6 +73,10 @@ HRESULT CMainApp::Render()
 	
 	m_pRenderer->Draw();
 	m_pGameInstance->Render_Level();
+
+#ifdef _DEBUG
+	CImGui_Manager::Get_Instance()->RenderEnd();
+#endif // _DEBUG
 
 	m_pGameInstance->Present();
 
@@ -72,7 +90,7 @@ HRESULT CMainApp::Render()
 		m_fTimeAcc = 0.f;
 	}
 
-	// SetWindowText(g_hWnd, m_szFPS);
+	//SetWindowText(g_hWnd, m_szFPS);
 #endif // _DEBUG
 
 	
@@ -155,6 +173,11 @@ void CMainApp::Free()
 	Safe_Release(m_pRenderer);
 	Safe_Release(m_pGameInstance);
 
+#ifdef _DEBUG
+	CImGui_Manager::Get_Instance()->Destroy_Instance();
+#endif // _DEBUG
+
+	
 	CGameInstance::Release_Engine();
 
 }

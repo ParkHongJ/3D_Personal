@@ -28,9 +28,10 @@ HRESULT CTerrain::Initialize(void * pArg)
 	return S_OK;
 }
 
-void CTerrain::Tick(_float fTimeDelta)
+_bool CTerrain::Tick(_float fTimeDelta)
 {
 	// m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), fTimeDelta);
+	return false;
 }
 
 void CTerrain::LateTick(_float fTimeDelta)

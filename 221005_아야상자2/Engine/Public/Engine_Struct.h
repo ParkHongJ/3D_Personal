@@ -143,4 +143,69 @@ namespace Engine
 
 	}GRAPHICDESC;
 
+	typedef struct VertexWeight {
+		unsigned int mVertexId;
+		float mWeight;
+	}VERTEXWEIGHT;
+
+	typedef struct Bone {
+		char mName[MAX_PATH] = "";
+		unsigned int mNumWeights;
+		std::vector<VertexWeight> mWeights;
+		XMFLOAT4X4 mOffsetMatrix;
+	}BONE;
+
+	typedef struct VerticesInfo {
+		//mNumVertices만큼 갖고있음
+		XMFLOAT3 mVertices;
+		XMFLOAT3 mNormals;
+		XMFLOAT2 mTextureCoords;
+		XMFLOAT3 mTangents;
+	}VERTICESINFO;
+	typedef struct Mesh {
+		char mName[MAX_PATH] = "";
+		unsigned int mMaterialIndex;
+		unsigned int mNumVertices;
+		unsigned int mNumFaces;
+		unsigned int mNumBones;
+		std::vector<VerticesInfo> mVertices;
+		std::vector<FACEINDICES32> mFaces;
+		std::vector<Bone> mBones;
+	}MESH;
+
+	typedef struct NodeAnim {
+		char mNodeName[MAX_PATH] = "";
+		unsigned int mNumKeyFrames;
+		std::vector<KEYFRAME> mKeyFrames;
+	}NodeAnim;
+
+	typedef struct Animation {
+		char mName[MAX_PATH] = "";
+		float mDuration;
+		float mTickPerSecond;
+		unsigned int mNumChannels;
+		std::vector<NodeAnim> mChannels;
+	}ANIMATION;
+
+	typedef struct Node {
+		char mName[MAX_PATH] = "";
+		unsigned int mNumChildren;
+		std::vector<Node> mChildren;
+		XMFLOAT4X4 mTransformation;
+	}NODE;
+
+	typedef struct Material {
+		wchar_t mName[MAX_PATH] = L"";
+		unsigned int TextureType;
+	}MATERIAL;
+
+	typedef struct HScene {
+		unsigned int mNumMeshes;
+		unsigned int mNumMaterials;
+		unsigned int mNumAnimations;
+		NODE mRootNode;
+		std::vector<ANIMATION> mAnimations;
+		std::list<Material> mMaterials;
+		std::vector<Mesh> mMesh;
+	}HSCENE;
 }

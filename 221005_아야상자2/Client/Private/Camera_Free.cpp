@@ -31,7 +31,7 @@ HRESULT CCamera_Free::Initialize(void * pArg)
 	return S_OK;
 }
 
-void CCamera_Free::Tick(_float fTimeDelta)
+_bool CCamera_Free::Tick(_float fTimeDelta)
 {
 	CGameInstance*		pGameInstance = CGameInstance::Get_Instance();
 	Safe_AddRef(pGameInstance);
@@ -75,7 +75,7 @@ void CCamera_Free::Tick(_float fTimeDelta)
 	__super::Tick(fTimeDelta);
 
 
-
+	return false;
 }
 
 void CCamera_Free::LateTick(_float fTimeDelta)

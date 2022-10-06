@@ -12,6 +12,8 @@ CGameObject::CGameObject(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 
 CGameObject::CGameObject(const CGameObject & rhs)
 	: m_pDevice(rhs.m_pDevice), m_pContext(rhs.m_pContext)
+	, m_bActive(true)
+	, m_bDestroy(false)
 {
 	Safe_AddRef(m_pDevice); 
 	Safe_AddRef(m_pContext);
@@ -37,8 +39,9 @@ HRESULT CGameObject::Initialize(void * pArg)
 	return S_OK;
 }
 
-void CGameObject::Tick(_float fTimeDelta)
+_bool CGameObject::Tick(_float fTimeDelta)
 {
+	return false;
 }
 
 void CGameObject::LateTick(_float fTimeDelta)
@@ -58,13 +61,15 @@ HRESULT CGameObject::Add_Component(_uint iLevelIndex, const _tchar * pPrototypeT
 	CGameInstance*		pGameInstance = CGameInstance::Get_Instance();
 	Safe_AddRef(pGameInstance);
 	
-	CComponent*			pComponent = pGameInstance->Clone_Component(iLevelIndex, pPrototypeTag, pArg);
+ 	CComponent*			pComponent = pGameInstance->Clone_Component(iLevelIndex, pPrototypeTag, pArg);
 	if (nullptr == pComponent)
 		return E_FAIL;
 
 	m_Components.emplace(pComponentTag, pComponent);
 
 	*ppOut = pComponent;
+
+	(*ppOut)->SetOwner(this);
 
 	Safe_AddRef(pComponent);
 

@@ -4,14 +4,14 @@
 
 BEGIN(Engine)
 
-class CLayer final : public CBase
+class ENGINE_DLL CLayer final : public CBase
 {
 public:
 	CLayer();
 	virtual ~CLayer() = default;
 public:
 	class CComponent* Get_ComponentPtr(const _tchar* pComponentTag, _uint iLayerIndex);
-
+	list<class CGameObject*>*	Get_Layer() { return &m_GameObjects; }
 public:
 	HRESULT Add_GameObject(class CGameObject* pGameObject);
 

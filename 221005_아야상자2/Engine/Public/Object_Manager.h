@@ -17,6 +17,9 @@ private:
 public:
 	class CComponent* Get_ComponentPtr(_uint iLevelIndex, const _tchar* pLayerTag, const _tchar* pComponentTag, _uint iLayerIndex);
 
+	map<const _tchar*, class CGameObject*>* GetPrototypeGameObjects();//프로토타입 얻어오는 함수
+	map<const _tchar*, class CLayer*>* GetLayers(_uint iLevelIndex);//레이어 얻어오는 함수
+
 public:
 	HRESULT Reserve_Container(_uint iNumLevels);
 	class CGameObject* Clone_GameObject(const _tchar* pPrototypeTag, void* pArg = nullptr);

@@ -14,6 +14,12 @@ COBB::COBB(const COBB & rhs)
 
 }
 
+HRESULT COBB::Add_CollisionGroup(CCollider_Manager::COLLISIONGROUP eCollisionGroup, CCollider * pCollider)
+{
+	__super::Add_CollisionGroup(eCollisionGroup, pCollider);
+	return S_OK;
+}
+
 HRESULT COBB::Initialize_Prototype(CCollider::TYPE eColliderType)
 {
 	if (FAILED(__super::Initialize_Prototype(eColliderType)))

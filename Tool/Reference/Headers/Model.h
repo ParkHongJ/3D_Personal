@@ -36,12 +36,12 @@ public:
 	_uint Get_AnimBoneSize(_uint iAnimIndex);
 	void TempFunc(_uint iAnimIndex, _uint iNextAnimIndex);
 	_uint GetAnimSize();
-	HRESULT SaveFBXToBinary();
+	HRESULT SaveFBXToBinary(const _tchar* ModelSavePath);
 	void SaveNode(HANDLE hFile, Node* pNode, DWORD& dwByte, DWORD& dwStrByte);
 	HRESULT LoadBinary();
 	void LoadNode(HANDLE hFile, Node* pNode, DWORD& dwByte, DWORD& dwStrByte);
 public:
-	virtual HRESULT Initialize_Prototype(TYPE eType, const char* pModelFilePath, const char* pModelFileName, _fmatrix PivotMatrix);
+	virtual HRESULT Initialize_Prototype(TYPE eType, const char* pModelFilePath, const char* pModelFileName, const _tchar* pModelSavePath, _fmatrix PivotMatrix);
 	virtual HRESULT Initialize(void* pArg);
 
 
@@ -56,12 +56,13 @@ private:
 	TEMPSCENE*					m_TempScene = nullptr;
 	_float4x4					m_PivotMatrix;
 	TYPE						m_eModelType = TYPE_END;
+	_bool						m_bClone = false;
 
 private:
 	_uint									m_iNumMeshes = 0;
 	vector<class CMeshContainer*>			m_Meshes;
 	typedef vector<class CMeshContainer*>	MESHES;
-
+	_tchar									m_SavePath[MAX_PATH] = L"";
 private:
 	_uint									m_iNumMaterials = 0;
 	vector<MATERIALDESC>					m_Materials;
@@ -90,7 +91,7 @@ private:
 
 
 public:
-	static CModel* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, TYPE eType, const char* pModelFilePath, const char* pModelFileName, _fmatrix PivotMatrix = XMMatrixIdentity());
+	static CModel* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, TYPE eType, const char* pModelFilePath, const char* pModelFileName, const _tchar* pModelSavePath, _fmatrix PivotMatrix = XMMatrixIdentity());
 	virtual CComponent* Clone(void* pArg = nullptr);
 	virtual void Free() override;
 };

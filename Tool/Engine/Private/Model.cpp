@@ -25,7 +25,9 @@ CModel::CModel(const CModel & rhs)
 	, m_PivotMatrix(rhs.m_PivotMatrix)
 	, m_iNumAnimations(rhs.m_iNumAnimations)
 	, m_TempScene(rhs.m_TempScene)
+	, m_bClone(true)
 {
+	wcscpy_s(m_SavePath, rhs.m_SavePath);
 	for (auto& pMeshContainer : m_Meshes)
 		Safe_AddRef(pMeshContainer);
 
@@ -84,9 +86,9 @@ _uint CModel::GetAnimSize()
 	return m_Animations.size();
 }
 
-HRESULT CModel::SaveFBXToBinary()
+HRESULT CModel::SaveFBXToBinary(const _tchar* ModelSavePath)
 {
-	HANDLE		hFile = CreateFile(L"../Bin/Resources/Meshes/Fiona/LEVEL_8.txt", GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+	HANDLE		hFile = CreateFile(ModelSavePath, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
 
 	if (INVALID_HANDLE_VALUE == hFile)
 		return E_FAIL;
@@ -97,11 +99,14 @@ HRESULT CModel::SaveFBXToBinary()
 
 	WriteFile(hFile, &m_TempScene->mNumMeshes, sizeof(_uint), &dwByte, nullptr);
 	WriteFile(hFile, &m_TempScene->mNumMaterials, sizeof(_uint), &dwByte, nullptr);
-	WriteFile(hFile, &m_TempScene->mNumAnimations, sizeof(_uint), &dwByte, nullptr);
-	
-	//Node저장..
-	SaveNode(hFile, &m_TempScene->mRootNode, dwByte, dwStrByte);
 
+
+	if (m_eModelType == TYPE_ANIM)
+	{
+		WriteFile(hFile, &m_TempScene->mNumAnimations, sizeof(_uint), &dwByte, nullptr);
+		//Node저장..
+		SaveNode(hFile, &m_TempScene->mRootNode, dwByte, dwStrByte);
+	}
 	//Mesh저장
 	for (_uint i = 0; i < m_TempScene->mNumMeshes; ++i)
 	{
@@ -114,38 +119,41 @@ HRESULT CModel::SaveFBXToBinary()
 		WriteFile(hFile, &pMesh->mMaterialIndex, sizeof(_uint), &dwByte, nullptr);
 		WriteFile(hFile, &pMesh->mNumVertices, sizeof(_uint), &dwByte, nullptr);
 		WriteFile(hFile, &pMesh->mNumFaces, sizeof(_uint), &dwByte, nullptr);
-		WriteFile(hFile, &pMesh->mNumBones, sizeof(_uint), &dwByte, nullptr);
 
 		//Vertices저장
 		for (_uint j = 0; j < pMesh->mNumVertices; ++j)
 		{
 			WriteFile(hFile, &pMesh->mVertices[j], sizeof(VerticesInfo), &dwByte, nullptr);
 		}
-		//Bone저장
-		for (_uint j = 0; j < pMesh->mNumBones; ++j)
+		if (m_eModelType == TYPE_ANIM)
 		{
-			Bone pBone = pMesh->mBones[j];
-			
-			//BoneName저장
-			dwStrByte = DWORD(sizeof(char) * strlen(pBone.mName));
-			WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
-			WriteFile(hFile, &pBone.mName, dwStrByte, &dwByte, nullptr);
-
-			//OffsetMatrix저장
-			WriteFile(hFile, &pBone.mOffsetMatrix, sizeof(XMFLOAT4X4), &dwByte, nullptr);
-			
-			//NumWeights저장
-			WriteFile(hFile, &pBone.mNumWeights, sizeof(_uint), &dwByte, nullptr);
-
-			for (_uint k = 0; k < pBone.mNumWeights; ++k)
+			WriteFile(hFile, &pMesh->mNumBones, sizeof(_uint), &dwByte, nullptr);
+			//Bone저장
+			for (_uint j = 0; j < pMesh->mNumBones; ++j)
 			{
-				//VertexWeight저장
-				WriteFile(hFile, &pBone.mWeights[k], sizeof(VertexWeight), &dwByte, nullptr);
-				/*WriteFile(hFile, &pBone.mWeights[k].mVertexId, sizeof(_uint), &dwByte, nullptr);
-				WriteFile(hFile, &pBone.mWeights[k].mWeight, sizeof(_float), &dwByte, nullptr);*/
-			}
-		}
+				Bone pBone = pMesh->mBones[j];
 
+				//BoneName저장
+				dwStrByte = DWORD(sizeof(char) * strlen(pBone.mName));
+				WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
+				WriteFile(hFile, &pBone.mName, dwStrByte, &dwByte, nullptr);
+
+				//OffsetMatrix저장
+				WriteFile(hFile, &pBone.mOffsetMatrix, sizeof(XMFLOAT4X4), &dwByte, nullptr);
+
+				//NumWeights저장
+				WriteFile(hFile, &pBone.mNumWeights, sizeof(_uint), &dwByte, nullptr);
+
+				for (_uint k = 0; k < pBone.mNumWeights; ++k)
+				{
+					//VertexWeight저장
+					WriteFile(hFile, &pBone.mWeights[k], sizeof(VertexWeight), &dwByte, nullptr);
+					/*WriteFile(hFile, &pBone.mWeights[k].mVertexId, sizeof(_uint), &dwByte, nullptr);
+					WriteFile(hFile, &pBone.mWeights[k].mWeight, sizeof(_float), &dwByte, nullptr);*/
+				}
+			}
+
+		}
 		//Face저장
 		for (_uint j = 0; j < pMesh->mNumFaces; ++j)
 		{
@@ -159,76 +167,77 @@ HRESULT CModel::SaveFBXToBinary()
 	for (_uint i = 0; i < m_TempScene->mNumMaterials; ++i)
 	{
 		//Texture경로 저장
-		Material* pMaterial = m_TempScene->mMaterials.front();
-		dwStrByte = DWORD(sizeof(_tchar) * wcslen(pMaterial->mName));
+		Material pMaterial = m_TempScene->mMaterials.front();
+		dwStrByte = DWORD(sizeof(_tchar) * wcslen(pMaterial.mName));
 		WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
-		WriteFile(hFile, &pMaterial->mName, dwStrByte, &dwByte, nullptr);
+		WriteFile(hFile, &pMaterial.mName, dwStrByte, &dwByte, nullptr);
 
-		WriteFile(hFile, &pMaterial->TextureType, sizeof(_uint), &dwByte, nullptr);
+		WriteFile(hFile, &pMaterial.TextureType, sizeof(_uint), &dwByte, nullptr);
 		
-		Safe_Delete(m_TempScene->mMaterials.front());
 		m_TempScene->mMaterials.pop_front();
 	}
-
-	//Aniamtion저장
-	for (_uint i = 0; i < m_TempScene->mNumAnimations; ++i)
+	if (m_eModelType == TYPE_ANIM)
 	{
-		Animation pAnimation = m_TempScene->mAnimations[i];
-
-		//AnimationName저장
-		dwStrByte = DWORD(sizeof(char) * strlen(pAnimation.mName));
-		WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
-		WriteFile(hFile, &pAnimation.mName, dwStrByte, &dwByte, nullptr);
-
-		//Animation정보저장
-		WriteFile(hFile, &pAnimation.mDuration, sizeof(_float), &dwByte, nullptr);
-		WriteFile(hFile, &pAnimation.mTickPerSecond, sizeof(_float), &dwByte, nullptr);
-		WriteFile(hFile, &pAnimation.mNumChannels, sizeof(_uint), &dwByte, nullptr);
-
-		for (_uint j = 0; j < pAnimation.mNumChannels; ++j)
+		//Aniamtion저장
+		for (_uint i = 0; i < m_TempScene->mNumAnimations; ++i)
 		{
-			NodeAnim	pNodeAnim = pAnimation.mChannels[j];
+			Animation pAnimation = m_TempScene->mAnimations[i];
 
-			//NodeName저장
-			dwStrByte = DWORD(sizeof(char) * strlen(pNodeAnim.mNodeName));
+			//AnimationName저장
+			dwStrByte = DWORD(sizeof(char) * strlen(pAnimation.mName));
 			WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
-			WriteFile(hFile, &pNodeAnim.mNodeName, dwStrByte, &dwByte, nullptr);
+			WriteFile(hFile, &pAnimation.mName, dwStrByte, &dwByte, nullptr);
 
-			WriteFile(hFile, &pNodeAnim.mNumKeyFrames, sizeof(_uint), &dwByte, nullptr);
+			//Animation정보저장
+			WriteFile(hFile, &pAnimation.mDuration, sizeof(_float), &dwByte, nullptr);
+			WriteFile(hFile, &pAnimation.mTickPerSecond, sizeof(_float), &dwByte, nullptr);
+			WriteFile(hFile, &pAnimation.mNumChannels, sizeof(_uint), &dwByte, nullptr);
 
-			for (_uint k = 0; k < pNodeAnim.mNumKeyFrames; ++k)
+			for (_uint j = 0; j < pAnimation.mNumChannels; ++j)
 			{
-				WriteFile(hFile, &pNodeAnim.mKeyFrames[k], sizeof(KEYFRAME), &dwByte, nullptr);
+				NodeAnim	pNodeAnim = pAnimation.mChannels[j];
+
+				//NodeName저장
+				dwStrByte = DWORD(sizeof(char) * strlen(pNodeAnim.mNodeName));
+				WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
+				WriteFile(hFile, &pNodeAnim.mNodeName, dwStrByte, &dwByte, nullptr);
+
+				WriteFile(hFile, &pNodeAnim.mNumKeyFrames, sizeof(_uint), &dwByte, nullptr);
+
+				for (_uint k = 0; k < pNodeAnim.mNumKeyFrames; ++k)
+				{
+					WriteFile(hFile, &pNodeAnim.mKeyFrames[k], sizeof(KEYFRAME), &dwByte, nullptr);
+				}
+				////NumPosition저장
+				//WriteFile(hFile, &pNodeAnim->mNumPositionKeys, sizeof(_uint), &dwByte, nullptr);
+
+				////PositionKey저장
+				//for (_uint k = 0; k < pNodeAnim->mNumPositionKeys; ++k)
+				//{
+				//	WriteFile(hFile, &pNodeAnim->mPositionKeys[k].mTime, sizeof(_double), &dwByte, nullptr);
+				//	WriteFile(hFile, &pNodeAnim->mPositionKeys[k].mValue, sizeof(XMFLOAT3), &dwByte, nullptr);
+				//}
+
+				////NumRotation저장
+				//WriteFile(hFile, &pNodeAnim->mNumRotationKeys, sizeof(_uint), &dwByte, nullptr);
+
+				////RotationKey저장
+				//for (_uint k = 0; k < pNodeAnim->mNumRotationKeys; ++k)
+				//{
+				//	WriteFile(hFile, &pNodeAnim->mRotationKeys[k].mTime, sizeof(_double), &dwByte, nullptr);
+				//	WriteFile(hFile, &pNodeAnim->mRotationKeys[k].mValue, sizeof(XMFLOAT4), &dwByte, nullptr);
+				//}
+
+				////NumScale저장
+				//WriteFile(hFile, &pNodeAnim->mNumScalingKeys, sizeof(_uint), &dwByte, nullptr);
+				//
+				////ScalingKey저장
+				//for (_uint k = 0; k < pNodeAnim->mNumScalingKeys; ++k)
+				//{
+				//	WriteFile(hFile, &pNodeAnim->mScalingKeys[k].mTime, sizeof(_double), &dwByte, nullptr);
+				//	WriteFile(hFile, &pNodeAnim->mScalingKeys[k].mValue, sizeof(XMFLOAT3), &dwByte, nullptr);
+				//}
 			}
-			////NumPosition저장
-			//WriteFile(hFile, &pNodeAnim->mNumPositionKeys, sizeof(_uint), &dwByte, nullptr);
-
-			////PositionKey저장
-			//for (_uint k = 0; k < pNodeAnim->mNumPositionKeys; ++k)
-			//{
-			//	WriteFile(hFile, &pNodeAnim->mPositionKeys[k].mTime, sizeof(_double), &dwByte, nullptr);
-			//	WriteFile(hFile, &pNodeAnim->mPositionKeys[k].mValue, sizeof(XMFLOAT3), &dwByte, nullptr);
-			//}
-
-			////NumRotation저장
-			//WriteFile(hFile, &pNodeAnim->mNumRotationKeys, sizeof(_uint), &dwByte, nullptr);
-
-			////RotationKey저장
-			//for (_uint k = 0; k < pNodeAnim->mNumRotationKeys; ++k)
-			//{
-			//	WriteFile(hFile, &pNodeAnim->mRotationKeys[k].mTime, sizeof(_double), &dwByte, nullptr);
-			//	WriteFile(hFile, &pNodeAnim->mRotationKeys[k].mValue, sizeof(XMFLOAT4), &dwByte, nullptr);
-			//}
-
-			////NumScale저장
-			//WriteFile(hFile, &pNodeAnim->mNumScalingKeys, sizeof(_uint), &dwByte, nullptr);
-			//
-			////ScalingKey저장
-			//for (_uint k = 0; k < pNodeAnim->mNumScalingKeys; ++k)
-			//{
-			//	WriteFile(hFile, &pNodeAnim->mScalingKeys[k].mTime, sizeof(_double), &dwByte, nullptr);
-			//	WriteFile(hFile, &pNodeAnim->mScalingKeys[k].mValue, sizeof(XMFLOAT3), &dwByte, nullptr);
-			//}
 		}
 	}
 	CloseHandle(hFile);
@@ -263,7 +272,6 @@ HRESULT CModel::LoadBinary()
 	for (_uint i = 0; i < m_TempScene->mNumMeshes; ++i)
 	{
 		Mesh pMesh;/* = &m_TempScene->mMesh[i];*/
-		ZeroMemory(&pMesh, sizeof(Mesh));
 		//Mesh이름 로드
 		ReadFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
 		char*	pName = nullptr;
@@ -287,7 +295,6 @@ HRESULT CModel::LoadBinary()
 		for (_uint j = 0; j < pMesh.mNumVertices; ++j)
 		{
 			VerticesInfo vInfo;
-			ZeroMemory(&vInfo, sizeof(VerticesInfo));
 			ReadFile(hFile, &vInfo, sizeof(VerticesInfo), &dwByte, nullptr);
 			pMesh.mVertices.push_back(vInfo);
 		}
@@ -318,7 +325,6 @@ HRESULT CModel::LoadBinary()
 		{
 			//pMesh->mBones[j] = new Bone;
 			Bone pBone;// = pMesh->mBones[j];
-			ZeroMemory(&pBone, sizeof(Bone));
 
 			//BoneName로드
 			ReadFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
@@ -339,7 +345,6 @@ HRESULT CModel::LoadBinary()
 			for (_uint k = 0; k < pBone.mNumWeights; ++k)
 			{
 				VertexWeight Weight;
-				ZeroMemory(&Weight, sizeof(VertexWeight));
 
 				ReadFile(hFile, &Weight, sizeof(VertexWeight), &dwByte, nullptr);
 
@@ -354,7 +359,7 @@ HRESULT CModel::LoadBinary()
 		for (_uint j = 0; j < pMesh.mNumFaces; ++j)
 		{
 			FACEINDICES32 mFace;
-			ZeroMemory(&mFace, sizeof(FACEINDICES32));
+
 			ReadFile(hFile, &mFace, sizeof(FACEINDICES32), &dwByte, nullptr);
 			pMesh.mFaces.push_back(mFace);
 			/*WriteFile(hFile, &pMesh->mFaces[j].mIndices[1], sizeof(_uint), &dwByte, nullptr);
@@ -375,15 +380,15 @@ HRESULT CModel::LoadBinary()
 	for (_uint i = 0; i < m_TempScene->mNumMaterials; ++i)
 	{
 		//TextureName로드
-		Material* pMaterial = new Material;
+		Material pMaterial;
 		ReadFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
 		_tchar*	pName = nullptr;
 		pName = new _tchar[dwStrByte];
 		ReadFile(hFile, pName, dwStrByte, &dwByte, nullptr);
 		pName[dwByte / sizeof(_tchar)] = 0;
-		wcscpy_s(pMaterial->mName, pName);
+		wcscpy_s(pMaterial.mName, pName);
 
-		ReadFile(hFile, &pMaterial->TextureType, sizeof(_uint), &dwByte, nullptr);
+		ReadFile(hFile, &pMaterial.TextureType, sizeof(_uint), &dwByte, nullptr);
 
 		m_TempScene->mMaterials.push_back(pMaterial);
 	}
@@ -396,7 +401,6 @@ HRESULT CModel::LoadBinary()
 	{
 		//m_TempScene->mAnimations[i] = new ANIMATION;
 		Animation pAnimation;// = m_TempScene->mAnimations[i];
-		ZeroMemory(&pAnimation, sizeof(Animation));
 
 		//AnimationName로드
 		ReadFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
@@ -417,7 +421,6 @@ HRESULT CModel::LoadBinary()
 		{
 			//pAnimation->mChannels[j] = new NodeAnim;
 			NodeAnim pNodeAnim;// = pAnimation->mChannels[j];
-			ZeroMemory(&pNodeAnim, sizeof(NodeAnim));
 
 			//NodeName로드
 			ReadFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
@@ -440,7 +443,6 @@ HRESULT CModel::LoadBinary()
 			for (_uint k = 0; k < pNodeAnim.mNumKeyFrames; ++k)
 			{
 				KEYFRAME keyFrame;
-				ZeroMemory(&keyFrame, sizeof(KEYFRAME));
 				ReadFile(hFile, &keyFrame, sizeof(KEYFRAME), &dwByte, nullptr);
 				pNodeAnim.mKeyFrames.push_back(keyFrame);
 			}
@@ -529,15 +531,14 @@ void CModel::LoadNode(HANDLE hFile, Node * pNode, DWORD & dwByte, DWORD & dwStrB
 	{
 		//pNode->mChildren[i] = new Node;
 		Node tempNode;
-		ZeroMemory(&tempNode, sizeof(Node));
 		LoadNode(hFile, &tempNode, dwByte, dwStrByte);
 		pNode->mChildren.push_back(tempNode);
 	}
 }
 
-HRESULT CModel::Initialize_Prototype(TYPE eType, const char * pModelFilePath, const char * pModelFileName, _fmatrix PivotMatrix)
+HRESULT CModel::Initialize_Prototype(TYPE eType, const char * pModelFilePath, const char * pModelFileName, const _tchar* pModelSavePath, _fmatrix PivotMatrix)
 {
-
+	wcscpy_s(m_SavePath, pModelSavePath);
 	//LoadBinary();
 	XMStoreFloat4x4(&m_PivotMatrix, PivotMatrix);
 
@@ -642,7 +643,7 @@ HRESULT CModel::Initialize(void * pArg)
 
 	m_Animations = Animations;
 
-	SaveFBXToBinary();
+	SaveFBXToBinary(m_SavePath);
 	return S_OK;
 }
 
@@ -745,9 +746,9 @@ HRESULT CModel::Ready_Materials(const char* pModelFilePath)
 			//m_Path.push_back(szWideFullPath);
 			MaterialDesc.pTexture[j] = CTexture::Create(m_pDevice, m_pContext, szWideFullPath);
 			
-			Material* pMaterial = new Material;
-			wcscpy_s(pMaterial->mName, szWideFullPath);
-			pMaterial->TextureType = j;
+			Material pMaterial;
+			wcscpy_s(pMaterial.mName, szWideFullPath);
+			pMaterial.TextureType = j;
 			m_TempScene->mMaterials.push_back(pMaterial);
 			
 			if (nullptr == MaterialDesc.pTexture[j])
@@ -850,7 +851,6 @@ HRESULT CModel::Ready_Animations()
 		//m_TempScene->mAnimations[i] = new ANIMATION;
 		//ANIMATION*			pMyAnimation = m_TempScene->mAnimations[i];
 		ANIMATION MyAnimation;
-		ZeroMemory(&MyAnimation, sizeof(ANIMATION));
 		CAnimation*			pAnimation = CAnimation::Create(pAIAnimation, &MyAnimation);
 		if (nullptr == pAnimation)
 			return E_FAIL;
@@ -861,11 +861,11 @@ HRESULT CModel::Ready_Animations()
 	return S_OK;
 }
 
-CModel * CModel::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, TYPE eType, const char * pModelFilePath, const char * pModelFileName, _fmatrix PivotMatrix)
+CModel * CModel::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, TYPE eType, const char * pModelFilePath, const char * pModelFileName, const _tchar* pModelSavePath, _fmatrix PivotMatrix)
 {
 	CModel*			pInstance = new CModel(pDevice, pContext);
 
-	if (FAILED(pInstance->Initialize_Prototype(eType, pModelFilePath, pModelFileName, PivotMatrix)))
+	if (FAILED(pInstance->Initialize_Prototype(eType, pModelFilePath, pModelFileName, pModelSavePath, PivotMatrix)))
 	{
 		MSG_BOX(TEXT("Failed To Created : CTexture"));
 		Safe_Release(pInstance);
@@ -891,7 +891,8 @@ void CModel::Free()
 {
 	__super::Free();
 
-	delete m_TempScene;
+	if (!m_bClone)
+		delete m_TempScene;
 
 	for (auto& pHierarchyNode : m_HierarchyNodes)
 		Safe_Release(pHierarchyNode);

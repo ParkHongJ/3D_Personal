@@ -73,6 +73,7 @@ HRESULT CGraphic_Device::Clear_DepthStencil_View()
 	if (nullptr == m_pDeviceContext)
 		return E_FAIL;
 
+	m_pDeviceContext->OMSetRenderTargets(1, &m_pBackBufferRTV, m_pDepthStencilView);
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
 	return S_OK;
@@ -100,7 +101,7 @@ HRESULT CGraphic_Device::Ready_SwapChain(HWND hWnd, GRAPHICDESC::WINMODE eWinMod
 
 	DXGI_SWAP_CHAIN_DESC		SwapChain;
 	ZeroMemory(&SwapChain, sizeof(DXGI_SWAP_CHAIN_DESC));
-			
+
 	SwapChain.BufferDesc.Width = iWinCX;
 	SwapChain.BufferDesc.Height = iWinCY;
 	SwapChain.BufferDesc.RefreshRate.Numerator = 60;
@@ -113,7 +114,7 @@ HRESULT CGraphic_Device::Ready_SwapChain(HWND hWnd, GRAPHICDESC::WINMODE eWinMod
 	SwapChain.SampleDesc.Count = 1;
 	SwapChain.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	SwapChain.BufferCount = 1;
-	SwapChain.OutputWindow = hWnd;	
+	SwapChain.OutputWindow = hWnd;
 	SwapChain.Windowed = eWinMode;
 	SwapChain.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
@@ -179,7 +180,40 @@ HRESULT CGraphic_Device::Ready_DepthStencilRenderTargetView(_uint iWinCX, _uint 
 
 	if (FAILED(m_pDevice->CreateDepthStencilView(pDepthStencilTexture, nullptr, &m_pDepthStencilView)))
 		return E_FAIL;	
+	D3D11_DEPTH_STENCIL_DESC dsDesc;
 
+	// Depth test parameters
+	dsDesc.DepthEnable = true;
+	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dsDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+
+	// Stencil test parameters
+	dsDesc.StencilEnable = true;
+	dsDesc.StencilReadMask = 0xFF;
+	dsDesc.StencilWriteMask = 0xFF;
+
+	// Stencil operations if pixel is front-facing
+	dsDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dsDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	dsDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	dsDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	// Stencil operations if pixel is back-facing
+	dsDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dsDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	dsDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	dsDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	// Create depth stencil state
+	ID3D11DepthStencilState * pDSState;
+	if ((FAILED(m_pDevice->CreateDepthStencilState(&dsDesc, &pDSState))))
+	{
+		MSG_BOX(TEXT("StencilState"));
+		return E_FAIL;
+	}
+
+	m_pDeviceContext->OMSetDepthStencilState(pDSState, 0);
+	Safe_Release(pDSState);
 	Safe_Release(pDepthStencilTexture);
 
 	return S_OK;

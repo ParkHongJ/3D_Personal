@@ -231,7 +231,7 @@ namespace Engine
 		NODE mRootNode;
 		//ANIMATION** mAnimations;
 		std::vector<ANIMATION> mAnimations;
-		std::list<Material*> mMaterials;
+		std::list<Material> mMaterials;
 		std::vector<Mesh> mMesh;
 	}TEMPSCENE;
 

@@ -32,7 +32,7 @@ HRESULT CCamera::Initialize(void * pArg)
 	return S_OK;
 }
 
-void CCamera::Tick(_float fTimeDelta)
+_bool CCamera::Tick(_float fTimeDelta)
 {
 	CPipeLine*			pPipeLine = GET_INSTANCE(CPipeLine);
 
@@ -40,6 +40,7 @@ void CCamera::Tick(_float fTimeDelta)
 	pPipeLine->Set_Transform(CPipeLine::D3DTS_PROJ, XMMatrixPerspectiveFovLH(m_CameraDesc.fFovy, m_CameraDesc.fAspect, m_CameraDesc.fNear, m_CameraDesc.fFar));
 
 	RELEASE_INSTANCE(CPipeLine);
+	return false;
 }
 
 void CCamera::LateTick(_float fTimeDelta)

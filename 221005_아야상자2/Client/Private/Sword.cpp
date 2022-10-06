@@ -32,9 +32,9 @@ HRESULT CSword::Initialize(void * pArg)
 	return S_OK;
 }
 
-void CSword::Tick(_float fTimeDelta)
+_bool CSword::Tick(_float fTimeDelta)
 {
-
+	return false;
 }
 
 void CSword::LateTick(_float fTimeDelta)

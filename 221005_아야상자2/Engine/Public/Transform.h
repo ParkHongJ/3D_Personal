@@ -44,6 +44,10 @@ public:
 		return XMMatrixInverse(nullptr, Get_WorldMatrix());
 	}
 
+	void Set_WorldMatrix(_matrix _WorldMatrix) {
+		XMStoreFloat4x4(&m_WorldMatrix, _WorldMatrix);
+	}
+
 	void Set_State(STATE eState, _fvector vState);
 
 public:

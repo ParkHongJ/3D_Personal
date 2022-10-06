@@ -2,7 +2,7 @@
 
 #include "Component.h"
 #include "DebugDraw.h"
-
+#include "Collider_Manager.h"
 BEGIN(Engine)
 
 class ENGINE_DLL CCollider abstract : public CComponent
@@ -27,8 +27,12 @@ public:
 	TYPE Get_ColliderType() const {
 		return m_eColliderType;
 	}
-
+	_uint GetID() const {
+		return m_iID;
+	}
 public:
+	HRESULT Add_CollisionGroup(CCollider_Manager::COLLISIONGROUP eCollisionGroup, class CCollider* pCollider);
+
 	virtual HRESULT Initialize_Prototype(TYPE eColliderType);
 	virtual HRESULT Initialize(void* pArg);
 	virtual void Update(_fmatrix TransformMatrix) = 0;
@@ -45,7 +49,10 @@ protected:
 	COLLIDERDESC			m_ColliderDesc;
 	_bool					m_isColl = false;
 	
+	_uint					m_iID;
+private:
 
+	static _uint			g_NextID;
 #ifdef _DEBUG
 protected:
 	PrimitiveBatch<VertexPositionColor>*		m_pBatch = nullptr;

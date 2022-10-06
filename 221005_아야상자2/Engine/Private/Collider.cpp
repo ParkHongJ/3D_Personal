@@ -1,5 +1,8 @@
 #include "..\Public\Collider.h"
 #include "PipeLine.h"
+#include "GameInstance.h"
+
+_uint CCollider::g_NextID = 0;
 
 CCollider::CCollider(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CComponent(pDevice, pContext)
@@ -9,8 +12,9 @@ CCollider::CCollider(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 
 CCollider::CCollider(const CCollider & rhs)
 	: CComponent(rhs)
-	, m_isColl(rhs.m_isColl)
+	, m_isColl(false)
 	, m_eColliderType(rhs.m_eColliderType)
+	, m_iID(g_NextID++)
 #ifdef _DEBUG
 	, m_pBatch(rhs.m_pBatch)
 	, m_pEffect(rhs.m_pEffect)
@@ -20,6 +24,14 @@ CCollider::CCollider(const CCollider & rhs)
 #ifdef _DEBUG
 	Safe_AddRef(m_pInputLayout);
 #endif // _DEBUG
+}
+
+HRESULT CCollider::Add_CollisionGroup(CCollider_Manager::COLLISIONGROUP eCollisionGroup, CCollider * pCollider)
+{
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+	pGameInstance->Add_CollisionGroup(eCollisionGroup, pCollider);
+	RELEASE_INSTANCE(CGameInstance);
+	return S_OK;
 }
 
 HRESULT CCollider::Initialize_Prototype(TYPE eColliderType)

@@ -18,6 +18,26 @@ CComponent * CObject_Manager::Get_ComponentPtr(_uint iLevelIndex, const _tchar *
 	return pLayer->Get_ComponentPtr(pComponentTag, iLayerIndex);
 }
 
+map<const _tchar*, class CGameObject*>* CObject_Manager::GetPrototypeGameObjects()
+{
+	if (!m_Prototypes.empty())
+	{
+		return &m_Prototypes;
+	}
+	else
+		return nullptr;
+}
+
+map<const _tchar*, class CLayer*>* CObject_Manager::GetLayers(_uint iLevelIndex)
+{
+	if (!m_pLayers[iLevelIndex].empty())
+	{
+		return &m_pLayers[iLevelIndex];
+	}
+	else
+		return nullptr;
+}
+
 HRESULT CObject_Manager::Reserve_Container(_uint iNumLevels)
 {
 	if (nullptr != m_pLayers)

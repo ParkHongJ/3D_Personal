@@ -174,19 +174,7 @@ namespace Engine
 		std::vector<FACEINDICES32> mFaces;
 		std::vector<Bone> mBones;
 	}MESH;
-
-	typedef struct VectorKey
-	{
-		double mTime;
-		XMFLOAT3 mValue;
-	}VECTORKEY;
-
-	typedef struct QuatKey
-	{
-		double mTime;
-		XMFLOAT4 mValue;
-	}QUATKEY;
-
+	
 	typedef struct NodeAnim {
 		char mNodeName[MAX_PATH] = "";
 		unsigned int mNumKeyFrames;

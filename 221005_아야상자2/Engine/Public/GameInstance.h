@@ -8,8 +8,8 @@
 #include "Component_Manager.h"
 #include "Light_Manager.h"
 #include "PipeLine.h"
-
-
+#include "Collider_Manager.h"
+#include "Key_Manager.h"
 /* 클라이언트로 보여주기위한 가장 대표적인 클래스이다. */
 /* 각종 매니져클래스들의 주요함수를 클라로 보여준다.  */
 /* 엔진초기화. */
@@ -30,6 +30,10 @@ public: /* For.Engine */
 	void Tick_Engine(_float fTimeDelta);
 	void Clear(_uint iLevelIndex);
 	
+public: /* For.Imgui */
+	map<const _tchar*, class CLayer*>*	GetLayers(_uint iLevelIndex);
+	map<const _tchar*, class CComponent*>* GetPrototypeComponent(_uint iLevelIndex);
+	map<const _tchar*, class CGameObject*>* GetPrototypeGameObject();
 
 public: /* For.Graphic_Device */
 	HRESULT Clear_BackBuffer_View(_float4 vClearColor);
@@ -51,6 +55,10 @@ public: /*For.Component_Manager*/
 	HRESULT Add_Prototype(_uint iLevelIndex, const _tchar* pPrototypeTag, class CComponent* pPrototype);
 	class CComponent* Clone_Component(_uint iLevelIndex, const _tchar* pPrototypeTag, void* pArg = nullptr);
 
+public: /*For.Collider_Manager*/
+	HRESULT Add_CollisionGroup(CCollider_Manager::COLLISIONGROUP eCollisionGroup, class CCollider* pGameObject);
+
+
 public: /* for.Timer_Manager */
 	_float Get_TimeDelta(const _tchar* pTimerTag);
 	HRESULT Add_Timer(const _tchar* pTimerTag);
@@ -60,7 +68,8 @@ public: /* For.Input_Device */
 	_char Get_DIKState(_uchar eKeyID);
 	_char Get_DIMKeyState(DIMK eMouseKeyID);
 	_long Get_DIMMoveState(DIMM eMouseMoveID);
-
+	_bool Key_Down(_uchar KeyInput);
+	_bool Key_Pressing(_uchar KeyInput);
 public: /* For.PipeLine */
 	void Set_Transform(CPipeLine::TRANSFORMSTATE eTransformState, _fmatrix TransformMatrix);
 	_matrix Get_TransformMatrix(CPipeLine::TRANSFORMSTATE eTransformState) const;		
@@ -72,6 +81,8 @@ public: /* For.Light_Manager */
 	const LIGHTDESC* Get_LightDesc(_uint iIndex);
 	HRESULT Add_Light(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, const LIGHTDESC& LightDesc);
 
+private:
+	_bool m_bKeyState[256] = { false };
 
 private:
 	CGraphic_Device*				m_pGraphic_Device = nullptr;
@@ -82,8 +93,8 @@ private:
 	CTimer_Manager*					m_pTimer_Manager = nullptr;
 	CPipeLine*						m_pPipeLine = nullptr;
 	CLight_Manager*					m_pLight_Manager = nullptr;
-
-
+	CCollider_Manager*				m_pCollider_Manager = nullptr;
+	CKey_Manager*					m_pKey_Manager = nullptr;
 public:
 	static void Release_Engine();
 	virtual void Free() override;

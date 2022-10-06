@@ -30,9 +30,9 @@ HRESULT CForkLift::Initialize(void * pArg)
 	return S_OK;
 }
 
-void CForkLift::Tick(_float fTimeDelta)
+_bool CForkLift::Tick(_float fTimeDelta)
 {
-
+	return false;
 }
 
 void CForkLift::LateTick(_float fTimeDelta)

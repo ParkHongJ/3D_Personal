@@ -37,7 +37,6 @@ HRESULT CAnimation::Initialize_Prototype(aiAnimation * pAIAnimation, ANIMATION* 
 	{
 		//pMyAnimation->mChannels[i] = new NodeAnim;
 		NodeAnim nodeAnim;
-		ZeroMemory(&nodeAnim, sizeof(nodeAnim));
 		CChannel*		pChannel = CChannel::Create(pAIAnimation->mChannels[i], &nodeAnim);//pMyAnimation->mChannels[i]);
 		if (nullptr == pChannel)
 			return E_FAIL;

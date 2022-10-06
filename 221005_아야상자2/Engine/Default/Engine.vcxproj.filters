@@ -106,6 +106,12 @@
     <ClCompile Include="..\Private\DebugDraw.cpp">
       <Filter>03.Components\07.Collider\00.DebugDraw</Filter>
     </ClCompile>
+    <ClCompile Include="..\private\Collider_Manager.cpp">
+      <Filter>03.Components\07.Collider\01.Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Key_Manager.cpp">
+      <Filter>04.Utility\03.Key_Manager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Public\Engine_Defines.h">
@@ -228,6 +234,12 @@
     <ClInclude Include="..\Public\DebugDraw.h">
       <Filter>03.Components\07.Collider\00.DebugDraw</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\Collider_Manager.h">
+      <Filter>03.Components\07.Collider\01.Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Key_Manager.h">
+      <Filter>04.Utility\03.Key_Manager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="99.Defines">
@@ -340,6 +352,12 @@
     </Filter>
     <Filter Include="03.Components\07.Collider\00.DebugDraw">
       <UniqueIdentifier>{0ad83d6e-e6b6-433a-9a94-4ccb21f7e80d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Components\07.Collider\01.Manager">
+      <UniqueIdentifier>{9b3133b6-ef7d-482d-953a-b615d16fc3ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04.Utility\03.Key_Manager">
+      <UniqueIdentifier>{c5acb27e-c438-4de8-b1c4-064106f5ed23}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

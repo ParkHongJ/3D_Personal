@@ -11,6 +11,8 @@ CGameInstance::CGameInstance()
 	, m_pTimer_Manager(CTimer_Manager::Get_Instance())	
 	, m_pPipeLine(CPipeLine::Get_Instance())
 	, m_pLight_Manager(CLight_Manager::Get_Instance())
+	, m_pCollider_Manager(CCollider_Manager::Get_Instance())
+	, m_pKey_Manager(CKey_Manager::Get_Instance())
 {	
 	Safe_AddRef(m_pLight_Manager);
 	Safe_AddRef(m_pPipeLine);
@@ -20,6 +22,8 @@ CGameInstance::CGameInstance()
 	Safe_AddRef(m_pLevel_Manager);
 	Safe_AddRef(m_pInput_Device);
 	Safe_AddRef(m_pGraphic_Device);
+	Safe_AddRef(m_pCollider_Manager);
+	Safe_AddRef(m_pKey_Manager);
 }
 
 
@@ -64,6 +68,8 @@ void CGameInstance::Tick_Engine(_float fTimeDelta)
 
 	m_pObject_Manager->LateTick(fTimeDelta);
 
+	m_pCollider_Manager->Collision(CCollider_Manager::PLAYER, CCollider_Manager::MONSTER, fTimeDelta);
+	m_pCollider_Manager->Clear_CollisionGroup();
 	m_pLevel_Manager->Tick(fTimeDelta);
 }
 
@@ -73,6 +79,21 @@ void CGameInstance::Clear(_uint iLevelIndex)
 		return;
 
 	m_pObject_Manager->Clear(iLevelIndex);
+}
+
+map<const _tchar*, class CLayer*>* CGameInstance::GetLayers(_uint iLevelIndex)
+{
+	return m_pObject_Manager->GetLayers(iLevelIndex);
+}
+
+map<const _tchar*, class CComponent*>* CGameInstance::GetPrototypeComponent(_uint iLevelIndex)
+{
+	return m_pComponent_Manager->GetPrototypeComponent(iLevelIndex);
+}
+
+map<const _tchar*, class CGameObject*>* CGameInstance::GetPrototypeGameObject()
+{
+	return m_pObject_Manager->GetPrototypeGameObjects();
 }
 
 HRESULT CGameInstance::Clear_BackBuffer_View(_float4 vClearColor)
@@ -163,6 +184,12 @@ CComponent * CGameInstance::Clone_Component(_uint iLevelIndex, const _tchar * pP
 	return m_pComponent_Manager->Clone_Component(iLevelIndex, pPrototypeTag, pArg);	
 }
 
+HRESULT CGameInstance::Add_CollisionGroup(CCollider_Manager::COLLISIONGROUP eCollisionGroup, CCollider * pGameObject)
+{
+	m_pCollider_Manager->Add_CollisionGroup(eCollisionGroup, pGameObject);
+	return S_OK;
+}
+
 _float CGameInstance::Get_TimeDelta(const _tchar * pTimerTag)
 {
 	if (nullptr == m_pTimer_Manager)
@@ -207,6 +234,16 @@ _long CGameInstance::Get_DIMMoveState(DIMM eMouseMoveID)
 		return 0;
 
 	return m_pInput_Device->Get_DIMMoveState(eMouseMoveID);
+}
+
+_bool CGameInstance::Key_Down(_uchar KeyInput)
+{
+	return m_pKey_Manager->Key_Down(KeyInput);
+}
+
+_bool CGameInstance::Key_Pressing(_uchar KeyInput)
+{
+	return m_pKey_Manager->Key_Pressing(KeyInput);
 }
 
 void CGameInstance::Set_Transform(CPipeLine::TRANSFORMSTATE eTransformState, _fmatrix TransformMatrix)
@@ -274,6 +311,10 @@ void CGameInstance::Release_Engine()
 
 	CObject_Manager::Get_Instance()->Destroy_Instance();
 
+	CKey_Manager::Get_Instance()->Destroy_Instance();
+
+	CCollider_Manager::Get_Instance()->Destroy_Instance();
+
 	CLevel_Manager::Get_Instance()->Destroy_Instance();
 
 	CTimer_Manager::Get_Instance()->Destroy_Instance();
@@ -294,6 +335,8 @@ void CGameInstance::Free()
 	Safe_Release(m_pTimer_Manager);
 	Safe_Release(m_pComponent_Manager);
 	Safe_Release(m_pObject_Manager);
+	Safe_Release(m_pKey_Manager);
+	Safe_Release(m_pCollider_Manager);
 	Safe_Release(m_pLevel_Manager);
 	Safe_Release(m_pInput_Device);
 	Safe_Release(m_pGraphic_Device); 

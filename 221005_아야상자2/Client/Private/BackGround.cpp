@@ -35,10 +35,12 @@ HRESULT CBackGround::Initialize(void * pArg)
 	return S_OK;
 }
 
-void CBackGround::Tick(_float fTimeDelta)
+_bool CBackGround::Tick(_float fTimeDelta)
 {
 	m_pTransformCom->Set_Scale(XMVectorSet(m_fSizeX, m_fSizeY, 1.f, 0.f));
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(m_fX - g_iWinSizeX * 0.5f, -m_fY + g_iWinSizeY * 0.5f, 0.0f, 1.f));
+
+	return false;
 }
 
 void CBackGround::LateTick(_float fTimeDelta)

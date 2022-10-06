@@ -14,6 +14,12 @@ CSphere::CSphere(const CSphere & rhs)
 
 }
 
+HRESULT CSphere::Add_CollisionGroup(CCollider_Manager::COLLISIONGROUP eCollisionGroup, CCollider * pCollider)
+{
+	__super::Add_CollisionGroup(eCollisionGroup, pCollider);
+	return S_OK;
+}
+
 HRESULT CSphere::Initialize_Prototype(CCollider::TYPE eColliderType)
 {
 	if (FAILED(__super::Initialize_Prototype(eColliderType)))

@@ -140,8 +140,8 @@ HRESULT CLevel_GamePlay::Ready_Layer_BackGround(const _tchar * pLayerTag)
 		return E_FAIL;
 */
 
-	if (FAILED(pGameInstance->Add_GameObjectToLayer(TEXT("Prototype_GameObject_ForkLift"), LEVEL_GAMEPLAY, pLayerTag)))
-		return E_FAIL;
+	/*if (FAILED(pGameInstance->Add_GameObjectToLayer(TEXT("Prototype_GameObject_ForkLift"), LEVEL_GAMEPLAY, pLayerTag)))
+		return E_FAIL;*/
 
 	Safe_Release(pGameInstance);
 
@@ -153,14 +153,13 @@ HRESULT CLevel_GamePlay::Ready_Layer_Monster(const _tchar * pLayerTag)
 	CGameInstance*		pGameInstance = CGameInstance::Get_Instance();
 	Safe_AddRef(pGameInstance);
 
-	for (_uint i = 0; i < 10; ++i)
+	for (_uint i = 0; i < 1; ++i)
 	{
 		if (FAILED(pGameInstance->Add_GameObjectToLayer(TEXT("Prototype_GameObject_Monster"), LEVEL_GAMEPLAY, pLayerTag)))
 			return E_FAIL;
-
 	}
 
-	
+
 	Safe_Release(pGameInstance);
 
 
