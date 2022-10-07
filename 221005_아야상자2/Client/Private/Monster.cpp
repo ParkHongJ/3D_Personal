@@ -27,8 +27,8 @@ HRESULT CMonster::Initialize(void * pArg)
 	m_pModelCom->Set_AnimIndex(0);
 	//m_pTransformCom->Set_Scale(XMVectorSet(0.01f, 0.01f, 0.01f,0.f));
 	//m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(0.f,0.f,2.f,1.f));
-	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(rand() % 20, 0.f, rand() % 20, 1.f));
-	_float temp = rand() % 9;
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet((_float)(rand() % 20), 0.f, (_float)(rand() % 20), 1.f));
+	_float temp = (_float)(rand() % 9);
 	m_pTransformCom->Rotation(XMVectorSet(0.f, 1.f, 0.f, 0.f), temp * 0.5f);
 	return S_OK;
 }

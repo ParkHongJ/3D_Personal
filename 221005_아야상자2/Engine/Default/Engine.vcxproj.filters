@@ -115,6 +115,15 @@
     <ClCompile Include="..\Private\Picking.cpp">
       <Filter>04.Utility\04.Picking</Filter>
     </ClCompile>
+    <ClCompile Include="..\Private\Cell.cpp">
+      <Filter>03.Components\0888.Navigation\Cell</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Navigation.cpp">
+      <Filter>03.Components\0888.Navigation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\VIBuffer_Cell.cpp">
+      <Filter>03.Components\02.VIBuffer\Cell</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Public\Engine_Defines.h">
@@ -246,6 +255,15 @@
     <ClInclude Include="..\Public\Picking.h">
       <Filter>04.Utility\04.Picking</Filter>
     </ClInclude>
+    <ClInclude Include="..\Public\Cell.h">
+      <Filter>03.Components\0888.Navigation\Cell</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Navigation.h">
+      <Filter>03.Components\0888.Navigation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\VIBuffer_Cell.h">
+      <Filter>03.Components\02.VIBuffer\Cell</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="99.Defines">
@@ -368,5 +386,22 @@
     <Filter Include="04.Utility\04.Picking">
       <UniqueIdentifier>{9d1aa909-ac25-4f44-a569-ead2f3f7ea70}</UniqueIdentifier>
     </Filter>
+    <Filter Include="03.Components\0888.Navigation">
+      <UniqueIdentifier>{efc7aa9c-a5d1-4136-87f0-114231efdfcd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Components\0888.Navigation\Cell">
+      <UniqueIdentifier>{1891b237-44df-4103-bccd-562dba347256}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Components\0888.Navigation\Cell\Shader">
+      <UniqueIdentifier>{846c8f5e-973a-44b8-9040-2a97d6eb83b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Components\02.VIBuffer\Cell">
+      <UniqueIdentifier>{50ff31f7-e482-452a-94bb-e4e0dd07a510}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_Cell.hlsl">
+      <Filter>03.Components\0888.Navigation\Cell\Shader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

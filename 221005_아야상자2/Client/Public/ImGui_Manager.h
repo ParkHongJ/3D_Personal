@@ -6,6 +6,8 @@
 
 BEGIN(Engine)
 class CComponent;
+class CModel;
+class CAnimation;
 END
 BEGIN(Client)
 
@@ -13,7 +15,12 @@ class CImGui_Manager final : public CBase
 {
 	DECLARE_SINGLETON(CImGui_Manager)
 public:
-	enum Tool { MAP, UNIT, CAMERA, PARTICLE, TOOL_END };
+	enum Tool { TOOL_MAP, TOOL_UNIT, TOOL_CAMERA, TOOL_PARTICLE, TOOL_ANIMATION, TOOL_END };
+	typedef struct AnimInfo {
+		_float fBlendTime;
+		_bool bLoop;
+		_bool bHasExitTime;
+	}ANIM_INFO;
 public:
 	CImGui_Manager();
 	virtual ~CImGui_Manager() = default;
@@ -29,6 +36,11 @@ public:
 
 	HRESULT AddGameObject(const _tchar * pPrototypeTag, const _tchar * pLayerTag, _uint iNumLevel, void* pArg = nullptr);
 	
+	/* For Hierarchy */
+	void ShowHierarchy();
+
+	/* For Inspector */
+	void Inspector();
 private:
 	ID3D11Device* m_pDevice;
 	ID3D11DeviceContext* m_pContext;
@@ -41,7 +53,6 @@ private:
 	_float3	vRotation;
 
 	_uint item_current_idx = 0;
-
 	Tool m_eCurrentTool = TOOL_END;
 
 	/*============
@@ -66,7 +77,26 @@ private:
 	_float vScal[3] = {};
 
 
-	
+	/* For Animation */
+	class CModel* m_pModel = nullptr;
+
+	/* 현재 오브젝트가 갖고있는 애니메이션의 고유한 인덱스 */
+	_uint Animation_current_idx = 0;
+
+	/* 내가 수정하고자 하는 애니메이션의 인덱스 */
+	_uint Animation_Edit_Idx = 0;
+	_uint Animation_Next_Idx = 0;
+	map<string, _uint> m_CurrentAnim;
+	map<string, _uint> m_NextAnim;
+	vector<pair<map<string, _uint>, map<string, _uint>>> test;
+	/* 수정하려는 애니메이션의 정보 */
+	_bool m_bLoop = false;
+	_bool m_bHasExitTime = false;
+	_float m_fAnimDuration = 0.0f;
+	_float m_fBlendTime = 0.0f;
+
+	/* For Inspector */
+	vector<class CAnimation*>* m_pAnimations = nullptr;
 public:
 	virtual void Free() override;
 };

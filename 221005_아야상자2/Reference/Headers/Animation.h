@@ -4,7 +4,7 @@
 
 BEGIN(Engine)
 
-class CAnimation final : public CBase
+class ENGINE_DLL CAnimation final : public CBase
 {
 private:
 	CAnimation();
@@ -19,7 +19,59 @@ public:
 	void ResetKeyFrames();
 
 	class CChannel* Get_Channel(_uint iChannelIndex);
+
+	const char* GetName() {
+		return m_szName;
+	}
+
+	//메세지가 애니메이션에 없으면 false를 리턴
+	_bool RecvMessage(const char* Message)
+	{		
+		map<const char*, _uint>::iterator iter;
+		iter = m_Message.find(Message);
+		
+		//메세지가 없다면 false.
+		if (iter == m_Message.end())
+			return false;
+
+		return true;
+	}
+
+	/* For. Imgui */
+	void AddMessageInfo(const char* Message, _bool bLoop, _bool bHasExitTime, _uint iNextAnimIndex)
+	{
+		m_bLoop = bLoop;
+		m_bHasExitTime = bHasExitTime;
+		m_Message.insert({Message, iNextAnimIndex});
+	}
+	
+	/* For. Imgui */
+	void GetAnimationInfo(_float& fBlendTime, _bool& bLoop, _bool& bHasExitTime)
+	{
+		fBlendTime = m_fBlendTime;
+		bLoop = m_bLoop;
+		bHasExitTime = m_bHasExitTime;
+	}
+
+	/* For. Imgui */
+	map<const char*, _uint>* GetMessages() {
+		return &m_Message;
+	}
+
 private:
+	/* 애니메이션 이름 */
+	char m_szName[MAX_PATH] = "";
+
+	/* 메세지 이름, 다음애니메이션 */
+	map<const char*, _uint> m_Message;
+
+	/* 애니메이션의 속성값들. 반복할지? 끝나고 액션을 취할지? */
+	_bool						m_bLoop = true;
+	_bool						m_bHasExitTime = false;
+	
+	/* 애니메이션과 애니메이션 사이의 보간 시간 */
+	_float						m_fBlendTime = 0.2f;
+
 	/* 이 애니메이션을 구동하기위해 사용되는 뼈의 갯수. */
 	_uint						m_iNumChannels = 0;
 	vector<class CChannel*>		m_Channels;
@@ -30,7 +82,6 @@ private:
 
 	/* 애니메이션의 초당 재생 속도. */
 	_float						m_fTickPerSecond = 0.f;
-
 	_float						m_fPlayTime = 0.f;
 
 private: /* 복제된 애니메이션 마다 따로 가진다. */

@@ -4,12 +4,15 @@
 #include "..\Default\Imgui\imgui_impl_win32.h"
 
 #include "..\Public\ImGui_Manager.h"
+#include "tinyxml.h"
 #include <corecrt_io.h>//file
 #include <commdlg.h>//ofn
 #include "GameInstance.h"
 #include "GameObject.h"
 #include "Layer.h"
-
+#include "Model.h"
+#include "Animation.h"
+#include <string.h>
 IMPLEMENT_SINGLETON(CImGui_Manager)
 
 vector<pair<string, ID3D11ShaderResourceView*>> CImGui_Manager::resources = vector<pair<string, ID3D11ShaderResourceView*>>();
@@ -39,7 +42,7 @@ HRESULT CImGui_Manager::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pContex
 																//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
-	
+
 	ImGuiStyle& style = ImGui::GetStyle();
 	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 	{
@@ -49,7 +52,7 @@ HRESULT CImGui_Manager::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pContex
 
 	// Setup Platform/Renderer backends
 	ImGui_ImplWin32_Init(g_hWnd);
-	ImGui_ImplDX11_Init(pDevice,pContext);
+	ImGui_ImplDX11_Init(pDevice, pContext);
 
 	//test
 	/*vMatrix = XMMatrixIdentity();
@@ -71,7 +74,7 @@ void CImGui_Manager::RenderBegin()
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 	ImGui::ShowDemoWindow();
-	
+
 }
 
 void CImGui_Manager::Render()
@@ -114,26 +117,29 @@ void CImGui_Manager::Render()
 	{
 		//LEFT SIDE
 		ImGui::Spacing();
-		ImGui::PushStyleColor(ImGuiCol_Button, m_eCurrentTool == CImGui_Manager::MAP ? active : inactive);
+		ImGui::PushStyleColor(ImGuiCol_Button, m_eCurrentTool == CImGui_Manager::TOOL_MAP ? active : inactive);
 		if (ImGui::Button("MapTool", ImVec2(230 - 15, 41)))
-			m_eCurrentTool = MAP;
+			m_eCurrentTool = TOOL_MAP;
 
 		ImGui::Spacing();
-		ImGui::PushStyleColor(ImGuiCol_Button, m_eCurrentTool == CImGui_Manager::UNIT ? active : inactive);
+		ImGui::PushStyleColor(ImGuiCol_Button, m_eCurrentTool == CImGui_Manager::TOOL_UNIT ? active : inactive);
 		if (ImGui::Button("UnitTool", ImVec2(230 - 15, 41)))
-			m_eCurrentTool = UNIT;
+			m_eCurrentTool = TOOL_UNIT;
 
 		ImGui::Spacing();
-		ImGui::PushStyleColor(ImGuiCol_Button, m_eCurrentTool == CImGui_Manager::CAMERA ? active : inactive);
+		ImGui::PushStyleColor(ImGuiCol_Button, m_eCurrentTool == CImGui_Manager::TOOL_CAMERA ? active : inactive);
 		if (ImGui::Button("CameraTool", ImVec2(230 - 15, 41)))
-			m_eCurrentTool = CAMERA;
+			m_eCurrentTool = TOOL_CAMERA;
 
 		ImGui::Spacing();
-		ImGui::PushStyleColor(ImGuiCol_Button, m_eCurrentTool == CImGui_Manager::PARTICLE ? active : inactive);
+		ImGui::PushStyleColor(ImGuiCol_Button, m_eCurrentTool == CImGui_Manager::TOOL_PARTICLE ? active : inactive);
 		if (ImGui::Button("ParticleTool", ImVec2(230 - 15, 41)))
-			m_eCurrentTool = PARTICLE;
+			m_eCurrentTool = TOOL_PARTICLE;
 
-		ImGui::PopStyleColor(4);
+		ImGui::PushStyleColor(ImGuiCol_Button, m_eCurrentTool == CImGui_Manager::TOOL_ANIMATION ? active : inactive);
+		if (ImGui::Button("AnimationTool", ImVec2(230 - 15, 41)))
+			m_eCurrentTool = TOOL_ANIMATION;
+		ImGui::PopStyleColor(5);
 	}
 
 	ImGui::NextColumn();
@@ -141,7 +147,7 @@ void CImGui_Manager::Render()
 		//RIGHT SIDE
 		switch (m_eCurrentTool)
 		{
-		case CImGui_Manager::MAP:
+		case CImGui_Manager::TOOL_MAP:
 		{
 			if (!resources.empty())
 			{
@@ -214,7 +220,7 @@ void CImGui_Manager::Render()
 					{
 						// 일반 파일 처리
 
-						_uint find = temp.rfind("\\") + 1;
+						_uint find = (_uint)temp.rfind("\\") + 1;
 
 						string filePath = temp.substr(0, find);
 						//string fileName = sPath.substr(find, sPath.length() - find);
@@ -256,7 +262,7 @@ void CImGui_Manager::Render()
 			//}
 		}
 		break;
-		case CImGui_Manager::UNIT:
+		case CImGui_Manager::TOOL_UNIT:
 		{
 			if (m_pPrototypeGameObject == nullptr)
 			{
@@ -292,7 +298,7 @@ void CImGui_Manager::Render()
 				for (auto& Pair : *m_pPrototypeGameObject)
 				{
 					char szPrototypeName[MAX_PATH] = "";
-					WideCharToMultiByte(CP_ACP, 0, Pair.first, wcslen(Pair.first), szPrototypeName, MAX_PATH, 0, 0);
+					WideCharToMultiByte(CP_ACP, 0, Pair.first, (_int)wcslen(Pair.first), szPrototypeName, MAX_PATH, 0, 0);
 
 					if (nullptr != strstr(szPrototypeName, "_GameObject_"))
 					{
@@ -319,7 +325,7 @@ void CImGui_Manager::Render()
 				for (auto& Pair : *m_pPrototypeComponent)
 				{
 					char szPrototypeName[MAX_PATH] = "";
-					WideCharToMultiByte(CP_ACP, 0, Pair.first, wcslen(Pair.first), szPrototypeName, MAX_PATH, 0, 0);
+					WideCharToMultiByte(CP_ACP, 0, Pair.first, (_int)wcslen(Pair.first), szPrototypeName, MAX_PATH, 0, 0);
 
 					if (nullptr != strstr(szPrototypeName, "Component_Model"))
 					{
@@ -346,10 +352,10 @@ void CImGui_Manager::Render()
 					//모델명
 					CREATE_INFO tObjInfo;
 					ZeroMemory(&tObjInfo, sizeof(CREATE_INFO));
-					
-					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, PrototypeName, strlen(PrototypeName), tObjInfo.pPrototypeTag, MAX_PATH);
-					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, LayerName, strlen(LayerName), tObjInfo.pLayerTag, MAX_PATH);
-					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, ModelName, strlen(ModelName), tObjInfo.pModelTag, MAX_PATH);
+
+					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, PrototypeName, (_int)strlen(PrototypeName), tObjInfo.pPrototypeTag, MAX_PATH);
+					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, LayerName, (_int)strlen(LayerName), tObjInfo.pLayerTag, MAX_PATH);
+					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, ModelName, (_int)strlen(ModelName), tObjInfo.pModelTag, MAX_PATH);
 
 					tObjInfo.iNumLevel = LEVEL_GAMEPLAY;
 					sprintf_s(tObjInfo.szName, ObjName);
@@ -367,10 +373,9 @@ void CImGui_Manager::Render()
 			}
 		}
 		break;
-		case CImGui_Manager::CAMERA:
+		case CImGui_Manager::TOOL_CAMERA:
 			break;
-		case CImGui_Manager::PARTICLE:
-
+		case CImGui_Manager::TOOL_PARTICLE:
 			ImGui::DragFloat("Duration", &m_fDuration, 0.005f);
 
 			ImGui::Spacing();
@@ -384,9 +389,162 @@ void CImGui_Manager::Render()
 			ImGui::DragFloat("Start Speed", &m_fStartSpeed, 0.005f);
 
 			ImGui::Text("Start Size");
-
-
 			break;
+		case CImGui_Manager::TOOL_ANIMATION:
+		{
+			if (nullptr == m_pSelectedObject)
+				break;
+			m_pModel = (CModel*)m_pSelectedObject->Get_ComponentPtr(L"Com_Model");
+			if (nullptr == m_pModel)
+				break;
+			m_pAnimations = m_pModel->GetAnimations();
+			if (nullptr == m_pAnimations)
+				break;
+
+			ImGui::BeginListBox("Animations", ImVec2(400, 150));
+			for (_uint i = 0; i < m_pAnimations->size(); ++i)
+			{
+				const bool is_selected = (Animation_current_idx == i);
+				if (ImGui::Selectable((*m_pAnimations)[i]->GetName(), true))
+				{
+					Animation_current_idx = i;
+					m_pModel->Change_Animation(Animation_current_idx);
+				}
+			}
+			ImGui::EndListBox();
+			ImGui::SameLine();
+			ImGui::Text((*m_pAnimations)[Animation_current_idx]->GetName());
+
+			/* 현재 애니메이션을 편집할 리스트박스에 넣음. */
+			if (ImGui::Button("AddCurrentAnim"))
+			{
+				if (m_CurrentAnim.empty())
+				{
+					m_CurrentAnim.insert({ (*m_pAnimations)[Animation_current_idx]->GetName(), Animation_current_idx });
+
+				}
+			}
+
+			ImGui::SameLine();
+			if (ImGui::Button("AddNextAnim"))
+			{
+				m_NextAnim.insert({ (*m_pAnimations)[Animation_current_idx]->GetName(), Animation_current_idx });
+			}
+
+			ImGui::BeginListBox("CurrentAnim", ImVec2(400, 150));
+			map<string, _uint>::iterator iter;
+
+			_uint iSelectedIndex = 0;
+			for (iter = m_CurrentAnim.begin(); iter != m_CurrentAnim.end(); iter++)
+			{
+				const bool is_selected = (Animation_Edit_Idx == iSelectedIndex);
+				if (ImGui::Selectable(iter->first.c_str(), true))
+				{
+					Animation_Edit_Idx = iSelectedIndex;
+					(*m_pAnimations)[iSelectedIndex]->GetAnimationInfo(m_fBlendTime, m_bLoop, m_bHasExitTime);
+				}
+				iSelectedIndex++;
+			}
+			ImGui::EndListBox();
+			ImGui::SameLine();
+
+			ImGui::BeginListBox("NextAnim", ImVec2(400, 150));
+
+			_uint iSelectedIndex2 = 0;
+			for (iter = m_NextAnim.begin(); iter != m_NextAnim.end(); iter++)
+			{
+				const bool is_selected = (Animation_Next_Idx == iSelectedIndex2);
+				if (ImGui::Selectable(iter->first.c_str(), true))
+				{
+					Animation_Next_Idx = iSelectedIndex2;
+				}
+				iSelectedIndex2++;
+			}
+
+			ImGui::EndListBox();
+			ImGui::Checkbox("Loop", &m_bLoop);
+			ImGui::SameLine();
+			ImGui::Checkbox("HasExitTime", &m_bHasExitTime);
+
+			ImGui::DragFloat("BlendTime", &m_fBlendTime, 0.01f, 0.0f, 5.0f);
+
+			static char buf[MAX_PATH] = "";
+			ImGui::InputText("Message", buf, MAX_PATH);
+			
+			if (ImGui::Button("EditEnd"))
+			{
+
+				ZeroMemory(&buf, MAX_PATH);
+			}
+
+			ImGui::BeginListBox("CompletedAnim", ImVec2(400, 150));
+			ImGui::EndListBox();
+
+			if (ImGui::Button("TestXMLBUTTON"))
+			{
+				//출처 : https://blog.naver.com/PostView.naver?isHttpsRedirect=true&blogId=chansung0602&logNo=221014997196
+				
+				//xml 선언
+				TiXmlDocument doc;
+				TiXmlDeclaration* pDec1 = new TiXmlDeclaration("1.0", "", "");
+				doc.LinkEndChild(pDec1);
+
+				//루트 노드 추가
+				//하나의 노드를 다루기 위한 변수, 이를 xml 파일로 종속시킨다.
+				TiXmlElement* pRoot = new TiXmlElement("AnimationDB");
+				doc.LinkEndChild(pRoot);
+
+				//주석 문장 추가
+				TiXmlComment* pComment = new TiXmlComment();
+				pComment->SetValue("This is Animation DB");
+				pRoot->LinkEndChild(pComment);
+
+				// 하위노드 및 데이터 추가
+				TiXmlElement* pElem = new TiXmlElement("class1");
+				pRoot->LinkEndChild(pElem);
+				TiXmlElement* pElem0 = new TiXmlElement("Teacher");
+				pElem0->LinkEndChild(new TiXmlElement("JJJ"));
+				pElem->LinkEndChild(pElem0);
+
+				//하위노드 및 속성 추가
+				TiXmlElement* pSubElem = new TiXmlElement("English");
+				pElem->LinkEndChild(pSubElem);
+				pSubElem->SetAttribute("name", "score");
+				pSubElem->SetAttribute("aa", 100);
+				pSubElem->SetAttribute("bb", 50);
+				pSubElem->SetAttribute("cc", 90);
+
+				pSubElem = new TiXmlElement("Math");
+				pElem->LinkEndChild(pSubElem);
+				pSubElem->SetAttribute("name", "score");
+				pSubElem->SetAttribute("aa", 90);
+				pSubElem->SetAttribute("bb", 70);
+				pSubElem->SetAttribute("cc", 95);
+
+				pElem = new TiXmlElement("class2");
+				pRoot->LinkEndChild(pElem);
+				pElem0 = new TiXmlElement("Teacher");
+				pElem0->LinkEndChild(new TiXmlElement("SSS"));
+				pElem->LinkEndChild(pElem0);
+
+				pSubElem = new TiXmlElement("English");
+				pElem->LinkEndChild(pSubElem);
+				pSubElem->SetAttribute("name", "score");
+				pSubElem->SetAttribute("ab", 70);
+				pSubElem->SetAttribute("vc", 90);
+				pSubElem->SetAttribute("ds", 30);
+
+				pSubElem = new TiXmlElement("Math");
+				pElem->LinkEndChild(pSubElem);
+				pSubElem->SetAttribute("name", "score");
+				pSubElem->SetAttribute("ab", 60);
+				pSubElem->SetAttribute("vc", 70);
+				pSubElem->SetAttribute("ds", 25);
+
+				doc.SaveFile("../Bin/Data/Test.xml");
+			}
+		}
+		break;
 		default:
 			break;
 		}
@@ -395,95 +553,12 @@ void CImGui_Manager::Render()
 	ImGui::End();
 
 	ImGui::Begin("Hierarchy");
-	{
-		//레이어 받아오기
-		if (m_pHierarchyList == nullptr)
-		{
-			m_pHierarchyList = CGameInstance::Get_Instance()->GetLayers(LEVEL_GAMEPLAY);
-		}
-				
-
-		//레이어 리스트 트리뷰 표시
-		if (m_pHierarchyList != nullptr)
-		{
-			for (auto& Pair : *m_pHierarchyList)
-			{
-				list<class CGameObject*>* m_pLeafHierachyList = Pair.second->Get_Layer();
-
-				char szWideFullPath[MAX_PATH] = "";
-				WideCharToMultiByte(CP_ACP, 0, Pair.first, wcslen(Pair.first), szWideFullPath, MAX_PATH, 0, 0);
-				
-				if (ImGui::TreeNode(szWideFullPath))
-				{
-					if (m_pLeafHierachyList != nullptr)
-					{
-						for (auto& List : *m_pLeafHierachyList)
-						{
-							if (ImGui::Button(List->GetName()))
-							{
-								m_pSelectedObject = List;
-								vMatrix = XMMatrixIdentity();
-								CTransform* pTransform = (CTransform*)m_pSelectedObject->Get_ComponentPtr(L"Com_Transform");
-								
-								if (pTransform != nullptr)
-								{
-									vMatrix = pTransform->Get_WorldMatrix();
-
-									XMVECTOR test;
-									XMVECTOR test1;
-									XMVECTOR test2;
-									XMMatrixDecompose(&test, &test1, &test2, vMatrix);
-									XMStoreFloat3(&vScale, test);
-									XMStoreFloat3(&vRotation, test1);
-									XMStoreFloat3(&vPosition, test2);
-								}
-							}
-						}
-					}
-					ImGui::TreePop();
-				}
-			}
-		}
-		ImGui::End();
-	}
+	ShowHierarchy();
+	ImGui::End();
 
 	ImGui::Begin("Inspector");
-	{
-		if (m_pSelectedObject != nullptr)
-		{
-			/*=============
-			===Transform===
-			=============*/
-			vPos[0] = vPosition.x; vPos[1] = vPosition.y; vPos[2] = vPosition.z;
-			vRot[0] = vRotation.x; vRot[1] = vRotation.y; vRot[2] = vRotation.z;
-			vScal[0] = vScale.x; vScal[1] = vScale.y; vScal[2] = vScale.z;
-						
-			ImGui::DragFloat3("Position", vPos, 0.01f, -FLT_MAX, FLT_MAX);
-			ImGui::DragFloat3("Rotation", vRot, 0.01f, -FLT_MAX, FLT_MAX);
-			ImGui::DragFloat3("Scale", vScal, 0.01f, -FLT_MAX, FLT_MAX);
-
-			vPosition.x = vPos[0]; vPosition.y = vPos[1]; vPosition.z = vPos[2];
-			vRotation.x = vRot[0]; vRotation.y = vRot[1]; vRotation.z = vRot[2];
-			vScale.x = vScal[0]; vScale.y = vScal[1]; vScale.z = vScal[2];
-
-			XMVECTOR XmPosition = XMLoadFloat3(&vPosition);
-			XMVECTOR XmScale = XMLoadFloat3(&vScale);
-
-			_matrix WorldMatrix = XMMatrixIdentity() * 
-				XMMatrixScalingFromVector(XmScale) * 
-				XMMatrixRotationX(XMConvertToRadians(vRotation.x)) *
-				XMMatrixRotationY(XMConvertToRadians(vRotation.y)) *
-				XMMatrixRotationZ(XMConvertToRadians(vRotation.z)) *
-				XMMatrixTranslationFromVector(XmPosition);
-
-			CTransform* pTransform = (CTransform*)m_pSelectedObject->Get_ComponentPtr(L"Com_Transform");
-			if (pTransform != nullptr)
-			{
-				pTransform->Set_WorldMatrix(WorldMatrix);
-			}
-		}
-		ImGui::End();
-	}
+	Inspector();
+	ImGui::End();
 }
 
 void CImGui_Manager::Free()
@@ -493,11 +568,6 @@ void CImGui_Manager::Free()
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
-
-	/*	CleanupDeviceD3D();
-	::DestroyWindow(hWnd);
-	::UnregisterClass(wc.lpszClassName, wc.hInstance);*/
-
 }
 
 bool CImGui_Manager::LoadTextureFromFile(const char* filename, ID3D11ShaderResourceView** out_srv)
@@ -517,7 +587,7 @@ bool CImGui_Manager::LoadTextureFromFile(const char* filename, ID3D11ShaderResou
 HRESULT CImGui_Manager::AddGameObject(const _tchar * pPrototypeTag, const _tchar * pLayerTag, _uint iNumLevel, void* pArg)
 {
 	CGameInstance*		pGameInstance = GET_INSTANCE(CGameInstance);
-	
+
 	if (FAILED(pGameInstance->Add_GameObjectToLayer(pPrototypeTag, iNumLevel, L"StaticObject", pArg)))
 		return E_FAIL;
 
@@ -525,6 +595,95 @@ HRESULT CImGui_Manager::AddGameObject(const _tchar * pPrototypeTag, const _tchar
 
 	return S_OK;
 
+}
+
+void CImGui_Manager::ShowHierarchy()
+{
+	//레이어 받아오기
+	if (m_pHierarchyList == nullptr)
+	{
+		m_pHierarchyList = CGameInstance::Get_Instance()->GetLayers(LEVEL_GAMEPLAY);
+	}
+
+
+	//레이어 리스트 트리뷰 표시
+	if (m_pHierarchyList != nullptr)
+	{
+		for (auto& Pair : *m_pHierarchyList)
+		{
+			list<class CGameObject*>* m_pLeafHierachyList = Pair.second->Get_Layer();
+
+			char szWideFullPath[MAX_PATH] = "";
+			WideCharToMultiByte(CP_ACP, 0, Pair.first, (_int)wcslen(Pair.first), szWideFullPath, MAX_PATH, 0, 0);
+
+			if (ImGui::TreeNode(szWideFullPath))
+			{
+				if (m_pLeafHierachyList != nullptr)
+				{
+					for (auto& List : *m_pLeafHierachyList)
+					{
+						if (ImGui::Button(List->GetName()))
+						{
+							m_pSelectedObject = List;
+							vMatrix = XMMatrixIdentity();
+							CTransform* pTransform = (CTransform*)m_pSelectedObject->Get_ComponentPtr(L"Com_Transform");
+
+							if (pTransform != nullptr)
+							{
+								vMatrix = pTransform->Get_WorldMatrix();
+
+								XMVECTOR test;
+								XMVECTOR test1;
+								XMVECTOR test2;
+								XMMatrixDecompose(&test, &test1, &test2, vMatrix);
+								XMStoreFloat3(&vScale, test);
+								XMStoreFloat3(&vRotation, test1);
+								XMStoreFloat3(&vPosition, test2);
+							}
+						}
+					}
+				}
+				ImGui::TreePop();
+			}
+		}
+	}
+}
+
+void CImGui_Manager::Inspector()
+{
+	if (m_pSelectedObject != nullptr)
+	{
+		/*=============
+		===Transform===
+		=============*/
+		vPos[0] = vPosition.x; vPos[1] = vPosition.y; vPos[2] = vPosition.z;
+		vRot[0] = vRotation.x; vRot[1] = vRotation.y; vRot[2] = vRotation.z;
+		vScal[0] = vScale.x; vScal[1] = vScale.y; vScal[2] = vScale.z;
+
+		ImGui::DragFloat3("Position", vPos, 0.01f, -FLT_MAX, FLT_MAX);
+		ImGui::DragFloat3("Rotation", vRot, 0.01f, -FLT_MAX, FLT_MAX);
+		ImGui::DragFloat3("Scale", vScal, 0.01f, -FLT_MAX, FLT_MAX);
+
+		vPosition.x = vPos[0]; vPosition.y = vPos[1]; vPosition.z = vPos[2];
+		vRotation.x = vRot[0]; vRotation.y = vRot[1]; vRotation.z = vRot[2];
+		vScale.x = vScal[0]; vScale.y = vScal[1]; vScale.z = vScal[2];
+
+		XMVECTOR XmPosition = XMLoadFloat3(&vPosition);
+		XMVECTOR XmScale = XMLoadFloat3(&vScale);
+
+		_matrix WorldMatrix = XMMatrixIdentity() *
+			XMMatrixScalingFromVector(XmScale) *
+			XMMatrixRotationX(XMConvertToRadians(vRotation.x)) *
+			XMMatrixRotationY(XMConvertToRadians(vRotation.y)) *
+			XMMatrixRotationZ(XMConvertToRadians(vRotation.z)) *
+			XMMatrixTranslationFromVector(XmPosition);
+
+		CTransform* pTransform = (CTransform*)m_pSelectedObject->Get_ComponentPtr(L"Com_Transform");
+		if (pTransform != nullptr)
+		{
+			pTransform->Set_WorldMatrix(WorldMatrix);
+		}
+	}
 }
 
 void CImGui_Manager::RenderEnd()

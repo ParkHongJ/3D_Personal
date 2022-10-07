@@ -118,10 +118,10 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 	//	CUI::Create(m_pGraphic_Device))))
 	//	return E_FAIL;
 
-	///* For.Prototype_GameObject_Player*/
-	//if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Player"),
-	//	CPlayer::Create(m_pDevice, m_pContext))))
-	//	return E_FAIL;
+	/* For.Prototype_GameObject_Player*/
+	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Player"),
+		CPlayer::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 
 	///* For.Prototype_GameObject_Monster */
 	//if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Monster"),
@@ -169,11 +169,6 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 	//	CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Terrain/Tile0.jpg"), 1))))
 	//	return E_FAIL;
 
-	///* For.Prototype_Component_Texture_Player */
-	//if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Player"),
-	//	CTexture::Create(m_pGraphic_Device, CTexture::TYPE_DEFAULT, TEXT("../Bin/Resources/Textures/Player/Player.png")))))
-	//	return E_FAIL;
-
 	///* For.Prototype_Component_Texture_Sky */
 	//if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Sky"),
 	//	CTexture::Create(m_pGraphic_Device, CTexture::TYPE_CUBEMAP, TEXT("../Bin/Resources/Textures/SkyBox/Sky_%d.dds"), 4))))
@@ -206,11 +201,11 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 	//	CModel::Create(m_pDevice, m_pContext, CModel::TYPE_ANIM, L"../Bin/Resources/Meshes/Homunculus/Enemy.txt", PivotMatrix))))
 	//	return E_FAIL;
 
-	///* For.Prototype_Component_Model_Fiona */
-	//PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
-	//if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Fiona"),
-	//	CModel::Create(m_pDevice, m_pContext, CModel::TYPE_ANIM, L"../Bin/Resources/Meshes/Fiona/LEVEL_8.txt", PivotMatrix))))
-	//	return E_FAIL;
+	/* For.Prototype_Component_Model_Fiona */
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Fiona"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_ANIM, L"../Bin/Resources/Meshes/Fiona/LEVEL_8.txt", PivotMatrix))))
+		return E_FAIL;
 
 	///* For.Prototype_Component_VIBuffer_Cube */
 	//if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Cube"),
@@ -253,6 +248,11 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 	/* For.Prototype_Component_Collider_Sphere */
 	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_Sphere"),
 		CSphere::Create(m_pDevice, m_pContext, CCollider::TYPE_SPHERE))))
+		return E_FAIL;
+
+	/* For.Prototype_Component_Navigation */
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Navigation"),
+		CNavigation::Create(m_pDevice, m_pContext, TEXT("../Bin/Data/NavigationData.dat")))))
 		return E_FAIL;
 
 	lstrcpy(m_szLoadingText, TEXT("로딩이 완료되었습니ㅏㄷ.  "));

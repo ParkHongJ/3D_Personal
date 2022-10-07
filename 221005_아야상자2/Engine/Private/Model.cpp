@@ -91,6 +91,19 @@ HRESULT CModel::Initialize_Prototype(TYPE eType, const _tchar * pModelFilePath, 
 	return S_OK;
 }
 
+_bool CModel::RecvMessage(const char * Message)
+{
+	return m_Animations[m_iCurrentAnimIndex]->RecvMessage(Message);
+}
+
+vector<class CAnimation*>* CModel::GetAnimations()
+{
+	if (!m_Animations.empty())
+		return &m_Animations;
+	else
+		return nullptr;
+}
+
 void CModel::Change_Animation(_uint iAnimIndex)
 {
 	if (m_iCurrentAnimIndex != iAnimIndex)

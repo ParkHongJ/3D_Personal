@@ -30,8 +30,15 @@ public:
 		return XMLoadFloat4x4(&m_PivotMatrix);
 	}
 
+	/* 애니메이션에 메세지가 있냐? */
+	_bool RecvMessage(const char* Message);
+
+	/* For. AnimationTool */
+	vector<class CAnimation*>* GetAnimations();
+
 	void Change_Animation(_uint iAnimIndex);
 
+	/* For. LoadBinary */
 	HRESULT LoadBinary(const _tchar* ModelFilePath);
 	void LoadNode(HANDLE hFile, Node* pNode, DWORD& dwByte, DWORD& dwStrByte);
 	
@@ -50,8 +57,6 @@ public:
 	HRESULT Render(class CShader* pShader, _uint iMeshIndex, _uint iPassIndex = 0);
 
 private:
-	//const aiScene*				m_pAIScene = nullptr;
-	//Assimp::Importer			m_Importer;
 	HSCENE*						m_pHScene = nullptr;
 	_float4x4					m_PivotMatrix;
 	TYPE						m_eModelType = TYPE_END;

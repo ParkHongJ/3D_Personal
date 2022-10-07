@@ -30,7 +30,7 @@ HRESULT CBackGround::Initialize(void * pArg)
 
 
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixIdentity());
-	XMStoreFloat4x4(&m_ProjMatrix, XMMatrixTranspose(XMMatrixOrthographicLH(g_iWinSizeX, g_iWinSizeY, 0.f, 1.f)));
+	XMStoreFloat4x4(&m_ProjMatrix, XMMatrixTranspose(XMMatrixOrthographicLH((_float)g_iWinSizeX, (_float)g_iWinSizeY, 0.f, 1.f)));
 
 	return S_OK;
 }

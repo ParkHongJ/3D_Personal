@@ -58,6 +58,9 @@
     <Filter Include="ImguiMgr">
       <UniqueIdentifier>{bd22358b-d307-40f1-983e-2a42c50d8a99}</UniqueIdentifier>
     </Filter>
+    <Filter Include="XML_Parser">
+      <UniqueIdentifier>{7f100785-ccc0-4a4c-8f91-37baefc35752}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -141,6 +144,12 @@
     <ClInclude Include="..\Public\ImGui_Manager.h">
       <Filter>ImguiMgr</Filter>
     </ClInclude>
+    <ClInclude Include="..\Public\tinystr.h">
+      <Filter>XML_Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\tinyxml.h">
+      <Filter>XML_Parser</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -208,6 +217,18 @@
     </ClCompile>
     <ClCompile Include="..\Private\ImGui_Manager.cpp">
       <Filter>ImguiMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\tinyxml.cpp">
+      <Filter>XML_Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\tinyxmlerror.cpp">
+      <Filter>XML_Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\tinyxmlparser.cpp">
+      <Filter>XML_Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\tinystr.cpp">
+      <Filter>XML_Parser</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

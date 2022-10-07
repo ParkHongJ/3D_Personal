@@ -13,12 +13,14 @@ CAnimation::CAnimation(const CAnimation & rhs)
 	, m_fTickPerSecond(rhs.m_fTickPerSecond)
 	, m_fPlayTime(rhs.m_fPlayTime)
 {
+	strcpy_s(m_szName, rhs.m_szName);
 	for (auto& pChannel : m_Channels)
 		Safe_AddRef(pChannel);
 }
 
 HRESULT CAnimation::Initialize_Prototype(Animation * pAnimation)
 {
+	strcpy_s(m_szName, pAnimation->mName);
 	m_fDuration = pAnimation->mDuration;
 	m_fTickPerSecond = pAnimation->mTickPerSecond;
 

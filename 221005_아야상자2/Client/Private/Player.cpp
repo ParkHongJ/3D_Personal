@@ -37,7 +37,7 @@ HRESULT CPlayer::Initialize(void * pArg)
 	RELEASE_INSTANCE(CGameInstance);
 	
 
-
+	strcpy_s(m_szName, "Player");
 	return S_OK;
 }
 
@@ -46,8 +46,30 @@ _bool CPlayer::Tick(_float fTimeDelta)
 	if (m_bDestroy)
 		return true;
 
-	SetState(m_eCurrentState, fTimeDelta);
+	//현재 재생중인 애니메이션: Idle 
+	//Idle -> Walk 메세지가 없으면 아무 행동도 하지않음.
+	//Idle -> Walk 메세지가 있다면 다음 애니메이션으로 변경
+	_bool bRecv = m_pModelCom->RecvMessage("Walk");
+	if (bRecv)
+	{
+		//걷기일때의 코드 실행 : 위치 이동 등등
+	}
 
+	//현재 재생중인 애니메이션: Walk
+	//Walk -> Attack 메세지가 없으면 아무 행동도 하지않음.
+	//Walk -> Attack 메세지가 있다면 다음 애니메이션으로 변경
+	bRecv = m_pModelCom->RecvMessage("Attack");
+	if (bRecv)
+	{
+		//공격일때의 코드 실행
+	}
+
+	//뛰기
+
+
+	//SetState(m_eCurrentState, fTimeDelta);
+
+//	m_pModelCom->sendMessage("walk, run e등등");
 	/*Update_Weapon();
 
 	for (auto& pPart : m_Parts)
