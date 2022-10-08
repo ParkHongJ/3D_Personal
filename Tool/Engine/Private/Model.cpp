@@ -536,17 +536,20 @@ void CModel::LoadNode(HANDLE hFile, Node * pNode, DWORD & dwByte, DWORD & dwStrB
 	}
 }
 
-HRESULT CModel::Initialize_Prototype(TYPE eType, const char * pModelFilePath, const char * pModelFileName, const _tchar* pModelSavePath, _fmatrix PivotMatrix)
+HRESULT CModel::Initialize_Prototype(TYPE eType, const char * pModelFilePath, const char * pModelFileName, const _tchar* pModelSavePath,const _tchar* pModelSaveName, _fmatrix PivotMatrix)
 {
 	wcscpy_s(m_SavePath, pModelSavePath);
 	//LoadBinary();
 	XMStoreFloat4x4(&m_PivotMatrix, PivotMatrix);
 
 	char		szFullPath[MAX_PATH] = "";
-
+	
 	strcpy_s(szFullPath, pModelFilePath);
 	strcat_s(szFullPath, pModelFileName);
 
+	_tchar		wideFullPath[MAX_PATH] = L"";
+	wcscpy_s(wideFullPath, pModelSavePath);
+	wcscat_s(wideFullPath, pModelSaveName);
 	_uint		iFlag = 0;
 
 	m_eModelType = eType;
@@ -574,12 +577,15 @@ HRESULT CModel::Initialize_Prototype(TYPE eType, const char * pModelFilePath, co
 	if (FAILED(Ready_MeshContainers(PivotMatrix)))
 		return E_FAIL;
 
-	if (FAILED(Ready_Materials(pModelFilePath)))
+	if (FAILED(Ready_Materials(pModelFilePath, pModelSavePath)))
 		return E_FAIL;
 
 
 	if (FAILED(Ready_Animations()))
 		return E_FAIL;
+
+	wcscpy_s(m_SavePath, pModelSavePath);
+	wcscat_s(m_SavePath, pModelSaveName);
 
 	return S_OK;
 }
@@ -708,7 +714,7 @@ HRESULT CModel::Ready_MeshContainers(_fmatrix PivotMatrix)
 	return S_OK;
 }
 
-HRESULT CModel::Ready_Materials(const char* pModelFilePath)
+HRESULT CModel::Ready_Materials(const char* pModelFilePath, const _tchar* pModelFileWidePath)
 {
 	if (nullptr == m_pAIScene)
 		return E_FAIL;
@@ -746,8 +752,17 @@ HRESULT CModel::Ready_Materials(const char* pModelFilePath)
 			//m_Path.push_back(szWideFullPath);
 			MaterialDesc.pTexture[j] = CTexture::Create(m_pDevice, m_pContext, szWideFullPath);
 			
+			_tchar			tszFullPath[MAX_PATH] = L"";
+			_tchar			tszFileName[MAX_PATH] = L"";
+			_tchar			tszExt[MAX_PATH] = L"";
+			_wsplitpath_s(szWideFullPath, nullptr, 0, nullptr, 0, tszFileName, MAX_PATH, tszExt, MAX_PATH);
+
+			wcscpy_s(tszFullPath, pModelFileWidePath);
+			wcscat_s(tszFullPath, tszFileName);
+			wcscat_s(tszFullPath, tszExt);
+
 			Material pMaterial;
-			wcscpy_s(pMaterial.mName, szWideFullPath);
+			wcscpy_s(pMaterial.mName, tszFullPath);
 			pMaterial.TextureType = j;
 			m_TempScene->mMaterials.push_back(pMaterial);
 			
@@ -757,59 +772,6 @@ HRESULT CModel::Ready_Materials(const char* pModelFilePath)
 
 		m_Materials.push_back(MaterialDesc);
 	}
-
-	//HANDLE		hFile = CreateFile(L"../Bin/Resources/Meshes/Fiona/LEVEL_8.txt", GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
-	//HANDLE		hFile = CreateFile(L"../Bin/Resources/Meshes/Fiona/LEVEL_8.txt", GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
-
-	//if (INVALID_HANDLE_VALUE == hFile)
-	//	return S_OK;
-
-	//DWORD	dwByte = 0;
-	//DWORD	dwStrByte = 0;
-	//_tchar	szWideFullPath[MAX_PATH] = TEXT("");
-
-	////for (auto& iter : m_Path)
-	////{
-	////	// Key값 저장
-	////	dwStrByte = DWORD(sizeof(_tchar) * wcslen(iter.c_str()));
-	////	WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
-	////	WriteFile(hFile, iter.c_str(), dwStrByte, &dwByte, nullptr);
-	////}
-	//while (true)
-	//{
-	//	ReadFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
-	//	_tchar*	pFirst = nullptr;
-	//	pFirst = new _tchar[dwStrByte];
-	//	ReadFile(hFile, pFirst, dwStrByte, &dwByte, nullptr);
-	//	pFirst[dwByte / sizeof(_tchar)] = 0;
-	//	if (0 == dwByte)
-	//	{
-	//		break;
-	//	}
-	//	m_TexturePath.push_back(pFirst);
-	//}
-	//CloseHandle(hFile);
-
-	//auto iter = m_pObjects.begin();
-
-	//while (iter != m_pObjects.end())
-	//{
-	//	// Key값 저장
-	//	dwStrByte = DWORD(sizeof(_tchar) * wcslen(iter->first->pPrototypeTag.c_str()));
-	//	WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
-	//	WriteFile(hFile, iter->first->pPrototypeTag.c_str(), dwStrByte, &dwByte, nullptr);
-	//	// Key값 저장
-	//	dwStrByte = DWORD(sizeof(_tchar) * wcslen(iter->first->pPrototypeTag.c_str()));
-	//	WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
-	//	WriteFile(hFile, iter->first->pLayerTag.c_str(), dwStrByte, &dwByte, nullptr);
-
-	//	//Second값 저장
-	//	WriteFile(hFile, iter->second->vPos, sizeof(_float3), &dwByte, nullptr);
-	//	WriteFile(hFile, &iter->second->iNumLevel, sizeof(_uint), &dwByte, nullptr);
-	//	WriteFile(hFile, &iter->second->iDirection, sizeof(_uint), &dwByte, nullptr);
-	//	WriteFile(hFile, &iter->second->iTex, sizeof(_uint), &dwByte, nullptr);
-	//	++iter;
-	//}
 	return S_OK;
 }
 
@@ -861,11 +823,11 @@ HRESULT CModel::Ready_Animations()
 	return S_OK;
 }
 
-CModel * CModel::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, TYPE eType, const char * pModelFilePath, const char * pModelFileName, const _tchar* pModelSavePath, _fmatrix PivotMatrix)
+CModel * CModel::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, TYPE eType, const char * pModelFilePath, const char * pModelFileName, const _tchar* pModelSavePath, const _tchar* pModelSaveName, _fmatrix PivotMatrix)
 {
 	CModel*			pInstance = new CModel(pDevice, pContext);
 
-	if (FAILED(pInstance->Initialize_Prototype(eType, pModelFilePath, pModelFileName, pModelSavePath, PivotMatrix)))
+	if (FAILED(pInstance->Initialize_Prototype(eType, pModelFilePath, pModelFileName, pModelSavePath, pModelSaveName, PivotMatrix)))
 	{
 		MSG_BOX(TEXT("Failed To Created : CTexture"));
 		Safe_Release(pInstance);

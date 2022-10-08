@@ -7,9 +7,9 @@ BEGIN(Engine)
 class ENGINE_DLL CModel final : public CComponent
 {
 private:
-	
-	
-	
+
+
+
 public:
 	enum TYPE { TYPE_NONANIM, TYPE_ANIM, TYPE_END };
 private:
@@ -41,7 +41,7 @@ public:
 	HRESULT LoadBinary();
 	void LoadNode(HANDLE hFile, Node* pNode, DWORD& dwByte, DWORD& dwStrByte);
 public:
-	virtual HRESULT Initialize_Prototype(TYPE eType, const char* pModelFilePath, const char* pModelFileName, const _tchar* pModelSavePath, _fmatrix PivotMatrix);
+	virtual HRESULT Initialize_Prototype(TYPE eType, const char* pModelFilePath, const char* pModelFileName, const _tchar* pModelSavePath, const _tchar* pModelSaveName, _fmatrix PivotMatrix);
 	virtual HRESULT Initialize(void* pArg);
 
 
@@ -49,7 +49,7 @@ public:
 	HRESULT SetUp_OnShader(class CShader* pShader, _uint iMaterialIndex, aiTextureType eTextureType, const char* pConstantName);
 	HRESULT Play_Animation(_float fTimeDelta);
 	HRESULT Render(class CShader* pShader, _uint iMeshIndex);
-	
+
 private:
 	const aiScene*				m_pAIScene = nullptr;
 	Assimp::Importer			m_Importer;
@@ -63,6 +63,7 @@ private:
 	vector<class CMeshContainer*>			m_Meshes;
 	typedef vector<class CMeshContainer*>	MESHES;
 	_tchar									m_SavePath[MAX_PATH] = L"";
+	_tchar									m_SaveName[MAX_PATH] = L"";
 private:
 	_uint									m_iNumMaterials = 0;
 	vector<MATERIALDESC>					m_Materials;
@@ -82,7 +83,7 @@ private:
 
 private:
 	HRESULT Ready_MeshContainers(_fmatrix PivotMatrix);
-	HRESULT Ready_Materials(const char* pModelFilePath);
+	HRESULT Ready_Materials(const char* pModelFilePath, const _tchar* pModelFileWidePath);
 	HRESULT Ready_HierarchyNodes(aiNode* pNode, class CHierarchyNode* pParent, _uint iDepth, Node* pMyNode);
 	HRESULT Ready_Animations();
 
@@ -91,7 +92,7 @@ private:
 
 
 public:
-	static CModel* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, TYPE eType, const char* pModelFilePath, const char* pModelFileName, const _tchar* pModelSavePath, _fmatrix PivotMatrix = XMMatrixIdentity());
+	static CModel* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, TYPE eType, const char* pModelFilePath, const char* pModelFileName, const _tchar* pModelSavePath, const _tchar* pModelSaveName, _fmatrix PivotMatrix = XMMatrixIdentity());
 	virtual CComponent* Clone(void* pArg = nullptr);
 	virtual void Free() override;
 };

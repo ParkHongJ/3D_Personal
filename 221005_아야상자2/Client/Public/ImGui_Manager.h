@@ -17,10 +17,18 @@ class CImGui_Manager final : public CBase
 public:
 	enum Tool { TOOL_MAP, TOOL_UNIT, TOOL_CAMERA, TOOL_PARTICLE, TOOL_ANIMATION, TOOL_END };
 	typedef struct AnimInfo {
+		//다음 애니메이션의 정보
+		_int iNextAnimIndex;
 		_float fBlendTime;
+		//현재 애니메이션의 정보
 		_bool bLoop;
 		_bool bHasExitTime;
 	}ANIM_INFO;
+
+	typedef struct AnimName {
+		string name;
+		_uint iNextIndex;
+	}ANIM_NAME;
 public:
 	CImGui_Manager();
 	virtual ~CImGui_Manager() = default;
@@ -86,9 +94,17 @@ private:
 	/* 내가 수정하고자 하는 애니메이션의 인덱스 */
 	_uint Animation_Edit_Idx = 0;
 	_uint Animation_Next_Idx = 0;
+
+	ANIM_NAME animCurrentSelected;
+	ANIM_NAME SelectedNextAnim;
+
 	map<string, _uint> m_CurrentAnim;
 	map<string, _uint> m_NextAnim;
-	vector<pair<map<string, _uint>, map<string, _uint>>> test;
+
+	vector<pair<ANIM_NAME, vector<ANIM_NAME>>> m_ResultPair;
+
+	//vector<vector<pair<string, _uint>>> m_ResultPair;
+
 	/* 수정하려는 애니메이션의 정보 */
 	_bool m_bLoop = false;
 	_bool m_bHasExitTime = false;

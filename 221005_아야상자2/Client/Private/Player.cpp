@@ -76,12 +76,12 @@ _bool CPlayer::Tick(_float fTimeDelta)
 		pPart->Tick(fTimeDelta);*/
 
 
-	for (auto& pCollider : m_pColliderCom)
-	{
-		if (nullptr != pCollider)
-			pCollider->Update(m_pTransformCom->Get_WorldMatrix());
-	}
-
+		/*for (auto& pCollider : m_pColliderCom)
+		{
+			if (nullptr != pCollider)
+				pCollider->Update(m_pTransformCom->Get_WorldMatrix());
+		}*/
+	m_pColliderCom[COLLIDERTYPE_OBB]->Update(m_pTransformCom->Get_WorldMatrix());
 
 
 	return false;
@@ -141,11 +141,12 @@ HRESULT CPlayer::Render()
 
 
 #ifdef _DEBUG
-	for (_uint i = 0; i < COLLILDERTYPE_END; ++i)
+	/*for (_uint i = 0; i < COLLILDERTYPE_END; ++i)
 	{
 		if(nullptr != m_pColliderCom[i])
 			m_pColliderCom[i]->Render();
-	}
+	}*/
+	m_pColliderCom[COLLIDERTYPE_OBB]->Render();
 #endif
 
 	return S_OK;
@@ -303,7 +304,8 @@ HRESULT CPlayer::Ready_Components()
 
 	ColliderDesc.vSize = _float3(1.3f, 1.3f, 1.3f);
 	ColliderDesc.vCenter = _float3(0.f, ColliderDesc.vSize.y * 0.5f, 0.f);
-	ColliderDesc.vRotation = _float3(0.f, XMConvertToRadians(45.f), 0.f);
+	/*ColliderDesc.vRotation = _float3(0.f, XMConvertToRadians(45.f), 0.f);*/
+	ColliderDesc.vRotation = _float3(0.f, 0.f, 0.f);
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_OBB"), TEXT("Com_OBB"), (CComponent**)&m_pColliderCom[COLLIDERTYPE_OBB], &ColliderDesc)))
 		return E_FAIL;
 

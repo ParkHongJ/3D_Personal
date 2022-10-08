@@ -40,13 +40,13 @@ void CTerrain::LateTick(_float fTimeDelta)
 		return;
 	_float3			vPickPos;
 
-	if (GetKeyState(VK_LBUTTON) & 0x8000)
+	/*if (GetKeyState(VK_LBUTTON) & 0x8000)
 	{
 		if (m_pVIBufferCom->Picking(m_pTransformCom, &vPickPos))
 		{
 			int a = 10;
 		}
-	}
+	}*/
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
 }
 

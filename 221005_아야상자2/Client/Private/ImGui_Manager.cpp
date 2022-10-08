@@ -63,6 +63,12 @@ HRESULT CImGui_Manager::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pContex
 	XMStoreFloat3(&vScale, test);
 	XMStoreFloat3(&vRotation, test1);
 	XMStoreFloat3(&vPosition, test2);*/
+	
+
+	ZeroMemory(&animCurrentSelected, sizeof(ANIM_NAME));
+	ZeroMemory(&SelectedNextAnim, sizeof(ANIM_NAME));
+	m_ResultPair.resize(150);
+
 	return S_OK;
 
 }
@@ -409,32 +415,24 @@ void CImGui_Manager::Render()
 				{
 					Animation_current_idx = i;
 					m_pModel->Change_Animation(Animation_current_idx);
+
+					SelectedNextAnim.iNextIndex = Animation_current_idx;
+					SelectedNextAnim.name = (*m_pAnimations)[i]->GetName();
 				}
 			}
 			ImGui::EndListBox();
 			ImGui::SameLine();
 			ImGui::Text((*m_pAnimations)[Animation_current_idx]->GetName());
 
-			/* 현재 애니메이션을 편집할 리스트박스에 넣음. */
-			if (ImGui::Button("AddCurrentAnim"))
-			{
-				if (m_CurrentAnim.empty())
-				{
-					m_CurrentAnim.insert({ (*m_pAnimations)[Animation_current_idx]->GetName(), Animation_current_idx });
-
-				}
-			}
-
-			ImGui::SameLine();
-			if (ImGui::Button("AddNextAnim"))
-			{
-				m_NextAnim.insert({ (*m_pAnimations)[Animation_current_idx]->GetName(), Animation_current_idx });
-			}
+			map<string, _uint>::iterator iter;
+			 
+			
 
 			ImGui::BeginListBox("CurrentAnim", ImVec2(400, 150));
-			map<string, _uint>::iterator iter;
 
 			_uint iSelectedIndex = 0;
+			static string SelectedName;
+			
 			for (iter = m_CurrentAnim.begin(); iter != m_CurrentAnim.end(); iter++)
 			{
 				const bool is_selected = (Animation_Edit_Idx == iSelectedIndex);
@@ -442,26 +440,78 @@ void CImGui_Manager::Render()
 				{
 					Animation_Edit_Idx = iSelectedIndex;
 					(*m_pAnimations)[iSelectedIndex]->GetAnimationInfo(m_fBlendTime, m_bLoop, m_bHasExitTime);
+
+					animCurrentSelected.name = iter->first;
+					animCurrentSelected.iNextIndex = Animation_current_idx;
 				}
 				iSelectedIndex++;
 			}
+
+
 			ImGui::EndListBox();
 			ImGui::SameLine();
 
 			ImGui::BeginListBox("NextAnim", ImVec2(400, 150));
 
-			_uint iSelectedIndex2 = 0;
-			for (iter = m_NextAnim.begin(); iter != m_NextAnim.end(); iter++)
+			_uint iSelectedNextIndex = 0;
+			/*for (iter = m_NextAnim.begin(); iter != m_NextAnim.end(); iter++)
 			{
-				const bool is_selected = (Animation_Next_Idx == iSelectedIndex2);
+				const bool is_selected = (Animation_Next_Idx == iSelectedNextIndex);
 				if (ImGui::Selectable(iter->first.c_str(), true))
 				{
-					Animation_Next_Idx = iSelectedIndex2;
+					Animation_Next_Idx = iSelectedNextIndex;
 				}
-				iSelectedIndex2++;
+				iSelectedNextIndex++;
+			}*/
+			for (_uint i = 0; i < m_ResultPair.size(); ++i)
+			{
+				if (m_ResultPair[i].first.name != "")
+				{
+					const bool is_selected = (Animation_Next_Idx == i);
+					if (ImGui::Selectable(m_ResultPair[animCurrentSelected.iNextIndex].first.name.c_str(), true))
+					{
+						Animation_Next_Idx = i;
+					}
+				}
+			}
+			ImGui::EndListBox();
+
+			ImGui::Text(animCurrentSelected.name.c_str());
+			ImGui::SameLine();
+			ImGui::Text(SelectedNextAnim.name.c_str());
+
+			/* 현재 애니메이션을 편집할 리스트박스에 넣음. */
+			if (ImGui::Button("AddCurrentAnim"))
+			{
+				iter = m_CurrentAnim.find((*m_pAnimations)[Animation_current_idx]->GetName());
+				//겹치는게 없다면 넣음
+				if (iter == m_CurrentAnim.end())
+				{
+					//선택한 애니메이션의 이름과, 그 애니메이션의 인덱스번호를 넘겨줌
+					m_CurrentAnim.insert({SelectedNextAnim.name, SelectedNextAnim.iNextIndex}/*{ (*m_pAnimations)[Animation_current_idx]->GetName(), Animation_current_idx }*/);
+					
+				}
 			}
 
-			ImGui::EndListBox();
+			ImGui::SameLine();
+
+			if (ImGui::Button("AddNextAnim"))
+			{
+				iter = m_CurrentAnim.find((*m_pAnimations)[Animation_current_idx]->GetName());
+				//겹치는게 없다면 넣음
+				if (iter == m_CurrentAnim.end())
+				{
+					//선택한 애니메이션의 이름과, 그 애니메이션의 인덱스번호를 넘겨줌
+					m_NextAnim.insert(make_pair(SelectedNextAnim.name, SelectedNextAnim.iNextIndex));
+
+					m_ResultPair[SelectedNextAnim.iNextIndex].first = animCurrentSelected;
+					m_ResultPair[SelectedNextAnim.iNextIndex].second.push_back(SelectedNextAnim);
+					
+					/*ANIM_NAME animNameRight;*/
+					
+				}
+			}
+
 			ImGui::Checkbox("Loop", &m_bLoop);
 			ImGui::SameLine();
 			ImGui::Checkbox("HasExitTime", &m_bHasExitTime);
@@ -473,7 +523,6 @@ void CImGui_Manager::Render()
 			
 			if (ImGui::Button("EditEnd"))
 			{
-
 				ZeroMemory(&buf, MAX_PATH);
 			}
 
