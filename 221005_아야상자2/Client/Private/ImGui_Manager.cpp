@@ -387,201 +387,208 @@ void CImGui_Manager::Render()
 			ImGui::Text("Start Size");
 			break;
 		case CImGui_Manager::TOOL_ANIMATION:
-		{
-			if (nullptr == m_pSelectedObject)
-				break;
-			m_pModel = (CModel*)m_pSelectedObject->Get_ComponentPtr(L"Com_Model");
-			if (nullptr == m_pModel)
-				break;
-			m_pAnimations = m_pModel->GetAnimations();
-			if (nullptr == m_pAnimations)
-				break;
-
-			//선택한 오브젝트의 모든 애니메이션들
-			ImGui::BeginListBox("Animations", ImVec2(400, 150));
-			for (_uint i = 0; i < m_pAnimations->size(); ++i)
-			{
-				const bool is_selected = (Animation_current_idx == i);
-				//선택했다면
-				if (ImGui::Selectable((*m_pAnimations)[i]->GetName(), true))
-				{
-					//현재 인덱스를 바꿔주고 애니메이션을 플레이함
-					Animation_current_idx = i;
-					m_pModel->Change_Animation(Animation_current_idx);
-
-
-					//선택한 애니메이션의 정보 갱신
-					//SelectedCurrentAnim.name = (*m_pAnimations)[i]->GetName();
-					//SelectedCurrentAnim.iNextIndex = Animation_current_idx;
-
-					SelectedNextAnim.name = (*m_pAnimations)[i]->GetName();
-					SelectedNextAnim.iNextIndex = Animation_current_idx;
-				}
-			}
-			ImGui::EndListBox();
-			ImGui::SameLine();
-			ImGui::Text((*m_pAnimations)[Animation_current_idx]->GetName());
-
-			map<string, _uint>::iterator iter;
-			 
-			
-
-			ImGui::BeginListBox("CurrentAnim", ImVec2(400, 150));
-
-			_uint iSelectedIndex = 0;
-			static string SelectedName;
-			
-			for (iter = m_CurrentAnim.begin(); iter != m_CurrentAnim.end(); iter++)
-			{
-				const bool is_selected = (Animation_Edit_Idx == iSelectedIndex);
-				if (ImGui::Selectable(iter->first.c_str(), true))
-				{
-					Animation_Edit_Idx = iSelectedIndex;
-					(*m_pAnimations)[iSelectedIndex]->GetAnimationInfo(m_fBlendTime, m_bLoop, m_bHasExitTime);
-
-					//현재 편집할 애니메이션의 정보를 갱신
-					//SelectedCurrentAnim.name = iter->first;
-					//SelectedCurrentAnim.iNextIndex = Animation_current_idx;
-					SelectedCurrentAnim.name = iter->first;
-					SelectedCurrentAnim.iNextIndex = iter->second;
-				}
-				iSelectedIndex++;
-			}
-
-
-			ImGui::EndListBox();
-			ImGui::SameLine();
-
-			ImGui::BeginListBox("NextAnim", ImVec2(400, 150));
-
-			_uint iSelectedNextIndex = 0;
-			for (_uint i = 0; i < m_ResultPair[SelectedCurrentAnim.iNextIndex].second.size(); i++)
-			{
-				const bool is_selected = (iSelectedNextIndex == i);
-				if (ImGui::Selectable(m_ResultPair[SelectedCurrentAnim.iNextIndex].second[i].name.c_str(), true))
-				{
-					iSelectedNextIndex = i;
-				}
-			}
-			ImGui::EndListBox();
-
-			ImGui::Text("CurrentAnim : ");
-			ImGui::SameLine();
-			ImGui::Text(SelectedCurrentAnim.name.c_str());
-			ImGui::SameLine();
-			ImGui::Text("NextAnim : ");
-			ImGui::SameLine();
-			ImGui::Text(SelectedNextAnim.name.c_str());
-
-			/* 현재 애니메이션을 편집할 리스트박스에 넣음. */
-			if (ImGui::Button("AddCurrentAnim"))
-			{
-				iter = m_CurrentAnim.find((*m_pAnimations)[Animation_current_idx]->GetName());
-				//겹치는게 없다면 넣음
-				if (iter == m_CurrentAnim.end())
-				{
-					//선택한 애니메이션의 이름과, 그 애니메이션의 인덱스번호를 넘겨줌
-					m_CurrentAnim.insert({SelectedNextAnim.name, SelectedNextAnim.iNextIndex}/*{ (*m_pAnimations)[Animation_current_idx]->GetName(), Animation_current_idx }*/);
-				}
-			}
-
-			ImGui::SameLine();
-
-			if (ImGui::Button("AddNextAnim"))
-			{
-				iter = m_CurrentAnim.find((*m_pAnimations)[Animation_current_idx]->GetName());
-				//겹치는게 없다면 넣음
-				if (iter == m_CurrentAnim.end() || SelectedCurrentAnim.name != "")
-				{
-					//선택한 애니메이션의 이름과, 그 애니메이션의 인덱스번호를 넘겨줌
-					//m_NextAnim.insert(make_pair(SelectedNextAnim.name, SelectedNextAnim.iNextIndex));
-
-					m_ResultPair[SelectedCurrentAnim.iNextIndex].first = SelectedCurrentAnim;
-					m_ResultPair[SelectedCurrentAnim.iNextIndex].second.push_back(SelectedNextAnim);
-				}
-			}
-
-			ImGui::Checkbox("Loop", &m_bLoop);
-			ImGui::SameLine();
-			ImGui::Checkbox("HasExitTime", &m_bHasExitTime);
-
-			ImGui::DragFloat("BlendTime", &m_fBlendTime, 0.01f, 0.0f, 5.0f);
-
-			static char buf[MAX_PATH] = "";
-			ImGui::InputText("Message", buf, MAX_PATH);
-			
-			if (ImGui::Button("Apply"))
-			{
-				ZeroMemory(&buf, MAX_PATH);
-			}
-
-			ImGui::BeginListBox("CompletedAnim", ImVec2(400, 150));
-			ImGui::EndListBox();
-
-			if (ImGui::Button("TestXMLBUTTON"))
-			{
-				//출처 : https://blog.naver.com/PostView.naver?isHttpsRedirect=true&blogId=chansung0602&logNo=221014997196
-				
-				//xml 선언
-				TiXmlDocument doc;
-				TiXmlDeclaration* pDec1 = new TiXmlDeclaration("1.0", "", "");
-				doc.LinkEndChild(pDec1);
-
-				//루트 노드 추가
-				//하나의 노드를 다루기 위한 변수, 이를 xml 파일로 종속시킨다.
-				TiXmlElement* pRoot = new TiXmlElement("AnimationDB");
-				doc.LinkEndChild(pRoot);
-
-				//주석 문장 추가
-				TiXmlComment* pComment = new TiXmlComment();
-				pComment->SetValue("This is Animation DB");
-				pRoot->LinkEndChild(pComment);
-
-				// 하위노드 및 데이터 추가
-				TiXmlElement* pElem = new TiXmlElement("class1");
-				pRoot->LinkEndChild(pElem);
-				TiXmlElement* pElem0 = new TiXmlElement("Teacher");
-				pElem0->LinkEndChild(new TiXmlElement("JJJ"));
-				pElem->LinkEndChild(pElem0);
-
-				//하위노드 및 속성 추가
-				TiXmlElement* pSubElem = new TiXmlElement("English");
-				pElem->LinkEndChild(pSubElem);
-				pSubElem->SetAttribute("name", "score");
-				pSubElem->SetAttribute("aa", 100);
-				pSubElem->SetAttribute("bb", 50);
-				pSubElem->SetAttribute("cc", 90);
-
-				pSubElem = new TiXmlElement("Math");
-				pElem->LinkEndChild(pSubElem);
-				pSubElem->SetAttribute("name", "score");
-				pSubElem->SetAttribute("aa", 90);
-				pSubElem->SetAttribute("bb", 70);
-				pSubElem->SetAttribute("cc", 95);
-
-				pElem = new TiXmlElement("class2");
-				pRoot->LinkEndChild(pElem);
-				pElem0 = new TiXmlElement("Teacher");
-				pElem0->LinkEndChild(new TiXmlElement("SSS"));
-				pElem->LinkEndChild(pElem0);
-
-				pSubElem = new TiXmlElement("English");
-				pElem->LinkEndChild(pSubElem);
-				pSubElem->SetAttribute("name", "score");
-				pSubElem->SetAttribute("ab", 70);
-				pSubElem->SetAttribute("vc", 90);
-				pSubElem->SetAttribute("ds", 30);
-
-				pSubElem = new TiXmlElement("Math");
-				pElem->LinkEndChild(pSubElem);
-				pSubElem->SetAttribute("name", "score");
-				pSubElem->SetAttribute("ab", 60);
-				pSubElem->SetAttribute("vc", 70);
-				pSubElem->SetAttribute("ds", 25);
-
-				doc.SaveFile("../Bin/Data/Test.xml");
-			}
-		}
+//		{
+//			if (nullptr == m_pSelectedObject)
+//				break;
+//			m_pModel = (CModel*)m_pSelectedObject->Get_ComponentPtr(L"Com_Model");
+//			if (nullptr == m_pModel)
+//				break;
+//			m_pAnimations = m_pModel->GetAnimations();
+//			if (nullptr == m_pAnimations)
+//				break;
+//
+//			//선택한 오브젝트의 모든 애니메이션들
+//			ImGui::BeginListBox("Animations", ImVec2(400, 150));
+//			for (_uint i = 0; i < m_pAnimations->size(); ++i)
+//			{
+//				const bool is_selected = (Animation_current_idx == i);
+//				//선택했다면
+//				if (ImGui::Selectable((*m_pAnimations)[i]->GetName(), true))
+//				{
+//					//현재 인덱스를 바꿔주고 애니메이션을 플레이함
+//					Animation_current_idx = i;
+//					m_pModel->Change_Animation(Animation_current_idx);
+//
+//
+//					//선택한 애니메이션의 정보 갱신
+//					//SelectedCurrentAnim.name = (*m_pAnimations)[i]->GetName();
+//					//SelectedCurrentAnim.iNextIndex = Animation_current_idx;
+//
+//					SelectedNextAnim.name = (*m_pAnimations)[i]->GetName();
+//					SelectedNextAnim.iNextIndex = Animation_current_idx;
+//				}
+//			}
+//			ImGui::EndListBox();
+//			ImGui::SameLine();
+//			char temp[MAX_PATH] = "";
+//			strcpy_s(temp, (*m_pAnimations)[Animation_current_idx]->GetName());
+//			ImGui::InputText("testText : ", temp, MAX_PATH);
+//
+//			map<string, _uint>::iterator iter;
+//			 
+//			
+//
+//			ImGui::BeginListBox("CurrentAnim", ImVec2(400, 150));
+//
+//			_uint iSelectedIndex = 0;
+//			static string SelectedName;
+//			
+//			for (iter = m_CurrentAnim.begin(); iter != m_CurrentAnim.end(); iter++)
+//			{
+//				const bool is_selected = (Animation_Edit_Idx == iSelectedIndex);
+//				if (ImGui::Selectable(iter->first.c_str(), true))
+//				{
+//					//Animation_Edit_Idx = iSelectedIndex;
+//					(*m_pAnimations)[iSelectedIndex]->GetAnimationInfo(m_fBlendTime, m_bLoop, m_bHasExitTime);
+//
+//					//현재 편집할 애니메이션의 정보를 갱신
+//					//SelectedCurrentAnim.name = iter->first;
+//					//SelectedCurrentAnim.iNextIndex = Animation_current_idx;
+//					SelectedCurrentAnim.name = iter->first;
+//					SelectedCurrentAnim.iNextIndex = Animation_Edit_Idx = iter->second;
+//				}
+//				iSelectedIndex++;
+//			}
+//
+//
+//			ImGui::EndListBox();
+//			ImGui::SameLine();
+//
+//			ImGui::BeginListBox("NextAnim", ImVec2(400, 150));
+//
+//			static _uint iSelectedNextIndex = 0;
+//			for (_uint i = 0; i < m_ResultPair[SelectedCurrentAnim.iNextIndex].second.size(); i++)
+//			{
+//				const bool is_selected = (iSelectedNextIndex == i);
+//				if (ImGui::Selectable(m_ResultPair[SelectedCurrentAnim.iNextIndex].second[i].name.c_str(), true))
+//				{
+//					iSelectedNextIndex = i;
+//				}
+//			}
+//			ImGui::EndListBox();
+//
+//			ImGui::Text("CurrentAnim : ");
+//			ImGui::SameLine();
+//			ImGui::Text(SelectedCurrentAnim.name.c_str());
+//			ImGui::SameLine();
+//			ImGui::Text("NextAnim : ");
+//			ImGui::SameLine();
+//			ImGui::Text(SelectedNextAnim.name.c_str());
+//
+//			/* 현재 애니메이션을 편집할 리스트박스에 넣음. */
+//			if (ImGui::Button("AddCurrentAnim"))
+//			{
+//				iter = m_CurrentAnim.find((*m_pAnimations)[Animation_current_idx]->GetName());
+//				//겹치는게 없다면 넣음
+//				if (iter == m_CurrentAnim.end())
+//				{
+//					//선택한 애니메이션의 이름과, 그 애니메이션의 인덱스번호를 넘겨줌
+//					m_CurrentAnim.insert({SelectedNextAnim.name, SelectedNextAnim.iNextIndex}/*{ (*m_pAnimations)[Animation_current_idx]->GetName(), Animation_current_idx }*/);
+//				}
+//			}
+//
+//			ImGui::SameLine();
+//
+//			if (ImGui::Button("AddNextAnim"))
+//			{
+//				iter = m_CurrentAnim.find((*m_pAnimations)[Animation_current_idx]->GetName());
+//				//겹치는게 없다면 넣음
+//				if (iter == m_CurrentAnim.end() || SelectedCurrentAnim.name != "")
+//				{
+//					//선택한 애니메이션의 이름과, 그 애니메이션의 인덱스번호를 넘겨줌
+//					//m_NextAnim.insert(make_pair(SelectedNextAnim.name, SelectedNextAnim.iNextIndex));
+//
+//					m_ResultPair[SelectedCurrentAnim.iNextIndex].first = SelectedCurrentAnim;
+//					ANIM_INFO animInfo;
+//					animInfo.name = SelectedNextAnim.name;
+//					animInfo.iNextAnimIndex = SelectedNextAnim.iNextIndex;
+//
+//					m_ResultPair[SelectedCurrentAnim.iNextIndex].second.push_back(animInfo);
+//					//m_ResultPair[SelectedCurrentAnim.iNextIndex].second.push_back(SelectedNextAnim);
+//				}
+//			}
+//
+//			ImGui::Checkbox("Loop", &m_bLoop);
+//			ImGui::SameLine();
+//			ImGui::Checkbox("HasExitTime", &m_bHasExitTime);
+//
+//			ImGui::DragFloat("BlendTime", &m_fBlendTime, 0.01f, 0.0f, 5.0f);
+//
+//			ImGui::InputText("Message", buf, MAX_PATH);
+//			
+//			if (m_ResultPair[Animation_Edit_Idx].first.name != "")
+//			{
+//				ImGui::Text(m_ResultPair[Animation_Edit_Idx].first.name.c_str());
+//			}
+//			ImGui::SameLine();
+//			if (!m_ResultPair[Animation_Edit_Idx].second.empty())
+//			{
+//				ImGui::Text(m_ResultPair[Animation_Edit_Idx].second[iSelectedNextIndex].name.c_str());
+//			}
+//			if (ImGui::Button("Apply"))
+//			{
+//				//strcpy_s(m_ResultPair[Animation_Edit_Idx].second[iSelectedNextIndex].message, buf);
+//				m_ResultPair[Animation_Edit_Idx].second[iSelectedNextIndex].message = buf;
+//				m_ResultPair[Animation_Edit_Idx].second[iSelectedNextIndex].fBlendTime = m_fBlendTime;
+//				m_ResultPair[Animation_Edit_Idx].second[iSelectedNextIndex].bLoop = m_bLoop;
+//				m_ResultPair[Animation_Edit_Idx].second[iSelectedNextIndex].bHasExitTime = m_bHasExitTime;
+//
+//				ZeroMemory(&buf, MAX_PATH);
+//			}
+//
+//			ImGui::BeginListBox("CompletedAnim", ImVec2(400, 150));
+//			ImGui::EndListBox();
+//
+//			if (ImGui::Button("TestXMLBUTTON"))
+//			{
+//				//출처 : https://blog.naver.com/PostView.naver?isHttpsRedirect=true&blogId=chansung0602&logNo=221014997196
+//				
+//				//xml 선언
+//				TiXmlDocument doc;
+//				TiXmlDeclaration* pDec1 = new TiXmlDeclaration("1.0", "", "");
+//				doc.LinkEndChild(pDec1);
+//
+//				//루트 노드 추가
+//				//하나의 노드를 다루기 위한 변수, 이를 xml 파일로 종속시킨다.
+//				TiXmlElement* pRoot = new TiXmlElement("AnimationDB");
+//				doc.LinkEndChild(pRoot);
+//
+//				//주석 문장 추가
+//				TiXmlComment* pComment = new TiXmlComment();
+//				pComment->SetValue("This is Animation DB");
+//				pRoot->LinkEndChild(pComment);
+//
+//				_uint i = 0;
+//				while (true)
+//				{
+//					if (m_ResultPair[i].first.name == "")
+//					{
+//						break;
+//					}
+//					// 하위노드 및 데이터 추가
+//					TiXmlElement* pElem = new TiXmlElement("Animations");
+//					pRoot->LinkEndChild(pElem);
+//					TiXmlElement* pElem0 = new TiXmlElement("CurrentAnimName");
+//					pElem0->LinkEndChild(new TiXmlElement(m_ResultPair[i].first.name.c_str()));
+//					pElem->LinkEndChild(pElem0);
+//
+//					//하위노드 및 속성 추가
+//					TiXmlElement* pSubElem = new TiXmlElement("NextAnimInfo");
+//					pElem->LinkEndChild(pSubElem);
+//					for (_uint j = 0; j < m_ResultPair[i].second.size(); ++j)
+//					{
+//						pSubElem->SetAttribute("name", m_ResultPair[i].second[j].name.c_str());
+//						pSubElem->SetAttribute("Message", m_ResultPair[i].second[j].message.c_str());
+//						pSubElem->SetAttribute("bHasExitTime", m_ResultPair[i].second[j].bHasExitTime);
+////						pSubElem->SetAttribute("fBlendTime", m_ResultPair[i].second[j].fBlendTime);
+//					}
+//
+//					
+//					i++;
+//				}
+//				doc.SaveFile("../Bin/Data/Test.xml");
+//			}
+//		}
 		break;
 		default:
 			break;

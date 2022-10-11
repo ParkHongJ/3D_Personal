@@ -23,6 +23,12 @@ public:
 	}
 
 	void Set_NeighborIndex(LINE eLine, CCell* pNeighbor) {
+		if (nullptr == pNeighbor)
+		{
+			m_iNeighborIndex[eLine] = -1;
+			return;
+		}
+
 		m_iNeighborIndex[eLine] = pNeighbor->Get_Index();
 	}
 
@@ -30,10 +36,11 @@ public:
 public:
 	HRESULT Initialize(const _float3* pPoints, _int iIndex);
 	_bool Compare(const _float3& vSourPoint, const _float3& vDestPoint);
+	_bool isIn(_fvector vPosition, _int* pNeighborIndex);
 
 #ifdef _DEBUG
 public:
-	HRESULT Render_Cell();
+	HRESULT Render_Cell(_float fHeight = 0.f, _float4 vColor = _float4(0.f, 1.f, 0.f, 1.f));
 #endif // _DEBUG
 
 private:

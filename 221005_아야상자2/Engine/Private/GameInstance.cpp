@@ -250,6 +250,11 @@ _bool CGameInstance::Key_Pressing(_uchar KeyInput)
 	return m_pKey_Manager->Key_Pressing(KeyInput);
 }
 
+_bool CGameInstance::Key_Up(_uchar KeyInput)
+{
+	return m_pKey_Manager->Key_Up(KeyInput);
+}
+
 void CGameInstance::Set_Transform(CPipeLine::TRANSFORMSTATE eTransformState, _fmatrix TransformMatrix)
 {
 	if (nullptr == m_pPipeLine)
@@ -338,12 +343,12 @@ void CGameInstance::Free()
 {
 	Safe_Release(m_pLight_Manager);
 	Safe_Release(m_pPicking);
-	Safe_Release(m_pPipeLine);
 	Safe_Release(m_pTimer_Manager);
 	Safe_Release(m_pComponent_Manager);
 	Safe_Release(m_pObject_Manager);
 	Safe_Release(m_pKey_Manager);
 	Safe_Release(m_pCollider_Manager);
+	Safe_Release(m_pPipeLine);
 	Safe_Release(m_pLevel_Manager);
 	Safe_Release(m_pInput_Device);
 	Safe_Release(m_pGraphic_Device); 

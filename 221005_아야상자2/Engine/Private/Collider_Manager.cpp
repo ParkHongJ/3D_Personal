@@ -39,7 +39,7 @@ HRESULT CCollider_Manager::Collision(COLLISIONGROUP eSourGroup, COLLISIONGROUP e
 			
 			_bool bCollision = pSour->Collision(pDest);
 			CGameObject* pSourGameObject = pSour->GetOwner();
-			CGameObject* pDestGameObject = pSour->GetOwner();
+			CGameObject* pDestGameObject = pDest->GetOwner();
 
 			if (bCollision)
 			{

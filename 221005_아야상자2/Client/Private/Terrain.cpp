@@ -109,7 +109,7 @@ HRESULT CTerrain::Ready_Components()
 
 	/* For.Com_Navigation */
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Navigation"), TEXT("Com_Navigation"), (CComponent**)&m_pNavigationCom)))
-		return E_FAIL;
+	return E_FAIL;
 
 	return S_OK;
 }

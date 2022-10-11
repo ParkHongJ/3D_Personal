@@ -199,7 +199,7 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 	/* For.Prototype_Component_Model_ForkLift */
 	PivotMatrix = XMMatrixRotationY(XMConvertToRadians(180.0f));
 	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_ForkLift"),
-		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Meshes/ForkLift/", "ForkLift.fbx", L"../Bin/Resources/Meshes/ForkLift/", L"ForkLift.txt", PivotMatrix))))
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Meshes/ForkLift/", "DurgaSword.fbx", L"../Bin/Resources/Meshes/Weapon/", L"DurgaSword.txt", PivotMatrix))))
 		return E_FAIL;
 
 

@@ -30,6 +30,11 @@ public:
 	virtual void LateTick(_float fTimeDelta);
 	virtual HRESULT Render();
 
+public:
+	virtual void OnCollisionEnter(CGameObject* pOther, _float fTimeDelta) override;
+	virtual void OnCollisionStay(CGameObject* pOther, _float fTimeDelta) override;
+	virtual void OnCollisionExit(CGameObject* pOther, _float fTimeDelta) override;
+
 private:
 	CShader*				m_pShaderCom = nullptr;
 

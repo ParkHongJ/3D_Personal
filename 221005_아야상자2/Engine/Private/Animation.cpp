@@ -12,6 +12,7 @@ CAnimation::CAnimation(const CAnimation & rhs)
 	, m_iNumChannels(rhs.m_iNumChannels)
 	, m_fTickPerSecond(rhs.m_fTickPerSecond)
 	, m_fPlayTime(rhs.m_fPlayTime)
+	, m_bLoop(true)
 {
 	strcpy_s(m_szName, rhs.m_szName);
 	for (auto& pChannel : m_Channels)
@@ -93,9 +94,12 @@ _bool CAnimation::Play_Animation(_float fTimeDelta)
 
 		if (m_fPlayTime >= m_fDuration)
 		{
-			m_fPlayTime = 0.f;
-			for (auto& iCurrentKeyFrame : m_ChannelKeyFrames)
-				iCurrentKeyFrame = 0;
+			if (m_bLoop)
+			{
+				m_fPlayTime = 0.f;
+				for (auto& iCurrentKeyFrame : m_ChannelKeyFrames)
+					iCurrentKeyFrame = 0;
+			}
 			bAnimEnd = true;
 		}
 		else

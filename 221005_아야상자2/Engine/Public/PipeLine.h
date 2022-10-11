@@ -35,7 +35,7 @@ public:
 
 public:
 	void Update();
-	
+
 private:
 	_float4x4				m_TransformMatrix[D3DTS_END];
 	_float4x4				m_TransformInverseMatrix[D3DTS_END];

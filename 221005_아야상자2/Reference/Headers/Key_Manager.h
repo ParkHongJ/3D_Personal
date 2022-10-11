@@ -11,6 +11,7 @@ private:
 public:
 	_bool Key_Down(_uchar KeyInput);
 	_bool Key_Pressing(_uchar KeyInput); // 누르는 동안 한번만 실행
+	_bool Key_Up(_uchar KeyInput);
 private:
 	_bool m_bKeyState[256] = { false };
 public:

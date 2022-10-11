@@ -10,6 +10,7 @@ CNavigation::CNavigation(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 CNavigation::CNavigation(const CNavigation & rhs)
 	: CComponent(rhs)
 	, m_Cells(rhs.m_Cells)
+	, m_NavigationDesc(rhs.m_NavigationDesc)
 {
 	for (auto& pCell : m_Cells)
 		Safe_AddRef(pCell);
@@ -51,21 +52,66 @@ HRESULT CNavigation::Initialize_Prototype(const _tchar * pNavigationDataFilePath
 
 HRESULT CNavigation::Initialize(void * pArg)
 {
+
+	if (nullptr != pArg)
+		memcpy(&m_NavigationDesc, pArg, sizeof(NAVIGATIONDESC));
+
 	if (FAILED(__super::Initialize(pArg)))
 		return E_FAIL;
 
 	return S_OK;
 }
+_bool CNavigation::isMove(_fvector vPosition)
+{
+	_int	iNeighborIndex = -1;
 
+	/* 현재 쎌 안에서 움직였다. */
+	/* 나간방향에 이웃이 있다면. 이웃의 인ㄷ게스를 받아오고.
+	이웃이 없다면 안채워온다. */
+	if (true == m_Cells[m_NavigationDesc.iCurrentIndex]->isIn(vPosition, &iNeighborIndex))
+		return true;
+
+	/* 현재 셀을 나갔다. */
+	else
+	{
+		/* 나간방향에 이웃이 있었다면. */
+		if (0 <= iNeighborIndex)
+		{
+			while (true)
+			{
+				if (0 > iNeighborIndex)
+					return false;
+
+				if (true == m_Cells[iNeighborIndex]->isIn(vPosition, &iNeighborIndex))
+				{
+					/* 커런트 인덱스를 이웃의 인덱스로 바꿔준다. */
+					m_NavigationDesc.iCurrentIndex = iNeighborIndex;
+
+					return true;
+				}
+			}
+		}
+		/* 나간방향에 이웃이 없었다면. */
+		else
+			return false;
+	}
+	return true;
+}
 #ifdef _DEBUG
 
 HRESULT CNavigation::Render()
 {
-	for (auto& pCell : m_Cells)
+	if (-1 == m_NavigationDesc.iCurrentIndex)
 	{
-		if (nullptr != pCell)
-			pCell->Render_Cell();
+		for (auto& pCell : m_Cells)
+		{
+			if (nullptr != pCell)
+				pCell->Render_Cell();
+		}
 	}
+	else
+		m_Cells[m_NavigationDesc.iCurrentIndex]->Render_Cell(0.05f, _float4(1.f, 0.f, 0.f, 1.f));
+
 
 	return S_OK;
 }
@@ -88,7 +134,7 @@ HRESULT CNavigation::Ready_Neighbor()
 			}
 
 			if (true == pDestCell->Compare(pSourCell->Get_Point(CCell::POINT_B), pSourCell->Get_Point(CCell::POINT_C)))
-			{				
+			{
 				pSourCell->Set_NeighborIndex(CCell::LINE_BC, pDestCell);
 			}
 

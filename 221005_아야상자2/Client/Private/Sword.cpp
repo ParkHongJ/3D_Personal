@@ -22,9 +22,9 @@ HRESULT CSword::Initialize(void * pArg)
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
 
-	m_pTransformCom->Set_Scale(XMVectorSet(0.1f, 0.1f, 0.1f, 1.f));
+	m_pTransformCom->Set_Scale(XMVectorSet(0.01f, 0.01f, 0.01f, 1.f));
 	m_pTransformCom->Rotation(XMVectorSet(0.f, 1.f, 0.f, 0.f), XMConvertToRadians(90.0f));
-	
+	strcpy_s(m_szName, "Sword");
 
 	
 
@@ -34,6 +34,7 @@ HRESULT CSword::Initialize(void * pArg)
 
 _bool CSword::Tick(_float fTimeDelta)
 {
+	m_pColliderCom->Update(m_pParentTransformCom->Get_WorldMatrix());
 	return false;
 }
 
@@ -42,7 +43,9 @@ void CSword::LateTick(_float fTimeDelta)
 	if (nullptr == m_pRendererCom)
 		return;
 
-	
+	if (m_bEnable)
+		m_pColliderCom->Add_CollisionGroup(CCollider_Manager::PLAYER, m_pColliderCom);
+
 }
 
 HRESULT CSword::Render()
@@ -78,7 +81,9 @@ HRESULT CSword::Render()
 		if (FAILED(m_pModelCom->Render(m_pShaderCom, i)))
 			return E_FAIL;
 	}	
-
+#ifdef _DEBUG
+	m_pColliderCom->Render();
+#endif
 	return S_OK;
 }
 
@@ -92,6 +97,21 @@ HRESULT CSword::SetUp_State(_fmatrix StateMatrix)
 	m_pParentTransformCom->Set_Scale(XMVectorSet(1.f, 1.f, 1.f, 1.f));
 
 	return S_OK;
+}
+
+void CSword::OnCollisionEnter(CGameObject * pOther, _float fTimeDelta)
+{
+	int a = 10;
+}
+
+void CSword::OnCollisionExit(CGameObject * pOther, _float fTimeDelta)
+{
+	int a = 10;
+}
+
+void CSword::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
+{
+	int a = 10;
 }
 
 HRESULT CSword::Ready_Components()
@@ -115,7 +135,18 @@ HRESULT CSword::Ready_Components()
 		return E_FAIL;
 
 	/* For.Com_Model */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_ForkLift"), TEXT("Com_Model"), (CComponent**)&m_pModelCom)))
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Sword"), TEXT("Com_Model"), (CComponent**)&m_pModelCom)))
+		return E_FAIL;
+
+	/* For.Com_OBB */
+	CCollider::COLLIDERDESC		ColliderDesc;
+	ZeroMemory(&ColliderDesc, sizeof(CCollider::COLLIDERDESC));
+
+	ColliderDesc.vSize = _float3(0.3f, 1.3f, 0.3f);
+	ColliderDesc.vCenter = _float3(0.f, ColliderDesc.vSize.y * 0.5f + 0.25f, 0.f);
+	/*ColliderDesc.vRotation = _float3(0.f, XMConvertToRadians(45.f), 0.f);*/
+	ColliderDesc.vRotation = _float3(0.f, 0.f, 0.f);
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_OBB"), TEXT("Com_OBB"), (CComponent**)&m_pColliderCom, &ColliderDesc)))
 		return E_FAIL;
 
 	return S_OK;
@@ -151,10 +182,10 @@ void CSword::Free()
 {
 	__super::Free();
 
-
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pRendererCom);
+	Safe_Release(m_pColliderCom);
 	Safe_Release(m_pTransformCom);
 	Safe_Release(m_pParentTransformCom);
 }

@@ -1,5 +1,8 @@
 #pragma once
-
+#define MoveForward DIK_UP 
+#define MoveBack DIK_DOWN 
+#define MoveLeft DIK_LEFT 
+#define MoveRight DIK_RIGHT 
 namespace Client
 {
 	static const unsigned int g_iWinSizeX = 1280;
@@ -20,6 +23,7 @@ namespace Client
 		unsigned int iNumLevel = LEVEL_END;
 		wchar_t pModelTag[MAX_PATH] = L"";
 	}CREATE_INFO;
+	
 }
 
 extern HINSTANCE g_hInst;

@@ -94,7 +94,7 @@ _uint CChannel::Blending_Transformation(_float fPlayTime, _uint iCurrentKeyFrame
 	_float4			vRotation;
 	_float3			vPosition;
 
-	_float		fRatio = fPlayTime / .2f;
+	_float		fRatio = fPlayTime / .25f;
 
 	_float3		vSourScale, vDestScale;
 	_float4		vSourRotation, vDestRotation;

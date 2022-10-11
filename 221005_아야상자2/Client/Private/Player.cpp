@@ -23,20 +23,18 @@ HRESULT CPlayer::Initialize(void * pArg)
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
 
-	m_pModelCom->Set_AnimIndex(0);
+	m_pModelCom->Set_AnimIndex(IdlePeace);
+	m_eCurrentAnimState = CPlayer::IdlePeace;
 
-	m_eCurrentState = CPlayer::STATE_IDLE;
-	/*if (FAILED(Ready_Sockets()))
+	if (FAILED(Ready_Sockets()))
 		return E_FAIL;
 
 	if (FAILED(Ready_PlayerParts()))
-		return E_FAIL;*/
-
-	
+		return E_FAIL;
 
 	RELEASE_INSTANCE(CGameInstance);
 	
-
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(0.f,0.f,0.f,1.f));
 	strcpy_s(m_szName, "Player");
 	return S_OK;
 }
@@ -46,41 +44,11 @@ _bool CPlayer::Tick(_float fTimeDelta)
 	if (m_bDestroy)
 		return true;
 
-	//현재 재생중인 애니메이션: Idle 
-	//Idle -> Walk 메세지가 없으면 아무 행동도 하지않음.
-	//Idle -> Walk 메세지가 있다면 다음 애니메이션으로 변경
-	_bool bRecv = m_pModelCom->RecvMessage("Walk");
-	if (bRecv)
-	{
-		//걷기일때의 코드 실행 : 위치 이동 등등
-	}
-
-	//현재 재생중인 애니메이션: Walk
-	//Walk -> Attack 메세지가 없으면 아무 행동도 하지않음.
-	//Walk -> Attack 메세지가 있다면 다음 애니메이션으로 변경
-	bRecv = m_pModelCom->RecvMessage("Attack");
-	if (bRecv)
-	{
-		//공격일때의 코드 실행
-	}
-
-	//뛰기
-
-
-	//SetState(m_eCurrentState, fTimeDelta);
-
-//	m_pModelCom->sendMessage("walk, run e등등");
-	/*Update_Weapon();
+	SetState(m_eCurrentAnimState, fTimeDelta);
+	Update_Weapon();
 
 	for (auto& pPart : m_Parts)
-		pPart->Tick(fTimeDelta);*/
-
-
-		/*for (auto& pCollider : m_pColliderCom)
-		{
-			if (nullptr != pCollider)
-				pCollider->Update(m_pTransformCom->Get_WorldMatrix());
-		}*/
+		pPart->Tick(fTimeDelta);
 	m_pColliderCom[COLLIDERTYPE_OBB]->Update(m_pTransformCom->Get_WorldMatrix());
 
 
@@ -94,14 +62,12 @@ void CPlayer::LateTick(_float fTimeDelta)
 
 	m_bAnimEnd = m_pModelCom->Play_Animation(fTimeDelta);
 
-	/*for (auto& pPart : m_Parts)
-		pPart->LateTick(fTimeDelta);
-
-
 	for (auto& pPart : m_Parts)
-		m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, pPart);*/
+	{
+		pPart->LateTick(fTimeDelta);
+		m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, pPart);
+	}
 	
-	//((CCollider*)m_pColliderCom[COLLIDERTYPE_OBB]).Add_CollisionGroup(0, m_pColliderCom[COLLIDERTYPE_OBB]);
 	m_pColliderCom[COLLIDERTYPE_OBB]->Add_CollisionGroup(CCollider_Manager::PLAYER, m_pColliderCom[COLLIDERTYPE_OBB]);
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
 }
@@ -141,35 +107,229 @@ HRESULT CPlayer::Render()
 
 
 #ifdef _DEBUG
-	/*for (_uint i = 0; i < COLLILDERTYPE_END; ++i)
-	{
-		if(nullptr != m_pColliderCom[i])
-			m_pColliderCom[i]->Render();
-	}*/
 	m_pColliderCom[COLLIDERTYPE_OBB]->Render();
+
+	m_pNavigationCom->Render();
 #endif
 
 	return S_OK;
 }
 
-void CPlayer::SetState(STATE_PLAYER eState, _float fTimeDelta)
+void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 {
 	switch (eState)
 	{
-	case CPlayer::STATE_IDLE:
+	case CPlayer::Backstab_Deb_1:
+		break;
+	case CPlayer::Backstab_Deb_2:
+		break;
+	case CPlayer::Backstab_Deb_3:
+		break;
+	case CPlayer::Backstab_Fin:
+		break;
+	case CPlayer::Backstab_Fin_inter:
+		break;
+	case CPlayer::DashAir:
+		break;
+	case CPlayer::DashBack:
+		break;
+	case CPlayer::DashFront:
+		break;
+	case CPlayer::DashLeft:
+		break;
+	case CPlayer::Death:
+		break;
+	case CPlayer::DeathLong:
+		break;
+	case CPlayer::DoubleJumpCloth_Start:
+		break;
+	case CPlayer::Health:
+		break;
+	case CPlayer::IdleFight:
+		Idle_Fight_State(fTimeDelta);
+		break;
+	case CPlayer::IdlePeace:
 		Idle_State(fTimeDelta);
 		break;
-	case CPlayer::STATE_WALK:
-		Walk_State(fTimeDelta);
+	case CPlayer::JumpCloth_Air:
 		break;
-	case CPlayer::STATE_RUN:
+	case CPlayer::JumpCloth_Land:
 		break;
-	case CPlayer::STATE_ATTACK:
-		Attack_State(fTimeDelta);
+	case CPlayer::JumpCloth_Start:
 		break;
-	case CPlayer::STATE_JUMP:
+	case CPlayer::LowFight1:
 		break;
-	case CPlayer::STATE_END:
+	case CPlayer::Magic:
+		break;
+	case CPlayer::Magic_001:
+		break;
+	case CPlayer::Magic_2:
+		break;
+	case CPlayer::Magic_3:
+		break;
+	case CPlayer::Magic_4:
+		break;
+	case CPlayer::Magic_5:
+		break;
+	case CPlayer::Parry:
+		break;
+	case CPlayer::Parry_2:
+		break;
+	case CPlayer::Parry_3:
+		break;
+	case CPlayer::Projection:
+		break;
+	case CPlayer::ProjectionInAir:
+		break;
+	case CPlayer::ProjectionLand:
+		break;
+	case CPlayer::RolL2:
+		break;
+	case CPlayer::RollAttack:
+		break;
+	case CPlayer::RollAttack_2:
+		break;
+	case CPlayer::RollAttack_3:
+		break;
+	case CPlayer::RollAttack_4:
+		break;
+	case CPlayer::RollAttack_5:
+		break;
+	case CPlayer::Run:
+		Run_State(fTimeDelta);
+		break;
+	case CPlayer::Sleeping:
+		break;
+	case CPlayer::SleepingStandUp:
+		break;
+	case CPlayer::Slide:
+		break;
+	case CPlayer::Sprint:
+		//Sprint_State(fTimeDelta);
+		break;
+	case CPlayer::Stun:
+		break;
+	case CPlayer::Walk:
+		break;
+	case CPlayer::WalkBack:
+		break;
+	case CPlayer::WalkLeft:
+		break;
+	case CPlayer::WalkRight:
+		break;
+	case CPlayer::fight_coup1:
+		break;
+	case CPlayer::fight_coup2:
+		break;
+	case CPlayer::fight_coup1bis:
+		break;
+	case CPlayer::fight_coup3:
+		break;
+	case CPlayer::fight_coup4:
+		break;
+	case CPlayer::fight_coup5:
+		break;
+	case CPlayer::fight_coup6:
+		break;
+	case CPlayer::fight_deb:
+		break;
+	case CPlayer::fight_fin:
+		break;
+	case CPlayer::fight_inter:
+		break;
+	case CPlayer::fight_prep2:
+		break;
+	case CPlayer::dash_air_v3:
+		break;
+	case CPlayer::dash_right_v2:
+		break;
+	case CPlayer::interaction_v2:
+		break;
+	case CPlayer::interaction_v2_fin:
+		break;
+	case CPlayer::power_fight_01:
+		break;
+	case CPlayer::power_fight_02:
+		break;
+	case CPlayer::power_fight_03:
+		break;
+	case CPlayer::power_fight_04:
+		break;
+	case CPlayer::power_fight_05:
+		break;
+	case CPlayer::walkfront:
+		break;
+	case CPlayer::Jump6_Land:
+		break;
+	case CPlayer::Jump6_Start:
+		break;
+	case CPlayer::attaquePiquee_Land:
+		break;
+	case CPlayer::attaquePiquee_v3:
+		break;
+	case CPlayer::CoupFaible1_fin:
+		if (m_bAnimEnd)
+		{
+			m_pModelCom->Change_Animation(IdleFight);
+			m_eCurrentAnimState = IdleFight;
+		}
+		break;
+	case CPlayer::CoupFaible1_frappe1:
+		if (m_bAnimEnd)
+		{
+			m_pModelCom->Change_Animation(CoupFaible1_frappe2, 0.f, false);
+			m_eCurrentAnimState = CoupFaible1_frappe2;
+		}
+		break;
+	case CPlayer::CoupFaible1_frappe2:
+		if (m_bAnimEnd)
+		{
+			m_pModelCom->Change_Animation(CoupFaible1_fin, 0.1f, false);
+			m_eCurrentAnimState = CoupFaible1_fin;
+			//m_bAnimEnd = false;
+		}
+		break;
+	case CPlayer::CoupFaible1_pause:
+		break;
+	case CPlayer::CoupFaible1_prepa1:
+		break;
+	case CPlayer::CoupFaible1_prepa2:
+		break;
+	case CPlayer::CoupFaible2_fin:
+		break;
+	case CPlayer::CoupFaible2_frappe1:
+		break;
+	case CPlayer::CoupFaible2_frappe2:
+		break;
+	case CPlayer::CoupFaible2_pause:
+		break;
+	case CPlayer::CoupFaible2_prepa1:
+		break;
+	case CPlayer::CoupFaible2_prepa2:
+		break;
+	case CPlayer::CoupFaibleCharge_v3:
+		break;
+	case CPlayer::CoupFaibleCharge_v3_01:
+		break;
+	case CPlayer::CoupFaibleCharge_v3_02:
+		break;
+	case CPlayer::CoupFaibleCharge_v3_03:
+		break;
+	case CPlayer::CoupFaibleCharge_v3_04:
+		break;
+	case CPlayer::CoupPuissant_v5_1:
+		break;
+	case CPlayer::CoupPuissant_v5_2:
+		break;
+	case CPlayer::CoupPuissant_v5_3:
+		break;
+	case CPlayer::CoupPuissant_v5_4:
+		break;
+	case CPlayer::CoupPuissant_v5_5:
+		break;
+	case CPlayer::HitFail:
+		break;
+	case CPlayer::ANIM_END:
 		break;
 	default:
 		break;
@@ -181,73 +341,109 @@ void CPlayer::Idle_State(_float fTimeDelta)
 	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 	if (pGameInstance->Key_Down(DIK_UP))
 	{
-		m_eCurrentState = CPlayer::STATE_WALK;
+		m_eCurrentAnimState = Run;
 	}
 	else if (pGameInstance->Key_Down(DIK_DOWN))
 	{
-		m_eCurrentState = CPlayer::STATE_WALK;
+		m_eCurrentAnimState = Run;
 	}
 	else if (pGameInstance->Key_Down(DIK_LEFT))
 	{
-		m_eCurrentState = CPlayer::STATE_WALK;
+		m_eCurrentAnimState = Run;
 	}
 	else if (pGameInstance->Key_Down(DIK_RIGHT))
 	{
-		m_eCurrentState = CPlayer::STATE_WALK;
+		m_eCurrentAnimState = Run;
 	}
 	else if (pGameInstance->Get_DIMKeyState(DIMK_LBUTTON))
 	{
-		m_pModelCom->Change_Animation(58);
-		m_eCurrentState = CPlayer::STATE_ATTACK;
+		m_pModelCom->Change_Animation(CoupFaible1_frappe1, 0.25f, false);
+		m_eCurrentAnimState = CoupFaible1_frappe1;
+		m_bAnimEnd = false;
 	}
 	RELEASE_INSTANCE(CGameInstance);
 }
 
-void CPlayer::Walk_State(_float fTimeDelta)
+void CPlayer::Run_State(_float fTimeDelta)
 {
 	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
-	if (pGameInstance->Key_Pressing(DIK_UP))
+
+	if (pGameInstance->Get_DIMKeyState(DIMK_LBUTTON))
 	{
-		m_pTransformCom->Go_Straight(fTimeDelta);
-		m_pModelCom->Change_Animation(38);
+		m_pModelCom->Change_Animation(CoupFaible1_frappe1, 0.25f, false);
+		m_eCurrentAnimState = CoupFaible1_frappe1;
+		m_bAnimEnd = false;
+	}
+	else if (pGameInstance->Key_Pressing(DIK_UP))
+	{
+		m_pTransformCom->Go_Straight(fTimeDelta, m_pNavigationCom);
+		m_pModelCom->Change_Animation(Run);
 	}
 	else if (pGameInstance->Key_Pressing(DIK_DOWN))
 	{
-		m_pTransformCom->Go_Backward(fTimeDelta);
-		m_pModelCom->Change_Animation(38);
+		m_pTransformCom->Go_Backward(fTimeDelta, m_pNavigationCom);
+		m_pModelCom->Change_Animation(Run);
 	}
 	else if (pGameInstance->Key_Pressing(DIK_LEFT))
 	{
-		m_pTransformCom->Go_Left(fTimeDelta);
-		m_pModelCom->Change_Animation(38);
+		m_pTransformCom->Go_Left(fTimeDelta, m_pNavigationCom);
+		m_pModelCom->Change_Animation(Run);
 	}
 	else if (pGameInstance->Key_Pressing(DIK_RIGHT))
 	{
-		m_pTransformCom->Go_Right(fTimeDelta);
-		m_pModelCom->Change_Animation(38);
-	}
-	else if (pGameInstance->Get_DIMKeyState(DIMK_LBUTTON))
-	{
-		m_pModelCom->Change_Animation(58);
-		m_eCurrentState = CPlayer::STATE_ATTACK;
-		m_bAnimEnd = false;
+		m_pTransformCom->Go_Right(fTimeDelta, m_pNavigationCom);
+		m_pModelCom->Change_Animation(Run);
 	}
 	else
 	{
-		m_pModelCom->Change_Animation(14);
-		m_eCurrentState = CPlayer::STATE_IDLE;
+		m_pModelCom->Change_Animation((_uint)IdlePeace);
+		m_eCurrentAnimState = IdlePeace;
 	}
 	RELEASE_INSTANCE(CGameInstance);
 }
 
-void CPlayer::Attack_State(_float fTimeDelta)
+void CPlayer::Idle_Fight_State(_float fTimeDelta)
 {
-	if (m_bAnimEnd)
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+	if (pGameInstance->Get_DIMKeyState(DIMK_LBUTTON))
 	{
-		m_pModelCom->Change_Animation(14);
-		m_eCurrentState = CPlayer::STATE_IDLE;
+		m_pModelCom->Change_Animation(CoupFaible1_frappe1, 0.25f, false);
+		m_eCurrentAnimState = CoupFaible1_frappe1;
 		m_bAnimEnd = false;
 	}
+	else if (pGameInstance->Key_Pressing(MoveForward))
+	{
+		m_pTransformCom->Go_Straight(fTimeDelta, m_pNavigationCom);
+		m_pModelCom->Change_Animation(walkfront);
+	}
+	else if (pGameInstance->Key_Pressing(MoveBack))
+	{
+		m_pTransformCom->Go_Backward(fTimeDelta, m_pNavigationCom);
+		m_pModelCom->Change_Animation(WalkBack);
+	}
+	else if (pGameInstance->Key_Pressing(MoveLeft))
+	{
+		m_pTransformCom->Go_Left(fTimeDelta, m_pNavigationCom);
+		m_pModelCom->Change_Animation(WalkLeft);
+	}
+	else if (pGameInstance->Key_Pressing(MoveRight))
+	{
+		m_pTransformCom->Go_Right(fTimeDelta, m_pNavigationCom);
+		m_pModelCom->Change_Animation(WalkRight);
+	}
+	else if (pGameInstance->Key_Down(DIK_F))
+	{
+		//m_pModelCom->Change_Animation(Parry);
+	}
+	else
+	{
+		m_pModelCom->Change_Animation(IdleFight);
+	}
+	RELEASE_INSTANCE(CGameInstance);
+}
+
+void CPlayer::Parring_State(_float fTimeDelta)
+{
 }
 
 void CPlayer::OnCollisionEnter(CGameObject * pOther, _float fTimeDelta)
@@ -318,6 +514,14 @@ HRESULT CPlayer::Ready_Components()
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_Sphere"), TEXT("Com_SPHERE"), (CComponent**)&m_pColliderCom[COLLIDERTYPE_SPHERE], &ColliderDesc)))
 		return E_FAIL;
 
+	/* For.Com_Navigation */
+	CNavigation::NAVIGATIONDESC			NaviDesc;
+	ZeroMemory(&NaviDesc, sizeof(CNavigation::NAVIGATIONDESC));
+	NaviDesc.iCurrentIndex = 0;
+
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Navigation"), TEXT("Com_Navigation"), (CComponent**)&m_pNavigationCom, &NaviDesc)))
+		return E_FAIL;
+
 	return S_OK;
 }
 
@@ -326,7 +530,7 @@ HRESULT CPlayer::Ready_Sockets()
 	if (nullptr == m_pModelCom)
 		return E_FAIL;
 
-	CHierarchyNode*		pWeaponSocket = m_pModelCom->Get_HierarchyNode("SWORD");
+	CHierarchyNode*		pWeaponSocket = m_pModelCom->Get_HierarchyNode("Bone_sword");
 	if (nullptr == pWeaponSocket)
 		return E_FAIL;
 
@@ -360,13 +564,12 @@ HRESULT CPlayer::Update_Weapon()
 		* 뼈의 행렬(CombinedTransformation) 
 		* 모델의 PivotMatrix * 프렐이어의월드행렬. ;*/
 
-	_matrix WeaponMatrix = m_Sockets[PART_WEAPON]->Get_OffSetMatrix()
-			* m_Sockets[PART_WEAPON]->Get_CombinedTransformation()
+	_matrix WeaponMatrix = /*m_Sockets[PART_WEAPON]->Get_OffSetMatrix()
+			**/ m_Sockets[PART_WEAPON]->Get_CombinedTransformation()
 			* m_pModelCom->Get_PivotMatrix() 
 			* m_pTransformCom->Get_WorldMatrix();
 
 	m_Parts[PART_WEAPON]->SetUp_State(WeaponMatrix);
-
 	return S_OK;
 }
 
@@ -408,7 +611,7 @@ void CPlayer::Free()
 	for (auto& pCollider : m_pColliderCom)
 		Safe_Release(pCollider);
 
-
+	Safe_Release(m_pNavigationCom);
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pRendererCom);

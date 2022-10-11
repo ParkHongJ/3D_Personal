@@ -17,6 +17,8 @@ class CImGui_Manager final : public CBase
 public:
 	enum Tool { TOOL_MAP, TOOL_UNIT, TOOL_CAMERA, TOOL_PARTICLE, TOOL_ANIMATION, TOOL_END };
 	typedef struct AnimInfo {
+		string name;
+		string message;
 		//다음 애니메이션의 정보
 		_int iNextAnimIndex;
 		_float fBlendTime;
@@ -101,7 +103,7 @@ private:
 	map<string, _uint> m_CurrentAnim;
 	map<string, _uint> m_NextAnim;
 
-	vector<pair<ANIM_NAME, vector<ANIM_NAME>>> m_ResultPair;
+	vector<pair<ANIM_NAME, vector<ANIM_INFO>>> m_ResultPair;
 
 	//vector<vector<pair<string, _uint>>> m_ResultPair;
 
@@ -111,6 +113,7 @@ private:
 	_float m_fAnimDuration = 0.0f;
 	_float m_fBlendTime = 0.25f;
 
+	char buf[MAX_PATH] = "";
 	/* For Inspector */
 	vector<class CAnimation*>* m_pAnimations = nullptr;
 public:

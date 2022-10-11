@@ -24,7 +24,7 @@ HRESULT CMonster::Initialize(void * pArg)
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
 
-	m_pModelCom->Set_AnimIndex(0);
+	//m_pModelCom->Set_AnimIndex(0);
 	//m_pTransformCom->Set_Scale(XMVectorSet(0.01f, 0.01f, 0.01f,0.f));
 	//m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(0.f,0.f,2.f,1.f));
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet((_float)(rand() % 20), 0.f, (_float)(rand() % 20), 1.f));
@@ -51,7 +51,7 @@ void CMonster::LateTick(_float fTimeDelta)
 
 	//Collision_ToPlayer();
 
-	m_pModelCom->Play_Animation(fTimeDelta);
+	//m_pModelCom->Play_Animation(fTimeDelta);
 
 	m_pColliderCom[COLLIDERTYPE_OBB]->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom[COLLIDERTYPE_OBB]);
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
@@ -99,6 +99,21 @@ HRESULT CMonster::Render()
 #endif
 
 	return S_OK;
+}
+
+void CMonster::OnCollisionEnter(CGameObject * pOther, _float fTimeDelta)
+{
+	int a = 10;
+}
+
+void CMonster::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
+{
+	int a = 10;
+}
+
+void CMonster::OnCollisionExit(CGameObject * pOther, _float fTimeDelta)
+{
+	int a = 10;
 }
 
 HRESULT CMonster::Ready_Components()

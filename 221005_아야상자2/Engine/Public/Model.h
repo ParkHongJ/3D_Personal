@@ -36,7 +36,7 @@ public:
 	/* For. AnimationTool */
 	vector<class CAnimation*>* GetAnimations();
 
-	void Change_Animation(_uint iAnimIndex);
+	void Change_Animation(_uint iAnimIndex, _float fBlendTime = 0.25f, _bool bLoop = true);
 
 	/* For. LoadBinary */
 	HRESULT LoadBinary(const _tchar* ModelFilePath);

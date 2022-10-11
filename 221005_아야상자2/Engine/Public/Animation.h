@@ -23,20 +23,10 @@ public:
 	const char* GetName() {
 		return m_szName;
 	}
-
-	//메세지가 애니메이션에 없으면 false를 리턴
-	_bool RecvMessage(const char* Message)
-	{		
-		map<const char*, _uint>::iterator iter;
-		iter = m_Message.find(Message);
-		
-		//메세지가 없다면 false.
-		if (iter == m_Message.end())
-			return false;
-
-		return true;
+	void SetBlendTimeAndLoop(_float fBlendTime, _bool bLoop) {
+		m_fBlendTime = fBlendTime; 
+		m_bLoop = bLoop;
 	}
-
 	/* For. Imgui */
 	void AddMessageInfo(const char* Message, _bool bLoop, _bool bHasExitTime, _uint iNextAnimIndex)
 	{

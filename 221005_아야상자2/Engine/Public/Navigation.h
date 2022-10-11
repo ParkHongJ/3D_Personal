@@ -6,6 +6,11 @@ BEGIN(Engine)
 
 class ENGINE_DLL CNavigation final : public CComponent
 {
+public:
+	typedef struct tagNavigationDesc
+	{
+		_int			iCurrentIndex = -1;
+	}NAVIGATIONDESC;
 private:
 	CNavigation(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	CNavigation(const CNavigation& rhs);
@@ -15,16 +20,19 @@ public:
 	virtual HRESULT Initialize_Prototype(const _tchar* pNavigationDataFilePath);
 	virtual HRESULT Initialize(void* pArg);
 
+public:
+	_bool isMove(_fvector vPosition);
+
 #ifdef _DEBUG
 public:
 	HRESULT Render();
 #endif // _DEBUG
 
 private:
-	_int							m_iCurrentCellIndex = 0;
-
 	vector<class CCell*>			m_Cells;
 	typedef vector<class CCell*>	CELLS;
+
+	NAVIGATIONDESC					m_NavigationDesc;
 
 private:
 	HRESULT Ready_Neighbor();
@@ -35,4 +43,4 @@ public:
 	virtual void Free() override;
 };
 
-END 
+END

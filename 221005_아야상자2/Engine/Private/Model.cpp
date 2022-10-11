@@ -93,7 +93,8 @@ HRESULT CModel::Initialize_Prototype(TYPE eType, const _tchar * pModelFilePath, 
 
 _bool CModel::RecvMessage(const char * Message)
 {
-	return m_Animations[m_iCurrentAnimIndex]->RecvMessage(Message);
+	//return m_Animations[m_iCurrentAnimIndex]->RecvMessage(Message);
+	return true;
 }
 
 vector<class CAnimation*>* CModel::GetAnimations()
@@ -104,13 +105,15 @@ vector<class CAnimation*>* CModel::GetAnimations()
 		return nullptr;
 }
 
-void CModel::Change_Animation(_uint iAnimIndex)
+void CModel::Change_Animation(_uint iAnimIndex, _float fBlendTime, _bool bLoop)
 {
 	if (m_iCurrentAnimIndex != iAnimIndex)
 	{
 		_uint iPrevAnimIndex = m_iCurrentAnimIndex;
 		m_iCurrentAnimIndex = iAnimIndex;
 
+		m_Animations[m_iCurrentAnimIndex]->ResetKeyFrames();
+		m_Animations[m_iCurrentAnimIndex]->SetBlendTimeAndLoop(fBlendTime, bLoop);
 		m_Animations[m_iCurrentAnimIndex]->Change_Animation(m_Animations[iPrevAnimIndex]);
 		m_Animations[iPrevAnimIndex]->ResetKeyFrames();
 	}

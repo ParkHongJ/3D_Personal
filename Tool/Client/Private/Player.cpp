@@ -22,11 +22,11 @@ HRESULT CPlayer::Initialize(void * pArg)
 {
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
-	/*if (FAILED(Ready_Sockets()))
+	if (FAILED(Ready_Sockets()))
 		return E_FAIL;
 
 	if (FAILED(Ready_PlayerParts()))
-		return E_FAIL;*/
+		return E_FAIL;
 	
 	RELEASE_INSTANCE(CGameInstance);
 	//m_pModelCom->Set_AnimIndex(13);
@@ -41,9 +41,9 @@ void CPlayer::Tick(_float fTimeDelta)
 	
 	//StateMachine(m_eCurrentState);
 
-	/*Update_Weapon();
+	Update_Weapon();
 	for (auto& pPart : m_Parts)
-		pPart->Tick(fTimeDelta);*/
+		pPart->Tick(fTimeDelta);
 }
 
 void CPlayer::LateTick(_float fTimeDelta)
@@ -54,12 +54,12 @@ void CPlayer::LateTick(_float fTimeDelta)
 	
 	m_pModelCom->Play_Animation(fTimeDelta);
 
-	//for (auto& pPart : m_Parts)
-	//	pPart->LateTick(fTimeDelta);
+	for (auto& pPart : m_Parts)
+		pPart->LateTick(fTimeDelta);
 
 
-	//for (auto& pPart : m_Parts)
-	//	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, pPart);
+	for (auto& pPart : m_Parts)
+		m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, pPart);
 
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
 }
