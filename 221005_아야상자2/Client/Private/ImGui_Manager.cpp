@@ -53,22 +53,13 @@ HRESULT CImGui_Manager::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pContex
 	// Setup Platform/Renderer backends
 	ImGui_ImplWin32_Init(g_hWnd);
 	ImGui_ImplDX11_Init(pDevice, pContext);
-
-	//test
-	/*vMatrix = XMMatrixIdentity();
-	XMVECTOR test = XMLoadFloat3(&vScale);
-	XMVECTOR test1 = XMLoadFloat3(&vRotation);
-	XMVECTOR test2 = XMLoadFloat3(&vPosition);
-	XMMatrixDecompose(&test, &test1, &test2, vMatrix);
-	XMStoreFloat3(&vScale, test);
-	XMStoreFloat3(&vRotation, test1);
-	XMStoreFloat3(&vPosition, test2);*/
 	
-
-	ZeroMemory(&animCurrentSelected, sizeof(ANIM_NAME));
-	ZeroMemory(&SelectedNextAnim, sizeof(ANIM_NAME));
+	SelectedCurrentAnim.iNextIndex = 0;
+	SelectedCurrentAnim.name = "";
+	SelectedNextAnim.iNextIndex = 0;
+	SelectedNextAnim.name = "";
+	
 	m_ResultPair.resize(150);
-
 	return S_OK;
 
 }
@@ -80,7 +71,6 @@ void CImGui_Manager::RenderBegin()
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 	ImGui::ShowDemoWindow();
-
 }
 
 void CImGui_Manager::Render()
@@ -407,17 +397,25 @@ void CImGui_Manager::Render()
 			if (nullptr == m_pAnimations)
 				break;
 
+			//선택한 오브젝트의 모든 애니메이션들
 			ImGui::BeginListBox("Animations", ImVec2(400, 150));
 			for (_uint i = 0; i < m_pAnimations->size(); ++i)
 			{
 				const bool is_selected = (Animation_current_idx == i);
+				//선택했다면
 				if (ImGui::Selectable((*m_pAnimations)[i]->GetName(), true))
 				{
+					//현재 인덱스를 바꿔주고 애니메이션을 플레이함
 					Animation_current_idx = i;
 					m_pModel->Change_Animation(Animation_current_idx);
 
-					SelectedNextAnim.iNextIndex = Animation_current_idx;
+
+					//선택한 애니메이션의 정보 갱신
+					//SelectedCurrentAnim.name = (*m_pAnimations)[i]->GetName();
+					//SelectedCurrentAnim.iNextIndex = Animation_current_idx;
+
 					SelectedNextAnim.name = (*m_pAnimations)[i]->GetName();
+					SelectedNextAnim.iNextIndex = Animation_current_idx;
 				}
 			}
 			ImGui::EndListBox();
@@ -441,8 +439,11 @@ void CImGui_Manager::Render()
 					Animation_Edit_Idx = iSelectedIndex;
 					(*m_pAnimations)[iSelectedIndex]->GetAnimationInfo(m_fBlendTime, m_bLoop, m_bHasExitTime);
 
-					animCurrentSelected.name = iter->first;
-					animCurrentSelected.iNextIndex = Animation_current_idx;
+					//현재 편집할 애니메이션의 정보를 갱신
+					//SelectedCurrentAnim.name = iter->first;
+					//SelectedCurrentAnim.iNextIndex = Animation_current_idx;
+					SelectedCurrentAnim.name = iter->first;
+					SelectedCurrentAnim.iNextIndex = iter->second;
 				}
 				iSelectedIndex++;
 			}
@@ -454,29 +455,21 @@ void CImGui_Manager::Render()
 			ImGui::BeginListBox("NextAnim", ImVec2(400, 150));
 
 			_uint iSelectedNextIndex = 0;
-			/*for (iter = m_NextAnim.begin(); iter != m_NextAnim.end(); iter++)
+			for (_uint i = 0; i < m_ResultPair[SelectedCurrentAnim.iNextIndex].second.size(); i++)
 			{
-				const bool is_selected = (Animation_Next_Idx == iSelectedNextIndex);
-				if (ImGui::Selectable(iter->first.c_str(), true))
+				const bool is_selected = (iSelectedNextIndex == i);
+				if (ImGui::Selectable(m_ResultPair[SelectedCurrentAnim.iNextIndex].second[i].name.c_str(), true))
 				{
-					Animation_Next_Idx = iSelectedNextIndex;
-				}
-				iSelectedNextIndex++;
-			}*/
-			for (_uint i = 0; i < m_ResultPair.size(); ++i)
-			{
-				if (m_ResultPair[i].first.name != "")
-				{
-					const bool is_selected = (Animation_Next_Idx == i);
-					if (ImGui::Selectable(m_ResultPair[animCurrentSelected.iNextIndex].first.name.c_str(), true))
-					{
-						Animation_Next_Idx = i;
-					}
+					iSelectedNextIndex = i;
 				}
 			}
 			ImGui::EndListBox();
 
-			ImGui::Text(animCurrentSelected.name.c_str());
+			ImGui::Text("CurrentAnim : ");
+			ImGui::SameLine();
+			ImGui::Text(SelectedCurrentAnim.name.c_str());
+			ImGui::SameLine();
+			ImGui::Text("NextAnim : ");
 			ImGui::SameLine();
 			ImGui::Text(SelectedNextAnim.name.c_str());
 
@@ -489,7 +482,6 @@ void CImGui_Manager::Render()
 				{
 					//선택한 애니메이션의 이름과, 그 애니메이션의 인덱스번호를 넘겨줌
 					m_CurrentAnim.insert({SelectedNextAnim.name, SelectedNextAnim.iNextIndex}/*{ (*m_pAnimations)[Animation_current_idx]->GetName(), Animation_current_idx }*/);
-					
 				}
 			}
 
@@ -499,16 +491,13 @@ void CImGui_Manager::Render()
 			{
 				iter = m_CurrentAnim.find((*m_pAnimations)[Animation_current_idx]->GetName());
 				//겹치는게 없다면 넣음
-				if (iter == m_CurrentAnim.end())
+				if (iter == m_CurrentAnim.end() || SelectedCurrentAnim.name != "")
 				{
 					//선택한 애니메이션의 이름과, 그 애니메이션의 인덱스번호를 넘겨줌
-					m_NextAnim.insert(make_pair(SelectedNextAnim.name, SelectedNextAnim.iNextIndex));
+					//m_NextAnim.insert(make_pair(SelectedNextAnim.name, SelectedNextAnim.iNextIndex));
 
-					m_ResultPair[SelectedNextAnim.iNextIndex].first = animCurrentSelected;
-					m_ResultPair[SelectedNextAnim.iNextIndex].second.push_back(SelectedNextAnim);
-					
-					/*ANIM_NAME animNameRight;*/
-					
+					m_ResultPair[SelectedCurrentAnim.iNextIndex].first = SelectedCurrentAnim;
+					m_ResultPair[SelectedCurrentAnim.iNextIndex].second.push_back(SelectedNextAnim);
 				}
 			}
 
@@ -521,7 +510,7 @@ void CImGui_Manager::Render()
 			static char buf[MAX_PATH] = "";
 			ImGui::InputText("Message", buf, MAX_PATH);
 			
-			if (ImGui::Button("EditEnd"))
+			if (ImGui::Button("Apply"))
 			{
 				ZeroMemory(&buf, MAX_PATH);
 			}

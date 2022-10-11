@@ -79,7 +79,7 @@ _bool CAnimation::Play_Animation(_float fTimeDelta)
 			++iChannelIndex;
 		}
 
-		if (m_fPlayTime >= .2f)
+		if (m_fPlayTime >= m_fBlendTime)
 		{
 			m_fPlayTime = 0.f;
 			m_bBlending = false;

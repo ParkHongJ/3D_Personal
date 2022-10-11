@@ -70,7 +70,7 @@ private:
 	_bool						m_bHasExitTime = false;
 	
 	/* 애니메이션과 애니메이션 사이의 보간 시간 */
-	_float						m_fBlendTime = 0.2f;
+	_float						m_fBlendTime = 0.25f;
 
 	/* 이 애니메이션을 구동하기위해 사용되는 뼈의 갯수. */
 	_uint						m_iNumChannels = 0;

@@ -61,6 +61,9 @@
     <Filter Include="XML_Parser">
       <UniqueIdentifier>{7f100785-ccc0-4a4c-8f91-37baefc35752}</UniqueIdentifier>
     </Filter>
+    <Filter Include="97.Manager">
+      <UniqueIdentifier>{0aa36cc6-88f2-49e7-aa8c-3b6f0da72a97}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -150,6 +153,9 @@
     <ClInclude Include="..\Public\tinyxml.h">
       <Filter>XML_Parser</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\UI_Manager.h">
+      <Filter>97.Manager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -229,6 +235,9 @@
     </ClCompile>
     <ClCompile Include="..\Private\tinystr.cpp">
       <Filter>XML_Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\UI_Manager.cpp">
+      <Filter>97.Manager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

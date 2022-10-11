@@ -95,7 +95,7 @@ private:
 	_uint Animation_Edit_Idx = 0;
 	_uint Animation_Next_Idx = 0;
 
-	ANIM_NAME animCurrentSelected;
+	ANIM_NAME SelectedCurrentAnim;
 	ANIM_NAME SelectedNextAnim;
 
 	map<string, _uint> m_CurrentAnim;
@@ -109,7 +109,7 @@ private:
 	_bool m_bLoop = false;
 	_bool m_bHasExitTime = false;
 	_float m_fAnimDuration = 0.0f;
-	_float m_fBlendTime = 0.0f;
+	_float m_fBlendTime = 0.25f;
 
 	/* For Inspector */
 	vector<class CAnimation*>* m_pAnimations = nullptr;
