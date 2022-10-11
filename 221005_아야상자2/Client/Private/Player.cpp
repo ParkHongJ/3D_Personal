@@ -45,6 +45,7 @@ _bool CPlayer::Tick(_float fTimeDelta)
 		return true;
 
 	SetState(m_eCurrentAnimState, fTimeDelta);
+
 	Update_Weapon();
 
 	for (auto& pPart : m_Parts)
@@ -142,6 +143,7 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 	case CPlayer::DeathLong:
 		break;
 	case CPlayer::DoubleJumpCloth_Start:
+		Jump(fTimeDelta);
 		break;
 	case CPlayer::Health:
 		break;
@@ -152,10 +154,36 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 		Idle_State(fTimeDelta);
 		break;
 	case CPlayer::JumpCloth_Air:
-		break;
+	{
+		CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+		if (pGameInstance->Key_Down(DIK_SPACE))
+		{
+			m_bJumping = true;
+			m_fJumpTime = 0.0f;
+			m_fPosY = XMVectorGetY(m_pTransformCom->Get_State(CTransform::STATE_POSITION));
+			m_pModelCom->Change_Animation(DoubleJumpCloth_Start, 0.25f, false);
+			m_eCurrentAnimState = DoubleJumpCloth_Start;
+		}
+		RELEASE_INSTANCE(CGameInstance);
+		Jump(fTimeDelta);
+	}
+	break;
 	case CPlayer::JumpCloth_Land:
+		if (m_bAnimEnd)
+		{
+			m_eCurrentAnimState = IdlePeace;
+			m_pModelCom->Change_Animation(IdlePeace);
+		}
 		break;
 	case CPlayer::JumpCloth_Start:
+		//if (m_bAnimEnd)
+		//{
+		//	m_eCurrentAnimState = JumpCloth_Air;
+		//	m_pModelCom->Change_Animation(JumpCloth_Air, 0.15f, false);
+		//	//Jump(fTimeDelta);
+		//	break;
+		//}
+		//Jump(fTimeDelta);
 		break;
 	case CPlayer::LowFight1:
 		break;
@@ -172,10 +200,33 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 	case CPlayer::Magic_5:
 		break;
 	case CPlayer::Parry:
+		if (m_bAnimEnd)
+		{
+			m_pModelCom->Change_Animation(Parry_2, 0.f, false);
+			m_eCurrentAnimState = Parry_2;
+		}
 		break;
 	case CPlayer::Parry_2:
+		if (m_bParry)
+		{
+			m_pModelCom->Change_Animation(IdleFight);
+			m_eCurrentAnimState = IdleFight;
+		}
+		else
+		{
+			if (m_bAnimEnd)
+			{
+				m_pModelCom->Change_Animation(Parry_3, 0.0f, false);
+				m_eCurrentAnimState = Parry_3;
+			}
+		}
 		break;
 	case CPlayer::Parry_3:
+		if (m_bAnimEnd)
+		{
+			m_pModelCom->Change_Animation(IdleFight);
+			m_eCurrentAnimState = IdleFight;
+		}
 		break;
 	case CPlayer::Projection:
 		break;
@@ -248,14 +299,39 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 	case CPlayer::interaction_v2_fin:
 		break;
 	case CPlayer::power_fight_01:
+		if (m_bAnimEnd)
+		{
+			m_pModelCom->Change_Animation(power_fight_02, 0.f, false);
+			m_eCurrentAnimState = power_fight_02;
+		}
 		break;
 	case CPlayer::power_fight_02:
+		if (m_bAnimEnd)
+		{
+			m_pModelCom->Change_Animation(power_fight_03, 0.f, false);
+			m_eCurrentAnimState = power_fight_03;
+		}
 		break;
 	case CPlayer::power_fight_03:
+		if (m_bAnimEnd)
+		{
+			m_pModelCom->Change_Animation(power_fight_04, 0.f, false);
+			m_eCurrentAnimState = power_fight_04;
+		}
 		break;
 	case CPlayer::power_fight_04:
+		if (m_bAnimEnd)
+		{
+			m_pModelCom->Change_Animation(power_fight_05, 0.f, false);
+			m_eCurrentAnimState = power_fight_05;
+		}
 		break;
 	case CPlayer::power_fight_05:
+		if (m_bAnimEnd)
+		{
+			m_pModelCom->Change_Animation(IdleFight);
+			m_eCurrentAnimState = IdleFight;
+		}
 		break;
 	case CPlayer::walkfront:
 		break;
@@ -268,6 +344,12 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 	case CPlayer::attaquePiquee_v3:
 		break;
 	case CPlayer::CoupFaible1_fin:
+		if (m_bComboAttack)
+		{
+			m_pModelCom->Change_Animation(CoupFaible2_frappe1, 0.25f, false);
+			m_eCurrentAnimState = CoupFaible2_frappe1;
+			m_bComboAttack = false;
+		}
 		if (m_bAnimEnd)
 		{
 			m_pModelCom->Change_Animation(IdleFight);
@@ -282,12 +364,20 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 		}
 		break;
 	case CPlayer::CoupFaible1_frappe2:
+	{
+		CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+		if (pGameInstance->Get_DIMKeyState(DIMK_LBUTTON))
+		{
+			m_bComboAttack = true;
+		}
 		if (m_bAnimEnd)
 		{
 			m_pModelCom->Change_Animation(CoupFaible1_fin, 0.1f, false);
 			m_eCurrentAnimState = CoupFaible1_fin;
-			//m_bAnimEnd = false;
 		}
+
+		RELEASE_INSTANCE(CGameInstance);
+	}
 		break;
 	case CPlayer::CoupFaible1_pause:
 		break;
@@ -296,10 +386,25 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 	case CPlayer::CoupFaible1_prepa2:
 		break;
 	case CPlayer::CoupFaible2_fin:
+		if (m_bAnimEnd)
+		{
+			m_pModelCom->Change_Animation(IdleFight);
+			m_eCurrentAnimState = IdleFight;
+		}
 		break;
 	case CPlayer::CoupFaible2_frappe1:
+		if (m_bAnimEnd)
+		{
+			m_pModelCom->Change_Animation(CoupFaible2_frappe2, 0.f, false);
+			m_eCurrentAnimState = CoupFaible2_frappe2;
+		}
 		break;
 	case CPlayer::CoupFaible2_frappe2:
+		if (m_bAnimEnd)
+		{
+			m_pModelCom->Change_Animation(CoupFaible2_fin, 0.25f, false);
+			m_eCurrentAnimState = CoupFaible2_fin;
+		}
 		break;
 	case CPlayer::CoupFaible2_pause:
 		break;
@@ -339,26 +444,39 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 void CPlayer::Idle_State(_float fTimeDelta)
 {
 	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
-	if (pGameInstance->Key_Down(DIK_UP))
+	if (pGameInstance->Key_Down(MoveForward))
 	{
 		m_eCurrentAnimState = Run;
 	}
-	else if (pGameInstance->Key_Down(DIK_DOWN))
+	else if (pGameInstance->Key_Down(MoveBack))
 	{
 		m_eCurrentAnimState = Run;
 	}
-	else if (pGameInstance->Key_Down(DIK_LEFT))
+	else if (pGameInstance->Key_Down(MoveLeft))
 	{
 		m_eCurrentAnimState = Run;
 	}
-	else if (pGameInstance->Key_Down(DIK_RIGHT))
+	else if (pGameInstance->Key_Down(MoveRight))
 	{
 		m_eCurrentAnimState = Run;
+	}
+	else if (pGameInstance->Key_Down(DIK_SPACE) && !m_bJumping)
+	{
+		m_bJumping = true;
+		m_fPosY = XMVectorGetY(m_pTransformCom->Get_State(CTransform::STATE_POSITION));
+		m_pModelCom->Change_Animation(JumpCloth_Air, 0.25f, false);
+		m_eCurrentAnimState = JumpCloth_Air;
 	}
 	else if (pGameInstance->Get_DIMKeyState(DIMK_LBUTTON))
 	{
 		m_pModelCom->Change_Animation(CoupFaible1_frappe1, 0.25f, false);
 		m_eCurrentAnimState = CoupFaible1_frappe1;
+		m_bAnimEnd = false;
+	}
+	else if (pGameInstance->Get_DIMKeyState(DIMK_RBUTTON))
+	{
+		m_pModelCom->Change_Animation(power_fight_01, 0.25f, false);
+		m_eCurrentAnimState = power_fight_01;
 		m_bAnimEnd = false;
 	}
 	RELEASE_INSTANCE(CGameInstance);
@@ -374,25 +492,38 @@ void CPlayer::Run_State(_float fTimeDelta)
 		m_eCurrentAnimState = CoupFaible1_frappe1;
 		m_bAnimEnd = false;
 	}
-	else if (pGameInstance->Key_Pressing(DIK_UP))
+	else if (pGameInstance->Get_DIMKeyState(DIMK_RBUTTON))
+	{
+		m_pModelCom->Change_Animation(power_fight_01, 0.25f, false);
+		m_eCurrentAnimState = power_fight_01;
+		m_bAnimEnd = false;
+	}
+	else if (pGameInstance->Key_Pressing(MoveForward))
 	{
 		m_pTransformCom->Go_Straight(fTimeDelta, m_pNavigationCom);
 		m_pModelCom->Change_Animation(Run);
 	}
-	else if (pGameInstance->Key_Pressing(DIK_DOWN))
+	else if (pGameInstance->Key_Pressing(MoveBack))
 	{
 		m_pTransformCom->Go_Backward(fTimeDelta, m_pNavigationCom);
 		m_pModelCom->Change_Animation(Run);
 	}
-	else if (pGameInstance->Key_Pressing(DIK_LEFT))
+	else if (pGameInstance->Key_Pressing(MoveLeft))
 	{
 		m_pTransformCom->Go_Left(fTimeDelta, m_pNavigationCom);
 		m_pModelCom->Change_Animation(Run);
 	}
-	else if (pGameInstance->Key_Pressing(DIK_RIGHT))
+	else if (pGameInstance->Key_Pressing(MoveRight))
 	{
 		m_pTransformCom->Go_Right(fTimeDelta, m_pNavigationCom);
 		m_pModelCom->Change_Animation(Run);
+	}
+	else if (pGameInstance->Key_Down(DIK_SPACE) && !m_bJumping)
+	{
+		m_bJumping = true;
+		m_fPosY = XMVectorGetY(m_pTransformCom->Get_State(CTransform::STATE_POSITION));
+		m_pModelCom->Change_Animation(JumpCloth_Start, 0.25f, false);
+		m_eCurrentAnimState = JumpCloth_Start;
 	}
 	else
 	{
@@ -411,39 +542,81 @@ void CPlayer::Idle_Fight_State(_float fTimeDelta)
 		m_eCurrentAnimState = CoupFaible1_frappe1;
 		m_bAnimEnd = false;
 	}
+	else if (pGameInstance->Get_DIMKeyState(DIMK_RBUTTON))
+	{
+		m_pModelCom->Change_Animation(power_fight_01, 0.1f, false);
+		m_eCurrentAnimState = power_fight_01;
+		m_bAnimEnd = false;
+	}
 	else if (pGameInstance->Key_Pressing(MoveForward))
 	{
 		m_pTransformCom->Go_Straight(fTimeDelta, m_pNavigationCom);
-		m_pModelCom->Change_Animation(walkfront);
+		m_pModelCom->Change_Animation(walkfront, 0.1f);
 	}
 	else if (pGameInstance->Key_Pressing(MoveBack))
 	{
 		m_pTransformCom->Go_Backward(fTimeDelta, m_pNavigationCom);
-		m_pModelCom->Change_Animation(WalkBack);
+		m_pModelCom->Change_Animation(WalkBack, 0.1f);
 	}
 	else if (pGameInstance->Key_Pressing(MoveLeft))
 	{
 		m_pTransformCom->Go_Left(fTimeDelta, m_pNavigationCom);
-		m_pModelCom->Change_Animation(WalkLeft);
+		m_pModelCom->Change_Animation(WalkLeft, 0.1f);
 	}
 	else if (pGameInstance->Key_Pressing(MoveRight))
 	{
 		m_pTransformCom->Go_Right(fTimeDelta, m_pNavigationCom);
-		m_pModelCom->Change_Animation(WalkRight);
+		m_pModelCom->Change_Animation(WalkRight, 0.1f);
 	}
 	else if (pGameInstance->Key_Down(DIK_F))
 	{
-		//m_pModelCom->Change_Animation(Parry);
+		m_pModelCom->Change_Animation(Parry, 0.0f, false);
+		m_eCurrentAnimState = Parry;
 	}
 	else
 	{
 		m_pModelCom->Change_Animation(IdleFight);
+
+		m_fBehaviorTimeCurrent += fTimeDelta;
+		if (m_fBehaviorTimeCurrent >= m_fBehaviorTimeMax)
+		{
+			m_fBehaviorTimeCurrent = 0.0f;
+			m_pModelCom->Change_Animation(IdlePeace);
+			m_eCurrentAnimState = IdlePeace;
+			RELEASE_INSTANCE(CGameInstance);
+			return;
+		}
 	}
 	RELEASE_INSTANCE(CGameInstance);
 }
 
 void CPlayer::Parring_State(_float fTimeDelta)
 {
+}
+
+void CPlayer::Jump(_float fTimeDelta)
+{
+	//y=-a*x+b에서 (a: 중력가속도, b: 초기 점프속도)
+	//적분하여 y = (-a/2)*x*x + (b*x) 공식을 얻는다.(x: 점프시간, y: 오브젝트의 높이)
+	//변화된 높이 height를 기존 높이 _posY에 더한다.
+	_float height = (m_fJumpTime * m_fJumpTime * (-m_fGravity) * 0.5f) + (m_fJumpTime * m_fJumpPower);
+	
+	_fvector vPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+	
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(XMVectorGetX(vPos), m_fPosY + height, XMVectorGetZ(vPos), 1.f));
+	//점프시간을 증가시킨다.
+	m_fJumpTime += fTimeDelta;
+
+	//처음의 높이 보다 더 내려 갔을때 => 점프전 상태로 복귀한다.
+	if (height < 0.0f)
+	{
+		m_bJumping = false;
+		m_fJumpTime = 0.0f;
+		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(XMVectorGetX(vPos), m_fPosY, XMVectorGetZ(vPos), 1.f));
+
+		m_pModelCom->Change_Animation(JumpCloth_Land, 0.05f, false);
+		m_eCurrentAnimState = JumpCloth_Land;
+	}
 }
 
 void CPlayer::OnCollisionEnter(CGameObject * pOther, _float fTimeDelta)

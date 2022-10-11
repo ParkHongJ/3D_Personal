@@ -59,6 +59,8 @@ public:
 	void Idle_Fight_State(_float fTimeDelta);
 	//void Sprint_State(_float fTimeDelta);
 	void Parring_State(_float fTimeDelta);
+
+	void Jump(_float fTimeDelta);
 private:
 	CShader*				m_pShaderCom = nullptr;
 
@@ -72,11 +74,22 @@ private:
 	typedef vector<CGameObject*>		PARTS;
 
 	vector<class CHierarchyNode*>		m_Sockets;
+
 private:
 	STATE_PLAYER			m_eCurrentState = STATE_END;
 	_bool					m_bAnimEnd = false;
 	STATE_ANIM				m_eCurrentAnimState = ANIM_END;
 	_bool					m_bSprint = false;
+	_bool					m_bComboAttack = false;
+	_float					m_fBehaviorTimeMax = 2.5f;
+	_float					m_fBehaviorTimeCurrent = 0.f;
+	_bool					m_bParry = false;
+
+	_bool					m_bJumping = false;
+	_float					m_fJumpPower = 7.f;
+	_float					m_fJumpTime = 0.0f;
+	_float					m_fGravity = 9.8f;
+	_float					m_fPosY = 0.0f;
 public:
 	virtual void OnCollisionEnter(CGameObject* pOther, _float fTimeDelta)override;
 	virtual void OnCollisionStay(CGameObject* pOther, _float fTimeDelta)override;
