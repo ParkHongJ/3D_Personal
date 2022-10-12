@@ -33,7 +33,6 @@ HRESULT CPlayer::Initialize(void * pArg)
 		return E_FAIL;
 
 	RELEASE_INSTANCE(CGameInstance);
-	
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(0.f,0.f,0.f,1.f));
 	strcpy_s(m_szName, "Player");
 	return S_OK;
@@ -52,7 +51,6 @@ _bool CPlayer::Tick(_float fTimeDelta)
 		pPart->Tick(fTimeDelta);
 	m_pColliderCom[COLLIDERTYPE_OBB]->Update(m_pTransformCom->Get_WorldMatrix());
 
-
 	return false;
 }
 
@@ -69,7 +67,7 @@ void CPlayer::LateTick(_float fTimeDelta)
 		m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, pPart);
 	}
 	
-	m_pColliderCom[COLLIDERTYPE_OBB]->Add_CollisionGroup(CCollider_Manager::PLAYER, m_pColliderCom[COLLIDERTYPE_OBB]);
+	m_pColliderCom[COLLIDERTYPE_OBB]->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom[COLLIDERTYPE_OBB]);
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
 }
 
@@ -164,17 +162,53 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 			m_pModelCom->Change_Animation(DoubleJumpCloth_Start, 0.25f, false);
 			m_eCurrentAnimState = DoubleJumpCloth_Start;
 		}
+
+		if (pGameInstance->Key_Pressing(MoveForward))
+		{
+			m_pTransformCom->Go_Straight(fTimeDelta, m_pNavigationCom);
+		}
+		else if (pGameInstance->Key_Pressing(MoveBack))
+		{
+			m_pTransformCom->Go_Backward(fTimeDelta, m_pNavigationCom);
+		}
+		else if (pGameInstance->Key_Pressing(MoveLeft))
+		{
+			m_pTransformCom->Go_Left(fTimeDelta, m_pNavigationCom);
+		}
+		else if (pGameInstance->Key_Pressing(MoveRight))
+		{
+			m_pTransformCom->Go_Right(fTimeDelta, m_pNavigationCom);
+		}
 		RELEASE_INSTANCE(CGameInstance);
 		Jump(fTimeDelta);
 	}
 	break;
 	case CPlayer::JumpCloth_Land:
+	{
 		if (m_bAnimEnd)
 		{
 			m_eCurrentAnimState = IdlePeace;
 			m_pModelCom->Change_Animation(IdlePeace);
 		}
-		break;
+		CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+		if (pGameInstance->Key_Pressing(MoveForward))
+		{
+			m_pTransformCom->Go_Straight(fTimeDelta, m_pNavigationCom);
+		}
+		else if (pGameInstance->Key_Pressing(MoveBack))
+		{
+			m_pTransformCom->Go_Backward(fTimeDelta, m_pNavigationCom);
+		}
+		else if (pGameInstance->Key_Pressing(MoveLeft))
+		{
+			m_pTransformCom->Go_Left(fTimeDelta, m_pNavigationCom);
+		}
+		else if (pGameInstance->Key_Pressing(MoveRight))
+		{
+			m_pTransformCom->Go_Right(fTimeDelta, m_pNavigationCom);
+		}
+		RELEASE_INSTANCE(CGameInstance); }
+	break;
 	case CPlayer::JumpCloth_Start:
 		//if (m_bAnimEnd)
 		//{
@@ -444,19 +478,8 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 void CPlayer::Idle_State(_float fTimeDelta)
 {
 	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
-	if (pGameInstance->Key_Down(MoveForward))
-	{
-		m_eCurrentAnimState = Run;
-	}
-	else if (pGameInstance->Key_Down(MoveBack))
-	{
-		m_eCurrentAnimState = Run;
-	}
-	else if (pGameInstance->Key_Down(MoveLeft))
-	{
-		m_eCurrentAnimState = Run;
-	}
-	else if (pGameInstance->Key_Down(MoveRight))
+	if (pGameInstance->Key_Down(MoveForward) || (pGameInstance->Key_Down(MoveBack) ||
+		pGameInstance->Key_Down(MoveLeft) || pGameInstance->Key_Down(MoveRight)))
 	{
 		m_eCurrentAnimState = Run;
 	}
@@ -486,6 +509,15 @@ void CPlayer::Run_State(_float fTimeDelta)
 {
 	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 
+	if (pGameInstance->Key_Down(DIK_SPACE) && !m_bJumping)
+	{
+		m_bJumping = true;
+		m_fPosY = XMVectorGetY(m_pTransformCom->Get_State(CTransform::STATE_POSITION));
+		m_pModelCom->Change_Animation(JumpCloth_Air, 0.25f, false);
+		m_eCurrentAnimState = JumpCloth_Air;
+		RELEASE_INSTANCE(CGameInstance);
+		return;
+	}
 	if (pGameInstance->Get_DIMKeyState(DIMK_LBUTTON))
 	{
 		m_pModelCom->Change_Animation(CoupFaible1_frappe1, 0.25f, false);
@@ -500,11 +532,17 @@ void CPlayer::Run_State(_float fTimeDelta)
 	}
 	else if (pGameInstance->Key_Pressing(MoveForward))
 	{
+		
+		//m_pTransformCom->Go_Straight(fTimeDelta, m_pNavigationCom);
 		m_pTransformCom->Go_Straight(fTimeDelta, m_pNavigationCom);
 		m_pModelCom->Change_Animation(Run);
 	}
 	else if (pGameInstance->Key_Pressing(MoveBack))
 	{
+		/*_matrix mat = pGameInstance->Get_TransformMatrix(CPipeLine::D3DTS_VIEW);
+		_vector vDir = mat.r[2];
+		vDir = XMVectorSetY(-vDir, 0.0f);
+		m_pTransformCom->LookAt(vDir);*/
 		m_pTransformCom->Go_Backward(fTimeDelta, m_pNavigationCom);
 		m_pModelCom->Change_Animation(Run);
 	}
@@ -516,14 +554,8 @@ void CPlayer::Run_State(_float fTimeDelta)
 	else if (pGameInstance->Key_Pressing(MoveRight))
 	{
 		m_pTransformCom->Go_Right(fTimeDelta, m_pNavigationCom);
+		//m_pTransformCom->Go_Straight(XMVectorSet(1.f,0.f,0.f,0.f), fTimeDelta, m_pNavigationCom);
 		m_pModelCom->Change_Animation(Run);
-	}
-	else if (pGameInstance->Key_Down(DIK_SPACE) && !m_bJumping)
-	{
-		m_bJumping = true;
-		m_fPosY = XMVectorGetY(m_pTransformCom->Get_State(CTransform::STATE_POSITION));
-		m_pModelCom->Change_Animation(JumpCloth_Start, 0.25f, false);
-		m_eCurrentAnimState = JumpCloth_Start;
 	}
 	else
 	{

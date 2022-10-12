@@ -57,6 +57,46 @@ void CTransform::Go_Straight(_float fTimeDelta, CNavigation* pNavigation)
 		Set_State(CTransform::STATE_POSITION, vPosition);
 }
 
+void CTransform::Go_Straight(_fvector vDir, _float fTimeDelta, CNavigation * pNavigation)
+{
+	_vector		vPosition = Get_State(CTransform::STATE_POSITION);
+	_vector		vLook = Get_State(CTransform::STATE_LOOK);
+	vLook = XMVector3Normalize(vLook);
+	//캐릭터 트랜스폼의 Look과 이동하고자하는 vDir이 같다면.
+	vPosition += vDir * m_TransformDesc.fSpeedPerSec * fTimeDelta;
+	/* 프렐이어가 움직이고 난 이후의 위치를 네비게이션에 전달하여. */
+	/* 현재 상황에서 움직일 수 있늕지 체크한다. */
+	_bool		isMove = true;
+
+	if (nullptr != pNavigation)
+		isMove = pNavigation->isMove(vPosition);
+
+	if (true == isMove)
+		Set_State(CTransform::STATE_POSITION, vPosition);
+	if (XMVector3Equal(vLook, vDir))
+	{
+		
+	}
+	else
+	{
+		//캐릭터 트랜스폼의 Look과 이동하고자하는 vDir이 같지 않다면 보간.
+		//vLook * fTimeDelta
+		/*_vector vScale, vPos, vRot;
+		XMMatrixDecompose(&vScale, &vRot, &vPos, XMLoadFloat4x4(&m_WorldMatrix));
+		_vector vScale = XMLoadFloat3(&Get_Scale());
+		vLook = XMVectorLerp(vLook, vDir, fTimeDelta);
+		_vector vRight = Get_State(CTransform::STATE_RIGHT);
+		_vector vUp = Get_State(CTransform::STATE_UP);*/
+
+		
+		/*Set_State(CTransform::STATE_RIGHT, XMVector3Normalize(vRight) * XMVectorGetX(vScale));
+		Set_State(CTransform::STATE_UP, XMVector3Normalize(vUp) * XMVectorGetY(vScale));
+		Set_State(CTransform::STATE_LOOK, XMVector3Normalize(vLook) * XMVectorGetZ(vScale));*/
+		
+	}
+	
+}
+
 void CTransform::Go_Backward(_float fTimeDelta, CNavigation* pNavigation)
 {
 	_vector		vPosition = Get_State(CTransform::STATE_POSITION);

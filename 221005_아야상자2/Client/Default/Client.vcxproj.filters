@@ -64,6 +64,18 @@
     <Filter Include="97.Manager">
       <UniqueIdentifier>{0aa36cc6-88f2-49e7-aa8c-3b6f0da72a97}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\Boss">
+      <UniqueIdentifier>{f935ba2f-c1e9-4115-84db-0af1e1616417}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Boss\Ras_Samrah">
+      <UniqueIdentifier>{335f2b83-bd34-466d-bb76-df67bc8707a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Boss\Ras_Samrah\Hands">
+      <UniqueIdentifier>{e9f67175-dd51-46cc-ad88-c3698f33ec63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Boss\Ras_Samrah\Hammer">
+      <UniqueIdentifier>{92965584-269c-40a0-a9a9-5728892a6959}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -156,6 +168,12 @@
     <ClInclude Include="..\public\UI_Manager.h">
       <Filter>97.Manager</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\Ras_Samrah.h">
+      <Filter>02.GameObjects\Boss\Ras_Samrah</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Hammer.h">
+      <Filter>02.GameObjects\Boss\Ras_Samrah\Hammer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -238,6 +256,12 @@
     </ClCompile>
     <ClCompile Include="..\private\UI_Manager.cpp">
       <Filter>97.Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Ras_Samrah.cpp">
+      <Filter>02.GameObjects\Boss\Ras_Samrah</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Hammer.cpp">
+      <Filter>02.GameObjects\Boss\Ras_Samrah\Hammer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

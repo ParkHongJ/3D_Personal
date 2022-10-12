@@ -255,6 +255,11 @@ _bool CGameInstance::Key_Up(_uchar KeyInput)
 	return m_pKey_Manager->Key_Up(KeyInput);
 }
 
+_bool CGameInstance::Mouse_Down(DIMK eMouseKeyID)
+{
+	return m_pKey_Manager->Mouse_Down(eMouseKeyID);
+}
+
 void CGameInstance::Set_Transform(CPipeLine::TRANSFORMSTATE eTransformState, _fmatrix TransformMatrix)
 {
 	if (nullptr == m_pPipeLine)

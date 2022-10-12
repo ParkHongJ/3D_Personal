@@ -12,6 +12,7 @@
 #include "Layer.h"
 #include "Model.h"
 #include "Animation.h"
+#include "Cell.h"
 #include <string.h>
 IMPLEMENT_SINGLETON(CImGui_Manager)
 
@@ -132,10 +133,17 @@ void CImGui_Manager::Render()
 		if (ImGui::Button("ParticleTool", ImVec2(230 - 15, 41)))
 			m_eCurrentTool = TOOL_PARTICLE;
 
+		ImGui::Spacing();
 		ImGui::PushStyleColor(ImGuiCol_Button, m_eCurrentTool == CImGui_Manager::TOOL_ANIMATION ? active : inactive);
 		if (ImGui::Button("AnimationTool", ImVec2(230 - 15, 41)))
 			m_eCurrentTool = TOOL_ANIMATION;
-		ImGui::PopStyleColor(5);
+
+		ImGui::Spacing();
+		ImGui::PushStyleColor(ImGuiCol_Button, m_eCurrentTool == CImGui_Manager::TOOL_ANIMATION ? active : inactive);
+		if (ImGui::Button("NavMeshTool", ImVec2(230 - 15, 41)))
+			m_eCurrentTool = TOOL_NAVIGATION;
+
+		ImGui::PopStyleColor(6);
 	}
 
 	ImGui::NextColumn();
@@ -590,6 +598,16 @@ void CImGui_Manager::Render()
 			}
 		}
 		break;
+		case CImGui_Manager::TOOL_NAVIGATION:
+		{
+			static _bool bNavAdd = false;
+
+			/*ImGui::Checkbox("Add"); 
+			ImGui::Checkbox("Modify");
+			ImGui::Checkbox("Delete");*/
+			
+		}
+			break;
 		default:
 			break;
 		}
@@ -604,11 +622,22 @@ void CImGui_Manager::Render()
 	ImGui::Begin("Inspector");
 	Inspector();
 	ImGui::End();
+
+	for (auto& pCell : m_Cells)
+	{
+		if (nullptr != pCell)
+			pCell->Render_Cell();
+	}
 }
 
 void CImGui_Manager::Free()
 {
 	m_pHierarchyList = nullptr;
+
+	for (auto& pCell : m_Cells)
+		Safe_Release(pCell);
+
+	m_Cells.clear();
 
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
@@ -627,6 +656,38 @@ bool CImGui_Manager::LoadTextureFromFile(const char* filename, ID3D11ShaderResou
 	//DirectX::CreateWICTextureFromFile(m_pDevice, filename, nullptr, &out_srv);
 
 	return true;
+}
+
+void CImGui_Manager::PushPickPos(_fvector vPickPos)
+{
+	if (m_iCurrentNaviIndex <= 2)
+	{
+		XMStoreFloat3(&m_vPickPos[m_iCurrentNaviIndex++], vPickPos);
+		if (m_iCurrentNaviIndex > 2)
+		{
+			CCell* pCell = CCell::Create(m_pDevice, m_pContext, m_vPickPos, (_int)m_Cells.size());
+			m_Cells.push_back(pCell);
+			m_iCurrentNaviIndex = 0;
+		}
+	}
+}
+
+void CImGui_Manager::DeletePickPos()
+{
+	XMStoreFloat3(&m_vPickPos[m_iCurrentNaviIndex--], XMVectorSet(0.f, 0.f, 0.f, 1.f));
+	if (0 > m_iCurrentNaviIndex )
+	{
+		m_iCurrentNaviIndex = 0;
+	}
+}
+
+void CImGui_Manager::ClearPickPos()
+{
+	for (_uint i = 0; i < 3; ++i)
+	{
+		XMStoreFloat3(&m_vPickPos[i], XMVectorSet(0.f, 0.f, 0.f, 1.f));
+	}
+	m_iCurrentNaviIndex = 0;
 }
 
 HRESULT CImGui_Manager::AddGameObject(const _tchar * pPrototypeTag, const _tchar * pLayerTag, _uint iNumLevel, void* pArg)

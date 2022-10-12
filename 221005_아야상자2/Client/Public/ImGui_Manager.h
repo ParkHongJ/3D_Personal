@@ -8,6 +8,7 @@ BEGIN(Engine)
 class CComponent;
 class CModel;
 class CAnimation;
+class CCell;
 END
 BEGIN(Client)
 
@@ -15,7 +16,7 @@ class CImGui_Manager final : public CBase
 {
 	DECLARE_SINGLETON(CImGui_Manager)
 public:
-	enum Tool { TOOL_MAP, TOOL_UNIT, TOOL_CAMERA, TOOL_PARTICLE, TOOL_ANIMATION, TOOL_END };
+	enum Tool { TOOL_MAP, TOOL_UNIT, TOOL_CAMERA, TOOL_PARTICLE, TOOL_ANIMATION, TOOL_NAVIGATION, TOOL_END };
 	typedef struct AnimInfo {
 		string name;
 		string message;
@@ -43,6 +44,9 @@ public:
 	void RenderEnd();
 
 	bool LoadTextureFromFile(const char* filename, ID3D11ShaderResourceView** out_srv);
+	void PushPickPos(_fvector vPickPos);
+	void DeletePickPos();
+	void ClearPickPos();
 
 	HRESULT AddGameObject(const _tchar * pPrototypeTag, const _tchar * pLayerTag, _uint iNumLevel, void* pArg = nullptr);
 	
@@ -65,6 +69,8 @@ private:
 	_uint item_current_idx = 0;
 	Tool m_eCurrentTool = TOOL_END;
 
+
+	vector<class CCell*> m_Cells;
 	/*============
 	===Particle===
 	============*/
@@ -86,6 +92,9 @@ private:
 	_float vRot[3] = {};
 	_float vScal[3] = {};
 
+	/* For NavMesh */
+	_uint m_iCurrentNaviIndex = 0;
+	_float3 m_vPickPos[3];
 
 	/* For Animation */
 	class CModel* m_pModel = nullptr;

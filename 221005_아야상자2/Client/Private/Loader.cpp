@@ -9,6 +9,8 @@
 #include "Player.h"
 #include "ForkLift.h"
 #include "Sword.h"
+#include "Hammer.h"
+#include "Ras_Samrah.h"
 //#include "Effect.h"
 //#include "Sky.h"
 //#include "UI.h"
@@ -128,15 +130,30 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 		CMonster::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+	/* For.Prototype_GameObject_RasSamrah */
+	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_RasSamrah"),
+		CRas_Samrah::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 	/* For.Prototype_GameObject_Sword */
 	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Sword"),
 		CSword::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For.Prototype_GameObject_Hammer */
+	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Hammer"),
+		CHammer::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
 	/* For.Prototype_GameObject_Camera_Free */
 	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Camera_Free"),
 		CCamera_Free::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+
+	///* For.Prototype_GameObject_Hammer */
+	//if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Camera_Free"),
+	//	CCamera_Free::Create(m_pDevice, m_pContext))))
+	//	return E_FAIL;
 
 	///* For.Prototype_GameObject_Sky */
 	//if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Sky"),
@@ -185,7 +202,7 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 
 	/* For.Prototype_Component_VIBuffer_Terrain */
 	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Terrain"),
-		CVIBuffer_Terrain::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Terrain/Height.bmp")))))
+		CVIBuffer_Terrain::Create(m_pDevice, m_pContext, 25, 25))))
 		return E_FAIL;
 
 	_matrix		PivotMatrix = XMMatrixIdentity();
@@ -211,6 +228,33 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
 	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Sword"),
 		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Weapon/DurgaSword.txt", PivotMatrix))))
+		return E_FAIL;
+
+	//RasSamrah
+	/* For.Prototype_Component_Model_RasSamrah */
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_RasSamrah"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_ANIM, L"../Bin/Resources/Meshes/Boss/Ras_Samrah.txt", PivotMatrix))))
+		return E_FAIL;
+	//Hand1
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Hand1"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_ANIM, L"../Bin/Resources/Meshes/Boss/Hands/Hand1.txt", PivotMatrix))))
+		return E_FAIL;
+	//Hand2
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Hand2"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_ANIM, L"../Bin/Resources/Meshes/Boss/Hands/Hand2.txt", PivotMatrix))))
+		return E_FAIL;
+	//Hand3
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Hand3"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_ANIM, L"../Bin/Resources/Meshes/Boss/Hands/Hand3.txt", PivotMatrix))))
+		return E_FAIL; 
+	//Hammer
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Hammer"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/Hammer/Hammer.txt", PivotMatrix))))
 		return E_FAIL;
 
 	///* For.Prototype_Component_VIBuffer_Cube */

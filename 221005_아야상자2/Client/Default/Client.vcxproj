@@ -171,6 +171,7 @@
     <ClInclude Include="..\Public\Camera_Free.h" />
     <ClInclude Include="..\Public\Client_Defines.h" />
     <ClInclude Include="..\Public\ForkLift.h" />
+    <ClInclude Include="..\public\Hammer.h" />
     <ClInclude Include="..\Public\ImGui_Manager.h" />
     <ClInclude Include="..\Public\Level_GamePlay.h" />
     <ClInclude Include="..\Public\Level_Loading.h" />
@@ -179,6 +180,7 @@
     <ClInclude Include="..\Public\MainApp.h" />
     <ClInclude Include="..\Public\Monster.h" />
     <ClInclude Include="..\Public\Player.h" />
+    <ClInclude Include="..\public\Ras_Samrah.h" />
     <ClInclude Include="..\Public\Sword.h" />
     <ClInclude Include="..\Public\Terrain.h" />
     <ClInclude Include="..\Public\tinystr.h" />
@@ -201,6 +203,7 @@
     <ClCompile Include="..\private\BackGround.cpp" />
     <ClCompile Include="..\Private\Camera_Free.cpp" />
     <ClCompile Include="..\Private\ForkLift.cpp" />
+    <ClCompile Include="..\private\Hammer.cpp" />
     <ClCompile Include="..\Private\ImGui_Manager.cpp" />
     <ClCompile Include="..\Private\Level_GamePlay.cpp" />
     <ClCompile Include="..\Private\Level_Loading.cpp" />
@@ -209,6 +212,7 @@
     <ClCompile Include="..\Private\MainApp.cpp" />
     <ClCompile Include="..\Private\Monster.cpp" />
     <ClCompile Include="..\Private\Player.cpp" />
+    <ClCompile Include="..\private\Ras_Samrah.cpp" />
     <ClCompile Include="..\Private\Sword.cpp" />
     <ClCompile Include="..\Private\Terrain.cpp" />
     <ClCompile Include="..\Private\tinystr.cpp">

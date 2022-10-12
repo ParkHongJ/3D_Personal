@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "..\Public\Camera_Free.h"
 #include "GameInstance.h"
-
+#include "Transform.h"
 CCamera_Free::CCamera_Free(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CCamera(pDevice, pContext)
 {
@@ -26,41 +26,73 @@ HRESULT CCamera_Free::Initialize(void * pArg)
 	if (FAILED(__super::Initialize(pArg)))
 		return E_FAIL;
 
-	
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 
+	m_pPlayerTransform = (CTransform*)pGameInstance->Get_ComponentPtr(LEVEL_GAMEPLAY, L"Layer_Player", L"Com_Transform", 0);;
+	if (nullptr == m_pPlayerTransform)
+	{
+		return E_FAIL;
+		RELEASE_INSTANCE(CGameInstance);
+	}
+	Safe_AddRef(m_pPlayerTransform);
+	RELEASE_INSTANCE(CGameInstance);
+
+	XMStoreFloat3(&m_vCamPosition, XMVectorSet(0.f, 1.f, -5.f, 0.f));
+	_vector vPlayerPos = m_pPlayerTransform->Get_State(CTransform::STATE_POSITION);
+	vPlayerPos = vPlayerPos + XMVectorSet(0.f, 0.f, 3.f, 0.f);
+	m_pTransformCom->LookAt(vPlayerPos);
+	/*_vector vPlayerPos = m_pPlayerTransform->Get_State(CTransform::STATE_POSITION);
+	vPlayerPos -*/
+	//m_fCamDistance = 12.f;
 	return S_OK;
 }
 
 _bool CCamera_Free::Tick(_float fTimeDelta)
 {
+	
+	
+	//m_pTransformCom->Set_WorldMatrix(XMMatrixMultiply(m_pTransformCom->Get_WorldMatrix(), m_pPlayerTransform->Get_WorldMatrix()));
 	CGameInstance*		pGameInstance = CGameInstance::Get_Instance();
 	Safe_AddRef(pGameInstance);
 
-	if (pGameInstance->Get_DIKState(DIK_W) & 0x80)
+	if (pGameInstance->Key_Pressing(DIK_W))
 	{
 		m_pTransformCom->Go_Straight(fTimeDelta);
 	}
 
-	if (pGameInstance->Get_DIKState(DIK_S) & 0x80)
+	if (pGameInstance->Key_Pressing(DIK_S))
 	{
 		m_pTransformCom->Go_Backward(fTimeDelta);
 	}
 
-	if (pGameInstance->Get_DIKState(DIK_A) & 0x80)
+	if (pGameInstance->Key_Pressing(DIK_A))
 	{
 		m_pTransformCom->Go_Left(fTimeDelta);
 	}
 
-	if (pGameInstance->Get_DIKState(DIK_D) & 0x80)
+	if (pGameInstance->Key_Pressing(DIK_D))
 	{
 		m_pTransformCom->Go_Right(fTimeDelta);
 	}
 
 	_long	MouseMove = 0;
 
+	/*if (pGameInstance->Get_DIMKeyState(DIMK_RBUTTON))
+	{
+		if (MouseMove = pGameInstance->Get_DIMMoveState(DIMM_X))
+		{
+			m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), MouseMove * fTimeDelta * 0.05f);
+		}
+
+		if (MouseMove = pGameInstance->Get_DIMMoveState(DIMM_Y))
+		{
+			m_pTransformCom->Turn(m_pTransformCom->Get_State(CTransform::STATE_RIGHT), MouseMove * fTimeDelta * 0.05f);
+		}
+	}*/
+	
 	if (MouseMove = pGameInstance->Get_DIMMoveState(DIMM_X))
 	{
-		m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), MouseMove * fTimeDelta * 0.05f);		
+		m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), MouseMove * fTimeDelta * 0.05f);
 	}
 
 	if (MouseMove = pGameInstance->Get_DIMMoveState(DIMM_Y))
@@ -68,11 +100,8 @@ _bool CCamera_Free::Tick(_float fTimeDelta)
 		m_pTransformCom->Turn(m_pTransformCom->Get_State(CTransform::STATE_RIGHT), MouseMove * fTimeDelta * 0.05f);
 	}
 
-	
-
 	Safe_Release(pGameInstance);
 
-	__super::Tick(fTimeDelta);
 
 
 	return false;
@@ -80,6 +109,10 @@ _bool CCamera_Free::Tick(_float fTimeDelta)
 
 void CCamera_Free::LateTick(_float fTimeDelta)
 {
+	/*m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pPlayerTransform->Get_State(CTransform::STATE_POSITION));
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVector3TransformCoord(XMLoadFloat3(&m_vCamPosition), m_pTransformCom->Get_WorldMatrix()));
+*/
+	__super::Tick(fTimeDelta);
 }
 
 HRESULT CCamera_Free::Render()
@@ -118,6 +151,6 @@ CGameObject * CCamera_Free::Clone(void* pArg)
 void CCamera_Free::Free()
 {
 	__super::Free();
-
+	Safe_Release(m_pPlayerTransform);
 
 }

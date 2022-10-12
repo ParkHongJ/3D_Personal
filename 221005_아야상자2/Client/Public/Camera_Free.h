@@ -19,6 +19,10 @@ public:
 	virtual void LateTick(_float fTimeDelta) override;
 	virtual HRESULT Render() override;
 
+private:
+	class CTransform* m_pPlayerTransform = nullptr;
+
+	_float3 m_vCamPosition;
 public:
 	static CCamera_Free* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg);

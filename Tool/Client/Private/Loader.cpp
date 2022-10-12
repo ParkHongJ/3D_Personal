@@ -193,13 +193,13 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 	/* For.Prototype_Component_Model_Fiona */
 	PivotMatrix = XMMatrixRotationY(XMConvertToRadians(180.0f));
 	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Fiona"),
-		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_ANIM, "../Bin/Resources/Meshes/Fiona/", "Fiona.fbx", L"../Bin/Resources/Meshes/Player/", L"Player.txt", PivotMatrix))))
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_ANIM, "../Bin/Resources/Meshes/Boss/", "Ras_Samrah.fbx", L"../Bin/Resources/Meshes/Boss/", L"Ras_Samrah.txt", PivotMatrix))))
 		return E_FAIL;
 
 	/* For.Prototype_Component_Model_ForkLift */
 	PivotMatrix = XMMatrixRotationY(XMConvertToRadians(180.0f));
 	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_ForkLift"),
-		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Meshes/ForkLift/", "DurgaSword.fbx", L"../Bin/Resources/Meshes/Weapon/", L"DurgaSword.txt", PivotMatrix))))
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Meshes/Boss/Hammer/", "jugulus_Hammer.fbx", L"../Bin/Resources/Meshes/Boss/Hammer/", L"Hammer.txt", PivotMatrix))))
 		return E_FAIL;
 
 

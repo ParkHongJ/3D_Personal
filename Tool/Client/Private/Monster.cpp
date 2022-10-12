@@ -22,7 +22,7 @@ HRESULT CMonster::Initialize(void * pArg)
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
 
-	m_pModelCom->Set_AnimIndex(rand() % 20);
+	//m_pModelCom->Set_AnimIndex(rand() % 20);
 
 	//m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(rand() % 10, 0.f, rand() % 10, 1.f));
 	m_pTransformCom->Set_Scale(XMVectorSet(0.01f, 0.01f, 0.01f, 1.f));
@@ -40,7 +40,7 @@ void CMonster::LateTick(_float fTimeDelta)
 	if (nullptr == m_pRendererCom)
 		return;
 
-	m_pModelCom->Play_Animation(fTimeDelta);
+	//m_pModelCom->Play_Animation(fTimeDelta);
 
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
 }

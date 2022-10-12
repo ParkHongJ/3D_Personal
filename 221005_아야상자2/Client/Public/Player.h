@@ -84,7 +84,9 @@ private:
 	_float					m_fBehaviorTimeMax = 2.5f;
 	_float					m_fBehaviorTimeCurrent = 0.f;
 	_bool					m_bParry = false;
+	_float					m_fSpeed = 3.f;
 
+	//Jump
 	_bool					m_bJumping = false;
 	_float					m_fJumpPower = 7.f;
 	_float					m_fJumpTime = 0.0f;

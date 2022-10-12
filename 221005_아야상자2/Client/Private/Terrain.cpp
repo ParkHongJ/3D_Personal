@@ -2,6 +2,7 @@
 #include "..\Public\Terrain.h"
 #include "GameInstance.h"
 
+#include "ImGui_Manager.h"
 CTerrain::CTerrain(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
 {
@@ -25,6 +26,7 @@ HRESULT CTerrain::Initialize(void * pArg)
 	if (FAILED(Ready_FilterTexture()))
 		return E_FAIL;
 	
+	strcpy_s(m_szName, "Terrain");
 	return S_OK;
 }
 
@@ -40,13 +42,20 @@ void CTerrain::LateTick(_float fTimeDelta)
 		return;
 	_float3			vPickPos;
 
-	/*if (GetKeyState(VK_LBUTTON) & 0x8000)
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+	if (pGameInstance->Mouse_Down(DIMK_LBUTTON))
 	{
 		if (m_pVIBufferCom->Picking(m_pTransformCom, &vPickPos))
 		{
-			int a = 10;
+			_float3 vPick;
+			XMStoreFloat3(&vPick, XMVector3TransformCoord(XMLoadFloat3(&vPickPos), m_pTransformCom->Get_WorldMatrix()));
+			
+			CImGui_Manager* pImGuiMgr = CImGui_Manager::Get_Instance();
+
+			pImGuiMgr->PushPickPos(XMLoadFloat3(&vPick));
 		}
-	}*/
+	}
+	RELEASE_INSTANCE(CGameInstance);
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
 }
 
@@ -56,6 +65,11 @@ HRESULT CTerrain::Render()
 		nullptr == m_pShaderCom)
 		return E_FAIL;
 
+#ifdef _DEBUG
+
+	m_pNavigationCom->Render();
+
+#endif
 	if (FAILED(SetUp_ShaderResources()))
 		return E_FAIL;
 
@@ -65,11 +79,7 @@ HRESULT CTerrain::Render()
 	if (FAILED(m_pVIBufferCom->Render()))
 		return E_FAIL;
 
-#ifdef _DEBUG
 
-	m_pNavigationCom->Render();
-
-#endif
 	return S_OK;
 }
 
