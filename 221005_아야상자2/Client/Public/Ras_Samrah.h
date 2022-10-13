@@ -21,7 +21,26 @@ public:
 	enum PARTTYPE { PART_WEAPON, PART_END };
 
 	enum COLLIDERTYPE { COLLIDERTYPE_AABB, COLLIDERTYPE_OBB, COLLIDERTYPE_SPHERE, COLLILDERTYPE_END };
-
+	enum STATE_ANIM {
+		Jug_FlyHit1,
+		Jug_FlyHit2,
+		HitPhase2,
+		RigAnim,
+		SpawnHammer,
+		Death,
+		Fly,
+		Idle1,
+		Idle2,
+		Pattern1,
+		Pattern3,
+		WalkGround,
+		ANIM_END
+	};
+	enum PHASE {
+		PHASE_1,
+		PHASE_2,
+		PHASE_END
+	};
 private:
 	CRas_Samrah(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	CRas_Samrah(const CRas_Samrah& rhs);
@@ -40,17 +59,10 @@ public:
 	virtual void OnCollisionExit(CGameObject* pOther, _float fTimeDelta) override;
 
 public:
-	void GetDamaged(_float fDamage)
-	{
-		m_fHp -= fDamage;
-		if (0 >= m_fHp)
-		{
-			m_fHp = 0.f;
-		}
-	}
+	void GetDamaged(_float fDamage);
+
 private:
 	CShader*				m_pShaderCom = nullptr;
-
 	CRenderer*				m_pRendererCom = nullptr;
 	CTransform*				m_pTransformCom = nullptr;
 	CModel*					m_pModelCom = nullptr;
@@ -58,15 +70,21 @@ private:
 
 private:
 	CGameObject*						m_Parts = nullptr;
-
 	vector<class CHierarchyNode*>		m_Sockets;
-
 	_float								m_fHp = 100;
 
+	STATE_ANIM							m_eCurrentAnimState = ANIM_END;
+	PHASE								m_ePhase = PHASE_END;
+	_bool								m_bAnimEnd = false;
+	_bool								m_bActiveHammer = false;
+	_float								m_fHammerSpawnTime = 0.0f;
+	_float								m_fHammerSpawnMaxTime = 1.4f;
+	_bool								m_bTimeCheck = false;
 private:
 	HRESULT Ready_Sockets();
 	HRESULT Ready_Parts();
 
+	void Set_State(STATE_ANIM eAnim, PHASE ePhase, _float fTimeDelta);
 	HRESULT Update_Weapon();
 	HRESULT Ready_Components();
 

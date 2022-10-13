@@ -88,7 +88,7 @@ private:
 
 	//Jump
 	_bool					m_bJumping = false;
-	_float					m_fJumpPower = 7.f;
+	_float					m_fJumpPower = 5.f;
 	_float					m_fJumpTime = 0.0f;
 	_float					m_fGravity = 9.8f;
 	_float					m_fPosY = 0.0f;

@@ -427,6 +427,7 @@ void CImGui_Manager::Render()
 				}
 			}
 			ImGui::EndListBox();
+
 			ImGui::SameLine();
 			char temp[MAX_PATH] = "";
 			strcpy_s(temp, (*m_pAnimations)[Animation_current_idx]->GetName());
@@ -462,7 +463,7 @@ void CImGui_Manager::Render()
 			ImGui::EndListBox();
 			ImGui::SameLine();
 
-			ImGui::BeginListBox("NextAnim", ImVec2(400, 150));
+			/*ImGui::BeginListBox("NextAnim", ImVec2(400, 150));
 
 			static _uint iSelectedNextIndex = 0;
 			for (_uint i = 0; i < m_ResultPair[SelectedCurrentAnim.iNextIndex].second.size(); i++)
@@ -474,78 +475,78 @@ void CImGui_Manager::Render()
 				}
 			}
 			ImGui::EndListBox();
+*/
+			//ImGui::Text("CurrentAnim : ");
+			//ImGui::SameLine();
+			//ImGui::Text(SelectedCurrentAnim.name.c_str());
+			//ImGui::SameLine();
+			//ImGui::Text("NextAnim : ");
+			//ImGui::SameLine();
+			//ImGui::Text(SelectedNextAnim.name.c_str());
 
-			ImGui::Text("CurrentAnim : ");
-			ImGui::SameLine();
-			ImGui::Text(SelectedCurrentAnim.name.c_str());
-			ImGui::SameLine();
-			ImGui::Text("NextAnim : ");
-			ImGui::SameLine();
-			ImGui::Text(SelectedNextAnim.name.c_str());
+			///* 현재 애니메이션을 편집할 리스트박스에 넣음. */
+			//if (ImGui::Button("AddCurrentAnim"))
+			//{
+			//	iter = m_CurrentAnim.find((*m_pAnimations)[Animation_current_idx]->GetName());
+			//	//겹치는게 없다면 넣음
+			//	if (iter == m_CurrentAnim.end())
+			//	{
+			//		//선택한 애니메이션의 이름과, 그 애니메이션의 인덱스번호를 넘겨줌
+			//		m_CurrentAnim.insert({SelectedNextAnim.name, SelectedNextAnim.iNextIndex}/*{ (*m_pAnimations)[Animation_current_idx]->GetName(), Animation_current_idx }*/);
+			//	}
+			//}
 
-			/* 현재 애니메이션을 편집할 리스트박스에 넣음. */
-			if (ImGui::Button("AddCurrentAnim"))
-			{
-				iter = m_CurrentAnim.find((*m_pAnimations)[Animation_current_idx]->GetName());
-				//겹치는게 없다면 넣음
-				if (iter == m_CurrentAnim.end())
-				{
-					//선택한 애니메이션의 이름과, 그 애니메이션의 인덱스번호를 넘겨줌
-					m_CurrentAnim.insert({SelectedNextAnim.name, SelectedNextAnim.iNextIndex}/*{ (*m_pAnimations)[Animation_current_idx]->GetName(), Animation_current_idx }*/);
-				}
-			}
+			//ImGui::SameLine();
 
-			ImGui::SameLine();
+			//if (ImGui::Button("AddNextAnim"))
+			//{
+			//	iter = m_CurrentAnim.find((*m_pAnimations)[Animation_current_idx]->GetName());
+			//	//겹치는게 없다면 넣음
+			//	if (iter == m_CurrentAnim.end() || SelectedCurrentAnim.name != "")
+			//	{
+			//		//선택한 애니메이션의 이름과, 그 애니메이션의 인덱스번호를 넘겨줌
+			//		//m_NextAnim.insert(make_pair(SelectedNextAnim.name, SelectedNextAnim.iNextIndex));
 
-			if (ImGui::Button("AddNextAnim"))
-			{
-				iter = m_CurrentAnim.find((*m_pAnimations)[Animation_current_idx]->GetName());
-				//겹치는게 없다면 넣음
-				if (iter == m_CurrentAnim.end() || SelectedCurrentAnim.name != "")
-				{
-					//선택한 애니메이션의 이름과, 그 애니메이션의 인덱스번호를 넘겨줌
-					//m_NextAnim.insert(make_pair(SelectedNextAnim.name, SelectedNextAnim.iNextIndex));
+			//		m_ResultPair[SelectedCurrentAnim.iNextIndex].first = SelectedCurrentAnim;
+			//		ANIM_INFO animInfo;
+			//		animInfo.name = SelectedNextAnim.name;
+			//		animInfo.iNextAnimIndex = SelectedNextAnim.iNextIndex;
 
-					m_ResultPair[SelectedCurrentAnim.iNextIndex].first = SelectedCurrentAnim;
-					ANIM_INFO animInfo;
-					animInfo.name = SelectedNextAnim.name;
-					animInfo.iNextAnimIndex = SelectedNextAnim.iNextIndex;
+			//		m_ResultPair[SelectedCurrentAnim.iNextIndex].second.push_back(animInfo);
+			//		//m_ResultPair[SelectedCurrentAnim.iNextIndex].second.push_back(SelectedNextAnim);
+			//	}
+			//}
 
-					m_ResultPair[SelectedCurrentAnim.iNextIndex].second.push_back(animInfo);
-					//m_ResultPair[SelectedCurrentAnim.iNextIndex].second.push_back(SelectedNextAnim);
-				}
-			}
+			//ImGui::Checkbox("Loop", &m_bLoop);
+			//ImGui::SameLine();
+			//ImGui::Checkbox("HasExitTime", &m_bHasExitTime);
 
-			ImGui::Checkbox("Loop", &m_bLoop);
-			ImGui::SameLine();
-			ImGui::Checkbox("HasExitTime", &m_bHasExitTime);
+			//ImGui::DragFloat("BlendTime", &m_fBlendTime, 0.01f, 0.0f, 5.0f);
 
-			ImGui::DragFloat("BlendTime", &m_fBlendTime, 0.01f, 0.0f, 5.0f);
+			//ImGui::InputText("Message", buf, MAX_PATH);
+			//
+			//if (m_ResultPair[Animation_Edit_Idx].first.name != "")
+			//{
+			//	ImGui::Text(m_ResultPair[Animation_Edit_Idx].first.name.c_str());
+			//}
+			//ImGui::SameLine();
+			//if (!m_ResultPair[Animation_Edit_Idx].second.empty())
+			//{
+			//	ImGui::Text(m_ResultPair[Animation_Edit_Idx].second[iSelectedNextIndex].name.c_str());
+			//}
+			//if (ImGui::Button("Apply"))
+			//{
+			//	//strcpy_s(m_ResultPair[Animation_Edit_Idx].second[iSelectedNextIndex].message, buf);
+			//	m_ResultPair[Animation_Edit_Idx].second[iSelectedNextIndex].message = buf;
+			//	m_ResultPair[Animation_Edit_Idx].second[iSelectedNextIndex].fBlendTime = m_fBlendTime;
+			//	m_ResultPair[Animation_Edit_Idx].second[iSelectedNextIndex].bLoop = m_bLoop;
+			//	m_ResultPair[Animation_Edit_Idx].second[iSelectedNextIndex].bHasExitTime = m_bHasExitTime;
 
-			ImGui::InputText("Message", buf, MAX_PATH);
-			
-			if (m_ResultPair[Animation_Edit_Idx].first.name != "")
-			{
-				ImGui::Text(m_ResultPair[Animation_Edit_Idx].first.name.c_str());
-			}
-			ImGui::SameLine();
-			if (!m_ResultPair[Animation_Edit_Idx].second.empty())
-			{
-				ImGui::Text(m_ResultPair[Animation_Edit_Idx].second[iSelectedNextIndex].name.c_str());
-			}
-			if (ImGui::Button("Apply"))
-			{
-				//strcpy_s(m_ResultPair[Animation_Edit_Idx].second[iSelectedNextIndex].message, buf);
-				m_ResultPair[Animation_Edit_Idx].second[iSelectedNextIndex].message = buf;
-				m_ResultPair[Animation_Edit_Idx].second[iSelectedNextIndex].fBlendTime = m_fBlendTime;
-				m_ResultPair[Animation_Edit_Idx].second[iSelectedNextIndex].bLoop = m_bLoop;
-				m_ResultPair[Animation_Edit_Idx].second[iSelectedNextIndex].bHasExitTime = m_bHasExitTime;
+			//	ZeroMemory(&buf, MAX_PATH);
+			//}
 
-				ZeroMemory(&buf, MAX_PATH);
-			}
-
-			ImGui::BeginListBox("CompletedAnim", ImVec2(400, 150));
-			ImGui::EndListBox();
+			//ImGui::BeginListBox("CompletedAnim", ImVec2(400, 150));
+			//ImGui::EndListBox();
 
 			if (ImGui::Button("TestXMLBUTTON"))
 			{

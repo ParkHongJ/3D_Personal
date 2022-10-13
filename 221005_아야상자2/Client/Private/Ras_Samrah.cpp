@@ -28,19 +28,24 @@ HRESULT CRas_Samrah::Initialize(void * pArg)
 
 	if (FAILED(Ready_Parts()))
 		return E_FAIL;
-	m_pModelCom->Set_AnimIndex(0);
-	//m_pTransformCom->Set_Scale(XMVectorSet(0.01f, 0.01f, 0.01f,0.f));
-	//m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(0.f,0.f,2.f,1.f));
-	//m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet((_float)(rand() % 20), 0.f, (_float)(rand() % 20), 1.f));
-	//_float temp = (_float)(rand() % 9);
-	//m_pTransformCom->Rotation(XMVectorSet(0.f, 1.f, 0.f, 0.f), temp * 0.5f);
+
 	strcpy_s(m_szName, "Ras_Samrah");
 	m_Tag = L"Ras_Samrah";
+
+	m_ePhase = PHASE_1;
+	m_eCurrentAnimState = Idle1;
+	m_pModelCom->Set_AnimIndex(Idle1);
 	return S_OK;
 }
 
 _bool CRas_Samrah::Tick(_float fTimeDelta)
 {
+	if (m_bTimeCheck)
+	{
+		m_fHammerSpawnTime += fTimeDelta;
+	}
+	Set_State(m_eCurrentAnimState, m_ePhase, fTimeDelta);
+
 	Update_Weapon();
 
 	m_Parts->Tick(fTimeDelta);
@@ -58,13 +63,15 @@ void CRas_Samrah::LateTick(_float fTimeDelta)
 	if (nullptr == m_pRendererCom)
 		return;
 
-	//Collision_ToPlayer();
+	m_bAnimEnd = m_pModelCom->Play_Animation(fTimeDelta);
 
-	m_pModelCom->Play_Animation(fTimeDelta);
-
-	m_Parts->LateTick(fTimeDelta);
-	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, m_Parts);
-
+	//나중에 이거 수정해라
+	if (m_bActiveHammer)
+	{
+		m_Parts->LateTick(fTimeDelta);
+		m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, m_Parts);
+	}
+	
 	m_pColliderCom[COLLIDERTYPE_OBB]->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom[COLLIDERTYPE_OBB]);
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
 }
@@ -115,10 +122,6 @@ HRESULT CRas_Samrah::Render()
 
 void CRas_Samrah::OnCollisionEnter(CGameObject * pOther, _float fTimeDelta)
 {
-	if (pOther->CompareTag(L"Player_Sword"))
-	{
-
-	}
 }
 
 void CRas_Samrah::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
@@ -129,6 +132,35 @@ void CRas_Samrah::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
 void CRas_Samrah::OnCollisionExit(CGameObject * pOther, _float fTimeDelta)
 {
 	int a = 10;
+}
+
+void CRas_Samrah::GetDamaged(_float fDamage)
+{
+	m_fHp -= fDamage;
+	if (50 >= m_fHp)
+	{
+		if (m_ePhase != PHASE_2)
+		{
+			m_ePhase = PHASE_2;
+			m_eCurrentAnimState = HitPhase2;
+			m_pModelCom->Change_Animation(HitPhase2, 0.0f, false);
+			return;
+		}
+	}
+
+	if (0 >= m_fHp)
+	{
+		m_fHp = 0.f;
+	}
+	else
+	{
+		if (m_ePhase == PHASE_2)
+		{
+			//나중에 이거 수정해라
+			m_eCurrentAnimState = Jug_FlyHit1;
+			m_pModelCom->Change_Animation(Jug_FlyHit1);
+		}
+	}
 }
 
 HRESULT CRas_Samrah::Ready_Sockets()
@@ -159,6 +191,87 @@ HRESULT CRas_Samrah::Ready_Parts()
 
 	RELEASE_INSTANCE(CGameInstance);
 	return S_OK;
+}
+
+void CRas_Samrah::Set_State(STATE_ANIM eAnim, PHASE ePhase, _float fTimeDelta)
+{
+	switch (m_ePhase)
+	{
+	case CRas_Samrah::PHASE_1:
+		switch (m_eCurrentAnimState)
+		{
+		case CRas_Samrah::Death:
+			break;
+		case CRas_Samrah::Fly:
+			break;
+		case CRas_Samrah::Idle1:
+			break;
+		case CRas_Samrah::Pattern1:
+			break;
+		case CRas_Samrah::Pattern3:
+			break;
+		case CRas_Samrah::WalkGround:
+			break;
+		default:
+			break;
+		}
+		break;
+	case CRas_Samrah::PHASE_2:
+		switch (m_eCurrentAnimState)
+		{
+		case CRas_Samrah::Jug_FlyHit1:
+			if (m_bAnimEnd)
+			{
+				m_eCurrentAnimState = Idle2;
+				m_pModelCom->Change_Animation(Idle2);
+			}
+			break;
+		case CRas_Samrah::Jug_FlyHit2:
+			break;
+		case CRas_Samrah::HitPhase2:
+			if (m_bAnimEnd)
+			{
+				m_eCurrentAnimState = SpawnHammer;
+				m_pModelCom->Change_Animation(SpawnHammer, 0.0f, false);
+			}
+			break;
+		case CRas_Samrah::SpawnHammer:
+			m_bTimeCheck = true;
+			if (m_fHammerSpawnTime > m_fHammerSpawnMaxTime)
+			{
+				m_bActiveHammer = true;
+			}
+			if (m_bAnimEnd)
+			{
+				m_eCurrentAnimState = Fly;
+				m_pModelCom->Change_Animation(Fly, 0.0f, false);
+			}
+			break;
+		case CRas_Samrah::Death:
+			break;
+		case CRas_Samrah::Fly:
+			if (m_bAnimEnd)
+			{
+				m_eCurrentAnimState = Idle2;
+				m_pModelCom->Change_Animation(Idle2);
+			}
+			break;
+		case CRas_Samrah::Idle2:
+			break;
+		case CRas_Samrah::Pattern1:
+			break;
+		case CRas_Samrah::Pattern3:
+			break;
+		case CRas_Samrah::WalkGround:
+			break;
+		default:
+			break;
+		}
+		break;
+	default:
+		break;
+	}
+	
 }
 
 HRESULT CRas_Samrah::Update_Weapon()
