@@ -39,6 +39,15 @@ public:
 	virtual void OnCollisionStay(CGameObject* pOther, _float fTimeDelta) override;
 	virtual void OnCollisionExit(CGameObject* pOther, _float fTimeDelta) override;
 
+public:
+	void GetDamaged(_float fDamage)
+	{
+		m_fHp -= fDamage;
+		if (0 >= m_fHp)
+		{
+			m_fHp = 0.f;
+		}
+	}
 private:
 	CShader*				m_pShaderCom = nullptr;
 
@@ -48,10 +57,11 @@ private:
 	CCollider*				m_pColliderCom[COLLILDERTYPE_END] = { nullptr };
 
 private:
-	CGameObject*			m_Parts = nullptr;
+	CGameObject*						m_Parts = nullptr;
 
 	vector<class CHierarchyNode*>		m_Sockets;
 
+	_float								m_fHp = 100;
 
 private:
 	HRESULT Ready_Sockets();

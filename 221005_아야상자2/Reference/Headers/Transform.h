@@ -67,6 +67,7 @@ public:
 	void Rotation(_fvector vAxis, _float fRadian);
 
 	void LookAt(_fvector vAt);
+	void LookDir(_fvector vDir);
 	void LookAt_ForLandObject(_fvector vAt);
 	void Move(_fvector vTargetPos, _float fTimeDelta, _float fLimitDistance = 0.1f);
 

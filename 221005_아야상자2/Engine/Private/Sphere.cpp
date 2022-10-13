@@ -58,7 +58,6 @@ _bool CSphere::Collision(CCollider * pTargetCollider)
 	case CCollider::TYPE_AABB:
 		m_isColl = m_pSphere->Intersects(((CAABB*)pTargetCollider)->Get_Collider());
 		break;
-
 	case CCollider::TYPE_OBB:
 		m_isColl = m_pSphere->Intersects(((COBB*)pTargetCollider)->Get_Collider());
 		break;
@@ -69,6 +68,12 @@ _bool CSphere::Collision(CCollider * pTargetCollider)
 	}
 
 	return m_isColl;
+}
+
+_bool CSphere::Picking(_fvector vRayPos, _fvector vRayDir, _float fDist)
+{
+	_bool isColl = m_pSphere->Intersects(vRayPos, vRayDir, fDist);
+	return isColl;
 }
 
 HRESULT CSphere::Render()

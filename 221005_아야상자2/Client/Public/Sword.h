@@ -49,7 +49,7 @@ private:
 	CModel*					m_pModelCom = nullptr;
 
 
-
+	_float					m_fDamage = 25.f;
 private:
 	HRESULT Ready_Components();
 

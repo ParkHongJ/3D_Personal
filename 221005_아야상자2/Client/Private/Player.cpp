@@ -2,7 +2,7 @@
 #include "..\Public\Player.h"
 #include "GameInstance.h"
 #include "HierarchyNode.h"
-
+#include "Camera_Free.h"
 CPlayer::CPlayer(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
 {
@@ -44,7 +44,16 @@ _bool CPlayer::Tick(_float fTimeDelta)
 		return true;
 
 	SetState(m_eCurrentAnimState, fTimeDelta);
-
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+	if (pGameInstance->Key_Pressing(DIK_NUMPAD1))
+	{
+		m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f,0.f), -fTimeDelta);
+	}
+	if (pGameInstance->Key_Pressing(DIK_NUMPAD3))
+	{
+		m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), fTimeDelta);
+	}
+	RELEASE_INSTANCE(CGameInstance);
 	Update_Weapon();
 
 	for (auto& pPart : m_Parts)
@@ -63,10 +72,15 @@ void CPlayer::LateTick(_float fTimeDelta)
 
 	for (auto& pPart : m_Parts)
 	{
-		pPart->LateTick(fTimeDelta);
+		if (m_bWeaponEnable)
+		{
+			pPart->LateTick(fTimeDelta);
+		}
+	}
+	for (auto& pPart : m_Parts)
+	{
 		m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, pPart);
 	}
-	
 	m_pColliderCom[COLLIDERTYPE_OBB]->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom[COLLIDERTYPE_OBB]);
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
 }
@@ -384,6 +398,7 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 			m_eCurrentAnimState = CoupFaible2_frappe1;
 			m_bComboAttack = false;
 		}
+		m_bWeaponEnable = false;
 		if (m_bAnimEnd)
 		{
 			m_pModelCom->Change_Animation(IdleFight);
@@ -399,6 +414,7 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 		break;
 	case CPlayer::CoupFaible1_frappe2:
 	{
+		m_bWeaponEnable = true;
 		CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 		if (pGameInstance->Get_DIMKeyState(DIMK_LBUTTON))
 		{
@@ -727,6 +743,10 @@ HRESULT CPlayer::Ready_Components()
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Navigation"), TEXT("Com_Navigation"), (CComponent**)&m_pNavigationCom, &NaviDesc)))
 		return E_FAIL;
 
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+	//CTransform* pTransform = (CTransform*)pGameInstance->Get_ComponentPtr(LEVEL_GAMEPLAY, L"Layer_Camera", L"Com_Transform", 0);
+	//m_pCamera = (CCamera_Free*)pTransform->GetOwner();
+	RELEASE_INSTANCE(CGameInstance);
 	return S_OK;
 }
 

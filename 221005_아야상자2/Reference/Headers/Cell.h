@@ -32,7 +32,22 @@ public:
 		m_iNeighborIndex[eLine] = pNeighbor->Get_Index();
 	}
 
-
+	_bool isInVertex(_fvector vVertex, _uint* iNumPointIndex) {
+		for (_uint i = 0; i < POINT_END; ++i)
+		{
+			if (XMVector3Equal(vVertex, XMLoadFloat3(&m_vPoints[i])))
+			{
+				*iNumPointIndex = i;
+				return true;
+			}
+		}
+		*iNumPointIndex = -1;
+		return false;
+	}
+	
+	_float3* GetPointArray() {
+		return m_vPoints;
+	}
 public:
 	HRESULT Initialize(const _float3* pPoints, _int iIndex);
 	_bool Compare(const _float3& vSourPoint, const _float3& vDestPoint);
@@ -40,7 +55,9 @@ public:
 
 #ifdef _DEBUG
 public:
+	void Update(_float2 vPickPos);
 	HRESULT Render_Cell(_float fHeight = 0.f, _float4 vColor = _float4(0.f, 1.f, 0.f, 1.f));
+	_bool Picking(_uint* iNumPoint);
 #endif // _DEBUG
 
 private:
@@ -56,8 +73,10 @@ private:
 #ifdef _DEBUG
 	class CVIBuffer_Cell*	m_pVIBuffer = nullptr;
 	class CShader*			m_pShader = nullptr;
+	class CCollider*		m_pCollider[3] = { nullptr };
 #endif
-
+public:
+	void EditCell(_uint iNumIndex, _float3 vPos);
 public:
 	static CCell* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, const _float3* pPoints, _int iIndex);
 	virtual void Free() override;

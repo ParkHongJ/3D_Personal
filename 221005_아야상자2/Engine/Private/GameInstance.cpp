@@ -257,7 +257,10 @@ _bool CGameInstance::Key_Up(_uchar KeyInput)
 
 _bool CGameInstance::Mouse_Down(DIMK eMouseKeyID)
 {
-	return m_pKey_Manager->Mouse_Down(eMouseKeyID);
+	if (nullptr == m_pInput_Device)
+		return 0;
+
+	return m_pInput_Device->MouseDown(eMouseKeyID);
 }
 
 void CGameInstance::Set_Transform(CPipeLine::TRANSFORMSTATE eTransformState, _fmatrix TransformMatrix)

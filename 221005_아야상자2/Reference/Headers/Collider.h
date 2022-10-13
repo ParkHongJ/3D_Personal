@@ -37,7 +37,7 @@ public:
 	virtual HRESULT Initialize(void* pArg);
 	virtual void Update(_fmatrix TransformMatrix) = 0;
 	virtual _bool Collision(CCollider* pTargetCollider) = 0;
-
+	virtual _bool Picking(_fvector vRayPos, _fvector vRayDir, _float fDist) { return false; }
 
 #ifdef _DEBUG
 public:

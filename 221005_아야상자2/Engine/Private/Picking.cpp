@@ -79,6 +79,13 @@ void CPicking::Compute_LocalRayInfo(_float3 * pRayDir, _float3 * pRayPos, CTrans
 	/*XMStoreFloat3(&*pRayDir, XMLoadFloat3(&m_vRayDir));*/
 }
 
+void CPicking::GetRayWorldInfo(_float3 * pRayDir, _float3 * pRayPos)
+{
+	XMStoreFloat3(&*pRayPos, XMLoadFloat3(&m_vRayPos));
+	XMStoreFloat3(&*pRayDir, XMLoadFloat3(&m_vRayDir));
+
+}
+
 void CPicking::Free()
 {
 	Safe_Release(m_pDevice);

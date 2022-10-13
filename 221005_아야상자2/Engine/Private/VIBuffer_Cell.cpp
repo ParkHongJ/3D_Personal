@@ -21,22 +21,25 @@ HRESULT CVIBuffer_Cell::Initialize_Prototype(const _float3* pPoints)
 
 	ZeroMemory(&m_BufferDesc, sizeof(D3D11_BUFFER_DESC));
 	m_BufferDesc.ByteWidth = m_iNumVertices * m_iStride;
-	m_BufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	//Hong Edit
+	m_BufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	m_BufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	m_BufferDesc.CPUAccessFlags = 0;
+	//Hong Edit
+	m_BufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	m_BufferDesc.MiscFlags = 0;
 	m_BufferDesc.StructureByteStride = m_iStride;
 
-	VTXCOL*		pVertices = new VTXCOL[4];
-	ZeroMemory(pVertices, sizeof(VTXCOL) * 4);
+	VTXCOL*		pVertices = new VTXCOL[3];
+	m_pVerticesPos = new _float3[m_iNumVertices];
+	ZeroMemory(pVertices, sizeof(VTXCOL) * 3);
 
-	pVertices[0].vPosition = pPoints[0];
+	pVertices[0].vPosition = m_pVerticesPos[0] = pPoints[0];
 	pVertices[0].vColor = _float4(0.f, 1.f, 0.f, 1.f);
 
-	pVertices[1].vPosition = pPoints[1];
+	pVertices[1].vPosition = m_pVerticesPos[1] = pPoints[1];
 	pVertices[1].vColor = _float4(0.f, 1.f, 0.f, 1.f);
 
-	pVertices[2].vPosition = pPoints[2];
+	pVertices[2].vPosition = m_pVerticesPos[2] = pPoints[2];
 	pVertices[2].vColor = _float4(0.f, 1.f, 0.f, 1.f);
 
 	ZeroMemory(&m_SubResourceData, sizeof(D3D11_SUBRESOURCE_DATA));

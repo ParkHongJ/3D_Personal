@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "..\Public\Sword.h"
 #include "GameInstance.h"
-
+#include "Ras_Samrah.h"
 CSword::CSword(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
 {
@@ -25,7 +25,7 @@ HRESULT CSword::Initialize(void * pArg)
 	m_pTransformCom->Set_Scale(XMVectorSet(0.01f, 0.01f, 0.01f, 1.f));
 	m_pTransformCom->Rotation(XMVectorSet(0.f, 1.f, 0.f, 0.f), XMConvertToRadians(90.0f));
 	strcpy_s(m_szName, "Sword");
-
+	m_Tag = L"Player_Sword";
 	
 
 
@@ -101,7 +101,10 @@ HRESULT CSword::SetUp_State(_fmatrix StateMatrix)
 
 void CSword::OnCollisionEnter(CGameObject * pOther, _float fTimeDelta)
 {
-	int a = 10;
+	if (pOther->CompareTag(L"Ras_Samrah"))
+	{
+		((CRas_Samrah*)pOther)->GetDamaged(m_fDamage);
+	}
 }
 
 void CSword::OnCollisionExit(CGameObject * pOther, _float fTimeDelta)

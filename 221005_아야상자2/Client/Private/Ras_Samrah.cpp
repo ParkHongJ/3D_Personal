@@ -35,6 +35,7 @@ HRESULT CRas_Samrah::Initialize(void * pArg)
 	//_float temp = (_float)(rand() % 9);
 	//m_pTransformCom->Rotation(XMVectorSet(0.f, 1.f, 0.f, 0.f), temp * 0.5f);
 	strcpy_s(m_szName, "Ras_Samrah");
+	m_Tag = L"Ras_Samrah";
 	return S_OK;
 }
 
@@ -114,7 +115,10 @@ HRESULT CRas_Samrah::Render()
 
 void CRas_Samrah::OnCollisionEnter(CGameObject * pOther, _float fTimeDelta)
 {
-	int a = 10;
+	if (pOther->CompareTag(L"Player_Sword"))
+	{
+
+	}
 }
 
 void CRas_Samrah::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)

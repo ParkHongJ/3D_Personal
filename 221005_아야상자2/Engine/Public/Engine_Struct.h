@@ -138,6 +138,30 @@ namespace Engine
 		static const D3D11_INPUT_ELEMENT_DESC Elements[iNumElements];
 	}VTXCOL_DECLARATION;
 
+	/* 인스턴싱으로 그려지는 각각의 인스턴스 각각의
+	로컬영역에서의 상태를 표현하기위한 행렬정보를 포함한다. */
+	typedef struct tagVertexInstance
+	{
+		XMFLOAT4		vRight;
+		XMFLOAT4		vUp;
+		XMFLOAT4		vLook;
+		XMFLOAT4		vPosition;
+	}VTXINSTANCE;
+
+	typedef struct ENGINE_DLL tagVertexRectInstance_Declaration
+	{
+		/* 내가 그릴려고 했던 정점(VTXTEX)과 해당 모델의 로컬 상탤르 ㄹ표현하는
+		VTXINSTANCE의 정보가 함께 셰이더로 전달되어야한다. */
+		static const unsigned int iNumElements = 6;
+		static const D3D11_INPUT_ELEMENT_DESC Elements[iNumElements];
+	}VTXRECTINSTANCE_DECLARATION;
+
+	typedef struct tagVertexPoint
+	{
+		XMFLOAT3			vPosition;
+		XMFLOAT2			vSize;
+	}VTXPOINT;
+
 	typedef struct tagGraphicDesc
 	{
 		enum WINMODE { MODE_FULL, MODE_WIN, MODE_END };
@@ -168,6 +192,7 @@ namespace Engine
 		XMFLOAT2 mTextureCoords;
 		XMFLOAT3 mTangents;
 	}VERTICESINFO;
+
 	typedef struct Mesh {
 		char mName[MAX_PATH] = "";
 		unsigned int mMaterialIndex;

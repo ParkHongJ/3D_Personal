@@ -23,7 +23,32 @@ public:
 	_long Get_DIMMoveState(DIMM eMouseMoveID) {
 		return ((_long*)&m_MouseState)[eMouseMoveID];
 	}
+	_bool MouseDown(const DIMK& _eMouseKeyID) // 이전에 안누르고 현재 눌렀을때 딱한번 실행
+	{
+		if (!(m_PreMouse.rgbButtons[_eMouseKeyID]) && (m_MouseState.rgbButtons[_eMouseKeyID]))
+		{
+			return true;
+		}
+		return false;
+	}
 
+	_bool MousePressing(const DIMK& _eMouseKeyID) // 연속 실행
+	{
+		if ((m_PreMouse.rgbButtons[_eMouseKeyID]) && (m_MouseState.rgbButtons[_eMouseKeyID]))
+		{
+			return true;
+		}
+		return false;
+	}
+
+	_bool MouseUp(const DIMK& _eMouseKeyID) //이전에 누르고 뗐을때 실행
+	{
+		if ((m_PreMouse.rgbButtons[_eMouseKeyID]) && !(m_MouseState.rgbButtons[_eMouseKeyID]))
+		{
+			return true;
+		}
+		return false;
+	}
 
 
 
@@ -40,6 +65,7 @@ private:
 private:	
 	_char				m_byKeyState[256] = { 0 };
 	DIMOUSESTATE		m_MouseState;
+	DIMOUSESTATE		m_PreMouse;
 
 public:
 	virtual void Free();

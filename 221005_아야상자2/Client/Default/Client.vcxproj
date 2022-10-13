@@ -167,6 +167,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Bin\ShaderFiles\Client_Shader_Defines.hpp" />
     <ClInclude Include="..\public\BackGround.h" />
     <ClInclude Include="..\Public\Camera_Free.h" />
     <ClInclude Include="..\Public\Client_Defines.h" />
@@ -179,6 +180,7 @@
     <ClInclude Include="..\Public\Loader.h" />
     <ClInclude Include="..\Public\MainApp.h" />
     <ClInclude Include="..\Public\Monster.h" />
+    <ClInclude Include="..\Public\Particle_Rect.h" />
     <ClInclude Include="..\Public\Player.h" />
     <ClInclude Include="..\public\Ras_Samrah.h" />
     <ClInclude Include="..\Public\Sword.h" />
@@ -211,6 +213,7 @@
     <ClCompile Include="..\Private\Loader.cpp" />
     <ClCompile Include="..\Private\MainApp.cpp" />
     <ClCompile Include="..\Private\Monster.cpp" />
+    <ClCompile Include="..\Private\Particle_Rect.cpp" />
     <ClCompile Include="..\Private\Player.cpp" />
     <ClCompile Include="..\private\Ras_Samrah.cpp" />
     <ClCompile Include="..\Private\Sword.cpp" />
@@ -292,8 +295,11 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxAnimModel.hlsl" />
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxCubeTex.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxModel.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxNorTex.hlsl" />
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxPointInstance.hlsl" />
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxRectInstance.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxTex.hlsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

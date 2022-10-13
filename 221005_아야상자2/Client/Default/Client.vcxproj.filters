@@ -76,6 +76,9 @@
     <Filter Include="02.GameObjects\Boss\Ras_Samrah\Hammer">
       <UniqueIdentifier>{92965584-269c-40a0-a9a9-5728892a6959}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\Effect">
+      <UniqueIdentifier>{f743b907-5314-42f5-a177-f165223047ef}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -174,6 +177,12 @@
     <ClInclude Include="..\public\Hammer.h">
       <Filter>02.GameObjects\Boss\Ras_Samrah\Hammer</Filter>
     </ClInclude>
+    <ClInclude Include="..\Public\Particle_Rect.h">
+      <Filter>02.GameObjects\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Bin\ShaderFiles\Client_Shader_Defines.hpp">
+      <Filter>97.ShaderFiles</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -263,6 +272,9 @@
     <ClCompile Include="..\private\Hammer.cpp">
       <Filter>02.GameObjects\Boss\Ras_Samrah\Hammer</Filter>
     </ClCompile>
+    <ClCompile Include="..\Private\Particle_Rect.cpp">
+      <Filter>02.GameObjects\Effect</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client.ico">
@@ -288,6 +300,15 @@
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxAnimModel.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxCubeTex.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxPointInstance.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxRectInstance.hlsl">
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
   </ItemGroup>

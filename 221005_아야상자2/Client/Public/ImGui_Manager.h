@@ -17,6 +17,7 @@ class CImGui_Manager final : public CBase
 	DECLARE_SINGLETON(CImGui_Manager)
 public:
 	enum Tool { TOOL_MAP, TOOL_UNIT, TOOL_CAMERA, TOOL_PARTICLE, TOOL_ANIMATION, TOOL_NAVIGATION, TOOL_END };
+	enum NavMesh { NAV_ADD, NAV_EDIT, NAV_DELETE, NAV_END };
 	typedef struct AnimInfo {
 		string name;
 		string message;
@@ -32,6 +33,11 @@ public:
 		string name;
 		_uint iNextIndex;
 	}ANIM_NAME;
+
+	typedef struct SelectCell {
+		_uint iPointIndex;
+		_uint iOriginCellIndex;
+	}SELECT_CELL;
 public:
 	CImGui_Manager();
 	virtual ~CImGui_Manager() = default;
@@ -47,6 +53,8 @@ public:
 	void PushPickPos(_fvector vPickPos);
 	void DeletePickPos();
 	void ClearPickPos();
+
+	void RenderGizmo();
 
 	HRESULT AddGameObject(const _tchar * pPrototypeTag, const _tchar * pLayerTag, _uint iNumLevel, void* pArg = nullptr);
 	
@@ -70,7 +78,6 @@ private:
 	Tool m_eCurrentTool = TOOL_END;
 
 
-	vector<class CCell*> m_Cells;
 	/*============
 	===Particle===
 	============*/
@@ -95,6 +102,12 @@ private:
 	/* For NavMesh */
 	_uint m_iCurrentNaviIndex = 0;
 	_float3 m_vPickPos[3];
+	_uint m_iNumCell = -1;
+	_uint m_iNumPointIndex = -1;
+	NavMesh m_eNav = NAV_END;
+	vector<class CCell*> m_Cells;
+	vector<pair<class CCell*, SELECT_CELL>> m_SelectCells;
+
 
 	/* For Animation */
 	class CModel* m_pModel = nullptr;
@@ -123,6 +136,7 @@ private:
 	_float m_fBlendTime = 0.25f;
 
 	char buf[MAX_PATH] = "";
+
 	/* For Inspector */
 	vector<class CAnimation*>* m_pAnimations = nullptr;
 public:

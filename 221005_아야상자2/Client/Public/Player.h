@@ -92,6 +92,10 @@ private:
 	_float					m_fJumpTime = 0.0f;
 	_float					m_fGravity = 9.8f;
 	_float					m_fPosY = 0.0f;
+
+
+	_bool					m_bWeaponEnable = false;
+	class CCamera_Free*		m_pCamera = nullptr;
 public:
 	virtual void OnCollisionEnter(CGameObject* pOther, _float fTimeDelta)override;
 	virtual void OnCollisionStay(CGameObject* pOther, _float fTimeDelta)override;

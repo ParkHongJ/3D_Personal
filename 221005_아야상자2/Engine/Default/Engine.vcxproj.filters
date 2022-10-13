@@ -124,6 +124,12 @@
     <ClCompile Include="..\Private\VIBuffer_Cell.cpp">
       <Filter>03.Components\02.VIBuffer\Cell</Filter>
     </ClCompile>
+    <ClCompile Include="..\Private\VIBuffer_Cube.cpp">
+      <Filter>03.Components\02.VIBuffer\Cube</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\VIBuffer_Rect_Instance.cpp">
+      <Filter>03.Components\02.VIBuffer\Instancing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Public\Engine_Defines.h">
@@ -264,6 +270,12 @@
     <ClInclude Include="..\Public\VIBuffer_Cell.h">
       <Filter>03.Components\02.VIBuffer\Cell</Filter>
     </ClInclude>
+    <ClInclude Include="..\Public\VIBuffer_Cube.h">
+      <Filter>03.Components\02.VIBuffer\Cube</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\VIBuffer_Rect_Instance.h">
+      <Filter>03.Components\02.VIBuffer\Instancing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="99.Defines">
@@ -397,6 +409,12 @@
     </Filter>
     <Filter Include="03.Components\08.Navigation\Cell\Shader">
       <UniqueIdentifier>{846c8f5e-973a-44b8-9040-2a97d6eb83b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Components\02.VIBuffer\Instancing">
+      <UniqueIdentifier>{6cb6c407-a442-4a7a-bca6-b43c47945069}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Components\02.VIBuffer\Cube">
+      <UniqueIdentifier>{5b15d8de-2561-4c3a-b866-b381823f7e02}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

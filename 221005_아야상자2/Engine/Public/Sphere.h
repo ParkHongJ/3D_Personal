@@ -22,6 +22,7 @@ public:
 	virtual HRESULT Initialize(void* pArg);
 	virtual void Update(_fmatrix TransformMatrix);
 	virtual _bool Collision(CCollider* pTargetCollider);
+	virtual _bool Picking(_fvector vRayPos, _fvector vRayDir, _float fDist);
 
 #ifdef _DEBUG
 public:

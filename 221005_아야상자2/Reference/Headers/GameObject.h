@@ -31,7 +31,11 @@ public:
 	virtual void OnCollisionEnter(CGameObject* pOther, _float fTimeDelta) {};
 	virtual void OnCollisionStay(CGameObject* pOther, _float fTimeDelta) {};
 	virtual void OnCollisionExit(CGameObject* pOther, _float fTimeDelta) {};
-
+	bool CompareTag(const _tchar* _tag) {
+		if (m_Tag == _tag)
+			return TRUE;
+		else return FALSE;
+	}
 
 protected:
 	ID3D11Device*			m_pDevice = nullptr;
@@ -46,6 +50,7 @@ protected:
 	_bool				m_bActive = true;
 	_bool				m_bDestroy = false;
 	char				m_szName[MAX_PATH] = "";
+	const _tchar*		m_Tag = nullptr;
 protected:
 	HRESULT Add_Component(_uint iLevelIndex, const _tchar* pPrototypeTag, const _tchar* pComponentTag, class CComponent** ppOut, void* pArg = nullptr);
 

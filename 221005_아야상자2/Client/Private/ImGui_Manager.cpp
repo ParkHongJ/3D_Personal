@@ -600,12 +600,157 @@ void CImGui_Manager::Render()
 		break;
 		case CImGui_Manager::TOOL_NAVIGATION:
 		{
-			static _bool bNavAdd = false;
+			static _int SelectMode = 0;
+			ImGui::RadioButton("NAV_ADD", &SelectMode, 0); ImGui::SameLine();
+			ImGui::RadioButton("NAV_EDIT", &SelectMode, 1); ImGui::SameLine();
+			ImGui::RadioButton("NAV_DELETE", &SelectMode, 2);
+			m_eNav = (NavMesh)SelectMode;
 
-			/*ImGui::Checkbox("Add"); 
-			ImGui::Checkbox("Modify");
-			ImGui::Checkbox("Delete");*/
-			
+			if (m_eNav == NAV_ADD)
+			{
+				CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+				if (pGameInstance->Mouse_Down(DIMK_LBUTTON))
+				{
+					_uint iNumCell = 0;
+					for (auto& pCells : m_Cells)
+					{
+						if (nullptr == pCells)
+							continue;
+
+						_bool is_Coll = pCells->Picking(&m_iNumPointIndex);
+						if (is_Coll)
+						{
+							m_iNumCell = iNumCell;
+						}
+						iNumCell++;
+					}
+				}
+
+				if (pGameInstance->Mouse_Down(DIMK_RBUTTON))
+				{
+					_uint iNumCell = 0;
+					for (auto& pCells : m_Cells)
+					{
+						if (nullptr == pCells)
+							continue;
+						_bool is_Coll = pCells->Picking(&m_iNumPointIndex);
+						
+						//이미 배치되어있는 셀이 피킹이 되었을 때
+						if (is_Coll)
+						{							
+							m_iNumCell = iNumCell;
+							PushPickPos(XMLoadFloat3(&pCells->Get_Point((CCell::POINT)m_iNumPointIndex)));
+							break;
+						}
+						iNumCell++;
+					}
+				}
+				RELEASE_INSTANCE(CGameInstance);
+			}
+
+			if (m_eNav == NAV_EDIT)
+			{
+				CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+				if (pGameInstance->Mouse_Down(DIMK_LBUTTON))
+				{
+					_uint iNumCell = 0;
+					_bool bSelectCellsDelete = false;
+					_bool bCheck = false;
+					for (auto& pCells : m_Cells)
+					{
+						if (nullptr == pCells)
+							continue;
+
+						_bool is_Coll = pCells->Picking(&m_iNumPointIndex);
+						if (is_Coll)
+						{
+							if (!bSelectCellsDelete)
+							{
+								for (auto& pCell : m_SelectCells)
+								{
+									Safe_Release(pCell.first);
+								}
+								m_SelectCells.clear();
+							}
+							bSelectCellsDelete = true;
+
+							m_iNumCell = iNumCell;
+
+							if (!bCheck)
+							{
+								_uint iNumCurrentCell = 0;
+								for (auto& ppCells : m_Cells)
+								{
+									if (nullptr == ppCells)
+									{
+										iNumCurrentCell++;
+										continue;
+									}
+									_uint iPointIndex = 0;
+									if (true == ppCells->isInVertex(XMLoadFloat3(&pCells->Get_Point((CCell::POINT)m_iNumPointIndex)), &iPointIndex))
+									{
+										SELECT_CELL cell;
+										cell.iPointIndex = iPointIndex;
+										cell.iOriginCellIndex = iNumCurrentCell;
+										m_SelectCells.push_back(make_pair(ppCells, cell));
+										Safe_AddRef(ppCells);
+									}
+									iNumCurrentCell++;
+								}
+								bCheck = true;
+							}
+						}
+						iNumCell++;
+					}
+				}
+				RELEASE_INSTANCE(CGameInstance);
+			}
+
+
+			if (ImGui::Button("TEST"))
+			{
+				for (auto& pCell : m_SelectCells)
+				{
+					//first : Cell
+					//second : +될 값
+					pCell.first->EditCell(pCell.second.iPointIndex, _float3(0.f, 0.5f, 0.f));
+				}
+			}
+
+			if (ImGui::Button("Delete"))
+			{
+				for (auto& pCell : m_SelectCells)
+				{
+					Safe_Release(m_Cells[pCell.second.iOriginCellIndex]);
+					Safe_Release(pCell.first);
+				}
+
+				m_SelectCells.clear();
+			}
+
+			if (ImGui::Button("Clear"))
+			{
+				ZeroMemory(&m_vPickPos, sizeof(m_vPickPos));
+			}
+
+			if (ImGui::Button("SaveNav"))
+			{
+				_ulong		dwByte = 0;
+				HANDLE		hFile = CreateFile(TEXT("../Bin/Data/NavigationDataTest.dat"), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+				if (0 == hFile)
+					break;
+
+				for (auto& pCell : m_Cells)
+				{
+					if (nullptr == pCell)
+						continue;
+
+					_float3* Points = pCell->GetPointArray();
+					WriteFile(hFile, &Points[0], sizeof(_float3) * 3, &dwByte, nullptr);
+				}
+
+				CloseHandle(hFile);
+			}
 		}
 			break;
 		default:
@@ -623,11 +768,7 @@ void CImGui_Manager::Render()
 	Inspector();
 	ImGui::End();
 
-	for (auto& pCell : m_Cells)
-	{
-		if (nullptr != pCell)
-			pCell->Render_Cell();
-	}
+	
 }
 
 void CImGui_Manager::Free()
@@ -660,6 +801,9 @@ bool CImGui_Manager::LoadTextureFromFile(const char* filename, ID3D11ShaderResou
 
 void CImGui_Manager::PushPickPos(_fvector vPickPos)
 {
+	if (m_eNav != NAV_ADD)
+		return;
+
 	if (m_iCurrentNaviIndex <= 2)
 	{
 		XMStoreFloat3(&m_vPickPos[m_iCurrentNaviIndex++], vPickPos);
@@ -668,6 +812,13 @@ void CImGui_Manager::PushPickPos(_fvector vPickPos)
 			CCell* pCell = CCell::Create(m_pDevice, m_pContext, m_vPickPos, (_int)m_Cells.size());
 			m_Cells.push_back(pCell);
 			m_iCurrentNaviIndex = 0;
+
+			//삼각형을 만들었다면 기존의 선택한 셀들은 없앰
+			/*for (auto& pCells : m_SelectCells)
+			{
+				Safe_Release(pCells);
+			}
+			m_SelectCells.clear();*/
 		}
 	}
 }
@@ -688,6 +839,15 @@ void CImGui_Manager::ClearPickPos()
 		XMStoreFloat3(&m_vPickPos[i], XMVectorSet(0.f, 0.f, 0.f, 1.f));
 	}
 	m_iCurrentNaviIndex = 0;
+}
+
+void CImGui_Manager::RenderGizmo()
+{
+	for (auto& pCell : m_Cells)
+	{
+		if (nullptr != pCell)
+			pCell->Render_Cell();
+	}
 }
 
 HRESULT CImGui_Manager::AddGameObject(const _tchar * pPrototypeTag, const _tchar * pLayerTag, _uint iNumLevel, void* pArg)

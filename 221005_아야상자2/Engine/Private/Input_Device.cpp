@@ -40,7 +40,11 @@ void CInput_Device::Update()
 {
 	m_pKeyboard->GetDeviceState(256, m_byKeyState);
 
+
+	memcpy(&m_PreMouse, &m_MouseState, sizeof(DIMOUSESTATE));
 	m_pMouse->GetDeviceState(sizeof(DIMOUSESTATE), &m_MouseState);
+
+
 }
 
 void CInput_Device::Free()

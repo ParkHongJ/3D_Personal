@@ -2,7 +2,9 @@
 #include "VIBuffer_Cell.h"
 #include "Shader.h"
 #include "PipeLine.h"
-
+#include "Collider.h"
+#include "Sphere.h"
+#include "Picking.h"
 CCell::CCell(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: m_pDevice(pDevice)
 	, m_pContext(pContext)
@@ -36,6 +38,18 @@ HRESULT CCell::Initialize(const _float3 * pPoints, _int iIndex)
 	m_pShader = CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_Cell.hlsl"), VTXCOL_DECLARATION::Elements, VTXCOL_DECLARATION::iNumElements);
 	if (nullptr == m_pShader)
 		return E_FAIL;
+	
+	for (_uint i = 0; i < 3; ++i)
+	{
+		m_pCollider[i] = CSphere::Create(m_pDevice, m_pContext, CCollider::TYPE_SPHERE);
+		if (nullptr == m_pCollider)
+			return E_FAIL;
+		CCollider::COLLIDERDESC desc;
+		desc.vCenter = _float3(0.f, 0.f, 0.f);
+		desc.vRotation = _float3(0.f, 0.f, 0.f);
+		desc.vSize = _float3(0.5f, 0.5f, 0.5f);
+		m_pCollider[i]->Initialize(&desc);
+	}
 #endif
 
 	return S_OK;
@@ -92,6 +106,11 @@ _bool CCell::isIn(_fvector vPosition, _int * pNeighborIndex)
 }
 
 #ifdef _DEBUG
+void CCell::Update(_float2 vPickPos)
+{
+	/*m_pCollider[0]->Collision()*/
+	//m_pVIBuffer->Picking()
+}
 HRESULT CCell::Render_Cell(_float fHeight, _float4 vColor)
 {
 	CPipeLine*			pPipeLine = GET_INSTANCE(CPipeLine);
@@ -118,9 +137,46 @@ HRESULT CCell::Render_Cell(_float fHeight, _float4 vColor)
 
 	m_pVIBuffer->Render();
 
+	_float4x4 mat;
+	for (_uint i = 0; i < 3; ++i)
+	{
+		XMStoreFloat4x4(&mat, XMMatrixIdentity());
+		mat._41 = m_vPoints[i].x;
+		mat._42 = m_vPoints[i].y;
+		mat._43 = m_vPoints[i].z;
+
+		m_pCollider[i]->Update(XMLoadFloat4x4(&mat));
+		m_pCollider[i]->Render();
+	}
 	return S_OK;
 }
+_bool CCell::Picking(_uint* iNumPoint)
+{
+	CPicking*		pPicking = GET_INSTANCE(CPicking);
+		
+	_float3 vRayDir, vRayPos;
+	_float fDist = 0.f;
+	pPicking->GetRayWorldInfo(&vRayDir, &vRayPos);
+	XMStoreFloat3(&vRayDir, XMVector3Normalize(XMLoadFloat3(&vRayDir)));
+	for (_uint i = 0; i < 3; ++i)
+	{
+		_bool IsColl = m_pCollider[i]->Picking(XMLoadFloat3(&vRayPos), XMLoadFloat3(&vRayDir), fDist);
+		if (IsColl)
+		{
+			*iNumPoint = i;
+			RELEASE_INSTANCE(CPicking);
+			return true;
+		}
+	}
+	RELEASE_INSTANCE(CPicking);
+	return false;
+}
 #endif // _DEBUG
+
+void CCell::EditCell(_uint iNumIndex, _float3 vPos)
+{
+	m_pVIBuffer->EditVerteces(iNumIndex, vPos, m_vPoints[iNumIndex]);
+}
 
 CCell * CCell::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, const _float3 * pPoints, _int iIndex)
 {
@@ -141,7 +197,10 @@ void CCell::Free()
 	Safe_Release(m_pVIBuffer);
 	Safe_Release(m_pShader);
 #endif // _DEBUG
-
+	for (auto& pCollider : m_pCollider)
+	{
+		Safe_Release(pCollider);
+	}
 	Safe_Release(m_pDevice);
 	Safe_Release(m_pContext);
 }
