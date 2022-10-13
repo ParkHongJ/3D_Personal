@@ -7,7 +7,7 @@ BEGIN(Engine)
 class ENGINE_DLL CModel final : public CComponent
 {
 public:
-	enum TYPE { TYPE_NONANIM, TYPE_ANIM, TYPE_END };
+	enum TYPE { TYPE_NONANIM, TYPE_ANIM, TYPE_INSTANCE_NONANIM, TYPE_END };
 private:
 	CModel(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	CModel(const CModel& rhs);
@@ -44,6 +44,7 @@ public:
 	
 public:
 	virtual HRESULT Initialize_Prototype(TYPE eType, const _tchar* pModelFilePath, _fmatrix PivotMatrix);
+	virtual HRESULT Initialize_Prototype(TYPE eType, const _tchar* pModelFilePath, _uint iNumInstance, _fmatrix PivotMatrix);
 	virtual HRESULT Initialize(void* pArg);
 
 
@@ -67,6 +68,9 @@ private:
 	typedef vector<class CMeshContainer*>	MESHES;
 	_bool									m_bClone = false;
 
+	//InstanceInfo
+	vector<class CMeshContainerInstance*>			m_InstanceMeshes;
+	typedef vector<class CMeshContainerInstance*>	INSTANCE_MESHES;
 private:
 	_uint									m_iNumMaterials = 0;
 	vector<MATERIALDESC>					m_Materials;
@@ -82,6 +86,7 @@ private:
 
 private:
 	HRESULT Ready_MeshContainers(_fmatrix PivotMatrix);
+	HRESULT Ready_InstanceMeshContainers(_uint iNumInstance, _fmatrix PivotMatrix);
 	HRESULT Ready_Materials();
 	HRESULT Ready_HierarchyNodes(Node* pNode, class CHierarchyNode* pParent, _uint iDepth);
 	HRESULT Ready_Animations();
@@ -92,6 +97,7 @@ private:
 
 public:
 	static CModel* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, TYPE eType, const _tchar* pModelFilePath, _fmatrix PivotMatrix = XMMatrixIdentity());
+	static CModel* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, TYPE eType, const _tchar* pModelFilePath, _uint iNumInstance, _fmatrix PivotMatrix = XMMatrixIdentity());
 	virtual CComponent* Clone(void* pArg = nullptr);
 	virtual void Free() override;
 };

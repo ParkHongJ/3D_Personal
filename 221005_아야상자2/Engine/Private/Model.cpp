@@ -4,7 +4,7 @@
 #include "HierarchyNode.h"
 #include "Animation.h"
 #include "Shader.h"
-
+#include "MeshContainerInstance.h"
 
 CModel::CModel(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CComponent(pDevice, pContext)
@@ -16,6 +16,7 @@ CModel::CModel(const CModel & rhs)
 	, m_iNumMeshes(rhs.m_iNumMeshes)
 	, m_iNumMaterials(rhs.m_iNumMaterials)
 	, m_Meshes(rhs.m_Meshes)
+	, m_InstanceMeshes(rhs.m_InstanceMeshes)
 	, m_Materials(rhs.m_Materials)
 	, m_eModelType(rhs.m_eModelType)
 	, m_Animations(rhs.m_Animations)
@@ -27,6 +28,9 @@ CModel::CModel(const CModel & rhs)
 	
 {
 	for (auto& pMeshContainer : m_Meshes)
+		Safe_AddRef(pMeshContainer);
+
+	for (auto& pMeshContainer : m_InstanceMeshes)
 		Safe_AddRef(pMeshContainer);
 
 
@@ -56,6 +60,10 @@ CHierarchyNode * CModel::Get_HierarchyNode(const char * pNodeName)
 
 _uint CModel::Get_MaterialIndex(_uint iMeshIndex)
 {
+	if (m_eModelType == CModel::TYPE_INSTANCE_NONANIM)
+	{
+		return m_InstanceMeshes[iMeshIndex]->Get_MaterialIndex();
+	}
 	return m_Meshes[iMeshIndex]->Get_MaterialIndex();
 }
 
@@ -84,6 +92,38 @@ HRESULT CModel::Initialize_Prototype(TYPE eType, const _tchar * pModelFilePath, 
 	/* 채널 : 뼈. 이 뼈는 한 애니메이션 안에서 사용된다. 그 애니메이션 안에서 어떤 시간, 시간, 시간, 시간대에 어떤 상태를 표현하면 되는지에 대한 정보(keyframe)들을 다므낟. */
 	/* keyframe : 어떤시간?, 상태(vScale, vRotation, vPosition) */
 	
+	if (m_eModelType == TYPE_ANIM)
+		if (FAILED(Ready_Animations()))
+			return E_FAIL;
+
+	return S_OK;
+}
+
+HRESULT CModel::Initialize_Prototype(TYPE eType, const _tchar * pModelFilePath, _uint iNumInstance, _fmatrix PivotMatrix)
+{
+	m_eModelType = eType;
+	LoadBinary(pModelFilePath);
+	XMStoreFloat4x4(&m_PivotMatrix, PivotMatrix);
+
+
+	/* 모델을 구성하는 메시들을 만든다. */
+	/* 모델은 여러개의 메시로 구성되어있다. */
+	/* 각 메시의 정점들과 인덱스들을 구성한다. */
+	if (FAILED(Ready_InstanceMeshContainers(iNumInstance, PivotMatrix)))
+		return E_FAIL;
+
+	/* 머테리얼정보다.(빛을 받았을때 리턴해야할 색상정보.) */
+	/* 모델마다정의?, 정점마다정의? 픽셀마다 정의(o) 텍스쳐로 표현된다. */
+	if (FAILED(Ready_Materials()))
+		return E_FAIL;
+
+
+	/* 애니메이션의 정보를 읽어서 저장한다.  */
+	/* 애니메이션 정보 : 애니메이션이 재생되는데 걸리는 총 시간(Duration),  애니메이션의 재생속도( mTickPerSecond), 몇개의 채널(mNumChannels) 에 영향르 주는가. 각채널의 정보(aiNodeAnim)(mChannels) */
+	/* mChannel(aiNodeAnim, 애니메이션이 움직이는 뼈) 에 대한 정보를 구성하여 객체화한다.(CChannel) */
+	/* 채널 : 뼈. 이 뼈는 한 애니메이션 안에서 사용된다. 그 애니메이션 안에서 어떤 시간, 시간, 시간, 시간대에 어떤 상태를 표현하면 되는지에 대한 정보(keyframe)들을 다므낟. */
+	/* keyframe : 어떤시간?, 상태(vScale, vRotation, vPosition) */
+
 	if (m_eModelType == TYPE_ANIM)
 		if (FAILED(Ready_Animations()))
 			return E_FAIL;
@@ -392,7 +432,14 @@ HRESULT CModel::Render(CShader* pShader, _uint iMeshIndex, _uint iPassIndex)
 
 	pShader->Begin(0);
 	
-	m_Meshes[iMeshIndex]->Render();
+	if (m_eModelType != TYPE_INSTANCE_NONANIM)
+	{
+		m_Meshes[iMeshIndex]->Render();
+	}
+	else
+	{
+		m_InstanceMeshes[iMeshIndex]->Render();
+	}
 
 	return S_OK;
 }
@@ -409,6 +456,23 @@ HRESULT CModel::Ready_MeshContainers(_fmatrix PivotMatrix)
 			return E_FAIL;
 
 		m_Meshes.push_back(pMeshContainer);
+	}
+
+	return S_OK;
+}
+
+HRESULT CModel::Ready_InstanceMeshContainers(_uint iNumInstance, _fmatrix PivotMatrix)
+{
+	/* 메시의 갯수를 얻어온다. */
+	m_iNumMeshes = m_pHScene->mNumMeshes;
+
+	for (_uint i = 0; i < m_iNumMeshes; ++i)
+	{
+		CMeshContainerInstance*		pMeshContainer = CMeshContainerInstance::Create(m_pDevice, m_pContext, iNumInstance, &m_pHScene->mMesh[i], this, PivotMatrix);
+		if (nullptr == pMeshContainer)
+			return E_FAIL;
+
+		m_InstanceMeshes.push_back(pMeshContainer);
 	}
 
 	return S_OK;
@@ -492,6 +556,19 @@ CModel * CModel::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, 
 	return pInstance;
 }
 
+CModel * CModel::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, TYPE eType, const _tchar * pModelFilePath, _uint iNumInstance, _fmatrix PivotMatrix)
+{
+	CModel*			pInstance = new CModel(pDevice, pContext);
+
+	if (FAILED(pInstance->Initialize_Prototype(eType, pModelFilePath, iNumInstance, PivotMatrix)))
+	{
+		MSG_BOX(TEXT("Failed To Created : CTexture"));
+		Safe_Release(pInstance);
+	}
+
+	return pInstance;
+} 
+
 CComponent * CModel::Clone(void * pArg)
 {
 	CModel*			pInstance = new CModel(*this);
@@ -528,6 +605,12 @@ void CModel::Free()
 		Safe_Release(pMeshContainer);
 
 	m_Meshes.clear();
+
+	for (auto& pMeshContainer : m_InstanceMeshes)
+		Safe_Release(pMeshContainer);
+
+	m_Meshes.clear();
+
 
 	for (auto& pAnimation : m_Animations)
 		Safe_Release(pAnimation);
