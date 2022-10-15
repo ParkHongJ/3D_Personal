@@ -2,6 +2,7 @@
 #include "..\Public\Camera_Free.h"
 #include "GameInstance.h"
 #include "Transform.h"
+#include "GameMgr.h"
 CCamera_Free::CCamera_Free(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CCamera(pDevice, pContext)
 {
@@ -26,7 +27,7 @@ HRESULT CCamera_Free::Initialize(void * pArg)
 	if (FAILED(__super::Initialize(pArg)))
 		return E_FAIL;
 
-	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+	/*CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 
 	m_pPlayerTransform = (CTransform*)pGameInstance->Get_ComponentPtr(LEVEL_GAMEPLAY, L"Layer_Player", L"Com_Transform", 0);;
 	if (nullptr == m_pPlayerTransform)
@@ -35,23 +36,18 @@ HRESULT CCamera_Free::Initialize(void * pArg)
 		RELEASE_INSTANCE(CGameInstance);
 	}
 	Safe_AddRef(m_pPlayerTransform);
-	RELEASE_INSTANCE(CGameInstance);
+	RELEASE_INSTANCE(CGameInstance);*/
 
-	XMStoreFloat3(&m_vCamPosition, XMVectorSet(0.f, 1.f, -5.f, 0.f));
-	_vector vPlayerPos = m_pPlayerTransform->Get_State(CTransform::STATE_POSITION);
-	vPlayerPos = vPlayerPos + XMVectorSet(0.f, 0.f, 3.f, 0.f);
-	m_pTransformCom->LookAt(vPlayerPos);
-	/*_vector vPlayerPos = m_pPlayerTransform->Get_State(CTransform::STATE_POSITION);
-	vPlayerPos -*/
-	//m_fCamDistance = 12.f;
+	
+	CGameMgr* pGameMgr = GET_INSTANCE(CGameMgr);
+	pGameMgr->RegisterCamera(this);
+	RELEASE_INSTANCE(CGameMgr);
+	
 	return S_OK;
 }
 
 _bool CCamera_Free::Tick(_float fTimeDelta)
 {
-	
-	
-	//m_pTransformCom->Set_WorldMatrix(XMMatrixMultiply(m_pTransformCom->Get_WorldMatrix(), m_pPlayerTransform->Get_WorldMatrix()));
 	CGameInstance*		pGameInstance = CGameInstance::Get_Instance();
 	Safe_AddRef(pGameInstance);
 
@@ -109,14 +105,40 @@ _bool CCamera_Free::Tick(_float fTimeDelta)
 
 void CCamera_Free::LateTick(_float fTimeDelta)
 {
-	/*m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pPlayerTransform->Get_State(CTransform::STATE_POSITION));
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pPlayerTransform->Get_State(CTransform::STATE_POSITION));
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVector3TransformCoord(XMLoadFloat3(&m_vCamPosition), m_pTransformCom->Get_WorldMatrix()));
-*/
+
 	__super::Tick(fTimeDelta);
 }
 
 HRESULT CCamera_Free::Render()
 {
+	return S_OK;
+}
+
+_float3 CCamera_Free::GetNormalizeDir(_uint eState)
+{
+	_float3 vDir;
+	XMStoreFloat3(&vDir, m_pTransformCom->Get_State((CTransform::STATE)eState));
+	XMStoreFloat3(&vDir, XMVector3Normalize(XMLoadFloat3(&vDir)));
+	vDir.y = 0.0f;
+	return vDir;
+}
+
+HRESULT CCamera_Free::Set_Player(CTransform * pPlayerTransform)
+{
+	m_pPlayerTransform = pPlayerTransform;
+	if (nullptr == m_pPlayerTransform)
+	{
+		return E_FAIL;
+	}
+
+	XMStoreFloat3(&m_vCamPosition, XMVectorSet(0.f, 1.f, -5.f, 0.f));
+	_vector vPlayerPos = m_pPlayerTransform->Get_State(CTransform::STATE_POSITION);
+	vPlayerPos = vPlayerPos + XMVectorSet(0.f, 0.f, 3.f, 0.f);
+	m_pTransformCom->LookAt(vPlayerPos);
+	Safe_AddRef(m_pPlayerTransform);
+	m_fCamDistance = 12.f;
 	return S_OK;
 }
 
@@ -152,5 +174,4 @@ void CCamera_Free::Free()
 {
 	__super::Free();
 	Safe_Release(m_pPlayerTransform);
-
 }

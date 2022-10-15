@@ -65,6 +65,7 @@ public:
 
 	void Turn(_fvector vAxis, _float fTimeDelta);
 	void Rotation(_fvector vAxis, _float fRadian);
+	void TurnQuat(_fvector vDir, _float fTimeDelta);
 
 	void LookAt(_fvector vAt);
 	void LookDir(_fvector vDir);

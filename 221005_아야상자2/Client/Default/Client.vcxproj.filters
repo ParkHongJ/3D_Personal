@@ -79,6 +79,24 @@
     <Filter Include="02.GameObjects\Effect">
       <UniqueIdentifier>{f743b907-5314-42f5-a177-f165223047ef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\Boss\Ras_Samrah\Hands\Hand1">
+      <UniqueIdentifier>{1d65f8c2-3e40-4c2d-80f3-f3b39d7cc6d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Boss\Ras_Samrah\Hands\Hand2">
+      <UniqueIdentifier>{814748eb-30a7-4739-a509-1da689f905ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Boss\Ras_Samrah\Hands\Hand3">
+      <UniqueIdentifier>{3011b60d-4ff4-4cda-8ada-6791a6ea1f02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Boss\Ras_Samrah\Chaudron">
+      <UniqueIdentifier>{47937898-b44c-46f7-82b1-4205bdadc81c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Boss\Ras_Samrah\Chaudron\EndChain">
+      <UniqueIdentifier>{42fb6617-8b10-4574-b616-864e26afebb5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameMgr">
+      <UniqueIdentifier>{acdb323e-eab9-4575-8155-ba917d293f2d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -183,6 +201,21 @@
     <ClInclude Include="..\Bin\ShaderFiles\Client_Shader_Defines.hpp">
       <Filter>97.ShaderFiles</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\Ras_Hands.h">
+      <Filter>02.GameObjects\Boss\Ras_Samrah\Hands</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Chaudron.h">
+      <Filter>02.GameObjects\Boss\Ras_Samrah\Chaudron</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\ChaudronChain.h">
+      <Filter>02.GameObjects\Boss\Ras_Samrah\Chaudron</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\EndChain.h">
+      <Filter>02.GameObjects\Boss\Ras_Samrah\Chaudron\EndChain</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\GameMgr.h">
+      <Filter>GameMgr</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -274,6 +307,21 @@
     </ClCompile>
     <ClCompile Include="..\Private\Particle_Rect.cpp">
       <Filter>02.GameObjects\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Ras_Hands.cpp">
+      <Filter>02.GameObjects\Boss\Ras_Samrah\Hands</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Chaudron.cpp">
+      <Filter>02.GameObjects\Boss\Ras_Samrah\Chaudron</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\ChaudronChain.cpp">
+      <Filter>02.GameObjects\Boss\Ras_Samrah\Chaudron</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\EndChain.cpp">
+      <Filter>02.GameObjects\Boss\Ras_Samrah\Chaudron\EndChain</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\GameMgr.cpp">
+      <Filter>GameMgr</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

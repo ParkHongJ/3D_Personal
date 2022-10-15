@@ -3,7 +3,7 @@
 
 #include "GameInstance.h"
 #include "Camera_Free.h"
-
+#include "GameMgr.h"
 
 CLevel_GamePlay::CLevel_GamePlay(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CLevel(pDevice, pContext)
@@ -17,8 +17,6 @@ HRESULT CLevel_GamePlay::Initialize()
 
 	if (FAILED(Ready_Lights()))
 		return E_FAIL;
-
-	
 
 	if (FAILED(Ready_Layer_BackGround(TEXT("Layer_BackGround"))))
 		return E_FAIL;
@@ -38,9 +36,11 @@ HRESULT CLevel_GamePlay::Initialize()
 	if (FAILED(Ready_Layer_UI(TEXT("Layer_UI"))))
 		return E_FAIL;
 
-	if (FAILED(Ready_Layer_ForkLift(TEXT("Layer_ForkLift"))))
+	/*if (FAILED(Ready_Layer_ForkLift(TEXT("Layer_ForkLift"))))
+		return E_FAIL;*/
+
+	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_ChaudronChain", L"Layer_ChaudronChain")))
 		return E_FAIL;
-	
 
 	return S_OK;
 }
@@ -217,6 +217,19 @@ HRESULT CLevel_GamePlay::Ready_Layer_ForkLift(const _tchar * pLayerTag)
 	return S_OK;
 }
 
+HRESULT CLevel_GamePlay::Ready_Layer_GameObject(const _tchar * pPrototypeTag, const _tchar * pLayerTag)
+{
+	CGameInstance*		pGameInstance = CGameInstance::Get_Instance();
+	Safe_AddRef(pGameInstance);
+
+	if (FAILED(pGameInstance->Add_GameObjectToLayer(pPrototypeTag, LEVEL_GAMEPLAY, pLayerTag)))
+		return E_FAIL;
+
+	Safe_Release(pGameInstance);
+
+	return S_OK;
+}
+
 CLevel_GamePlay * CLevel_GamePlay::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 {
 	CLevel_GamePlay*		pInstance = new CLevel_GamePlay(pDevice, pContext);
@@ -233,7 +246,7 @@ CLevel_GamePlay * CLevel_GamePlay::Create(ID3D11Device* pDevice, ID3D11DeviceCon
 void CLevel_GamePlay::Free()
 {
 	__super::Free();
-
+	CGameMgr::Get_Instance()->Destroy_Instance();
 }
 
 

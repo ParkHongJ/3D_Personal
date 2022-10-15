@@ -50,10 +50,13 @@ HRESULT CChannel::Initialize(aiNodeAnim * pAIChannel, NodeAnim* pNodeAnim)
 		memcpy(&pNodeAnim->mScalingKeys[i].mValue, &pAIChannel->mScalingKeys[i].mValue, sizeof(_float3));
 	}*/
 
-	m_iNumKeyFrames = max(pAIChannel->mNumScalingKeys, pAIChannel->mNumRotationKeys);
+	/*m_iNumKeyFrames = max(pAIChannel->mNumScalingKeys, pAIChannel->mNumRotationKeys);
 	m_iNumKeyFrames = max(m_iNumKeyFrames, pAIChannel->mNumPositionKeys);
 	pNodeAnim->mNumKeyFrames = m_iNumKeyFrames;
-	pNodeAnim->mKeyFrames.reserve(m_iNumKeyFrames);
+	pNodeAnim->mKeyFrames.reserve(m_iNumKeyFrames);*/
+	m_iNumKeyFrames = pAIChannel->mNumScalingKeys;
+	pNodeAnim->mNumKeyFrames = pAIChannel->mNumScalingKeys;
+	pNodeAnim->mKeyFrames.reserve(pAIChannel->mNumScalingKeys);
 	_float3			vScale;
 	_float4			vRotation;
 	_float3			vPosition;

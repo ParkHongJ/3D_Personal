@@ -58,6 +58,9 @@ public:
 
 	HRESULT AddGameObject(const _tchar * pPrototypeTag, const _tchar * pLayerTag, _uint iNumLevel, void* pArg = nullptr);
 	
+	/* For NavMesh*/
+	void ShowNavMesh();
+
 	/* For Hierarchy */
 	void ShowHierarchy();
 

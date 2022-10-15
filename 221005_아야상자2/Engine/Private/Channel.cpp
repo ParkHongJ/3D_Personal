@@ -56,6 +56,8 @@ _uint CChannel::Update_Transformation(_float fPlayTime, _uint iCurrentKeyFrame, 
 	{
 		while (fPlayTime >= m_KeyFrames[iCurrentKeyFrame + 1].fTime)
 			++iCurrentKeyFrame;
+		/*while (fPlayTime >= m_KeyFrames[iCurrentKeyFrame + 1].fTime)
+			++iCurrentKeyFrame;*/
 
 		_float		fRatio = (fPlayTime - m_KeyFrames[iCurrentKeyFrame].fTime) /
 			(m_KeyFrames[iCurrentKeyFrame + 1].fTime - m_KeyFrames[iCurrentKeyFrame].fTime);

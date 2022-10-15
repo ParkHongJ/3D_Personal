@@ -3,6 +3,7 @@
 #include "GameInstance.h"
 #include "HierarchyNode.h"
 #include "Camera_Free.h"
+#include "GameMgr.h"
 CPlayer::CPlayer(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
 {
@@ -35,6 +36,10 @@ HRESULT CPlayer::Initialize(void * pArg)
 	RELEASE_INSTANCE(CGameInstance);
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(0.f,0.f,0.f,1.f));
 	strcpy_s(m_szName, "Player");
+
+	CGameMgr* pGameMgr = GET_INSTANCE(CGameMgr);
+	pGameMgr->RegisterPlayer(this);
+	RELEASE_INSTANCE(CGameMgr);
 	return S_OK;
 }
 
@@ -53,6 +58,8 @@ _bool CPlayer::Tick(_float fTimeDelta)
 	{
 		m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), fTimeDelta);
 	}
+
+	
 	RELEASE_INSTANCE(CGameInstance);
 	Update_Weapon();
 
@@ -548,29 +555,42 @@ void CPlayer::Run_State(_float fTimeDelta)
 	}
 	else if (pGameInstance->Key_Pressing(MoveForward))
 	{
-		
-		//m_pTransformCom->Go_Straight(fTimeDelta, m_pNavigationCom);
+		if (!XMVector3Equal(XMLoadFloat3(&GetNormalizeDir(CTransform::STATE_LOOK)), XMLoadFloat3(&m_pCamera->GetNormalizeDir(CTransform::STATE_LOOK))))
+		{
+			m_pTransformCom->TurnQuat(XMLoadFloat3(&m_pCamera->GetNormalizeDir(CTransform::STATE_LOOK)), fTimeDelta * m_fRotationSpeed);
+		}
+
 		m_pTransformCom->Go_Straight(fTimeDelta, m_pNavigationCom);
 		m_pModelCom->Change_Animation(Run);
 	}
 	else if (pGameInstance->Key_Pressing(MoveBack))
 	{
-		/*_matrix mat = pGameInstance->Get_TransformMatrix(CPipeLine::D3DTS_VIEW);
-		_vector vDir = mat.r[2];
-		vDir = XMVectorSetY(-vDir, 0.0f);
-		m_pTransformCom->LookAt(vDir);*/
-		m_pTransformCom->Go_Backward(fTimeDelta, m_pNavigationCom);
+		if (!XMVector3Equal(-XMLoadFloat3(&GetNormalizeDir(CTransform::STATE_LOOK)), -XMLoadFloat3(&m_pCamera->GetNormalizeDir(CTransform::STATE_LOOK))))
+		{
+			m_pTransformCom->TurnQuat(-XMLoadFloat3(&m_pCamera->GetNormalizeDir(CTransform::STATE_LOOK)), fTimeDelta * m_fRotationSpeed);
+		}
+
+		m_pTransformCom->Go_Straight(fTimeDelta, m_pNavigationCom);
 		m_pModelCom->Change_Animation(Run);
 	}
 	else if (pGameInstance->Key_Pressing(MoveLeft))
 	{
-		m_pTransformCom->Go_Left(fTimeDelta, m_pNavigationCom);
+		if (!XMVector3Equal(-XMLoadFloat3(&GetNormalizeDir(CTransform::STATE_RIGHT)), -XMLoadFloat3(&m_pCamera->GetNormalizeDir(CTransform::STATE_RIGHT))))
+		{
+			m_pTransformCom->TurnQuat(-XMLoadFloat3(&m_pCamera->GetNormalizeDir(CTransform::STATE_RIGHT)), fTimeDelta * m_fRotationSpeed);
+		}
+
+		m_pTransformCom->Go_Straight(fTimeDelta, m_pNavigationCom);
 		m_pModelCom->Change_Animation(Run);
 	}
 	else if (pGameInstance->Key_Pressing(MoveRight))
 	{
-		m_pTransformCom->Go_Right(fTimeDelta, m_pNavigationCom);
-		//m_pTransformCom->Go_Straight(XMVectorSet(1.f,0.f,0.f,0.f), fTimeDelta, m_pNavigationCom);
+		if (!XMVector3Equal(XMLoadFloat3(&GetNormalizeDir(CTransform::STATE_RIGHT)), XMLoadFloat3(&m_pCamera->GetNormalizeDir(CTransform::STATE_RIGHT))))
+		{
+			m_pTransformCom->TurnQuat(XMLoadFloat3(&m_pCamera->GetNormalizeDir(CTransform::STATE_RIGHT)), fTimeDelta * m_fRotationSpeed);
+		}
+
+		m_pTransformCom->Go_Straight(fTimeDelta, m_pNavigationCom);
 		m_pModelCom->Change_Animation(Run);
 	}
 	else
@@ -665,6 +685,17 @@ void CPlayer::Jump(_float fTimeDelta)
 		m_pModelCom->Change_Animation(JumpCloth_Land, 0.05f, false);
 		m_eCurrentAnimState = JumpCloth_Land;
 	}
+}
+
+HRESULT CPlayer::Set_Camera(CCamera_Free * pCamera)
+{
+	m_pCamera = pCamera;
+	if (nullptr == m_pCamera)
+	{
+		return E_FAIL;
+	}
+	Safe_AddRef(m_pCamera);
+	return S_OK;
 }
 
 void CPlayer::OnCollisionEnter(CGameObject * pOther, _float fTimeDelta)
@@ -798,6 +829,15 @@ HRESULT CPlayer::Update_Weapon()
 	return S_OK;
 }
 
+_float3 CPlayer::GetNormalizeDir(_uint eState)
+{
+	_float3 vDir;
+	XMStoreFloat3(&vDir, m_pTransformCom->Get_State((CTransform::STATE)eState));
+	XMStoreFloat3(&vDir, XMVector3Normalize(XMLoadFloat3(&vDir)));
+	vDir.y = 0.0f;
+	return vDir;
+}
+
 CPlayer * CPlayer::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 {
 	CPlayer*		pInstance = new CPlayer(pDevice, pContext);
@@ -836,6 +876,7 @@ void CPlayer::Free()
 	for (auto& pCollider : m_pColliderCom)
 		Safe_Release(pCollider);
 
+	Safe_Release(m_pCamera);
 	Safe_Release(m_pNavigationCom);
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pShaderCom);

@@ -29,7 +29,7 @@ HRESULT CPlayer::Initialize(void * pArg)
 		return E_FAIL;*/
 	
 	RELEASE_INSTANCE(CGameInstance);
-	//m_pModelCom->Set_AnimIndex(13);
+	m_pModelCom->Set_AnimIndex(0);
 
 	m_eCurrentState = CPlayer::STATE_IDLE;
 	m_pTransformCom->Set_Scale(XMVectorSet(0.01f, 0.01f, 0.01f, 1.f));

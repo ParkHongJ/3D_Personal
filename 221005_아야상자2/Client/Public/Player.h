@@ -61,6 +61,8 @@ public:
 	void Parring_State(_float fTimeDelta);
 
 	void Jump(_float fTimeDelta);
+public:
+	HRESULT Set_Camera(class CCamera_Free* pCamera);
 private:
 	CShader*				m_pShaderCom = nullptr;
 
@@ -85,6 +87,7 @@ private:
 	_float					m_fBehaviorTimeCurrent = 0.f;
 	_bool					m_bParry = false;
 	_float					m_fSpeed = 3.f;
+	_float					m_fRotationSpeed = 7.f;
 
 	//Jump
 	_bool					m_bJumping = false;
@@ -108,7 +111,7 @@ private:
 	HRESULT Ready_PlayerParts();
 
 	HRESULT Update_Weapon();
-
+	_float3 GetNormalizeDir(_uint eState);
 public:
 	static CPlayer* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg);

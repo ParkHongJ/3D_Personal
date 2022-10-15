@@ -22,6 +22,53 @@ void CTransform::Set_State(STATE eState, _fvector vState)
 	XMStoreFloat4x4(&m_WorldMatrix, WorldMatrix);
 }
 
+void CTransform::MoveToWards(_fvector target, _float MaxDistanceDelta, CNavigation * pNavigation)
+{
+	_vector		vPosition = Get_State(CTransform::STATE_POSITION);
+
+	_vector		vDistance = target - vPosition;
+
+	_float fMagnitude;
+	XMStoreFloat(&fMagnitude, XMVector3Length(vDistance));
+
+	_bool		isMove = true;
+
+	if (fMagnitude <= MaxDistanceDelta || fMagnitude == 0.0f)
+	{
+		if (nullptr != pNavigation)
+			isMove = pNavigation->isMove(target);
+
+		if (true == isMove)
+			Set_State(CTransform::STATE_POSITION, target);
+	}
+	else
+	{
+		_vector vFinalPos = vPosition + vDistance / fMagnitude * MaxDistanceDelta;
+		if (nullptr != pNavigation)
+			isMove = pNavigation->isMove(vFinalPos);
+
+		if (true == isMove)
+			Set_State(CTransform::STATE_POSITION, vFinalPos);
+	}
+	
+	//current + a / magnitude * maxDistanceDelta;
+	/* 프렐이어가 움직이고 난 이후의 위치를 네비게이션에 전달하여. */
+	/* 현재 상황에서 움직일 수 있늕지 체크한다. */
+
+	
+	/*_float3 MoveTowards(_float3 current, _float3 target, float maxDistanceDelta)
+	{
+		_float3 a = target - current;
+		float magnitude = D3DXVec3Length(&a);
+		if (magnitude <= maxDistanceDelta || magnitude == 0.f)
+		{
+			return target;
+		}
+		return current + a / magnitude * maxDistanceDelta;
+	}*/
+	
+}
+
 HRESULT CTransform::Initialize_Prototype()
 {
 	/* vector -> float : XMStore*/
@@ -161,6 +208,37 @@ void CTransform::Rotation(_fvector vAxis, _float fRadian)
 	Set_State(CTransform::STATE_RIGHT, XMVector3TransformNormal(XMVectorSet(1.f, 0.f, 0.f, 0.f) * Scale.x, RotationMatrix));
 	Set_State(CTransform::STATE_UP, XMVector3TransformNormal(XMVectorSet(0.f, 1.f, 0.f, 0.f) * Scale.y, RotationMatrix));
 	Set_State(CTransform::STATE_LOOK, XMVector3TransformNormal(XMVectorSet(0.f, 0.f, 1.f, 0.f) * Scale.z, RotationMatrix));
+}
+
+void CTransform::TurnQuat(_fvector vDir, _float fTimeDelta)
+{
+	XMVectorSetY(vDir, 0.f);
+	_vector		vLook = XMVector3Normalize(vDir);
+	_vector		vRight = XMVector3Cross(XMVectorSet(0.f, 1.f, 0.f, 0.f), vLook);
+	_vector		vUp = XMVector3Cross(vLook, vRight);
+
+	_matrix DestRotationMatrix;
+	DestRotationMatrix.r[0] = vRight;
+	DestRotationMatrix.r[1] = vUp;
+	DestRotationMatrix.r[2] = vLook;
+	DestRotationMatrix.r[3] = Get_State(CTransform::STATE_POSITION);
+
+	_vector		vDestRot;
+	vDestRot = XMQuaternionRotationMatrix(DestRotationMatrix);
+
+	_vector		vSourRot;
+	vSourRot = XMQuaternionRotationMatrix(XMLoadFloat4x4(&m_WorldMatrix));
+
+	if (XMQuaternionEqual(vSourRot, vDestRot))
+	{
+		return;
+	}
+
+	vSourRot = XMQuaternionSlerp(vSourRot, vDestRot, fTimeDelta);	
+
+	_matrix		TransformationMatrix = XMMatrixAffineTransformation(XMLoadFloat3(&Get_Scale()), XMVectorSet(0.f, 0.f, 0.f, 1.f), vSourRot, XMVectorSetW(Get_State(CTransform::STATE_POSITION), 1.f));
+
+	XMStoreFloat4x4(&m_WorldMatrix, TransformationMatrix);
 }
 
 void CTransform::LookAt(_fvector vAt)

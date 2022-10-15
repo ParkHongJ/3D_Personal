@@ -170,8 +170,12 @@
     <ClInclude Include="..\Bin\ShaderFiles\Client_Shader_Defines.hpp" />
     <ClInclude Include="..\public\BackGround.h" />
     <ClInclude Include="..\Public\Camera_Free.h" />
+    <ClInclude Include="..\public\Chaudron.h" />
+    <ClInclude Include="..\public\ChaudronChain.h" />
     <ClInclude Include="..\Public\Client_Defines.h" />
+    <ClInclude Include="..\public\EndChain.h" />
     <ClInclude Include="..\Public\ForkLift.h" />
+    <ClInclude Include="..\public\GameMgr.h" />
     <ClInclude Include="..\public\Hammer.h" />
     <ClInclude Include="..\Public\ImGui_Manager.h" />
     <ClInclude Include="..\Public\Level_GamePlay.h" />
@@ -182,6 +186,7 @@
     <ClInclude Include="..\Public\Monster.h" />
     <ClInclude Include="..\Public\Particle_Rect.h" />
     <ClInclude Include="..\Public\Player.h" />
+    <ClInclude Include="..\public\Ras_Hands.h" />
     <ClInclude Include="..\public\Ras_Samrah.h" />
     <ClInclude Include="..\Public\Sword.h" />
     <ClInclude Include="..\Public\Terrain.h" />
@@ -204,7 +209,11 @@
   <ItemGroup>
     <ClCompile Include="..\private\BackGround.cpp" />
     <ClCompile Include="..\Private\Camera_Free.cpp" />
+    <ClCompile Include="..\private\Chaudron.cpp" />
+    <ClCompile Include="..\private\ChaudronChain.cpp" />
+    <ClCompile Include="..\private\EndChain.cpp" />
     <ClCompile Include="..\Private\ForkLift.cpp" />
+    <ClCompile Include="..\private\GameMgr.cpp" />
     <ClCompile Include="..\private\Hammer.cpp" />
     <ClCompile Include="..\Private\ImGui_Manager.cpp" />
     <ClCompile Include="..\Private\Level_GamePlay.cpp" />
@@ -215,6 +224,7 @@
     <ClCompile Include="..\Private\Monster.cpp" />
     <ClCompile Include="..\Private\Particle_Rect.cpp" />
     <ClCompile Include="..\Private\Player.cpp" />
+    <ClCompile Include="..\private\Ras_Hands.cpp" />
     <ClCompile Include="..\private\Ras_Samrah.cpp" />
     <ClCompile Include="..\Private\Sword.cpp" />
     <ClCompile Include="..\Private\Terrain.cpp" />
