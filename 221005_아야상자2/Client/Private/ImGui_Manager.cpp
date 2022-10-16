@@ -357,18 +357,20 @@ void CImGui_Manager::Render()
 					//·¹º§
 					//¸ðµ¨¸í
 					CREATE_INFO tObjInfo;
-					ZeroMemory(&tObjInfo, sizeof(CREATE_INFO));
+					tObjInfo.pPrototypeTag = CharToWstring(PrototypeName);
+					tObjInfo.pLayerTag = CharToWstring(LayerName);
+					tObjInfo.pModelTag = CharToWstring(ModelName);
+					/*MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, PrototypeName, (_int)strlen(PrototypeName), tObjInfo.pPrototypeTag, MAX_PATH);
 
-					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, PrototypeName, (_int)strlen(PrototypeName), tObjInfo.pPrototypeTag, MAX_PATH);
 					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, LayerName, (_int)strlen(LayerName), tObjInfo.pLayerTag, MAX_PATH);
-					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, ModelName, (_int)strlen(ModelName), tObjInfo.pModelTag, MAX_PATH);
-
+					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, ModelName, (_int)strlen(ModelName), tObjInfo.pModelTag, MAX_PATH);*/
 					tObjInfo.iNumLevel = LEVEL_GAMEPLAY;
-					sprintf_s(tObjInfo.szName, ObjName);
+					//sprintf_s(tObjInfo.szName, ObjName);
 
-					AddGameObject(tObjInfo.pPrototypeTag, tObjInfo.pLayerTag, tObjInfo.iNumLevel, &tObjInfo);
+					m_CreateObj.push_back(tObjInfo);
+					//AddGameObject(tObjInfo.pPrototypeTag, tObjInfo.pLayerTag, tObjInfo.iNumLevel, &tObjInfo);
 				}
-
+				
 				ImGui::Separator();
 
 				if (ImGui::Button("TestPopupButton1"))

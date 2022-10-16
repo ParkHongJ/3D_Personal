@@ -57,10 +57,11 @@ public:
 	void Idle_State(_float fTimeDelta);
 	void Run_State(_float fTimeDelta);
 	void Idle_Fight_State(_float fTimeDelta);
-	//void Sprint_State(_float fTimeDelta);
+	void Sprint_State(_float fTimeDelta);
 	void Parring_State(_float fTimeDelta);
 
 	void Jump(_float fTimeDelta);
+	void MoveControl(_float fTimeDelta);
 public:
 	HRESULT Set_Camera(class CCamera_Free* pCamera);
 private:
@@ -97,7 +98,7 @@ private:
 	_float					m_fPosY = 0.0f;
 
 	//Roll
-	_float					m_fRollTimeMax  = 2.f;
+	_float					m_fRollTimeMax  = 1.3f;
 	_float					m_fRollTime = 0.f;
 	_bool					m_bWeaponEnable = false;
 	class CCamera_Free*		m_pCamera = nullptr;

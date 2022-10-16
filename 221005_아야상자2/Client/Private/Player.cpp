@@ -49,7 +49,7 @@ _bool CPlayer::Tick(_float fTimeDelta)
 		return true;
 
 	
-	//SetState(m_eCurrentAnimState, fTimeDelta);
+	SetState(m_eCurrentAnimState, fTimeDelta);
 	
 	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 	if (pGameInstance->Key_Pressing(DIK_NUMPAD1))
@@ -186,24 +186,8 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 			m_pModelCom->Change_Animation(DoubleJumpCloth_Start, 0.25f, false);
 			m_eCurrentAnimState = DoubleJumpCloth_Start;
 		}
-
-		if (pGameInstance->Key_Pressing(MoveForward))
-		{
-			m_pTransformCom->Go_Straight(fTimeDelta, m_pNavigationCom);
-		}
-		else if (pGameInstance->Key_Pressing(MoveBack))
-		{
-			m_pTransformCom->Go_Backward(fTimeDelta, m_pNavigationCom);
-		}
-		else if (pGameInstance->Key_Pressing(MoveLeft))
-		{
-			m_pTransformCom->Go_Left(fTimeDelta, m_pNavigationCom);
-		}
-		else if (pGameInstance->Key_Pressing(MoveRight))
-		{
-			m_pTransformCom->Go_Right(fTimeDelta, m_pNavigationCom);
-		}
 		RELEASE_INSTANCE(CGameInstance);
+		MoveControl(fTimeDelta);
 		Jump(fTimeDelta);
 	}
 	break;
@@ -214,24 +198,8 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 			m_eCurrentAnimState = IdlePeace;
 			m_pModelCom->Change_Animation(IdlePeace);
 		}
-		CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
-		if (pGameInstance->Key_Pressing(MoveForward))
-		{
-			m_pTransformCom->Go_Straight(fTimeDelta, m_pNavigationCom);
-		}
-		else if (pGameInstance->Key_Pressing(MoveBack))
-		{
-			m_pTransformCom->Go_Backward(fTimeDelta, m_pNavigationCom);
-		}
-		else if (pGameInstance->Key_Pressing(MoveLeft))
-		{
-			m_pTransformCom->Go_Left(fTimeDelta, m_pNavigationCom);
-		}
-		else if (pGameInstance->Key_Pressing(MoveRight))
-		{
-			m_pTransformCom->Go_Right(fTimeDelta, m_pNavigationCom);
-		}
-		RELEASE_INSTANCE(CGameInstance); }
+		MoveControl(fTimeDelta);
+	}
 	break;
 	case CPlayer::JumpCloth_Start:
 		//if (m_bAnimEnd)
@@ -328,7 +296,7 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 	case CPlayer::Slide:
 		break;
 	case CPlayer::Sprint:
-		//Sprint_State(fTimeDelta);
+		Sprint_State(fTimeDelta);
 		break;
 	case CPlayer::Stun:
 		break;
@@ -518,10 +486,12 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 void CPlayer::Idle_State(_float fTimeDelta)
 {
 	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
-	if (pGameInstance->Key_Down(MoveForward) || (pGameInstance->Key_Down(MoveBack) ||
-		pGameInstance->Key_Down(MoveLeft) || pGameInstance->Key_Down(MoveRight)))
+	if (pGameInstance->Key_Pressing(MoveForward) || (pGameInstance->Key_Pressing(MoveBack) ||
+		pGameInstance->Key_Pressing(MoveLeft) || pGameInstance->Key_Pressing(MoveRight)))
 	{
 		m_eCurrentAnimState = Run;
+
+		m_pModelCom->Change_Animation(Run);
 	}
 	else if (pGameInstance->Key_Down(DIK_SPACE) && !m_bJumping)
 	{
@@ -606,7 +576,6 @@ void CPlayer::Run_State(_float fTimeDelta)
 		}
 
 		m_pTransformCom->Go_Straight(fTimeDelta, m_pNavigationCom);
-		m_pModelCom->Change_Animation(Run);
 	}
 	else if (pGameInstance->Key_Pressing(MoveBack))
 	{
@@ -616,7 +585,6 @@ void CPlayer::Run_State(_float fTimeDelta)
 		}
 
 		m_pTransformCom->Go_Straight(fTimeDelta, m_pNavigationCom);
-		m_pModelCom->Change_Animation(Run);
 	}
 	else if (pGameInstance->Key_Pressing(MoveLeft))
 	{
@@ -626,7 +594,6 @@ void CPlayer::Run_State(_float fTimeDelta)
 		}
 
 		m_pTransformCom->Go_Straight(fTimeDelta, m_pNavigationCom);
-		m_pModelCom->Change_Animation(Run);
 	}
 	else if (pGameInstance->Key_Pressing(MoveRight))
 	{
@@ -636,7 +603,6 @@ void CPlayer::Run_State(_float fTimeDelta)
 		}
 
 		m_pTransformCom->Go_Straight(fTimeDelta, m_pNavigationCom);
-		m_pModelCom->Change_Animation(Run);
 	}
 	else
 	{
@@ -703,6 +669,10 @@ void CPlayer::Idle_Fight_State(_float fTimeDelta)
 	RELEASE_INSTANCE(CGameInstance);
 }
 
+void CPlayer::Sprint_State(_float fTimeDelta)
+{
+}
+
 void CPlayer::Parring_State(_float fTimeDelta)
 {
 }
@@ -721,7 +691,7 @@ void CPlayer::Jump(_float fTimeDelta)
 	m_fJumpTime += fTimeDelta;
 
 	//처음의 높이 보다 더 내려 갔을때 => 점프전 상태로 복귀한다.
-	if (height < 0.0f)
+	if (height < m_pNavigationCom->GetHeight(m_pTransformCom->Get_State(CTransform::STATE_POSITION)))
 	{
 		m_bJumping = false;
 		m_fJumpTime = 0.0f;
@@ -730,6 +700,44 @@ void CPlayer::Jump(_float fTimeDelta)
 		m_pModelCom->Change_Animation(JumpCloth_Land, 0.05f, false);
 		m_eCurrentAnimState = JumpCloth_Land;
 	}
+}
+
+void CPlayer::MoveControl(_float fTimeDelta)
+{
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+	if (pGameInstance->Key_Pressing(MoveForward))
+	{
+		if (!XMVector3Equal(XMLoadFloat3(&GetNormalizeDir(CTransform::STATE_LOOK)), XMLoadFloat3(&m_pCamera->GetNormalizeDir(CTransform::STATE_LOOK))))
+		{
+			m_pTransformCom->TurnQuat(XMLoadFloat3(&m_pCamera->GetNormalizeDir(CTransform::STATE_LOOK)), fTimeDelta * m_fRotationSpeed);
+		}
+		m_pTransformCom->Go_Straight(fTimeDelta, m_pNavigationCom);
+	}
+	else if (pGameInstance->Key_Pressing(MoveBack))
+	{
+		if (!XMVector3Equal(-XMLoadFloat3(&GetNormalizeDir(CTransform::STATE_LOOK)), -XMLoadFloat3(&m_pCamera->GetNormalizeDir(CTransform::STATE_LOOK))))
+		{
+			m_pTransformCom->TurnQuat(-XMLoadFloat3(&m_pCamera->GetNormalizeDir(CTransform::STATE_LOOK)), fTimeDelta * m_fRotationSpeed);
+		}
+		m_pTransformCom->Go_Straight(fTimeDelta, m_pNavigationCom);
+	}
+	else if (pGameInstance->Key_Pressing(MoveLeft))
+	{
+		if (!XMVector3Equal(-XMLoadFloat3(&GetNormalizeDir(CTransform::STATE_RIGHT)), -XMLoadFloat3(&m_pCamera->GetNormalizeDir(CTransform::STATE_RIGHT))))
+		{
+			m_pTransformCom->TurnQuat(-XMLoadFloat3(&m_pCamera->GetNormalizeDir(CTransform::STATE_RIGHT)), fTimeDelta * m_fRotationSpeed);
+		}
+		m_pTransformCom->Go_Straight(fTimeDelta, m_pNavigationCom);
+	}
+	else if (pGameInstance->Key_Pressing(MoveRight))
+	{
+		if (!XMVector3Equal(XMLoadFloat3(&GetNormalizeDir(CTransform::STATE_RIGHT)), XMLoadFloat3(&m_pCamera->GetNormalizeDir(CTransform::STATE_RIGHT))))
+		{
+			m_pTransformCom->TurnQuat(XMLoadFloat3(&m_pCamera->GetNormalizeDir(CTransform::STATE_RIGHT)), fTimeDelta * m_fRotationSpeed);
+		}
+		m_pTransformCom->Go_Straight(fTimeDelta, m_pNavigationCom);
+	}
+	RELEASE_INSTANCE(CGameInstance);
 }
 
 HRESULT CPlayer::Set_Camera(CCamera_Free * pCamera)

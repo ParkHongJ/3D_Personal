@@ -38,6 +38,21 @@ public:
 		_uint iPointIndex;
 		_uint iOriginCellIndex;
 	}SELECT_CELL;
+
+	typedef struct CreateObjInfo
+	{
+		//생성할때 필요한 자료.
+		//이름
+		//프로토타입 태그
+		//레이어 태그
+		//레벨
+		//모델명
+		std::string szName;
+		std::wstring pPrototypeTag;
+		std::wstring pLayerTag;
+		std::wstring pModelTag;
+		unsigned int iNumLevel;
+	}CREATE_INFO;
 public:
 	CImGui_Manager();
 	virtual ~CImGui_Manager() = default;
@@ -54,6 +69,10 @@ public:
 	void DeletePickPos();
 	void ClearPickPos();
 
+	//Save
+	void SaveObject();
+
+	//Cell
 	void RenderGizmo();
 
 	HRESULT AddGameObject(const _tchar * pPrototypeTag, const _tchar * pLayerTag, _uint iNumLevel, void* pArg = nullptr);
@@ -66,9 +85,17 @@ public:
 
 	/* For Inspector */
 	void Inspector();
+
+
+	wstring CharToWstring(const char* src)
+	{
+		return wstring(src, src + strlen(src));
+	}
 private:
 	ID3D11Device* m_pDevice;
 	ID3D11DeviceContext* m_pContext;
+
+	list<CREATE_INFO> m_CreateObj;
 
 	static vector<pair<string, ID3D11ShaderResourceView*>> resources;
 
