@@ -25,10 +25,13 @@ void CTransform::Set_State(STATE eState, _fvector vState)
 void CTransform::MoveToWards(_fvector target, _float MaxDistanceDelta, CNavigation * pNavigation)
 {
 	_vector		vPosition = Get_State(CTransform::STATE_POSITION);
+	
+	_float3		vCurrentPosition;
+	XMStoreFloat3(&vCurrentPosition, Get_State(CTransform::STATE_POSITION));
 
 	_vector		vDistance = target - vPosition;
 
-	_float fMagnitude;
+	_float		fMagnitude;
 	XMStoreFloat(&fMagnitude, XMVector3Length(vDistance));
 
 	_bool		isMove = true;
@@ -36,19 +39,39 @@ void CTransform::MoveToWards(_fvector target, _float MaxDistanceDelta, CNavigati
 	if (fMagnitude <= MaxDistanceDelta || fMagnitude == 0.0f)
 	{
 		if (nullptr != pNavigation)
-			isMove = pNavigation->isMove(target);
+			isMove = pNavigation->isMove(target, &vCurrentPosition);
 
 		if (true == isMove)
 			Set_State(CTransform::STATE_POSITION, target);
+		else
+		{
+			_float3		vCurPos;
+			XMStoreFloat3(&vCurPos, Get_State(CTransform::STATE_POSITION));
+
+			if (isMove = pNavigation->isMove(Get_State(CTransform::STATE_POSITION) + XMLoadFloat3(&vCurrentPosition), &vCurPos))
+			{
+				Set_State(CTransform::STATE_POSITION, Get_State(CTransform::STATE_POSITION) + XMLoadFloat3(&vCurrentPosition));
+			}
+		}
 	}
 	else
 	{
 		_vector vFinalPos = vPosition + vDistance / fMagnitude * MaxDistanceDelta;
 		if (nullptr != pNavigation)
-			isMove = pNavigation->isMove(vFinalPos);
+			isMove = pNavigation->isMove(vFinalPos, &vCurrentPosition);
 
 		if (true == isMove)
 			Set_State(CTransform::STATE_POSITION, vFinalPos);
+		else
+		{
+			_float3		vCurPos;
+			XMStoreFloat3(&vCurPos, Get_State(CTransform::STATE_POSITION));
+
+			if (isMove = pNavigation->isMove(Get_State(CTransform::STATE_POSITION) + XMLoadFloat3(&vCurrentPosition), &vCurPos))
+			{
+				Set_State(CTransform::STATE_POSITION, Get_State(CTransform::STATE_POSITION) + XMLoadFloat3(&vCurrentPosition));
+			}
+		}
 	}
 	
 	//current + a / magnitude * maxDistanceDelta;
@@ -90,6 +113,10 @@ HRESULT CTransform::Initialize(void * pArg)
 void CTransform::Go_Straight(_float fTimeDelta, CNavigation* pNavigation)
 {
 	_vector		vPosition = Get_State(CTransform::STATE_POSITION);
+
+	_float3		vCurrentPosition;
+	XMStoreFloat3(&vCurrentPosition, Get_State(CTransform::STATE_POSITION));
+
 	_vector		vLook = Get_State(CTransform::STATE_LOOK);
 
 	vPosition += XMVector3Normalize(vLook) * m_TransformDesc.fSpeedPerSec * fTimeDelta;
@@ -98,25 +125,31 @@ void CTransform::Go_Straight(_float fTimeDelta, CNavigation* pNavigation)
 	_bool		isMove = true;
 
 	if (nullptr != pNavigation)
-		isMove = pNavigation->isMove(vPosition);
+		isMove = pNavigation->isMove(vPosition, &vCurrentPosition);
 
 	if (true == isMove)
+	{
+		/*_float fHeight = ;*/
+		vPosition =	XMVectorSetY(vPosition, pNavigation->GetHeight(vPosition));
 		Set_State(CTransform::STATE_POSITION, vPosition);
+	}
+	else
+	{
+		_float3		vCurPos;
+		XMStoreFloat3(&vCurPos, Get_State(CTransform::STATE_POSITION));
+
+		if (isMove = pNavigation->isMove(Get_State(CTransform::STATE_POSITION) + XMLoadFloat3(&vCurrentPosition), &vCurPos))
+		{
+			Set_State(CTransform::STATE_POSITION, Get_State(CTransform::STATE_POSITION) + XMLoadFloat3(&vCurrentPosition));
+		}
+	}
 }
 
-void CTransform::Go_Straight(_fvector vDir, _float fTimeDelta, CNavigation * pNavigation)
+void CTransform::Go_Straight(_float fTimeDelta)
 {
-	_vector		vLook = vDir - Get_State(CTransform::STATE_POSITION);
+	_vector		vLook = Get_State(CTransform::STATE_LOOK);
 
-	_vector		vRight = XMVector3Cross(XMVectorSet(0.f, 1.f, 0.f, 0.f), vLook);
-
-	_vector		vUp = XMVector3Cross(vLook, vRight);
-
-	_float3		vScale = Get_Scale();
-
-	Set_State(CTransform::STATE_RIGHT, XMVector3Normalize(vRight) * vScale.x);
-	Set_State(CTransform::STATE_UP, XMVector3Normalize(vUp) * vScale.y);
-	Set_State(CTransform::STATE_LOOK, XMVector3Normalize(vLook) * vScale.z);
+	Set_State(CTransform::STATE_POSITION, Get_State(CTransform::STATE_POSITION) + XMVector3Normalize(vLook) * m_TransformDesc.fSpeedPerSec * fTimeDelta);
 	
 }
 
@@ -125,16 +158,21 @@ void CTransform::Go_Backward(_float fTimeDelta, CNavigation* pNavigation)
 	_vector		vPosition = Get_State(CTransform::STATE_POSITION);
 	_vector		vLook = Get_State(CTransform::STATE_LOOK);
 
+	_float3		vCurrentPosition;
+	XMStoreFloat3(&vCurrentPosition, Get_State(CTransform::STATE_POSITION));
+
 	vPosition -= XMVector3Normalize(vLook) * m_TransformDesc.fSpeedPerSec * fTimeDelta;
 	/* 프렐이어가 움직이고 난 이후의 위치를 네비게이션에 전달하여. */
 	/* 현재 상황에서 움직일 수 있늕지 체크한다. */
 	_bool		isMove = true;
 
 	if (nullptr != pNavigation)
-		isMove = pNavigation->isMove(vPosition);
+		isMove = pNavigation->isMove(vPosition, &vCurrentPosition);
 
 	if (true == isMove)
 		Set_State(CTransform::STATE_POSITION, vPosition);
+	else
+		Set_State(CTransform::STATE_POSITION, Get_State(CTransform::STATE_POSITION) + XMLoadFloat3(&vCurrentPosition));
 }
 
 void CTransform::Go_Left(_float fTimeDelta, CNavigation* pNavigation)
@@ -142,16 +180,21 @@ void CTransform::Go_Left(_float fTimeDelta, CNavigation* pNavigation)
 	_vector		vPosition = Get_State(CTransform::STATE_POSITION);
 	_vector		vRight = Get_State(CTransform::STATE_RIGHT);
 
+	_float3		vCurrentPosition;
+	XMStoreFloat3(&vCurrentPosition, Get_State(CTransform::STATE_POSITION));
+
 	vPosition -= XMVector3Normalize(vRight) * m_TransformDesc.fSpeedPerSec * fTimeDelta;
 	/* 프렐이어가 움직이고 난 이후의 위치를 네비게이션에 전달하여. */
 	/* 현재 상황에서 움직일 수 있늕지 체크한다. */
 	_bool		isMove = true;
 
 	if (nullptr != pNavigation)
-		isMove = pNavigation->isMove(vPosition);
+		isMove = pNavigation->isMove(vPosition, &vCurrentPosition);
 
 	if (true == isMove)
 		Set_State(CTransform::STATE_POSITION, vPosition);
+	else
+		Set_State(CTransform::STATE_POSITION, Get_State(CTransform::STATE_POSITION) + XMLoadFloat3(&vCurrentPosition));
 }
 
 void CTransform::Go_Right(_float fTimeDelta, CNavigation* pNavigation)
@@ -159,16 +202,21 @@ void CTransform::Go_Right(_float fTimeDelta, CNavigation* pNavigation)
 	_vector		vPosition = Get_State(CTransform::STATE_POSITION);
 	_vector		vRight = Get_State(CTransform::STATE_RIGHT);
 
+	_float3		vCurrentPosition;
+	XMStoreFloat3(&vCurrentPosition, Get_State(CTransform::STATE_POSITION));
+
 	vPosition += XMVector3Normalize(vRight) * m_TransformDesc.fSpeedPerSec * fTimeDelta;
 	/* 프렐이어가 움직이고 난 이후의 위치를 네비게이션에 전달하여. */
 	/* 현재 상황에서 움직일 수 있늕지 체크한다. */
 	_bool		isMove = true;
 
 	if (nullptr != pNavigation)
-		isMove = pNavigation->isMove(vPosition);
+		isMove = pNavigation->isMove(vPosition, &vCurrentPosition);
 
 	if (true == isMove)
 		Set_State(CTransform::STATE_POSITION, vPosition);
+	else
+		Set_State(CTransform::STATE_POSITION, Get_State(CTransform::STATE_POSITION) + XMLoadFloat3(&vCurrentPosition));
 }
 
 void CTransform::Set_Scale(_fvector vScaleInfo)

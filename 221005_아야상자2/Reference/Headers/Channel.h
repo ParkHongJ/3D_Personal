@@ -19,7 +19,7 @@ public:
 	HRESULT Initialize(NodeAnim*	pChannel);
 	_uint Update_Transformation(_float fPlayTime, _uint iCurrentKeyFrame, class CHierarchyNode* pNode);
 
-	_uint Blending_Transformation(_float fPlayTime, _uint iCurrentKeyFrame, class CHierarchyNode* pNode);
+	_uint Blending_Transformation(_float fPlayTime, _uint iCurrentKeyFrame, class CHierarchyNode* pNode, _float fBlendTime);
 	void SetOldMatrix(_fmatrix OldMatrix);
 	_matrix Get_OldMatrix() { return XMLoadFloat4x4(&m_OldMatrix); }
 

@@ -27,8 +27,8 @@ HRESULT CLevel_GamePlay::Initialize()
 	if (FAILED(Ready_Layer_Camera(TEXT("Layer_Camera"))))
 		return E_FAIL;
 
-	if (FAILED(Ready_Layer_Monster(TEXT("Layer_Monster"))))
-		return E_FAIL;
+	/*if (FAILED(Ready_Layer_Monster(TEXT("Layer_Monster"))))
+		return E_FAIL;*/
 
 	if (FAILED(Ready_Layer_Effect(TEXT("Layer_Effect"))))
 		return E_FAIL;
@@ -39,8 +39,8 @@ HRESULT CLevel_GamePlay::Initialize()
 	/*if (FAILED(Ready_Layer_ForkLift(TEXT("Layer_ForkLift"))))
 		return E_FAIL;*/
 
-	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_ChaudronChain", L"Layer_ChaudronChain")))
-		return E_FAIL;
+	/*if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_ChaudronChain", L"Layer_ChaudronChain")))
+		return E_FAIL;*/
 
 	return S_OK;
 }

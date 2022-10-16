@@ -90,35 +90,44 @@ _uint CChannel::Update_Transformation(_float fPlayTime, _uint iCurrentKeyFrame, 
 	return iCurrentKeyFrame;
 }
 
-_uint CChannel::Blending_Transformation(_float fPlayTime, _uint iCurrentKeyFrame, CHierarchyNode * pNode)
+_uint CChannel::Blending_Transformation(_float fPlayTime, _uint iCurrentKeyFrame, CHierarchyNode * pNode, _float fBlendTime)
 {
 	_float3			vScale;
 	_float4			vRotation;
 	_float3			vPosition;
 
-	_float		fRatio = fPlayTime / .25f;
+	_float		fRatio = fPlayTime / fBlendTime;
 
-	_float3		vSourScale, vDestScale;
-	_float4		vSourRotation, vDestRotation;
-	_float3		vSourPosition, vDestPosition;
+	if (fPlayTime <= fBlendTime)
+	{
+		_float3		vSourScale, vDestScale;
+		_float4		vSourRotation, vDestRotation;
+		_float3		vSourPosition, vDestPosition;
 
-	_vector tempScale;
-	_vector tempRotation;
-	_vector tempPosition;
+		_vector tempScale;
+		_vector tempRotation;
+		_vector tempPosition;
 
-	XMMatrixDecompose(&tempScale, &tempRotation, &tempPosition, XMLoadFloat4x4(&m_OldMatrix));
-	XMStoreFloat3(&vSourScale, tempScale);
-	XMStoreFloat4(&vSourRotation, tempRotation);
-	XMStoreFloat3(&vSourPosition, tempPosition);
+		XMMatrixDecompose(&tempScale, &tempRotation, &tempPosition, XMLoadFloat4x4(&m_OldMatrix));
+		XMStoreFloat3(&vSourScale, tempScale);
+		XMStoreFloat4(&vSourRotation, tempRotation);
+		XMStoreFloat3(&vSourPosition, tempPosition);
 
-	vDestScale = m_KeyFrames.front().vScale;
-	vDestRotation = m_KeyFrames.front().vRotation;
-	vDestPosition = m_KeyFrames.front().vPosition;
+		vDestScale = m_KeyFrames.front().vScale;
+		vDestRotation = m_KeyFrames.front().vRotation;
+		vDestPosition = m_KeyFrames.front().vPosition;
 
-	XMStoreFloat3(&vScale, XMVectorLerp(XMLoadFloat3(&vSourScale), XMLoadFloat3(&vDestScale), fRatio));
-	XMStoreFloat4(&vRotation, XMQuaternionSlerp(XMLoadFloat4(&vSourRotation), XMLoadFloat4(&vDestRotation), fRatio));
-	XMStoreFloat3(&vPosition, XMVectorLerp(XMLoadFloat3(&vSourPosition), XMLoadFloat3(&vDestPosition), fRatio));
+		XMStoreFloat3(&vScale, XMVectorLerp(XMLoadFloat3(&vSourScale), XMLoadFloat3(&vDestScale), fRatio));
+		XMStoreFloat4(&vRotation, XMQuaternionSlerp(XMLoadFloat4(&vSourRotation), XMLoadFloat4(&vDestRotation), fRatio));
+		XMStoreFloat3(&vPosition, XMVectorLerp(XMLoadFloat3(&vSourPosition), XMLoadFloat3(&vDestPosition), fRatio));
 
+	}
+	else
+	{
+		vScale = m_KeyFrames.front().vScale;
+		vRotation = m_KeyFrames.front().vRotation;
+		vPosition = m_KeyFrames.front().vPosition;
+	}
 
 	_matrix		TransformationMatrix = XMMatrixAffineTransformation(XMLoadFloat3(&vScale), XMVectorSet(0.f, 0.f, 0.f, 1.f), XMLoadFloat4(&vRotation), XMVectorSetW(XMLoadFloat3(&vPosition), 1.f));
 

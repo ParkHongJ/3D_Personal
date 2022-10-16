@@ -13,6 +13,13 @@ CCell::CCell(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	Safe_AddRef(m_pContext);
 }
 
+_float CCell::Compute_Height(_fvector vTargetPos)
+{
+	_vector vResult = XMPlaneFromPoints(XMLoadFloat3(&m_vPoints[POINT_A]), XMLoadFloat3(&m_vPoints[POINT_B]), XMLoadFloat3(&m_vPoints[POINT_C]));
+
+	return (-XMVectorGetX(vResult) * XMVectorGetX(vTargetPos) - XMVectorGetZ(vResult) * XMVectorGetZ(vTargetPos) - XMVectorGetW(vResult)) / XMVectorGetY(vResult);
+}
+
 HRESULT CCell::Initialize(const _float3 * pPoints, _int iIndex)
 {
 	memcpy(m_vPoints, pPoints, sizeof(_float3) * POINT_END);
@@ -97,12 +104,44 @@ _bool CCell::isIn(_fvector vPosition, _int * pNeighborIndex)
 		{
 
 			*pNeighborIndex = m_iNeighborIndex[i];
-
 			return false;
 		}
 	}
 
 	return true;
+}
+
+_vector CCell::GetSliding(_fvector vPosition, _float3 * vCurrentPosition)
+{
+	//이동한 위치가 못나간 위치였을때(네비에서 계산함.)
+	//가장 가까운 라인을 구함. 법선벡터 구하려고
+	_int iLine = GetLine(vPosition);
+
+	//현재 위치와 이동하고자 하는 위치를 빼서 이동한 벡터를구함
+	//슬라이딩공식 S = P + n(-P*n) 중에서 P에 해당함
+	_vector vDist = vPosition - XMLoadFloat3(&*vCurrentPosition);
+
+	//현재 노말은 바깥방향이라 -를 곱해서 안쪽으로 만들어줌
+	_vector vNormal = -XMLoadFloat3(&m_vNormal[iLine]);
+
+	//슬라이딩벡터를 구한다. S = P + n(-P*n)
+	_vector vSlide = vDist + vNormal * XMVector3Dot(-vDist, vNormal);
+
+	return vSlide;
+}
+
+_int CCell::GetLine(_fvector vPosition)
+{
+	for (_uint i = 0; i < LINE_END; ++i)
+	{
+		_vector		vDir = XMVector3Normalize(vPosition - XMLoadFloat3(&m_vPoints[i]));
+
+		if (0 < XMVectorGetX(XMVector3Dot(vDir, XMLoadFloat3(&m_vNormal[i]))))
+		{
+			return i;
+		}
+	}
+	return 0;
 }
 
 #ifdef _DEBUG

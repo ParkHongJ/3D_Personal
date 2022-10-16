@@ -48,7 +48,9 @@ _bool CPlayer::Tick(_float fTimeDelta)
 	if (m_bDestroy)
 		return true;
 
-	SetState(m_eCurrentAnimState, fTimeDelta);
+	
+	//SetState(m_eCurrentAnimState, fTimeDelta);
+	
 	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 	if (pGameInstance->Key_Pressing(DIK_NUMPAD1))
 	{
@@ -61,6 +63,7 @@ _bool CPlayer::Tick(_float fTimeDelta)
 
 	
 	RELEASE_INSTANCE(CGameInstance);
+
 	Update_Weapon();
 
 	for (auto& pPart : m_Parts)
@@ -290,6 +293,20 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 	case CPlayer::ProjectionLand:
 		break;
 	case CPlayer::RolL2:
+		if (m_bAnimEnd)
+		{
+			m_pModelCom->Change_Animation(IdlePeace, 0.25f, true);
+			m_eCurrentAnimState = IdlePeace;
+			m_fRollTime = 0.0f;
+		}
+		else
+		{
+			m_fRollTime += fTimeDelta;
+			if (m_fRollTime <= m_fRollTimeMax)
+			{
+				m_pTransformCom->Go_Straight(fTimeDelta * 1.5f, m_pNavigationCom);
+			}
+		}
 		break;
 	case CPlayer::RollAttack:
 		break;
@@ -532,7 +549,35 @@ void CPlayer::Run_State(_float fTimeDelta)
 {
 	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 
-	if (pGameInstance->Key_Down(DIK_SPACE) && !m_bJumping)
+	if (pGameInstance->Key_Pressing(MoveForward) && pGameInstance->Key_Down(DIK_SPACE))
+	{
+		m_pModelCom->Change_Animation(RolL2, 0.25f, false);
+		m_eCurrentAnimState = RolL2;
+		RELEASE_INSTANCE(CGameInstance);
+		return;
+	}
+	else if (pGameInstance->Key_Pressing(MoveBack) && pGameInstance->Key_Down(DIK_SPACE))
+	{
+		m_pModelCom->Change_Animation(RolL2, 0.25f, false);
+		m_eCurrentAnimState = RolL2;
+		RELEASE_INSTANCE(CGameInstance);
+		return;
+	}
+	else if (pGameInstance->Key_Pressing(MoveLeft) && pGameInstance->Key_Down(DIK_SPACE))
+	{
+		m_pModelCom->Change_Animation(RolL2, 0.25f, false);
+		m_eCurrentAnimState = RolL2;
+		RELEASE_INSTANCE(CGameInstance);
+		return;
+	}
+	else if (pGameInstance->Key_Pressing(MoveRight) && pGameInstance->Key_Down(DIK_SPACE))
+	{
+		m_pModelCom->Change_Animation(RolL2, 0.25f, false);
+		m_eCurrentAnimState = RolL2;
+		RELEASE_INSTANCE(CGameInstance);
+		return;
+	}
+	else if (pGameInstance->Key_Down(DIK_SPACE) && !m_bJumping)
 	{
 		m_bJumping = true;
 		m_fPosY = XMVectorGetY(m_pTransformCom->Get_State(CTransform::STATE_POSITION));

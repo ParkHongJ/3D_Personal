@@ -75,7 +75,7 @@ _bool CAnimation::Play_Animation(_float fTimeDelta)
 
 		for (auto& pChannel : m_Channels)
 		{
-			pChannel->Blending_Transformation(m_fPlayTime, m_ChannelKeyFrames[iChannelIndex], m_HierarchyNodes[iChannelIndex]);
+			pChannel->Blending_Transformation(m_fPlayTime, m_ChannelKeyFrames[iChannelIndex], m_HierarchyNodes[iChannelIndex], m_fBlendTime);
 
 			++iChannelIndex;
 		}

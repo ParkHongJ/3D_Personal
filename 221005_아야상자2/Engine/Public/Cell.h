@@ -48,10 +48,15 @@ public:
 	_float3* GetPointArray() {
 		return m_vPoints;
 	}
+
+	_float Compute_Height(_fvector vTargetPos);
+
 public:
 	HRESULT Initialize(const _float3* pPoints, _int iIndex);
 	_bool Compare(const _float3& vSourPoint, const _float3& vDestPoint);
 	_bool isIn(_fvector vPosition, _int* pNeighborIndex);
+	_vector GetSliding(_fvector vPosition, _float3* vCurrentPosition);
+	_int GetLine(_fvector vPosition);
 
 #ifdef _DEBUG
 public:

@@ -61,10 +61,9 @@ HRESULT CNavigation::Initialize(void * pArg)
 
 	return S_OK;
 }
-_bool CNavigation::isMove(_fvector vPosition)
+_bool CNavigation::isMove(_fvector vPosition, _float3* vCurrentPosition)
 {
 	_int	iNeighborIndex = -1;
-
 	/* 현재 쎌 안에서 움직였다. */
 	/* 나간방향에 이웃이 있다면. 이웃의 인ㄷ게스를 받아오고.
 	이웃이 없다면 안채워온다. */
@@ -93,9 +92,17 @@ _bool CNavigation::isMove(_fvector vPosition)
 		}
 		/* 나간방향에 이웃이 없었다면. */
 		else
+		{
+			XMStoreFloat3(&*vCurrentPosition, m_Cells[m_NavigationDesc.iCurrentIndex]->GetSliding(vPosition, vCurrentPosition));
 			return false;
+		}
+
 	}
 	return true;
+}
+_float CNavigation::GetHeight(_fvector vTargetPos)
+{
+	return m_Cells[m_NavigationDesc.iCurrentIndex]->Compute_Height(vTargetPos);
 }
 #ifdef _DEBUG
 

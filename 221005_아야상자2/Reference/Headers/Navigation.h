@@ -21,8 +21,8 @@ public:
 	virtual HRESULT Initialize(void* pArg);
 
 public:
-	_bool isMove(_fvector vPosition);
-
+	_bool isMove(_fvector vPosition, _float3* vCurrentPosition);
+	_float GetHeight(_fvector vTargetPos);
 #ifdef _DEBUG
 public:
 	HRESULT Render();
