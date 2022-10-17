@@ -32,6 +32,13 @@ void CHierarchyNode::Set_CombinedTransformation()
 		XMStoreFloat4x4(&m_CombinedTransformation, XMLoadFloat4x4(&m_Transformation) * XMLoadFloat4x4(&m_pParent->m_CombinedTransformation));
 	else
 		m_CombinedTransformation = m_Transformation;
+
+	if (!strcmp(m_szName,"Ch_Jugulus"))
+	{
+		m_CombinedTransformation._41 = 0.f;
+		m_CombinedTransformation._42 = 0.f;
+		m_CombinedTransformation._43 = 0.f;
+	}
 }
 
 void CHierarchyNode::Set_OffsetMatrix(_fmatrix OffsetMatrix)

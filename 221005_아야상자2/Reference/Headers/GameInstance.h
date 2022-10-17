@@ -10,6 +10,7 @@
 #include "PipeLine.h"
 #include "Collider_Manager.h"
 #include "Key_Manager.h"
+#include "Frustum.h"
 #include "Picking.h"
 
 /* 클라이언트로 보여주기위한 가장 대표적인 클래스이다. */
@@ -74,6 +75,7 @@ public: /* For.Input_Device */
 	_bool Key_Pressing(_uchar KeyInput);
 	_bool Key_Up(_uchar KeyInput);
 	_bool Mouse_Down(DIMK eMouseKeyID);
+
 public: /* For.PipeLine */
 	void Set_Transform(CPipeLine::TRANSFORMSTATE eTransformState, _fmatrix TransformMatrix);
 	_matrix Get_TransformMatrix(CPipeLine::TRANSFORMSTATE eTransformState) const;		
@@ -84,6 +86,9 @@ public: /* For.PipeLine */
 public: /* For.Light_Manager */
 	const LIGHTDESC* Get_LightDesc(_uint iIndex);
 	HRESULT Add_Light(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, const LIGHTDESC& LightDesc);
+
+public: /* For.Frustum */
+	_bool isIn_Frustum_WorldSpace(_fvector vWorldPos, float fRadius = 0.f);
 
 private:
 	_bool m_bKeyState[256] = { false };
@@ -100,6 +105,7 @@ private:
 	CCollider_Manager*				m_pCollider_Manager = nullptr;
 	CKey_Manager*					m_pKey_Manager = nullptr;
 	CPicking*						m_pPicking = nullptr;
+	CFrustum*						m_pFrustum = nullptr;
 
 public:
 	static void Release_Engine();

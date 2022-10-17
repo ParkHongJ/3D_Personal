@@ -7,24 +7,22 @@ BEGIN(Engine)
 class CShader;
 class CTexture;
 class CRenderer;
-class CCollider;
 class CTransform;
 class CModel;
 END
 
 BEGIN(Client)
 
-class CRas_Hands final : public CGameObject
+class CRas_Hands3 final : public CGameObject
 {
 public:
 	enum STATE_ANIM {
 		HAND_AOE1, HAND_AOE2, HAND_AOE2001, HAND_AOE3, HAND_FIRST_CLOSED, HAND_SLAM_FLY, HAND_DEATH, HAND_IDLE, HAND_END
 	};
-	enum COLLIDERTYPE { COLLIDERTYPE_OBB, COLLIDERTYPE_SPHERE, COLLILDERTYPE_END };
-private:
-	CRas_Hands(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
-	CRas_Hands(const CRas_Hands& rhs);
-	virtual ~CRas_Hands() = default;
+	private:
+	CRas_Hands3(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
+	CRas_Hands3(const CRas_Hands3& rhs);
+	virtual ~CRas_Hands3() = default;
 
 public:
 	virtual HRESULT Initialize_Prototype();
@@ -48,23 +46,19 @@ protected:
 	CRenderer*				m_pRendererCom = nullptr;
 	CTransform*				m_pTransformCom = nullptr;
 	CModel*					m_pModelCom = nullptr;
-	CCollider*				m_pColliderCom[COLLILDERTYPE_END] = { nullptr };
 
 private:
 	_bool					m_bAnimEnd = false;
 	class CTransform*		m_pRasTransform = nullptr;
 	class CTransform*		m_pTarget = nullptr;
 	STATE_ANIM				m_eState = HAND_END;
-	_bool					m_bAttackEnabled = false;
-	_bool					m_bHitEnabled  = false;
+	_bool					m_bEnabled = false;
+	_bool					m_bHit = false;
 
 	_float					m_fSpeed = 3.f;
 	_bool					m_bChase = false;
 	_float					m_fCurrentChaseTime = 0.0f;
 	_float					m_fChaseTimeMax = 3.5f;
-
-	_float					m_fAttackTime = 0.0f;
-	_float					m_fAttackTimeMax = 1.8f;
 
 	void Set_State(STATE_ANIM eState, _float fTimeDelta);
 
@@ -78,7 +72,7 @@ protected:
 	HRESULT Ready_Components();
 
 public:
-	static CRas_Hands* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
+	static CRas_Hands3* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg);
 	virtual void Free() override;
 };

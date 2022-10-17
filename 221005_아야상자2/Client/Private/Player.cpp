@@ -369,8 +369,16 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 	case CPlayer::power_fight_05:
 		if (m_bAnimEnd)
 		{
-			m_pModelCom->Change_Animation(IdleFight);
-			m_eCurrentAnimState = IdleFight;
+			if (m_bLockOn)
+			{
+				m_pModelCom->Change_Animation(IdleFight);
+				m_eCurrentAnimState = IdleFight;
+			}
+			else
+			{
+				m_pModelCom->Change_Animation(IdlePeace);
+				m_eCurrentAnimState = IdlePeace;
+			}
 		}
 		break;
 	case CPlayer::walkfront:
@@ -393,8 +401,16 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 		m_bWeaponEnable = false;
 		if (m_bAnimEnd)
 		{
-			m_pModelCom->Change_Animation(IdleFight);
-			m_eCurrentAnimState = IdleFight;
+			if (m_bLockOn)
+			{
+				m_pModelCom->Change_Animation(IdleFight);
+				m_eCurrentAnimState = IdleFight;
+			}
+			else
+			{
+				m_pModelCom->Change_Animation(IdlePeace);
+				m_eCurrentAnimState = IdlePeace;
+			}
 		}
 		break;
 	case CPlayer::CoupFaible1_frappe1:
@@ -430,8 +446,16 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 	case CPlayer::CoupFaible2_fin:
 		if (m_bAnimEnd)
 		{
-			m_pModelCom->Change_Animation(IdleFight);
-			m_eCurrentAnimState = IdleFight;
+			if (m_bLockOn)
+			{
+				m_pModelCom->Change_Animation(IdleFight);
+				m_eCurrentAnimState = IdleFight;
+			}
+			else
+			{
+				m_pModelCom->Change_Animation(IdlePeace);
+				m_eCurrentAnimState = IdlePeace;
+			}
 		}
 		break;
 	case CPlayer::CoupFaible2_frappe1:

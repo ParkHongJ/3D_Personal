@@ -20,7 +20,6 @@ class CRas_Samrah final : public CGameObject
 public:
 	enum PARTTYPE { PART_WEAPON, PART_END };
 
-	enum COLLIDERTYPE { COLLIDERTYPE_AABB, COLLIDERTYPE_OBB, COLLIDERTYPE_SPHERE, COLLILDERTYPE_END };
 	enum STATE_ANIM {
 		Jug_FlyHit1,
 		Jug_FlyHit2,
@@ -40,6 +39,12 @@ public:
 		PHASE_1,
 		PHASE_2,
 		PHASE_END
+	};
+	enum Hands {
+		HAND_1,
+		HAND_2,
+		HAND_3,
+		HAND_END
 	};
 private:
 	CRas_Samrah(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
@@ -66,7 +71,6 @@ private:
 	CRenderer*				m_pRendererCom = nullptr;
 	CTransform*				m_pTransformCom = nullptr;
 	CModel*					m_pModelCom = nullptr;
-	CCollider*				m_pColliderCom[COLLILDERTYPE_END] = { nullptr };
 
 private:
 	CGameObject*						m_Parts = nullptr;
@@ -80,6 +84,17 @@ private:
 	_float								m_fHammerSpawnTime = 0.0f;
 	_float								m_fHammerSpawnMaxTime = 1.4f;
 	_bool								m_bTimeCheck = false;
+
+	class CRas_Hands*					m_pHand1 = nullptr;
+	class CTransform*					m_pTargetTransform = nullptr;
+
+	//패턴3 투사체발사할때 기준점
+	_float3								m_OffsetProjectile;
+	
+	//핸드 1은 내려치기밖에없고 오프셋이 없음.
+	_float3								m_OffsetHands2;
+	_float3								m_OffsetHands3;
+
 private:
 	HRESULT Ready_Sockets();
 	HRESULT Ready_Parts();

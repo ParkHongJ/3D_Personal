@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "..\Public\Ras_Hands.h"
 #include "GameInstance.h"
-#include "HierarchyNode.h"
+#include "Ras_Samrah.h"
 
 CRas_Hands::CRas_Hands(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
@@ -23,14 +23,19 @@ HRESULT CRas_Hands::Initialize(void * pArg)
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
 
-	strcpy_s(m_szName, "Ras_Samrah");
-	m_Tag = L"Ras_Samrah";
-
+	strcpy_s(m_szName, "Ras_Samrah_Hands");
+	m_Tag = L"Ras_Samrah_Hands";
+	m_pModelCom->Set_AnimIndex(HAND_IDLE);
+	m_pTransformCom->Set_Scale(XMVectorSet(0.4f, 0.4f, 0.4f, 1.f));
 	return S_OK;
 }
 
 _bool CRas_Hands::Tick(_float fTimeDelta)
 {
+	
+	Set_State(m_eState, fTimeDelta);
+
+
 	for (auto& pCollider : m_pColliderCom)
 	{
 		if (nullptr != pCollider)
@@ -46,8 +51,17 @@ void CRas_Hands::LateTick(_float fTimeDelta)
 
 	m_bAnimEnd = m_pModelCom->Play_Animation(fTimeDelta);
 
+	if (m_bHitEnabled)
+	{
+		m_pColliderCom[COLLIDERTYPE_OBB]->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom[COLLIDERTYPE_OBB]);
+	}
+	if (m_bAttackEnabled)
+	{
+		m_pColliderCom[COLLIDERTYPE_SPHERE]->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom[COLLIDERTYPE_SPHERE]);
+		m_bAttackEnabled = false;
+		m_bHitEnabled = true;
+	}
 	
-	m_pColliderCom[COLLIDERTYPE_OBB]->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom[COLLIDERTYPE_OBB]);
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
 }
 
@@ -85,10 +99,18 @@ HRESULT CRas_Hands::Render()
 	}
 
 #ifdef _DEBUG
-	for (_uint i = 0; i < COLLILDERTYPE_END; ++i)
+	/*for (_uint i = 0; i < COLLILDERTYPE_END; ++i)
 	{
 		if (nullptr != m_pColliderCom[i])
 			m_pColliderCom[i]->Render();
+	}*/
+	if (m_bHitEnabled)
+	{
+		m_pColliderCom[COLLIDERTYPE_SPHERE]->Render();
+	}
+	if (m_bAttackEnabled)
+	{
+		m_pColliderCom[COLLIDERTYPE_OBB]->Render();
 	}
 #endif
 
@@ -97,6 +119,10 @@ HRESULT CRas_Hands::Render()
 
 void CRas_Hands::OnCollisionEnter(CGameObject * pOther, _float fTimeDelta)
 {
+	if (pOther->CompareTag(L"Player_Sword") && m_bHitEnabled)
+	{
+		((CRas_Samrah*)m_pRasTransform->GetOwner())->GetDamaged(25.f);
+	}
 }
 
 void CRas_Hands::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
@@ -111,7 +137,138 @@ void CRas_Hands::OnCollisionExit(CGameObject * pOther, _float fTimeDelta)
 
 void CRas_Hands::GetDamaged(_float fDamage)
 {
-	
+	 ((CRas_Samrah*)m_pRasTransform->GetOwner())->GetDamaged(fDamage);
+}
+
+void CRas_Hands::Set_State(STATE_ANIM eState, _float fTimeDelta)
+{
+	switch (eState)
+	{
+	case CRas_Hands::HAND_AOE1:
+		if (m_bAnimEnd)
+		{
+			m_eState = HAND_AOE2;
+			m_pModelCom->Change_Animation(HAND_AOE2, 0.0f, false);
+		}
+		break;
+	case CRas_Hands::HAND_AOE2:
+		if (m_bAnimEnd)
+		{
+			m_eState = HAND_AOE3;
+			m_pModelCom->Change_Animation(HAND_AOE3, 0.0f, false);
+		}
+		//바로 AOE1로 가는 경우도 있음.
+		break;
+	case CRas_Hands::HAND_AOE3:
+		if (m_bAnimEnd)
+		{
+			if (!m_bAttackEnabled && !m_bHitEnabled)
+			{
+				m_bAttackEnabled = true;
+			}
+			m_fAttackTime += fTimeDelta;
+
+			//땅바닥에 내리치고 피격이 가능한시간.
+			//이제 피격이 안되면
+			if (m_fAttackTime > m_fAttackTimeMax)
+			{
+				m_bHitEnabled = false;
+				m_fAttackTime = 0.f;
+				m_bAttackEnabled = false;
+
+				//이때 사라져야함
+				m_eState = HAND_IDLE;
+				m_pModelCom->Change_Animation(HAND_IDLE);
+			}
+		}
+		break;
+	case CRas_Hands::HAND_FIRST_CLOSED:
+		//추적이 끝났다면
+		m_fCurrentChaseTime += fTimeDelta;
+		if (m_fCurrentChaseTime > m_fChaseTimeMax)
+		{
+			m_eState = HAND_AOE1;
+			m_pModelCom->Change_Animation(HAND_AOE1, 0.0f, false);
+			m_fCurrentChaseTime = 0.0f;
+			m_bChase = false;
+		}
+		else
+		{
+			_vector vPosition = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+
+
+			if (nullptr != m_pTarget)
+			{
+				_vector vTargetPos = m_pTarget->Get_State(CTransform::STATE_POSITION);
+
+				vPosition = XMVectorLerp(vPosition, vTargetPos, fTimeDelta * m_fSpeed);
+
+				//네비를 태울까?
+				vPosition = XMVectorSetY(vPosition, 6.0f);
+
+				
+
+
+
+
+				//Look 조절해야함
+				_vector vLook = vPosition - m_pRasTransform->Get_State(CTransform::STATE_POSITION);
+				
+				vLook = XMVectorSetY(vLook, 0.0f);
+
+				m_pTransformCom->LookDir(vLook);
+
+				XMVectorSetY(vLook, 0.0f);
+
+
+				//vPosition -= XMVector3Normalize(vTargetPos - vPosition) * 5.f;
+
+				m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPosition);
+				
+			}
+		}
+		break;
+	case CRas_Hands::HAND_SLAM_FLY:
+		if (m_bAnimEnd)
+		{
+			m_eState = HAND_FIRST_CLOSED;
+			m_pModelCom->Change_Animation(HAND_FIRST_CLOSED);
+			m_bChase = true;
+		}
+		break;
+	case CRas_Hands::HAND_DEATH:
+		//다 죽었다면.
+		if (m_bAnimEnd)
+		{
+			m_bActive = false;
+		}
+		break;
+	case CRas_Hands::HAND_IDLE:
+		break;
+	default:
+		break;
+	}
+}
+
+void CRas_Hands::SetRas_Samrah(CTransform * pRasTransform)
+{
+	m_pRasTransform = pRasTransform;
+	Safe_AddRef(m_pRasTransform);
+}
+
+void CRas_Hands::Set_Target(CTransform* pTarget)
+{
+	//타겟이 없거나 이미 있다면.
+	if (nullptr == pTarget || nullptr != m_pTarget)
+		return;
+	m_pTarget = pTarget;
+	Safe_AddRef(m_pTarget);
+}
+
+void CRas_Hands::Set_Pattern(STATE_ANIM eState)
+{
+	m_eState = eState;
+	m_pModelCom->Change_Animation(eState, 0.25f, false);
 }
 
 HRESULT CRas_Hands::Ready_Components()
@@ -129,33 +286,25 @@ HRESULT CRas_Hands::Ready_Components()
 		return E_FAIL;
 
 	/* For.Com_Model */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_RasSamrah"), TEXT("Com_Model"), (CComponent**)&m_pModelCom)))
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Hand1"), TEXT("Com_Model"), (CComponent**)&m_pModelCom)))
 		return E_FAIL;
 
 
-	/* For.Com_AABB */
+	/* For.Com_OBB */
 	CCollider::COLLIDERDESC		ColliderDesc;
 	ZeroMemory(&ColliderDesc, sizeof(CCollider::COLLIDERDESC));
 
-	ColliderDesc.vSize = _float3(1.f, 2.f, 1.f);
-	ColliderDesc.vCenter = _float3(0.f, ColliderDesc.vSize.y * 0.5f, 0.f);
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_AABB"), TEXT("Com_AABB"), (CComponent**)&m_pColliderCom[COLLIDERTYPE_AABB], &ColliderDesc)))
-		return E_FAIL;
-
-	/* For.Com_OBB */
-	ZeroMemory(&ColliderDesc, sizeof(CCollider::COLLIDERDESC));
-
-	ColliderDesc.vSize = _float3(1.3f, 1.3f, 1.3f);
-	ColliderDesc.vCenter = _float3(0.f, ColliderDesc.vSize.y * 0.5f, 0.f);
-	ColliderDesc.vRotation = _float3(0.f, XMConvertToRadians(45.f), 0.f);
+	ColliderDesc.vSize = _float3(8.f, 3.f, 10.f);
+	ColliderDesc.vCenter = _float3(0.f, -13.f, 25.f);
+	ColliderDesc.vRotation = _float3(0.f, 0.f, 0.f);
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_OBB"), TEXT("Com_OBB"), (CComponent**)&m_pColliderCom[COLLIDERTYPE_OBB], &ColliderDesc)))
 		return E_FAIL;
 
 	/* For.Com_SPHERE */
 	ZeroMemory(&ColliderDesc, sizeof(CCollider::COLLIDERDESC));
 
-	ColliderDesc.vSize = _float3(1.f, 1.f, 1.f);
-	ColliderDesc.vCenter = _float3(0.f, ColliderDesc.vSize.y * 0.5f, 0.f);
+	ColliderDesc.vSize = _float3(8.f,8.f, 8.f);
+	ColliderDesc.vCenter = _float3(0.f, -10.f, 25.f);
 	ColliderDesc.vRotation = _float3(0.f, XMConvertToRadians(45.f), 0.f);
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_Sphere"), TEXT("Com_SPHERE"), (CComponent**)&m_pColliderCom[COLLIDERTYPE_SPHERE], &ColliderDesc)))
 		return E_FAIL;
@@ -170,7 +319,7 @@ CRas_Hands * CRas_Hands::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pC
 
 	if (FAILED(pInstance->Initialize_Prototype()))
 	{
-		MSG_BOX(TEXT("Failed To Created : CMonster"));
+		MSG_BOX(TEXT("Failed To Created : CRas_Hands"));
 		Safe_Release(pInstance);
 	}
 
@@ -183,7 +332,7 @@ CGameObject * CRas_Hands::Clone(void * pArg)
 
 	if (FAILED(pInstance->Initialize(pArg)))
 	{
-		MSG_BOX(TEXT("Failed To Cloned : CMonster"));
+		MSG_BOX(TEXT("Failed To Cloned : CRas_Hands"));
 		Safe_Release(pInstance);
 	}
 
@@ -197,6 +346,8 @@ void CRas_Hands::Free()
 	for (auto& pCollider : m_pColliderCom)
 		Safe_Release(pCollider);
 
+	Safe_Release(m_pTarget);
+	Safe_Release(m_pRasTransform);
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pRendererCom);

@@ -22,7 +22,7 @@ HRESULT CHammer::Initialize(void * pArg)
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
 
-	m_pTransformCom->Set_Scale(XMVectorSet(0.01f, 0.01f, 0.01f, 1.f));
+	m_pTransformCom->Set_Scale(XMVectorSet(0.05f, 0.05f, 0.05f, 1.f));
 	m_pTransformCom->Rotation(XMVectorSet(-1.f, 0.f, 0.f, 0.f), XMConvertToRadians(90.0f));
 	//m_pTransformCom->Turn(XMVectorSet(0.f, -1.f, 0.f, 0.f), 90.f);
 	//m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(3.f, 0.f, 0.f, 1.f));

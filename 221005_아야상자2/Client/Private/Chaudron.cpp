@@ -23,8 +23,10 @@ HRESULT CChaudron::Initialize(void * pArg)
 		return E_FAIL;
 
 	m_pTransformCom->Rotation(XMVectorSet(-1.f, 0.f, 0.f, 0.f), XMConvertToRadians(90));
+	m_pTransformCom->Set_Scale(XMVectorSet(0.9f, 0.9f, 0.9f, 1.f));
 	strcpy_s(m_szName, "Chaudron");
 	m_Tag = L"Chaudron";
+	m_pModelCom->Set_AnimIndex(1);
 	return S_OK;
 }
 

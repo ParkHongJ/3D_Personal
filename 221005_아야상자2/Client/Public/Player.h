@@ -62,16 +62,18 @@ public:
 
 	void Jump(_float fTimeDelta);
 	void MoveControl(_float fTimeDelta);
+
 public:
 	HRESULT Set_Camera(class CCamera_Free* pCamera);
+
 private:
 	CShader*				m_pShaderCom = nullptr;
-
 	CRenderer*				m_pRendererCom = nullptr;
 	CTransform*				m_pTransformCom = nullptr;
 	CModel*					m_pModelCom = nullptr;
 	CCollider*				m_pColliderCom[COLLILDERTYPE_END] = { nullptr };
 	CNavigation*			m_pNavigationCom = nullptr;
+
 private:
 	vector<CGameObject*>				m_Parts;
 	typedef vector<CGameObject*>		PARTS;
@@ -101,7 +103,10 @@ private:
 	_float					m_fRollTimeMax  = 1.3f;
 	_float					m_fRollTime = 0.f;
 	_bool					m_bWeaponEnable = false;
+	
+	//Camera
 	class CCamera_Free*		m_pCamera = nullptr;
+	_bool					m_bLockOn = false;
 public:
 	virtual void OnCollisionEnter(CGameObject* pOther, _float fTimeDelta)override;
 	virtual void OnCollisionStay(CGameObject* pOther, _float fTimeDelta)override;

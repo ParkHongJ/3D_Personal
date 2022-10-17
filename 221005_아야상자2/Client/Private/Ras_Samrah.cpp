@@ -2,6 +2,7 @@
 #include "..\Public\Ras_Samrah.h"
 #include "GameInstance.h"
 #include "HierarchyNode.h"
+#include "Ras_Hands.h"
 
 CRas_Samrah::CRas_Samrah(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
@@ -35,6 +36,28 @@ HRESULT CRas_Samrah::Initialize(void * pArg)
 	m_ePhase = PHASE_1;
 	m_eCurrentAnimState = Idle1;
 	m_pModelCom->Set_AnimIndex(Idle1);
+	m_pTransformCom->Set_Scale(XMVectorSet(0.07f, 0.07f, 0.07f, 1.f));
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(0.f, 10.f, 38.f, 1.f));
+	m_pTransformCom->Rotation(XMVectorSet(0.f, 1.f, 0.f, 0.f), XMConvertToRadians(180));
+
+
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+	
+	m_pTargetTransform = (CTransform*)pGameInstance->Get_ComponentPtr(LEVEL_GAMEPLAY, L"Layer_Player", L"Com_Transform", 0);
+	if (nullptr == m_pTransformCom)
+		return E_FAIL;
+	Safe_AddRef(m_pTargetTransform);
+	
+	m_pHand1 = (CRas_Hands*)(pGameInstance->Get_ComponentPtr(LEVEL_GAMEPLAY, L"Layer_RasHands", L"Com_Transform", 0)->GetOwner());
+	Safe_AddRef(m_pHand1);
+
+	m_pHand1->Set_Target(m_pTargetTransform);
+	m_pHand1->SetRas_Samrah(m_pTransformCom);
+	RELEASE_INSTANCE(CGameInstance);
+
+
+	
+	
 	return S_OK;
 }
 
@@ -44,17 +67,22 @@ _bool CRas_Samrah::Tick(_float fTimeDelta)
 	{
 		m_fHammerSpawnTime += fTimeDelta;
 	}
+
 	Set_State(m_eCurrentAnimState, m_ePhase, fTimeDelta);
+
+	//일정시간마다 손의 이벤트를 만들어야함
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+	if (pGameInstance->Key_Down(DIK_U))
+	{
+		m_pHand1->Set_Pattern(CRas_Hands::STATE_ANIM::HAND_SLAM_FLY);
+	}
+	RELEASE_INSTANCE(CGameInstance);
+
 
 	Update_Weapon();
 
 	m_Parts->Tick(fTimeDelta);
 
-	for (auto& pCollider : m_pColliderCom)
-	{
-		if (nullptr != pCollider)
-			pCollider->Update(m_pTransformCom->Get_WorldMatrix());
-	}
 	return false;
 }
 
@@ -72,8 +100,12 @@ void CRas_Samrah::LateTick(_float fTimeDelta)
 		m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, m_Parts);
 	}
 	
-	m_pColliderCom[COLLIDERTYPE_OBB]->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom[COLLIDERTYPE_OBB]);
-	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
+	CGameInstance*		pGameInstance = GET_INSTANCE(CGameInstance);
+	_bool		isDraw = pGameInstance->isIn_Frustum_WorldSpace(m_pTransformCom->Get_State(CTransform::STATE_POSITION), 2.f);
+	RELEASE_INSTANCE(CGameInstance);
+
+	if (true == isDraw)
+		m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
 }
 
 HRESULT CRas_Samrah::Render()
@@ -109,13 +141,6 @@ HRESULT CRas_Samrah::Render()
 			return E_FAIL;
 	}
 
-#ifdef _DEBUG
-	for (_uint i = 0; i < COLLILDERTYPE_END; ++i)
-	{
-		if (nullptr != m_pColliderCom[i])
-			m_pColliderCom[i]->Render();
-	}
-#endif
 
 	return S_OK;
 }
@@ -151,6 +176,8 @@ void CRas_Samrah::GetDamaged(_float fDamage)
 	if (0 >= m_fHp)
 	{
 		m_fHp = 0.f;
+		m_eCurrentAnimState = Death;
+		m_pModelCom->Change_Animation(Death);
 	}
 	else
 	{
@@ -310,35 +337,6 @@ HRESULT CRas_Samrah::Ready_Components()
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_RasSamrah"), TEXT("Com_Model"), (CComponent**)&m_pModelCom)))
 		return E_FAIL;
 
-
-	/* For.Com_AABB */
-	CCollider::COLLIDERDESC		ColliderDesc;
-	ZeroMemory(&ColliderDesc, sizeof(CCollider::COLLIDERDESC));
-
-	ColliderDesc.vSize = _float3(1.f, 2.f, 1.f);
-	ColliderDesc.vCenter = _float3(0.f, ColliderDesc.vSize.y * 0.5f, 0.f);
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_AABB"), TEXT("Com_AABB"), (CComponent**)&m_pColliderCom[COLLIDERTYPE_AABB], &ColliderDesc)))
-		return E_FAIL;
-
-	/* For.Com_OBB */
-	ZeroMemory(&ColliderDesc, sizeof(CCollider::COLLIDERDESC));
-
-	ColliderDesc.vSize = _float3(1.3f, 1.3f, 1.3f);
-	ColliderDesc.vCenter = _float3(0.f, ColliderDesc.vSize.y * 0.5f, 0.f);
-	ColliderDesc.vRotation = _float3(0.f, XMConvertToRadians(45.f), 0.f);
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_OBB"), TEXT("Com_OBB"), (CComponent**)&m_pColliderCom[COLLIDERTYPE_OBB], &ColliderDesc)))
-		return E_FAIL;
-
-	/* For.Com_SPHERE */
-	ZeroMemory(&ColliderDesc, sizeof(CCollider::COLLIDERDESC));
-
-	ColliderDesc.vSize = _float3(1.f, 1.f, 1.f);
-	ColliderDesc.vCenter = _float3(0.f, ColliderDesc.vSize.y * 0.5f, 0.f);
-	ColliderDesc.vRotation = _float3(0.f, XMConvertToRadians(45.f), 0.f);
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_Sphere"), TEXT("Com_SPHERE"), (CComponent**)&m_pColliderCom[COLLIDERTYPE_SPHERE], &ColliderDesc)))
-		return E_FAIL;
-
-
 	return S_OK;
 }
 
@@ -348,7 +346,7 @@ CRas_Samrah * CRas_Samrah::Create(ID3D11Device * pDevice, ID3D11DeviceContext * 
 
 	if (FAILED(pInstance->Initialize_Prototype()))
 	{
-		MSG_BOX(TEXT("Failed To Created : CMonster"));
+		MSG_BOX(TEXT("Failed To Created : CRas_Samrah"));
 		Safe_Release(pInstance);
 	}
 
@@ -361,7 +359,7 @@ CGameObject * CRas_Samrah::Clone(void * pArg)
 
 	if (FAILED(pInstance->Initialize(pArg)))
 	{
-		MSG_BOX(TEXT("Failed To Cloned : CMonster"));
+		MSG_BOX(TEXT("Failed To Cloned : CRas_Samrah"));
 		Safe_Release(pInstance);
 	}
 
@@ -374,9 +372,8 @@ void CRas_Samrah::Free()
 
 	Safe_Release(m_Parts);
 
-	for (auto& pCollider : m_pColliderCom)
-		Safe_Release(pCollider);
-
+	Safe_Release(m_pHand1);
+	Safe_Release(m_pTargetTransform);
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pRendererCom);

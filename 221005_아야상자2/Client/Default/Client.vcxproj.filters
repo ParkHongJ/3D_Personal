@@ -201,9 +201,6 @@
     <ClInclude Include="..\Bin\ShaderFiles\Client_Shader_Defines.hpp">
       <Filter>97.ShaderFiles</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\Ras_Hands.h">
-      <Filter>02.GameObjects\Boss\Ras_Samrah\Hands</Filter>
-    </ClInclude>
     <ClInclude Include="..\public\Chaudron.h">
       <Filter>02.GameObjects\Boss\Ras_Samrah\Chaudron</Filter>
     </ClInclude>
@@ -215,6 +212,15 @@
     </ClInclude>
     <ClInclude Include="..\public\GameMgr.h">
       <Filter>GameMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Ras_Hands.h">
+      <Filter>02.GameObjects\Boss\Ras_Samrah\Hands\Hand1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Ras_Hands2.h">
+      <Filter>02.GameObjects\Boss\Ras_Samrah\Hands\Hand2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Ras_Hands3.h">
+      <Filter>02.GameObjects\Boss\Ras_Samrah\Hands\Hand3</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -308,9 +314,6 @@
     <ClCompile Include="..\Private\Particle_Rect.cpp">
       <Filter>02.GameObjects\Effect</Filter>
     </ClCompile>
-    <ClCompile Include="..\private\Ras_Hands.cpp">
-      <Filter>02.GameObjects\Boss\Ras_Samrah\Hands</Filter>
-    </ClCompile>
     <ClCompile Include="..\private\Chaudron.cpp">
       <Filter>02.GameObjects\Boss\Ras_Samrah\Chaudron</Filter>
     </ClCompile>
@@ -322,6 +325,15 @@
     </ClCompile>
     <ClCompile Include="..\private\GameMgr.cpp">
       <Filter>GameMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Ras_Hands.cpp">
+      <Filter>02.GameObjects\Boss\Ras_Samrah\Hands\Hand1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Ras_Hands2.cpp">
+      <Filter>02.GameObjects\Boss\Ras_Samrah\Hands\Hand2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Ras_Hands3.cpp">
+      <Filter>02.GameObjects\Boss\Ras_Samrah\Hands\Hand3</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

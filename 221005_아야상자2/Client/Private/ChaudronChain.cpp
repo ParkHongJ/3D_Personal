@@ -28,7 +28,9 @@ HRESULT CChaudronChain::Initialize(void * pArg)
 
 	if (FAILED(Ready_Parts()))
 		return E_FAIL;
-	//m_pTransformCom->Set_Scale(XMVectorSet(0.5f, 0.5f, 0.5f, 1.f));
+	m_pTransformCom->Set_Scale(XMVectorSet(0.7f, 0.7f, 0.7f, 1.f));
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(0.f, -6.f, 30.f, 1.f));
+	m_pTransformCom->Rotation(XMVectorSet(0.f, 1.f, 0.f, 0.f), XMConvertToRadians(180));
 	strcpy_s(m_szName, "ChaudronChain");
 	m_Tag = L"ChaudronChain";
 

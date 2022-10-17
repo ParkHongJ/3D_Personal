@@ -133,6 +133,9 @@
     <ClCompile Include="..\private\MeshContainerInstance.cpp">
       <Filter>03.Components\06.Model\InstanceModel</Filter>
     </ClCompile>
+    <ClCompile Include="..\Private\Frustum.cpp">
+      <Filter>04.Utility\04.Frustum</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Public\Engine_Defines.h">
@@ -282,6 +285,9 @@
     <ClInclude Include="..\public\MeshContainerInstance.h">
       <Filter>03.Components\06.Model\InstanceModel</Filter>
     </ClInclude>
+    <ClInclude Include="..\Public\Frustum.h">
+      <Filter>04.Utility\04.Frustum</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="99.Defines">
@@ -424,6 +430,9 @@
     </Filter>
     <Filter Include="03.Components\06.Model\InstanceModel">
       <UniqueIdentifier>{4ece1931-2ec9-4802-b4d2-694121eb522a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04.Utility\04.Frustum">
+      <UniqueIdentifier>{7eed1e1f-fe6b-44e6-935c-9edac6edbc59}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
