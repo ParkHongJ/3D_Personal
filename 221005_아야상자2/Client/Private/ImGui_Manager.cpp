@@ -701,6 +701,20 @@ void CImGui_Manager::RenderGizmo()
 		if (nullptr != pCell)
 			pCell->Render_Cell();
 	}
+	for (auto& pCell : m_SelectCellwithPoints)
+	{
+		if (nullptr != pCell.first)
+		{
+			pCell.first->Render_Cell(0.1f, _float4(0.f, 0.f, 1.f, 1.f));
+		}
+	}
+	for (auto& pCell : m_SelectCell)
+	{
+		if (nullptr != pCell.first)
+		{
+			pCell.first->Render_Cell(0.1f, _float4(0.f, 0.f, 1.f, 1.f));
+		}
+	}
 }
 
 HRESULT CImGui_Manager::AddGameObject(const _tchar * pPrototypeTag, const _tchar * pLayerTag, _uint iNumLevel, void* pArg)
@@ -719,14 +733,15 @@ HRESULT CImGui_Manager::AddGameObject(const _tchar * pPrototypeTag, const _tchar
 void CImGui_Manager::ShowNavMesh() {
 	static _int SelectMode = 0;
 	ImGui::RadioButton("NAV_ADD", &SelectMode, 0); ImGui::SameLine();
-	ImGui::RadioButton("NAV_EDIT", &SelectMode, 1); ImGui::SameLine();
-	ImGui::RadioButton("NAV_DELETE", &SelectMode, 2);
+	ImGui::RadioButton("NAV_EDIT_Point", &SelectMode, 1); ImGui::SameLine();
+	ImGui::RadioButton("NAV_EDIT_Cell", &SelectMode, 2); ImGui::SameLine();
+	ImGui::RadioButton("NAV_DELETE", &SelectMode, 3);
 	m_eNav = (NavMesh)SelectMode;
 
 	if (m_eNav == NAV_ADD)
 	{
 		CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
-		if (pGameInstance->Mouse_Down(DIMK_LBUTTON))
+		/*if (pGameInstance->Mouse_Down(DIMK_LBUTTON))
 		{
 			_uint iNumCell = 0;
 			for (auto& pCells : m_Cells)
@@ -741,8 +756,7 @@ void CImGui_Manager::ShowNavMesh() {
 				}
 				iNumCell++;
 			}
-		}
-
+		}*/
 		if (pGameInstance->Mouse_Down(DIMK_RBUTTON))
 		{
 			_uint iNumCell = 0;
@@ -765,37 +779,51 @@ void CImGui_Manager::ShowNavMesh() {
 		RELEASE_INSTANCE(CGameInstance);
 	}
 
-	if (m_eNav == NAV_EDIT)
+	if (m_eNav == NAV_EDIT_POINT)
 	{
+		if (!m_SelectCell.empty())
+		{
+			for (auto& pCell : m_SelectCell)
+			{
+				Safe_Release(pCell.first);
+			}
+			m_SelectCell.clear();
+		}
+
 		CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 		if (pGameInstance->Mouse_Down(DIMK_LBUTTON))
 		{
 			_uint iNumCell = 0;
 			_bool bSelectCellsDelete = false;
+			
+			//한번만 실행하기 위한 변수
 			_bool bCheck = false;
 			for (auto& pCells : m_Cells)
 			{
 				if (nullptr == pCells)
 					continue;
 
+				//현재 셀의 포인트가 피킹 되었다면
 				_bool is_Coll = pCells->Picking(&m_iNumPointIndex);
 				if (is_Coll)
 				{
 					if (!bSelectCellsDelete)
 					{
-						for (auto& pCell : m_SelectCells)
+						for (auto& pCell : m_SelectCellwithPoints)
 						{
 							Safe_Release(pCell.first);
 						}
-						m_SelectCells.clear();
+						m_SelectCellwithPoints.clear();
 					}
 					bSelectCellsDelete = true;
 
+					//일단 선택한 점을 갖고있는 1개의 셀을 등록한후
 					m_iNumCell = iNumCell;
 
 					if (!bCheck)
 					{
 						_uint iNumCurrentCell = 0;
+						//모든 셀을 돌며 조사함
 						for (auto& ppCells : m_Cells)
 						{
 							if (nullptr == ppCells)
@@ -806,10 +834,12 @@ void CImGui_Manager::ShowNavMesh() {
 							_uint iPointIndex = 0;
 							if (true == ppCells->isInVertex(XMLoadFloat3(&pCells->Get_Point((CCell::POINT)m_iNumPointIndex)), &iPointIndex))
 							{
-								SELECT_CELL cell;
+								SELECT_CELL_POINT cell;
+								//어떤 포인트를 피킹했는지
 								cell.iPointIndex = iPointIndex;
+								//진짜 Cell의 본체의 인덱스.
 								cell.iOriginCellIndex = iNumCurrentCell;
-								m_SelectCells.push_back(make_pair(ppCells, cell));
+								m_SelectCellwithPoints.push_back(make_pair(ppCells, cell));
 								Safe_AddRef(ppCells);
 							}
 							iNumCurrentCell++;
@@ -823,10 +853,81 @@ void CImGui_Manager::ShowNavMesh() {
 		RELEASE_INSTANCE(CGameInstance);
 	}
 
+	if (m_eNav == NAV_EDIT_CELL)
+	{
+		if (!m_SelectCellwithPoints.empty())
+		{
+			for (auto& pCell : m_SelectCellwithPoints)
+			{
+				Safe_Release(pCell.first);
+			}
+			m_SelectCellwithPoints.clear();
+		}
+
+		CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+		if (pGameInstance->Mouse_Down(DIMK_LBUTTON) && pGameInstance->Key_Pressing(DIK_LSHIFT))
+		{
+			_uint iNumCell = 0;
+			for (auto& pCells : m_Cells)
+			{
+				if (nullptr == pCells)
+				{
+					iNumCell++;
+					continue;
+				}
+				//셀을 선택했다면
+				_bool is_Coll = pCells->Picking();
+				if (is_Coll)
+				{
+					m_iNumCell = iNumCell;
+					//원본 셀의 인덱스를 저장해주고
+					SELECT_CELL_POINT Cell;
+					Cell.iOriginCellIndex = m_iNumCell;
+
+					m_SelectCell.push_back(make_pair(pCells, Cell));
+					Safe_AddRef(pCells);
+				}
+				iNumCell++;
+			}
+		}
+		else if (pGameInstance->Mouse_Down(DIMK_LBUTTON))
+		{
+			_uint iNumCell = 0;
+			for (auto& pCells : m_Cells)
+			{
+				if (nullptr == pCells)
+				{
+					iNumCell++;
+					continue;
+				}
+				//셀을 선택했다면
+				_bool is_Coll = pCells->Picking();
+				if (is_Coll)
+				{
+					for (auto& pCell : m_SelectCell)
+					{
+						Safe_Release(pCell.first);
+					}
+					m_SelectCell.clear();
+
+					m_iNumCell = iNumCell;
+
+					//원본 셀의 인덱스를 저장해주고
+					SELECT_CELL_POINT Cell;
+					Cell.iOriginCellIndex = m_iNumCell;
+
+					m_SelectCell.push_back(make_pair(pCells, Cell));
+					Safe_AddRef(pCells);
+				}
+				iNumCell++;
+			}
+		}
+		RELEASE_INSTANCE(CGameInstance);
+	}
 
 	if (ImGui::Button("TEST"))
 	{
-		for (auto& pCell : m_SelectCells)
+		for (auto& pCell : m_SelectCellwithPoints)
 		{
 			//first : Cell
 			//second : +될 값
@@ -836,26 +937,27 @@ void CImGui_Manager::ShowNavMesh() {
 
 	if (ImGui::Button("Delete"))
 	{
-		for (auto& pCell : m_SelectCells)
+		for (auto& pCell : m_SelectCellwithPoints)
 		{
 			Safe_Release(m_Cells[pCell.second.iOriginCellIndex]);
 			Safe_Release(pCell.first);
 		}
 
-		m_SelectCells.clear();
+		m_SelectCellwithPoints.clear();
+
+		for (auto& pCell : m_SelectCell)
+		{
+			Safe_Release(m_Cells[pCell.second.iOriginCellIndex]);
+			Safe_Release(pCell.first);
+		}
+		m_SelectCell.clear();
+
+		m_Cells.erase(remove(m_Cells.begin(), m_Cells.end(), nullptr), m_Cells.end());
 	}
 
 	if (ImGui::Button("Clear"))
 	{
 		ZeroMemory(&m_vPickPos, sizeof(m_vPickPos));
-	}
-
-	if (ImGui::Button(u8"빠꾸"))
-	{
-		/*for (_uint i = m_Cells.size(); i < 0; --i)
-		{
-
-		}*/
 	}
 
 	if (ImGui::Button("SaveNav"))
@@ -965,6 +1067,15 @@ void CImGui_Manager::Inspector()
 			pTransform->Set_WorldMatrix(WorldMatrix);
 		}
 	}
+}
+
+_bool CImGui_Manager::badValue(CCell * pCell)
+{
+	if (pCell == nullptr)
+	{
+		return true;
+	}
+	return false;
 }
 
 void CImGui_Manager::RenderEnd()

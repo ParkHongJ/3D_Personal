@@ -16,8 +16,9 @@ BEGIN(Client)
 class CRas_Hands3 final : public CGameObject
 {
 public:
+	//투사체 발사하는손
 	enum STATE_ANIM {
-		HAND_AOE1, HAND_AOE2, HAND_AOE2001, HAND_AOE3, HAND_FIRST_CLOSED, HAND_SLAM_FLY, HAND_DEATH, HAND_IDLE, HAND_END
+		HAND_DEATH, HAND_IDLE, HAND_PATTERN3, HAND_END
 	};
 	private:
 	CRas_Hands3(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

@@ -34,7 +34,7 @@ private:
 	CTransform*				m_pTransformCom = nullptr;
 	CModel*					m_pModelCom = nullptr;
 
-
+	_float temp = 0.0f;
 
 private:
 	HRESULT Ready_Components();

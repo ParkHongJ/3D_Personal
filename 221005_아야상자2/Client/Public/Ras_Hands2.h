@@ -16,8 +16,9 @@ BEGIN(Client)
 class CRas_Hands2 final : public CGameObject
 {
 public:
+	//몬스터 소환하는손
 	enum STATE_ANIM {
-		HAND_AOE1, HAND_AOE2, HAND_AOE2001, HAND_AOE3, HAND_FIRST_CLOSED, HAND_SLAM_FLY, HAND_DEATH, HAND_IDLE, HAND_END
+		HAND_DEATH, HAND_IDLE, HAND_CINEMATIC1, HAND_CINEMATIC2, HAND_PATTERN2, HAND_END
 	};
 private:
 	CRas_Hands2(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
@@ -38,9 +39,6 @@ public:
 	virtual void OnCollisionStay(CGameObject* pOther, _float fTimeDelta) override;
 	virtual void OnCollisionExit(CGameObject* pOther, _float fTimeDelta) override;
 
-public:
-	void GetDamaged(_float fDamage);
-
 protected:
 	CShader*				m_pShaderCom = nullptr;
 	CRenderer*				m_pRendererCom = nullptr;
@@ -55,19 +53,21 @@ private:
 	_bool					m_bEnabled = false;
 	_bool					m_bHit = false;
 
-	_float					m_fSpeed = 3.f;
-	_bool					m_bChase = false;
 	_float					m_fCurrentChaseTime = 0.0f;
-	_float					m_fChaseTimeMax = 3.5f;
+	_float					m_fChaseTimeMax = 3.8f;
 
-	void Set_State(STATE_ANIM eState, _float fTimeDelta);
-
+	_float3					m_vOffsetPosition = { 0.f,0.f,0.f };
+	_float3					m_vOffsetAttack = { 0.f,0.f,0.f };
 
 public:
+	void Set_State(STATE_ANIM eState, _float fTimeDelta);
 	void SetRas_Samrah(class CTransform * pRasTransform);
 	void Set_Target(class CTransform* pTarget);
 	void Set_Pattern(STATE_ANIM eState);
-
+	//본체로부터 얼마나 떨어진 위치에 있을것인가?
+	void Set_OffsetPos(class CTransform* pRasTransform);
+	void MoveToOffsetIdle();
+	void MoveToOffsetAttack();
 protected:
 	HRESULT Ready_Components();
 

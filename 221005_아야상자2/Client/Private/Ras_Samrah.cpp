@@ -3,6 +3,8 @@
 #include "GameInstance.h"
 #include "HierarchyNode.h"
 #include "Ras_Hands.h"
+#include "Ras_Hands2.h"
+#include "Ras_Hands3.h"
 
 CRas_Samrah::CRas_Samrah(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
@@ -30,6 +32,7 @@ HRESULT CRas_Samrah::Initialize(void * pArg)
 	if (FAILED(Ready_Parts()))
 		return E_FAIL;
 
+
 	strcpy_s(m_szName, "Ras_Samrah");
 	m_Tag = L"Ras_Samrah";
 
@@ -37,24 +40,13 @@ HRESULT CRas_Samrah::Initialize(void * pArg)
 	m_eCurrentAnimState = Idle1;
 	m_pModelCom->Set_AnimIndex(Idle1);
 	m_pTransformCom->Set_Scale(XMVectorSet(0.07f, 0.07f, 0.07f, 1.f));
-	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(0.f, 10.f, 38.f, 1.f));
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(0.f, 10.f, 42.f, 1.f));
 	m_pTransformCom->Rotation(XMVectorSet(0.f, 1.f, 0.f, 0.f), XMConvertToRadians(180));
 
 
-	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
-	
-	m_pTargetTransform = (CTransform*)pGameInstance->Get_ComponentPtr(LEVEL_GAMEPLAY, L"Layer_Player", L"Com_Transform", 0);
-	if (nullptr == m_pTransformCom)
+
+	if (FAILED(Ready_Hands()))
 		return E_FAIL;
-	Safe_AddRef(m_pTargetTransform);
-	
-	m_pHand1 = (CRas_Hands*)(pGameInstance->Get_ComponentPtr(LEVEL_GAMEPLAY, L"Layer_RasHands", L"Com_Transform", 0)->GetOwner());
-	Safe_AddRef(m_pHand1);
-
-	m_pHand1->Set_Target(m_pTargetTransform);
-	m_pHand1->SetRas_Samrah(m_pTransformCom);
-	RELEASE_INSTANCE(CGameInstance);
-
 
 	
 	
@@ -340,6 +332,46 @@ HRESULT CRas_Samrah::Ready_Components()
 	return S_OK;
 }
 
+HRESULT CRas_Samrah::Ready_Hands()
+{
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+
+	//플레이어 셋팅
+	m_pTargetTransform = (CTransform*)pGameInstance->Get_ComponentPtr(LEVEL_GAMEPLAY, L"Layer_Player", L"Com_Transform", 0);
+	if (nullptr == m_pTransformCom)
+		return E_FAIL;
+	Safe_AddRef(m_pTargetTransform);
+
+
+	//Hand1
+	m_pHand1 = (CRas_Hands*)(pGameInstance->Get_ComponentPtr(LEVEL_GAMEPLAY, L"Layer_RasHands", L"Com_Transform", 0)->GetOwner());
+	Safe_AddRef(m_pHand1);
+
+	m_pHand1->Set_Target(m_pTargetTransform);
+	m_pHand1->SetRas_Samrah(m_pTransformCom);
+
+	//Hand2
+	m_pHand2 = (CRas_Hands2*)(pGameInstance->Get_ComponentPtr(LEVEL_GAMEPLAY, L"Layer_RasHands", L"Com_Transform", 1)->GetOwner());
+	Safe_AddRef(m_pHand2);
+
+	m_pHand2->Set_Target(m_pTargetTransform);
+	m_pHand2->SetRas_Samrah(m_pTransformCom);
+
+	//Hand3
+	m_pHand3 = (CRas_Hands3*)(pGameInstance->Get_ComponentPtr(LEVEL_GAMEPLAY, L"Layer_RasHands", L"Com_Transform", 2)->GetOwner());
+	Safe_AddRef(m_pHand3);
+
+	m_pHand3->Set_Target(m_pTargetTransform);
+	m_pHand3->SetRas_Samrah(m_pTransformCom);
+
+	m_pHand2->Set_OffsetPos(m_pTransformCom);
+
+
+
+	RELEASE_INSTANCE(CGameInstance);
+	return S_OK;
+}
+
 CRas_Samrah * CRas_Samrah::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 {
 	CRas_Samrah*		pInstance = new CRas_Samrah(pDevice, pContext);
@@ -373,6 +405,8 @@ void CRas_Samrah::Free()
 	Safe_Release(m_Parts);
 
 	Safe_Release(m_pHand1);
+	Safe_Release(m_pHand2);
+	Safe_Release(m_pHand3);
 	Safe_Release(m_pTargetTransform);
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pShaderCom);

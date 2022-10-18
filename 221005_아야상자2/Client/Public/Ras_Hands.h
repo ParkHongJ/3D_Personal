@@ -49,7 +49,7 @@ protected:
 	CTransform*				m_pTransformCom = nullptr;
 	CModel*					m_pModelCom = nullptr;
 	CCollider*				m_pColliderCom[COLLILDERTYPE_END] = { nullptr };
-
+	CTexture*				m_pTextureCom = nullptr;
 private:
 	_bool					m_bAnimEnd = false;
 	class CTransform*		m_pRasTransform = nullptr;
@@ -64,11 +64,13 @@ private:
 	_float					m_fChaseTimeMax = 3.5f;
 
 	_float					m_fAttackTime = 0.0f;
-	_float					m_fAttackTimeMax = 1.8f;
+	_float					m_fAttackTimeMax = 2.5f;
 
 	void Set_State(STATE_ANIM eState, _float fTimeDelta);
 
-
+	_float					m_fCut = 0.0f;
+	_uint					m_iTemp = 0;
+	_bool					m_btemp = false;
 public:
 	void SetRas_Samrah(class CTransform * pRasTransform);
 	void Set_Target(class CTransform* pTarget);

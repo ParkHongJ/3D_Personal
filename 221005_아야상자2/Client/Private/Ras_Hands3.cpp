@@ -25,15 +25,14 @@ HRESULT CRas_Hands3::Initialize(void * pArg)
 
 	strcpy_s(m_szName, "Ras_Samrah_Hands3");
 	m_Tag = L"Ras_Samrah_Hands3";
-	m_pModelCom->Set_AnimIndex(0);
-	m_pTransformCom->Set_Scale(XMVectorSet(0.4f, 0.4f, 0.4f, 1.f));
+	m_pModelCom->Set_AnimIndex(HAND_IDLE);
+	m_pTransformCom->Set_Scale(XMVectorSet(0.3f, 0.3f, 0.3f, 1.f));
 	return S_OK;
 }
 
 _bool CRas_Hands3::Tick(_float fTimeDelta)
 {
-
-	//Set_State(m_eState, fTimeDelta);
+	Set_State(m_eState, fTimeDelta);
 	return false;
 }
 
@@ -107,75 +106,11 @@ void CRas_Hands3::Set_State(STATE_ANIM eState, _float fTimeDelta)
 {
 	switch (eState)
 	{
-	case CRas_Hands3::HAND_AOE1:
-		if (m_bAnimEnd)
-		{
-			m_eState = HAND_AOE2;
-			m_pModelCom->Change_Animation(HAND_AOE2, 0.0f, false);
-		}
-		break;
-	case CRas_Hands3::HAND_AOE2:
-		if (m_bAnimEnd)
-		{
-			m_eState = HAND_AOE3;
-			m_pModelCom->Change_Animation(HAND_AOE3, 0.0f, false);
-		}
-		//바로 AOE1로 가는 경우도 있음.
-		break;
-	case CRas_Hands3::HAND_AOE3:
-		break;
-	case CRas_Hands3::HAND_FIRST_CLOSED:
-		//추적이 끝났다면
-		m_fCurrentChaseTime += fTimeDelta;
-		if (m_fCurrentChaseTime > m_fChaseTimeMax)
-		{
-			m_eState = HAND_AOE1;
-			m_pModelCom->Change_Animation(HAND_AOE1, 0.0f, false);
-			m_fCurrentChaseTime = 0.0f;
-			m_bChase = false;
-		}
-		else
-		{
-			_vector vPosition = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
-
-			vPosition = XMVectorSetY(vPosition, 0.0f);
-
-			if (nullptr != m_pTarget)
-			{
-				_vector vTargetPos = m_pTarget->Get_State(CTransform::STATE_POSITION);
-
-				vTargetPos = XMVectorSetY(vTargetPos, 0.0f);
-
-				vPosition = XMVectorLerp(vPosition, vTargetPos, fTimeDelta * m_fSpeed);
-
-				m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPosition);
-
-				//Look 조절해야함
-				_vector vLook = m_pTransformCom->Get_State(CTransform::STATE_POSITION) - m_pRasTransform->Get_State(CTransform::STATE_POSITION);
-
-				vLook = XMVectorSetY(vLook, 0.0f);
-
-				m_pTransformCom->LookDir(vLook);
-
-			}
-		}
-		break;
-	case CRas_Hands3::HAND_SLAM_FLY:
-		if (m_bAnimEnd)
-		{
-			m_eState = HAND_FIRST_CLOSED;
-			m_pModelCom->Change_Animation(HAND_FIRST_CLOSED);
-			m_bChase = true;
-		}
-		break;
 	case CRas_Hands3::HAND_DEATH:
-		//다 죽었다면.
-		if (m_bAnimEnd)
-		{
-			m_bActive = false;
-		}
 		break;
 	case CRas_Hands3::HAND_IDLE:
+		break;
+	case CRas_Hands3::HAND_PATTERN3:
 		break;
 	default:
 		break;

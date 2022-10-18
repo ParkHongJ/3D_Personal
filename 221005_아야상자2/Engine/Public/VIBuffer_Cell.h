@@ -16,6 +16,7 @@ public:
 	virtual HRESULT Initialize(void* pArg);
 
 	virtual HRESULT Render();
+	
 	void EditVerteces(_uint iNumIndex, _float3 vPos, _float3& vOriginPos) {
 	
 		D3D11_MAPPED_SUBRESOURCE		MappedSubResource;

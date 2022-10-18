@@ -25,14 +25,27 @@ HRESULT CRas_Hands2::Initialize(void * pArg)
 
 	strcpy_s(m_szName, "Ras_Samrah_Hands2");
 	m_Tag = L"Ras_Samrah_Hands2";
-	m_pModelCom->Set_AnimIndex(0);
-	m_pTransformCom->Set_Scale(XMVectorSet(0.4f, 0.4f, 0.4f, 1.f));
+	m_pModelCom->Set_AnimIndex(HAND_IDLE);
 	return S_OK;
 }
 
 _bool CRas_Hands2::Tick(_float fTimeDelta)
 {
-	//Set_State(m_eState, fTimeDelta);
+	Set_State(m_eState, fTimeDelta);
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+	
+	if (pGameInstance->Key_Down(DIK_M))
+	{
+		m_pModelCom->Change_Animation(HAND_IDLE);
+		MoveToOffsetIdle();
+	}
+	else if (pGameInstance->Key_Down(DIK_L))
+	{
+		m_pModelCom->Change_Animation(HAND_PATTERN2);
+		MoveToOffsetAttack();
+		m_eState = HAND_PATTERN2;
+	}
+	RELEASE_INSTANCE(CGameInstance);
 
 	return false;
 }
@@ -96,84 +109,32 @@ void CRas_Hands2::OnCollisionExit(CGameObject * pOther, _float fTimeDelta)
 	int a = 10;
 }
 
-void CRas_Hands2::GetDamaged(_float fDamage)
-{
-	((CRas_Samrah*)m_pRasTransform->GetOwner())->GetDamaged(fDamage);
-}
-
 void CRas_Hands2::Set_State(STATE_ANIM eState, _float fTimeDelta)
 {
 	switch (eState)
 	{
-	case CRas_Hands2::HAND_AOE1:
+	case CRas_Hands2::HAND_DEATH:
+		break;
+	case CRas_Hands2::HAND_IDLE:
+		//m_pModelCom->Change_Animation(HAND_IDLE);
+		break;
+	case CRas_Hands2::HAND_PATTERN2:
 		if (m_bAnimEnd)
 		{
-			m_eState = HAND_AOE2;
-			m_pModelCom->Change_Animation(HAND_AOE2, 0.0f, false);
-		}
-		break;
-	case CRas_Hands2::HAND_AOE2:
-		if (m_bAnimEnd)
-		{
-			m_eState = HAND_AOE3;
-			m_pModelCom->Change_Animation(HAND_AOE3, 0.0f, false);
-		}
-		//바로 AOE1로 가는 경우도 있음.
-		break;
-	case CRas_Hands2::HAND_AOE3:
-		break;
-	case CRas_Hands2::HAND_FIRST_CLOSED:
-		//추적이 끝났다면
-		m_fCurrentChaseTime += fTimeDelta;
-		if (m_fCurrentChaseTime > m_fChaseTimeMax)
-		{
-			m_eState = HAND_AOE1;
-			m_pModelCom->Change_Animation(HAND_AOE1, 0.0f, false);
+			//애니메이션이 끝났다면 사라짐.
+			m_eState = HAND_IDLE;
+			m_pModelCom->Change_Animation(HAND_IDLE);
+			MoveToOffsetIdle();
 			m_fCurrentChaseTime = 0.0f;
-			m_bChase = false;
 		}
 		else
 		{
-			_vector vPosition = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
-
-			vPosition = XMVectorSetY(vPosition, 0.0f);
-
-			if (nullptr != m_pTarget)
+			m_fCurrentChaseTime += fTimeDelta;
+			if (m_fCurrentChaseTime >= m_fChaseTimeMax)
 			{
-				_vector vTargetPos = m_pTarget->Get_State(CTransform::STATE_POSITION);
-
-				vTargetPos = XMVectorSetY(vTargetPos, 0.0f);
-
-				vPosition = XMVectorLerp(vPosition, vTargetPos, fTimeDelta * m_fSpeed);
-
-				m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPosition);
-
-				//Look 조절해야함
-				_vector vLook = m_pTransformCom->Get_State(CTransform::STATE_POSITION) - m_pRasTransform->Get_State(CTransform::STATE_POSITION);
-
-				vLook = XMVectorSetY(vLook, 0.0f);
-
-				m_pTransformCom->LookDir(vLook);
-
+				m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(0.f, 0.f, 0.f, 1.f));
 			}
 		}
-		break;
-	case CRas_Hands2::HAND_SLAM_FLY:
-		if (m_bAnimEnd)
-		{
-			m_eState = HAND_FIRST_CLOSED;
-			m_pModelCom->Change_Animation(HAND_FIRST_CLOSED);
-			m_bChase = true;
-		}
-		break;
-	case CRas_Hands2::HAND_DEATH:
-		//다 죽었다면.
-		if (m_bAnimEnd)
-		{
-			m_bActive = false;
-		}
-		break;
-	case CRas_Hands2::HAND_IDLE:
 		break;
 	default:
 		break;
@@ -199,6 +160,40 @@ void CRas_Hands2::Set_Pattern(STATE_ANIM eState)
 {
 	m_eState = eState;
 	m_pModelCom->Change_Animation(eState, 0.25f, false);
+}
+
+void CRas_Hands2::Set_OffsetPos(CTransform * pRasTransform)
+{
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pRasTransform->Get_State(CTransform::STATE_POSITION));
+	XMStoreFloat3(&m_vOffsetPosition, XMVectorSet(11.f, 20.f, 0.f, 1.f));
+	XMStoreFloat3(&m_vOffsetAttack, XMVectorSet(0.f, 3.f, -6.f, 1.f));
+
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVector3TransformCoord(XMLoadFloat3(&m_vOffsetPosition), m_pTransformCom->Get_WorldMatrix()));
+	m_pTransformCom->Set_Scale(XMVectorSet(0.3f, 0.3f, 0.3f, 1.f));
+	m_pTransformCom->Rotation(XMVectorSet(0.f, -1.f, 0.f, 0.f), XMConvertToRadians(90.f));
+
+	
+}
+
+void CRas_Hands2::MoveToOffsetIdle()
+{
+	m_pTransformCom->Set_WorldMatrix(XMMatrixIdentity());
+	//이전상태는 Attack.
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pRasTransform->Get_State(CTransform::STATE_POSITION));
+	
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVector3TransformCoord(XMLoadFloat3(&m_vOffsetPosition), m_pTransformCom->Get_WorldMatrix()));
+	m_pTransformCom->Set_Scale(XMVectorSet(0.3f, 0.3f, 0.3f, 1.f));
+	m_pTransformCom->Rotation(XMVectorSet(0.f, -1.f, 0.f, 0.f), XMConvertToRadians(90.f));
+}
+
+void CRas_Hands2::MoveToOffsetAttack()
+{
+	m_pTransformCom->Set_WorldMatrix(XMMatrixIdentity());
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pRasTransform->Get_State(CTransform::STATE_POSITION));
+	
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVector3TransformCoord(XMLoadFloat3(&m_vOffsetAttack), m_pTransformCom->Get_WorldMatrix()));
+	m_pTransformCom->Set_Scale(XMVectorSet(0.3f, 0.3f, 0.3f, 1.f));
+	m_pTransformCom->Rotation(XMVectorSet(0.f, 1.f, 0.f, 0.f), XMConvertToRadians(180.f));
 }
 
 HRESULT CRas_Hands2::Ready_Components()

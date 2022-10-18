@@ -122,7 +122,6 @@ HRESULT CVIBuffer_Cell::Render()
 
 	return S_OK;
 }
-
 CVIBuffer_Cell * CVIBuffer_Cell::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, const _float3* pPoints)
 {
 	CVIBuffer_Cell*			pInstance = new CVIBuffer_Cell(pDevice, pContext);

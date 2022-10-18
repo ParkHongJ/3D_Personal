@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "..\Public\Monster.h"
 #include "GameInstance.h"
-
+#include "wbemtime.h"
 CMonster::CMonster(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
 {
@@ -27,12 +27,16 @@ HRESULT CMonster::Initialize(void * pArg)
 	//m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(rand() % 10, 0.f, rand() % 10, 1.f));
 	//m_pTransformCom->Set_Scale(XMVectorSet(0.01f, 0.01f, 0.01f, 1.f));
 
+	
 	return S_OK;
 }
 
 void CMonster::Tick(_float fTimeDelta)
 {
-	
+	if (GetAsyncKeyState(VK_UP))
+	{
+		temp = 0.0f;
+	}
 }
 
 void CMonster::LateTick(_float fTimeDelta)
@@ -42,7 +46,8 @@ void CMonster::LateTick(_float fTimeDelta)
 
 	//m_pModelCom->Play_Animation(fTimeDelta);
 
-	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
+	temp += fTimeDelta * 0.15f;
+	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_PRIORITY, this);
 }
 
 HRESULT CMonster::Render()
@@ -53,6 +58,9 @@ HRESULT CMonster::Render()
 
 	CGameInstance*		pGameInstance = GET_INSTANCE(CGameInstance);
 
+	//loat temp = GetTickCount64();
+	if (FAILED(m_pShaderCom->Set_RawValue("g_Time", &temp, sizeof(_float))))
+		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_WorldMatrix", &m_pTransformCom->Get_WorldFloat4x4_TP(), sizeof(_float4x4))))
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_ViewMatrix", &pGameInstance->Get_TransformFloat4x4_TP(CPipeLine::D3DTS_VIEW), sizeof(_float4x4))))

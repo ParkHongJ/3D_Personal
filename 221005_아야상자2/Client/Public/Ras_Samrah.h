@@ -86,6 +86,8 @@ private:
 	_bool								m_bTimeCheck = false;
 
 	class CRas_Hands*					m_pHand1 = nullptr;
+	class CRas_Hands2*					m_pHand2 = nullptr;
+	class CRas_Hands3*					m_pHand3 = nullptr;
 	class CTransform*					m_pTargetTransform = nullptr;
 
 	//패턴3 투사체발사할때 기준점
@@ -102,7 +104,7 @@ private:
 	void Set_State(STATE_ANIM eAnim, PHASE ePhase, _float fTimeDelta);
 	HRESULT Update_Weapon();
 	HRESULT Ready_Components();
-
+	HRESULT Ready_Hands();
 public:
 	static CRas_Samrah* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg);

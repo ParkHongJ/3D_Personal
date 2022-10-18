@@ -63,6 +63,7 @@ public:
 	void Update(_float2 vPickPos);
 	HRESULT Render_Cell(_float fHeight = 0.f, _float4 vColor = _float4(0.f, 1.f, 0.f, 1.f));
 	_bool Picking(_uint* iNumPoint);
+	_bool Picking();
 #endif // _DEBUG
 
 private:

@@ -17,7 +17,7 @@ class CImGui_Manager final : public CBase
 	DECLARE_SINGLETON(CImGui_Manager)
 public:
 	enum Tool { TOOL_MAP, TOOL_UNIT, TOOL_CAMERA, TOOL_PARTICLE, TOOL_ANIMATION, TOOL_NAVIGATION, TOOL_END };
-	enum NavMesh { NAV_ADD, NAV_EDIT, NAV_DELETE, NAV_END };
+	enum NavMesh { NAV_ADD, NAV_EDIT_POINT, NAV_EDIT_CELL, NAV_DELETE, NAV_END };
 	typedef struct AnimInfo {
 		string name;
 		string message;
@@ -34,10 +34,12 @@ public:
 		_uint iNextIndex;
 	}ANIM_NAME;
 
-	typedef struct SelectCell {
+	typedef struct SelectCellPoint {
+		//셀의 몇번째 포인트를 피킹했는지
 		_uint iPointIndex;
+		//진짜 Cell의 본체의 인덱스.
 		_uint iOriginCellIndex;
-	}SELECT_CELL;
+	}SELECT_CELL_POINT;
 
 	typedef struct CreateObjInfo
 	{
@@ -86,6 +88,7 @@ public:
 	/* For Inspector */
 	void Inspector();
 
+	_bool badValue(class CCell* pCell);
 
 	wstring CharToWstring(const char* src)
 	{
@@ -136,7 +139,8 @@ private:
 	_uint m_iNumPointIndex = -1;
 	NavMesh m_eNav = NAV_END;
 	vector<class CCell*> m_Cells;
-	vector<pair<class CCell*, SELECT_CELL>> m_SelectCells;
+	vector<pair<class CCell*, SELECT_CELL_POINT>> m_SelectCellwithPoints;
+	vector<pair<class CCell*, SELECT_CELL_POINT>> m_SelectCell;
 
 
 	/* For Animation */

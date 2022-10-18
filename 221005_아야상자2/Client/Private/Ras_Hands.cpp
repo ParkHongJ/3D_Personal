@@ -26,7 +26,7 @@ HRESULT CRas_Hands::Initialize(void * pArg)
 	strcpy_s(m_szName, "Ras_Samrah_Hands");
 	m_Tag = L"Ras_Samrah_Hands";
 	m_pModelCom->Set_AnimIndex(HAND_IDLE);
-	m_pTransformCom->Set_Scale(XMVectorSet(0.4f, 0.4f, 0.4f, 1.f));
+	m_pTransformCom->Set_Scale(XMVectorSet(0.3f, 0.3f, 0.3f, 1.f));
 	return S_OK;
 }
 
@@ -35,7 +35,19 @@ _bool CRas_Hands::Tick(_float fTimeDelta)
 	
 	Set_State(m_eState, fTimeDelta);
 
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+	if (pGameInstance->Key_Down(DIK_N))
+	{
+		m_btemp = true;
+		m_iTemp = 1;
+	}
 
+	RELEASE_INSTANCE(CGameInstance);
+
+	if (m_btemp)
+	{
+		m_fCut += fTimeDelta;
+	}
 	for (auto& pCollider : m_pColliderCom)
 	{
 		if (nullptr != pCollider)
@@ -73,13 +85,19 @@ HRESULT CRas_Hands::Render()
 
 	CGameInstance*		pGameInstance = GET_INSTANCE(CGameInstance);
 
+	if (FAILED(m_pShaderCom->Set_RawValue("g_Cut", &m_fCut, sizeof(_float))))
+		return E_FAIL;
+	if (FAILED(m_pShaderCom->Set_RawValue("g_WorldMatrix", &m_pTransformCom->Get_WorldFloat4x4_TP(), sizeof(_float4x4))))
+		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_WorldMatrix", &m_pTransformCom->Get_WorldFloat4x4_TP(), sizeof(_float4x4))))
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_ViewMatrix", &pGameInstance->Get_TransformFloat4x4_TP(CPipeLine::D3DTS_VIEW), sizeof(_float4x4))))
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_ProjMatrix", &pGameInstance->Get_TransformFloat4x4_TP(CPipeLine::D3DTS_PROJ), sizeof(_float4x4))))
 		return E_FAIL;
-
+	if (FAILED(m_pTextureCom->Set_SRV(m_pShaderCom, "g_DissolveTexture")))
+		return E_FAIL;
+	
 	RELEASE_INSTANCE(CGameInstance);
 
 
@@ -94,7 +112,7 @@ HRESULT CRas_Hands::Render()
 		return E_FAIL;*/
 
 
-		if (FAILED(m_pModelCom->Render(m_pShaderCom, i)))
+		if (FAILED(m_pModelCom->Render(m_pShaderCom, i, m_iTemp)))
 			return E_FAIL;
 	}
 
@@ -289,7 +307,9 @@ HRESULT CRas_Hands::Ready_Components()
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Hand1"), TEXT("Com_Model"), (CComponent**)&m_pModelCom)))
 		return E_FAIL;
 
-
+	/* For.Com_Texture */
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Noise"), TEXT("Com_Texture"), (CComponent**)&m_pTextureCom)))
+		return E_FAIL;
 	/* For.Com_OBB */
 	CCollider::COLLIDERDESC		ColliderDesc;
 	ZeroMemory(&ColliderDesc, sizeof(CCollider::COLLIDERDESC));
@@ -346,6 +366,7 @@ void CRas_Hands::Free()
 	for (auto& pCollider : m_pColliderCom)
 		Safe_Release(pCollider);
 
+	Safe_Release(m_pTextureCom);
 	Safe_Release(m_pTarget);
 	Safe_Release(m_pRasTransform);
 	Safe_Release(m_pModelCom);

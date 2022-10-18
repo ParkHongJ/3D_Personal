@@ -102,6 +102,9 @@
     <ClInclude Include="..\Public\Sword.h">
       <Filter>02.GameObjects\Sword</Filter>
     </ClInclude>
+    <ClInclude Include="..\Bin\ShaderFiles\Client_Shader_Defines.hpp">
+      <Filter>97.ShaderFiles</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">

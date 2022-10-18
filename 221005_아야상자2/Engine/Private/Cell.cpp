@@ -148,7 +148,7 @@ _int CCell::GetLine(_fvector vPosition)
 void CCell::Update(_float2 vPickPos)
 {
 	/*m_pCollider[0]->Collision()*/
-	//m_pVIBuffer->Picking()
+	//m_pVIBuffer->Picking(vPickPos);
 }
 HRESULT CCell::Render_Cell(_float fHeight, _float4 vColor)
 {
@@ -207,6 +207,23 @@ _bool CCell::Picking(_uint* iNumPoint)
 			return true;
 		}
 	}
+	RELEASE_INSTANCE(CPicking);
+	return false;
+}
+_bool CCell::Picking()
+{
+	CPicking*		pPicking = GET_INSTANCE(CPicking);
+
+	_float3 vRayDir, vRayPos;
+	_float fDist = 0.f;
+	pPicking->GetRayWorldInfo(&vRayDir, &vRayPos);
+	XMStoreFloat3(&vRayDir, XMVector3Normalize(XMLoadFloat3(&vRayDir)));
+	if (true == TriangleTests::Intersects(XMLoadFloat3(&vRayPos), XMLoadFloat3(&vRayDir), XMLoadFloat3(&m_vPoints[0]), XMLoadFloat3(&m_vPoints[1]), XMLoadFloat3(&m_vPoints[2]), fDist))
+	{
+		RELEASE_INSTANCE(CPicking);
+		return true;
+	}
+
 	RELEASE_INSTANCE(CPicking);
 	return false;
 }
