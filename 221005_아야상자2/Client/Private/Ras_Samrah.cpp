@@ -68,6 +68,17 @@ _bool CRas_Samrah::Tick(_float fTimeDelta)
 	{
 		m_pHand1->Set_Pattern(CRas_Hands::STATE_ANIM::HAND_SLAM_FLY);
 	}
+
+
+	if (pGameInstance->Key_Down(DIK_M))
+	{
+		m_pHand2->Set_Pattern(CRas_Hands2::HAND_PATTERN2);
+	}
+	if (pGameInstance->Key_Down(DIK_N))
+	{
+		m_pHand3->Set_Pattern(CRas_Hands3::HAND_PATTERN3);
+	}
+
 	RELEASE_INSTANCE(CGameInstance);
 
 
@@ -161,6 +172,10 @@ void CRas_Samrah::GetDamaged(_float fDamage)
 			m_ePhase = PHASE_2;
 			m_eCurrentAnimState = HitPhase2;
 			m_pModelCom->Change_Animation(HitPhase2, 0.0f, false);
+
+			m_pHand1->Set_Death();
+			m_pHand2->Set_Death();
+			m_pHand3->Set_Death();
 			return;
 		}
 	}
@@ -356,6 +371,7 @@ HRESULT CRas_Samrah::Ready_Hands()
 
 	m_pHand2->Set_Target(m_pTargetTransform);
 	m_pHand2->SetRas_Samrah(m_pTransformCom);
+	m_pHand2->Set_OffsetPos(m_pTransformCom);
 
 	//Hand3
 	m_pHand3 = (CRas_Hands3*)(pGameInstance->Get_ComponentPtr(LEVEL_GAMEPLAY, L"Layer_RasHands", L"Com_Transform", 2)->GetOwner());
@@ -363,8 +379,8 @@ HRESULT CRas_Samrah::Ready_Hands()
 
 	m_pHand3->Set_Target(m_pTargetTransform);
 	m_pHand3->SetRas_Samrah(m_pTransformCom);
+	m_pHand3->Set_OffsetPos(m_pTransformCom);
 
-	m_pHand2->Set_OffsetPos(m_pTransformCom);
 
 
 

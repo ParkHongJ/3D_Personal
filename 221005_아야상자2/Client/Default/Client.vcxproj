@@ -186,10 +186,12 @@
     <ClInclude Include="..\Public\Monster.h" />
     <ClInclude Include="..\Public\Particle_Rect.h" />
     <ClInclude Include="..\Public\Player.h" />
+    <ClInclude Include="..\public\Projectile.h" />
     <ClInclude Include="..\public\Ras_Hands.h" />
     <ClInclude Include="..\public\Ras_Hands2.h" />
     <ClInclude Include="..\public\Ras_Hands3.h" />
     <ClInclude Include="..\public\Ras_Samrah.h" />
+    <ClInclude Include="..\public\StaticObject.h" />
     <ClInclude Include="..\Public\Sword.h" />
     <ClInclude Include="..\Public\Terrain.h" />
     <ClInclude Include="..\Public\tinystr.h" />
@@ -226,10 +228,12 @@
     <ClCompile Include="..\Private\Monster.cpp" />
     <ClCompile Include="..\Private\Particle_Rect.cpp" />
     <ClCompile Include="..\Private\Player.cpp" />
+    <ClCompile Include="..\private\Projectile.cpp" />
     <ClCompile Include="..\private\Ras_Hands.cpp" />
     <ClCompile Include="..\private\Ras_Hands2.cpp" />
     <ClCompile Include="..\private\Ras_Hands3.cpp" />
     <ClCompile Include="..\private\Ras_Samrah.cpp" />
+    <ClCompile Include="..\private\StaticObject.cpp" />
     <ClCompile Include="..\Private\Sword.cpp" />
     <ClCompile Include="..\Private\Terrain.cpp" />
     <ClCompile Include="..\Private\tinystr.cpp">

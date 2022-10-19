@@ -17,6 +17,7 @@
 #include "Ras_Hands.h"
 #include "Ras_Hands2.h"
 #include "Ras_Hands3.h"
+#include "StaticObject.h"
 //#include "Effect.h"
 //#include "Sky.h"
 //#include "UI.h"
@@ -188,7 +189,10 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Ras_Hands3"),
 		CRas_Hands3::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
-
+	/* For.Prototype_GameObject_StaticObject */
+	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_StaticObject"),
+		CStaticObject::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 	///* For.Prototype_GameObject_Hammer */
 	//if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Camera_Free"),
 	//	CCamera_Free::Create(m_pDevice, m_pContext))))
@@ -246,7 +250,7 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 
 	/* For.Prototype_Component_VIBuffer_Terrain */
 	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Terrain"),
-		CVIBuffer_Terrain::Create(m_pDevice, m_pContext, 25, 25))))
+		CVIBuffer_Terrain::Create(m_pDevice, m_pContext, 2, 2))))
 		return E_FAIL;
 
 	_matrix		PivotMatrix = XMMatrixIdentity();
@@ -332,6 +336,31 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
 	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_BreakedEndChain"),
 		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/Chaudron/BreakedEndChanis.dat", PivotMatrix))))
+		return E_FAIL;
+
+	//Cercle_int
+	PivotMatrix = XMMatrixIdentity();
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Cercle_int"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/Castle/Cercle_int.dat", PivotMatrix))))
+		return E_FAIL;
+	//Grille_Chaudron
+	PivotMatrix = XMMatrixIdentity();
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Grille_Chaudron"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/Castle/Grille_Chaudron.dat", PivotMatrix))))
+		return E_FAIL;
+	//Piller
+	PivotMatrix = XMMatrixIdentity();
+	PivotMatrix = XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Piller"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/Castle/Piller.dat", PivotMatrix))))
+		return E_FAIL;
+	//Plat
+	PivotMatrix = XMMatrixIdentity();
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Plat"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/Castle/Plat.dat", PivotMatrix))))
 		return E_FAIL;
 
 	///* For.Prototype_Component_VIBuffer_Cube */

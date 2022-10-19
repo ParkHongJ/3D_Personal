@@ -66,7 +66,6 @@ private:
 	_float					m_fAttackTime = 0.0f;
 	_float					m_fAttackTimeMax = 2.5f;
 
-	void Set_State(STATE_ANIM eState, _float fTimeDelta);
 
 	_float					m_fCut = 0.0f;
 	_uint					m_iTemp = 0;
@@ -75,6 +74,8 @@ public:
 	void SetRas_Samrah(class CTransform * pRasTransform);
 	void Set_Target(class CTransform* pTarget);
 	void Set_Pattern(STATE_ANIM eState);
+	void Set_State(STATE_ANIM eState, _float fTimeDelta);
+	void Set_Death();
 
 protected:
 	HRESULT Ready_Components();

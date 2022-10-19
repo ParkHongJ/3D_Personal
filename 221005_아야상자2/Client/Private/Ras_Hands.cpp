@@ -32,17 +32,12 @@ HRESULT CRas_Hands::Initialize(void * pArg)
 
 _bool CRas_Hands::Tick(_float fTimeDelta)
 {
-	
+	if (m_bDestroy)
+		return true;
+	if (!m_bActive)
+		return false;
+
 	Set_State(m_eState, fTimeDelta);
-
-	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
-	if (pGameInstance->Key_Down(DIK_N))
-	{
-		m_btemp = true;
-		m_iTemp = 1;
-	}
-
-	RELEASE_INSTANCE(CGameInstance);
 
 	if (m_btemp)
 	{
@@ -58,18 +53,18 @@ _bool CRas_Hands::Tick(_float fTimeDelta)
 
 void CRas_Hands::LateTick(_float fTimeDelta)
 {
-	if (nullptr == m_pRendererCom)
+	if (nullptr == m_pRendererCom || !m_bActive)
 		return;
 
 	m_bAnimEnd = m_pModelCom->Play_Animation(fTimeDelta);
 
 	if (m_bHitEnabled)
 	{
-		m_pColliderCom[COLLIDERTYPE_OBB]->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom[COLLIDERTYPE_OBB]);
+		m_pColliderCom[COLLIDERTYPE_SPHERE]->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom[COLLIDERTYPE_SPHERE]);
 	}
 	if (m_bAttackEnabled)
 	{
-		m_pColliderCom[COLLIDERTYPE_SPHERE]->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom[COLLIDERTYPE_SPHERE]);
+		m_pColliderCom[COLLIDERTYPE_OBB]->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom[COLLIDERTYPE_OBB]);
 		m_bAttackEnabled = false;
 		m_bHitEnabled = true;
 	}
@@ -212,6 +207,7 @@ void CRas_Hands::Set_State(STATE_ANIM eState, _float fTimeDelta)
 		}
 		else
 		{
+			//추적중이라면 플레이어를 바라본 상태로 추적
 			_vector vPosition = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
 
 
@@ -224,11 +220,6 @@ void CRas_Hands::Set_State(STATE_ANIM eState, _float fTimeDelta)
 				//네비를 태울까?
 				vPosition = XMVectorSetY(vPosition, 6.0f);
 
-				
-
-
-
-
 				//Look 조절해야함
 				_vector vLook = vPosition - m_pRasTransform->Get_State(CTransform::STATE_POSITION);
 				
@@ -237,7 +228,6 @@ void CRas_Hands::Set_State(STATE_ANIM eState, _float fTimeDelta)
 				m_pTransformCom->LookDir(vLook);
 
 				XMVectorSetY(vLook, 0.0f);
-
 
 				//vPosition -= XMVector3Normalize(vTargetPos - vPosition) * 5.f;
 
@@ -266,6 +256,13 @@ void CRas_Hands::Set_State(STATE_ANIM eState, _float fTimeDelta)
 	default:
 		break;
 	}
+}
+
+void CRas_Hands::Set_Death()
+{
+	m_eState = HAND_DEATH;
+	m_bAnimEnd = false;
+	m_pModelCom->Change_Animation(HAND_DEATH);
 }
 
 void CRas_Hands::SetRas_Samrah(CTransform * pRasTransform)

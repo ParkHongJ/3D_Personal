@@ -31,27 +31,22 @@ HRESULT CRas_Hands2::Initialize(void * pArg)
 
 _bool CRas_Hands2::Tick(_float fTimeDelta)
 {
+	if (m_bDestroy)
+		return true;
+	if (!m_bActive)
+		return false;
 	Set_State(m_eState, fTimeDelta);
-	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 	
-	if (pGameInstance->Key_Down(DIK_M))
-	{
-		m_pModelCom->Change_Animation(HAND_IDLE);
-		MoveToOffsetIdle();
-	}
-	else if (pGameInstance->Key_Down(DIK_L))
-	{
-		m_pModelCom->Change_Animation(HAND_PATTERN2);
-		MoveToOffsetAttack();
-		m_eState = HAND_PATTERN2;
-	}
-	RELEASE_INSTANCE(CGameInstance);
 
 	return false;
 }
 
 void CRas_Hands2::LateTick(_float fTimeDelta)
 {
+	if (m_bDestroy)
+		return;
+	if (!m_bActive)
+		return;
 	if (nullptr == m_pRendererCom)
 		return;
 
@@ -114,6 +109,11 @@ void CRas_Hands2::Set_State(STATE_ANIM eState, _float fTimeDelta)
 	switch (eState)
 	{
 	case CRas_Hands2::HAND_DEATH:
+		m_pModelCom->Change_Animation(HAND_DEATH);
+		if (m_bAnimEnd)
+		{
+			m_bActive = false;
+		}
 		break;
 	case CRas_Hands2::HAND_IDLE:
 		//m_pModelCom->Change_Animation(HAND_IDLE);
@@ -159,7 +159,8 @@ void CRas_Hands2::Set_Target(CTransform* pTarget)
 void CRas_Hands2::Set_Pattern(STATE_ANIM eState)
 {
 	m_eState = eState;
-	m_pModelCom->Change_Animation(eState, 0.25f, false);
+	m_pModelCom->Change_Animation(HAND_PATTERN2);
+	MoveToOffsetAttack();
 }
 
 void CRas_Hands2::Set_OffsetPos(CTransform * pRasTransform)
@@ -194,6 +195,13 @@ void CRas_Hands2::MoveToOffsetAttack()
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVector3TransformCoord(XMLoadFloat3(&m_vOffsetAttack), m_pTransformCom->Get_WorldMatrix()));
 	m_pTransformCom->Set_Scale(XMVectorSet(0.3f, 0.3f, 0.3f, 1.f));
 	m_pTransformCom->Rotation(XMVectorSet(0.f, 1.f, 0.f, 0.f), XMConvertToRadians(180.f));
+}
+
+void CRas_Hands2::Set_Death()
+{
+	m_eState = HAND_DEATH;
+	m_pModelCom->Change_Animation(HAND_DEATH);
+	m_bAnimEnd = false;
 }
 
 HRESULT CRas_Hands2::Ready_Components()

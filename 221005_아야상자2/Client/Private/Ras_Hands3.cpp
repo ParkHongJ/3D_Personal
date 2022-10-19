@@ -25,19 +25,28 @@ HRESULT CRas_Hands3::Initialize(void * pArg)
 
 	strcpy_s(m_szName, "Ras_Samrah_Hands3");
 	m_Tag = L"Ras_Samrah_Hands3";
+	
+	m_eState = HAND_IDLE;
 	m_pModelCom->Set_AnimIndex(HAND_IDLE);
-	m_pTransformCom->Set_Scale(XMVectorSet(0.3f, 0.3f, 0.3f, 1.f));
 	return S_OK;
 }
 
 _bool CRas_Hands3::Tick(_float fTimeDelta)
 {
+	if (m_bDestroy)
+		return true;
+	if (!m_bActive)
+		return false;
 	Set_State(m_eState, fTimeDelta);
 	return false;
 }
 
 void CRas_Hands3::LateTick(_float fTimeDelta)
 {
+	if (m_bDestroy)
+		return;
+	if (!m_bActive)
+		return;
 	if (nullptr == m_pRendererCom)
 		return;
 
@@ -107,14 +116,71 @@ void CRas_Hands3::Set_State(STATE_ANIM eState, _float fTimeDelta)
 	switch (eState)
 	{
 	case CRas_Hands3::HAND_DEATH:
+		if (m_bAnimEnd)
+		{
+			m_bActive = false;
+		}
 		break;
 	case CRas_Hands3::HAND_IDLE:
 		break;
 	case CRas_Hands3::HAND_PATTERN3:
+		//패턴이 끝났다면 IDLE로 돌아감
+		if (m_bAnimEnd)
+		{
+			//3발을 쐈다면
+			if (m_iProjectileCount >= m_iProjectileCountMax)
+			{
+				m_eState = HAND_IDLE;
+				m_pModelCom->Change_Animation(HAND_IDLE);
+				MoveToOffsetIdle();
+				m_iProjectileCount = 0;
+			}
+			else
+			{
+				//발사횟수를 하나 증가시키고
+				m_iProjectileCount++;
+				//발사
+			}
+		}
+		else
+		{
+			//3발을 쐈다면
+			if (m_iProjectileCount >= m_iProjectileCountMax)
+			{
+				m_eState = HAND_IDLE;
+				m_pModelCom->Change_Animation(HAND_IDLE);
+				MoveToOffsetIdle();
+				m_iProjectileCount = 0;
+				break;
+			}
+			//아니라면 계속 플레이어를 바라보고 투사체를 발사함. 최대 3번
+			_vector vPosition = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+
+			if (nullptr != m_pTarget)
+			{
+				_vector vTargetPos = m_pTarget->Get_State(CTransform::STATE_POSITION);
+
+				//Look 조절해야함
+				_vector vLook = vPosition - m_pRasTransform->Get_State(CTransform::STATE_POSITION);
+
+				vLook = XMVectorSetY(vLook, 0.0f);
+
+				m_pTransformCom->LookDir(vLook);
+
+				XMVectorSetY(vLook, 0.0f);
+			}
+		}
 		break;
 	default:
 		break;
 	}
+}
+
+void CRas_Hands3::Set_Death()
+{
+	m_eState = HAND_DEATH;
+	m_pModelCom->Change_Animation(HAND_DEATH);
+	m_bAnimEnd = false;
 }
 
 void CRas_Hands3::SetRas_Samrah(CTransform * pRasTransform)
@@ -134,8 +200,43 @@ void CRas_Hands3::Set_Target(CTransform* pTarget)
 
 void CRas_Hands3::Set_Pattern(STATE_ANIM eState)
 {
-	m_eState = eState;
-	m_pModelCom->Change_Animation(eState, 0.25f, false);
+	m_eState = eState;	
+	m_pModelCom->Change_Animation(HAND_PATTERN3);
+	MoveToOffsetAttack();
+}
+
+void CRas_Hands3::Set_OffsetPos(CTransform * pRasTransform)
+{
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pRasTransform->Get_State(CTransform::STATE_POSITION));
+	XMStoreFloat3(&m_vOffsetPosition, XMVectorSet(-11.f, 20.f, 0.f, 1.f));
+	XMStoreFloat3(&m_vOffsetAttack, XMVectorSet(0.f, 3.f, -6.f, 1.f));
+
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVector3TransformCoord(XMLoadFloat3(&m_vOffsetPosition), m_pTransformCom->Get_WorldMatrix()));
+	m_pTransformCom->Set_Scale(XMVectorSet(0.3f, 0.3f, 0.3f, 1.f));
+	m_pTransformCom->Rotation(XMVectorSet(0.f, -1.f, 0.f, 0.f), XMConvertToRadians(-90.f));
+
+
+}
+
+void CRas_Hands3::MoveToOffsetIdle()
+{
+	m_pTransformCom->Set_WorldMatrix(XMMatrixIdentity());
+	//이전상태는 Attack.
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pRasTransform->Get_State(CTransform::STATE_POSITION));
+
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVector3TransformCoord(XMLoadFloat3(&m_vOffsetPosition), m_pTransformCom->Get_WorldMatrix()));
+	m_pTransformCom->Set_Scale(XMVectorSet(0.3f, 0.3f, 0.3f, 1.f));
+	m_pTransformCom->Rotation(XMVectorSet(0.f, -1.f, 0.f, 0.f), XMConvertToRadians(-90.f));
+}
+
+void CRas_Hands3::MoveToOffsetAttack()
+{
+	m_pTransformCom->Set_WorldMatrix(XMMatrixIdentity());
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pRasTransform->Get_State(CTransform::STATE_POSITION));
+
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVector3TransformCoord(XMLoadFloat3(&m_vOffsetAttack), m_pTransformCom->Get_WorldMatrix()));
+	m_pTransformCom->Set_Scale(XMVectorSet(0.3f, 0.3f, 0.3f, 1.f));
+	m_pTransformCom->Rotation(XMVectorSet(0.f, 1.f, 0.f, 0.f), XMConvertToRadians(180.f));
 }
 
 HRESULT CRas_Hands3::Ready_Components()

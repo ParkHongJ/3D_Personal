@@ -59,6 +59,8 @@ private:
 	_float3					m_vOffsetPosition = { 0.f,0.f,0.f };
 	_float3					m_vOffsetAttack = { 0.f,0.f,0.f };
 
+
+
 public:
 	void Set_State(STATE_ANIM eState, _float fTimeDelta);
 	void SetRas_Samrah(class CTransform * pRasTransform);
@@ -68,6 +70,7 @@ public:
 	void Set_OffsetPos(class CTransform* pRasTransform);
 	void MoveToOffsetIdle();
 	void MoveToOffsetAttack();
+	void Set_Death();
 protected:
 	HRESULT Ready_Components();
 

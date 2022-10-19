@@ -17,7 +17,7 @@ class CImGui_Manager final : public CBase
 	DECLARE_SINGLETON(CImGui_Manager)
 public:
 	enum Tool { TOOL_MAP, TOOL_UNIT, TOOL_CAMERA, TOOL_PARTICLE, TOOL_ANIMATION, TOOL_NAVIGATION, TOOL_END };
-	enum NavMesh { NAV_ADD, NAV_EDIT_POINT, NAV_EDIT_CELL, NAV_DELETE, NAV_END };
+	enum NavMesh { NAV_ADD, NAV_EDIT_POINT, NAV_EDIT_CELL, NAV_END };
 	typedef struct AnimInfo {
 		string name;
 		string message;
@@ -41,6 +41,7 @@ public:
 		_uint iOriginCellIndex;
 	}SELECT_CELL_POINT;
 
+
 	typedef struct CreateObjInfo
 	{
 		//생성할때 필요한 자료.
@@ -49,12 +50,29 @@ public:
 		//레이어 태그
 		//레벨
 		//모델명
-		std::string szName;
-		std::wstring pPrototypeTag;
-		std::wstring pLayerTag;
-		std::wstring pModelTag;
-		unsigned int iNumLevel;
+		char szName[260] = "";
+		wchar_t pPrototypeTag[260] = L"";
+		wchar_t pLayerTag[260] = L"";
+		unsigned int iNumLevel = LEVEL_END;
+		wchar_t pModelTag[260] = L"";
+
+		XMFLOAT4X4 WorldMatrix;
+
 	}CREATE_INFO;
+	//typedef struct CreateObjInfo
+	//{
+	//	//생성할때 필요한 자료.
+	//	//이름
+	//	//프로토타입 태그
+	//	//레이어 태그
+	//	//레벨
+	//	//모델명
+	//	std::string szName;
+	//	std::wstring pPrototypeTag;
+	//	std::wstring pLayerTag;
+	//	std::wstring pModelTag;
+	//	unsigned int iNumLevel;
+	//}CREATE_INFO;
 public:
 	CImGui_Manager();
 	virtual ~CImGui_Manager() = default;
@@ -71,8 +89,8 @@ public:
 	void DeletePickPos();
 	void ClearPickPos();
 
-	//Save
-	void SaveObject();
+	//Load
+	HRESULT LoadObject();
 
 	//Cell
 	void RenderGizmo();
@@ -87,8 +105,6 @@ public:
 
 	/* For Inspector */
 	void Inspector();
-
-	_bool badValue(class CCell* pCell);
 
 	wstring CharToWstring(const char* src)
 	{
@@ -109,8 +125,6 @@ private:
 
 	_uint item_current_idx = 0;
 	Tool m_eCurrentTool = TOOL_END;
-
-
 	/*============
 	===Particle===
 	============*/

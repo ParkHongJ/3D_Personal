@@ -9,6 +9,7 @@ class ENGINE_DLL CCell final : public CBase
 public:
 	enum POINT { POINT_A, POINT_B, POINT_C, POINT_END };
 	enum LINE { LINE_AB, LINE_BC, LINE_CA, LINE_END };
+	enum CELLTYPE { MOVE, CANTMOVE, CELLTYPE_END };
 private:
 	CCell(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual ~CCell() = default;
@@ -50,6 +51,8 @@ public:
 	}
 
 	_float Compute_Height(_fvector vTargetPos);
+	_uint GetType() { return m_eType; }
+	void SetType(CELLTYPE eType) { m_eType = eType; }
 
 public:
 	HRESULT Initialize(const _float3* pPoints, _int iIndex);
@@ -57,7 +60,6 @@ public:
 	_bool isIn(_fvector vPosition, _int* pNeighborIndex);
 	_vector GetSliding(_fvector vPosition, _float3* vCurrentPosition);
 	_int GetLine(_fvector vPosition);
-
 #ifdef _DEBUG
 public:
 	void Update(_float2 vPickPos);
@@ -75,7 +77,7 @@ private:
 	_float3					m_vNormal[LINE_END];
 
 	_int					m_iNeighborIndex[LINE_END] = { -1, -1, -1 };
-
+	CELLTYPE				m_eType = MOVE;
 #ifdef _DEBUG
 	class CVIBuffer_Cell*	m_pVIBuffer = nullptr;
 	class CShader*			m_pShader = nullptr;

@@ -25,7 +25,7 @@ HRESULT CTerrain::Initialize(void * pArg)
 
 	if (FAILED(Ready_FilterTexture()))
 		return E_FAIL;
-	
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(-5000.f, 0.f, -5000.f, 1.f));
 	strcpy_s(m_szName, "Terrain");
 	return S_OK;
 }

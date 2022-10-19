@@ -152,11 +152,18 @@ void CCell::Update(_float2 vPickPos)
 }
 HRESULT CCell::Render_Cell(_float fHeight, _float4 vColor)
 {
+	
 	CPipeLine*			pPipeLine = GET_INSTANCE(CPipeLine);
 	_float4x4			WorldMatrix;
 	XMStoreFloat4x4(&WorldMatrix, XMMatrixIdentity());
-
-	WorldMatrix.m[1][3] = fHeight;
+	if (m_eType == CANTMOVE)
+	{
+		fHeight = 0.05f;
+		vColor = _float4(1.f, 0.f, 0.f, 1.f);
+		WorldMatrix.m[1][3] = fHeight;
+	}
+	else
+		WorldMatrix.m[1][3] = fHeight;
 
 	if (FAILED(m_pShader->Set_RawValue("g_WorldMatrix", &WorldMatrix, sizeof(_float4x4))))
 		return E_FAIL;

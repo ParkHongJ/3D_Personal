@@ -63,6 +63,8 @@ HRESULT CImGui_Manager::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pContex
 	SelectedNextAnim.name = "";
 	
 	m_ResultPair.resize(150);
+
+	LoadObject();
 	return S_OK;
 
 }
@@ -115,17 +117,17 @@ void CImGui_Manager::Render()
 
 	{
 		//LEFT SIDE
-		ImGui::Spacing();
+		/*ImGui::Spacing();
 		ImGui::PushStyleColor(ImGuiCol_Button, m_eCurrentTool == CImGui_Manager::TOOL_MAP ? active : inactive);
 		if (ImGui::Button("MapTool", ImVec2(230 - 15, 41)))
-			m_eCurrentTool = TOOL_MAP;
+			m_eCurrentTool = TOOL_MAP;*/
 
 		ImGui::Spacing();
 		ImGui::PushStyleColor(ImGuiCol_Button, m_eCurrentTool == CImGui_Manager::TOOL_UNIT ? active : inactive);
 		if (ImGui::Button("UnitTool", ImVec2(230 - 15, 41)))
 			m_eCurrentTool = TOOL_UNIT;
 
-		ImGui::Spacing();
+		/*ImGui::Spacing();
 		ImGui::PushStyleColor(ImGuiCol_Button, m_eCurrentTool == CImGui_Manager::TOOL_CAMERA ? active : inactive);
 		if (ImGui::Button("CameraTool", ImVec2(230 - 15, 41)))
 			m_eCurrentTool = TOOL_CAMERA;
@@ -133,7 +135,7 @@ void CImGui_Manager::Render()
 		ImGui::Spacing();
 		ImGui::PushStyleColor(ImGuiCol_Button, m_eCurrentTool == CImGui_Manager::TOOL_PARTICLE ? active : inactive);
 		if (ImGui::Button("ParticleTool", ImVec2(230 - 15, 41)))
-			m_eCurrentTool = TOOL_PARTICLE;
+			m_eCurrentTool = TOOL_PARTICLE;*/
 
 		ImGui::Spacing();
 		ImGui::PushStyleColor(ImGuiCol_Button, m_eCurrentTool == CImGui_Manager::TOOL_ANIMATION ? active : inactive);
@@ -145,7 +147,7 @@ void CImGui_Manager::Render()
 		if (ImGui::Button("NavMeshTool", ImVec2(230 - 15, 41)))
 			m_eCurrentTool = TOOL_NAVIGATION;
 
-		ImGui::PopStyleColor(6);
+		ImGui::PopStyleColor(3);
 	}
 
 	ImGui::NextColumn();
@@ -356,19 +358,35 @@ void CImGui_Manager::Render()
 					//레이어 태그
 					//레벨
 					//모델명
+					//CREATE_INFO tObjInfo;
+					//tObjInfo.pPrototypeTag = CharToWstring(PrototypeName);
+					//tObjInfo.pLayerTag = CharToWstring(LayerName);
+					//tObjInfo.pModelTag = CharToWstring(ModelName);
+					///*MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, PrototypeName, (_int)strlen(PrototypeName), tObjInfo.pPrototypeTag, MAX_PATH);
+
+					//MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, LayerName, (_int)strlen(LayerName), tObjInfo.pLayerTag, MAX_PATH);
+					//MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, ModelName, (_int)strlen(ModelName), tObjInfo.pModelTag, MAX_PATH);*/
+					//tObjInfo.iNumLevel = LEVEL_GAMEPLAY;
+					////sprintf_s(tObjInfo.szName, ObjName);
+
+					//m_CreateObj.push_back(tObjInfo);
+					//AddGameObject(tObjInfo.pPrototypeTag.c_str(), tObjInfo.pLayerTag.c_str(), tObjInfo.iNumLevel, &tObjInfo);
 					CREATE_INFO tObjInfo;
-					tObjInfo.pPrototypeTag = CharToWstring(PrototypeName);
-					tObjInfo.pLayerTag = CharToWstring(LayerName);
-					tObjInfo.pModelTag = CharToWstring(ModelName);
-					/*MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, PrototypeName, (_int)strlen(PrototypeName), tObjInfo.pPrototypeTag, MAX_PATH);
+					ZeroMemory(&tObjInfo, sizeof(CREATE_INFO));
 
-					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, LayerName, (_int)strlen(LayerName), tObjInfo.pLayerTag, MAX_PATH);
-					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, ModelName, (_int)strlen(ModelName), tObjInfo.pModelTag, MAX_PATH);*/
+					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, PrototypeName, strlen(PrototypeName), tObjInfo.pPrototypeTag, MAX_PATH);
+					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, LayerName, strlen(LayerName), tObjInfo.pLayerTag, MAX_PATH);
+					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, ModelName, strlen(ModelName), tObjInfo.pModelTag, MAX_PATH);
+
 					tObjInfo.iNumLevel = LEVEL_GAMEPLAY;
-					//sprintf_s(tObjInfo.szName, ObjName);
+					sprintf_s(tObjInfo.szName, ObjName);
 
+					wsprintf(tObjInfo.pLayerTag, L"StaticObject");
+					
+					XMStoreFloat4x4(&tObjInfo.WorldMatrix, XMMatrixIdentity());
+
+					AddGameObject(tObjInfo.pPrototypeTag, tObjInfo.pLayerTag, tObjInfo.iNumLevel, &tObjInfo);
 					m_CreateObj.push_back(tObjInfo);
-					//AddGameObject(tObjInfo.pPrototypeTag, tObjInfo.pLayerTag, tObjInfo.iNumLevel, &tObjInfo);
 				}
 				
 				ImGui::Separator();
@@ -378,6 +396,79 @@ void CImGui_Manager::Render()
 
 				}
 				ImGui::EndPopup();
+			}
+			if (ImGui::Button("Save"))
+			{
+				for (auto& Pair : *m_pHierarchyList)
+				{
+					if (wcscmp(Pair.first, L"StaticObject"))
+					{
+						continue;
+					}
+					list<class CGameObject*>* pLeafHierachyList = Pair.second->Get_Layer();
+					for (auto& iter : *pLeafHierachyList)
+					{
+						for (auto& iter2 : m_CreateObj)
+						{
+							if (!strcmp(iter->GetName(), iter2.szName))
+							{
+								CTransform* pTransform = (CTransform*)iter->Get_ComponentPtr(L"Com_Transform");
+								_float4x4 WorldMatrix;
+								XMStoreFloat4x4(&WorldMatrix, pTransform->Get_WorldMatrix());
+								iter2.WorldMatrix = WorldMatrix;
+							}
+						}
+					}
+
+				}
+
+				_ulong		dwByte = 0;
+				DWORD		dwStrByte = 0;
+
+				HANDLE		hFile = CreateFile(TEXT("../Bin/Data/MapStaticInfo.dat"), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+				if (0 == hFile)
+					return;
+
+				/*
+				char szName[260] = "";
+				wchar_t pPrototypeTag[260] = L"";
+				wchar_t pLayerTag[260] = L"";
+				unsigned int iNumLevel = LEVEL_END;
+				wchar_t pModelTag[260] = L"";
+
+				XMFLOAT4X4 WorldMatrix;
+				*/
+				//이름저장
+				for (auto& iter : m_CreateObj)
+				{
+					//Prototype
+					dwStrByte = DWORD(sizeof(_tchar) * wcslen(iter.pPrototypeTag));
+					WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
+					WriteFile(hFile, &iter.pPrototypeTag, dwStrByte, &dwByte, nullptr);
+
+					//Layer
+					dwStrByte = DWORD(sizeof(_tchar) * wcslen(iter.pLayerTag));
+					WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
+					WriteFile(hFile, &iter.pLayerTag, dwStrByte, &dwByte, nullptr);
+
+					//Model
+					dwStrByte = DWORD(sizeof(_tchar) * wcslen(iter.pModelTag));
+					WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
+					WriteFile(hFile, &iter.pModelTag, dwStrByte, &dwByte, nullptr);
+
+					//name
+					dwStrByte = DWORD(sizeof(_char) * strlen(iter.szName));
+					WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
+					WriteFile(hFile, &iter.szName, dwStrByte, &dwByte, nullptr);
+
+					//Level
+					WriteFile(hFile, &iter.iNumLevel, sizeof(_uint), &dwByte, nullptr);
+
+					//Matrix
+					WriteFile(hFile, &iter.WorldMatrix, sizeof(_float4x4), &dwByte, nullptr);
+				}
+
+				CloseHandle(hFile);
 			}
 		}
 		break;
@@ -694,6 +785,59 @@ void CImGui_Manager::ClearPickPos()
 	m_iCurrentNaviIndex = 0;
 }
 
+HRESULT CImGui_Manager::LoadObject()
+{
+	HANDLE		hFile = CreateFile(TEXT("../Bin/Data/MapStaticInfo.dat"), GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+
+	if (INVALID_HANDLE_VALUE == hFile)
+		return E_FAIL;
+
+	//읽은 바이트 
+	DWORD	dwByte = 0;
+	DWORD	dwStrByte = 0;
+
+	//프로토타입
+	//레이어
+	//모델
+	//이름(char)
+	//레벨
+	//매트릭스
+	while (true)
+	{
+		//프로토타입 로드
+		CREATE_INFO tObjInfo;
+		ReadFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
+		ReadFile(hFile, tObjInfo.pPrototypeTag, dwStrByte, &dwByte, nullptr);
+
+		//레이어 로드
+		ReadFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
+		ReadFile(hFile, tObjInfo.pLayerTag, dwStrByte, &dwByte, nullptr);
+
+		//모델 로드
+		ReadFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
+		ReadFile(hFile, tObjInfo.pModelTag, dwStrByte, &dwByte, nullptr);
+
+		//이름 로드
+		ReadFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
+		ReadFile(hFile, tObjInfo.szName, dwStrByte, &dwByte, nullptr);
+
+		//레벨 로드
+		ReadFile(hFile, &tObjInfo.iNumLevel, sizeof(_uint), &dwByte, nullptr);
+
+		//매트릭스 로드
+		ReadFile(hFile, &tObjInfo.WorldMatrix, sizeof(_float4x4), &dwByte, nullptr);
+
+		if (0 == dwByte)
+		{
+			break;
+		}
+		m_CreateObj.push_back(tObjInfo);
+	}
+
+	CloseHandle(hFile);
+	return S_OK;
+}
+
 void CImGui_Manager::RenderGizmo()
 {
 	for (auto& pCell : m_Cells)
@@ -705,14 +849,14 @@ void CImGui_Manager::RenderGizmo()
 	{
 		if (nullptr != pCell.first)
 		{
-			pCell.first->Render_Cell(0.1f, _float4(0.f, 0.f, 1.f, 1.f));
+			pCell.first->Render_Cell(0.1f, _float4(1.f, 0.f, 1.f, 1.f));
 		}
 	}
 	for (auto& pCell : m_SelectCell)
 	{
 		if (nullptr != pCell.first)
 		{
-			pCell.first->Render_Cell(0.1f, _float4(0.f, 0.f, 1.f, 1.f));
+			pCell.first->Render_Cell(0.1f, _float4(1.f, 0.f, 1.f, 1.f));
 		}
 	}
 }
@@ -735,11 +879,22 @@ void CImGui_Manager::ShowNavMesh() {
 	ImGui::RadioButton("NAV_ADD", &SelectMode, 0); ImGui::SameLine();
 	ImGui::RadioButton("NAV_EDIT_Point", &SelectMode, 1); ImGui::SameLine();
 	ImGui::RadioButton("NAV_EDIT_Cell", &SelectMode, 2); ImGui::SameLine();
-	ImGui::RadioButton("NAV_DELETE", &SelectMode, 3);
 	m_eNav = (NavMesh)SelectMode;
 
 	if (m_eNav == NAV_ADD)
 	{
+		for (auto& pCell : m_SelectCellwithPoints)
+		{
+			Safe_Release(pCell.first);
+		}
+		m_SelectCellwithPoints.clear();
+
+		for (auto& pCell : m_SelectCell)
+		{
+			Safe_Release(pCell.first);
+		}
+		m_SelectCell.clear();
+
 		CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 		/*if (pGameInstance->Mouse_Down(DIMK_LBUTTON))
 		{
@@ -781,14 +936,11 @@ void CImGui_Manager::ShowNavMesh() {
 
 	if (m_eNav == NAV_EDIT_POINT)
 	{
-		if (!m_SelectCell.empty())
+		for (auto& pCell : m_SelectCell)
 		{
-			for (auto& pCell : m_SelectCell)
-			{
-				Safe_Release(pCell.first);
-			}
-			m_SelectCell.clear();
+			Safe_Release(pCell.first);
 		}
+		m_SelectCell.clear();
 
 		CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 		if (pGameInstance->Mouse_Down(DIMK_LBUTTON))
@@ -855,14 +1007,11 @@ void CImGui_Manager::ShowNavMesh() {
 
 	if (m_eNav == NAV_EDIT_CELL)
 	{
-		if (!m_SelectCellwithPoints.empty())
+		for (auto& pCell : m_SelectCellwithPoints)
 		{
-			for (auto& pCell : m_SelectCellwithPoints)
-			{
-				Safe_Release(pCell.first);
-			}
-			m_SelectCellwithPoints.clear();
+			Safe_Release(pCell.first);
 		}
+		m_SelectCellwithPoints.clear();
 
 		CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 		if (pGameInstance->Mouse_Down(DIMK_LBUTTON) && pGameInstance->Key_Pressing(DIK_LSHIFT))
@@ -933,6 +1082,20 @@ void CImGui_Manager::ShowNavMesh() {
 			//second : +될 값
 			pCell.first->EditCell(pCell.second.iPointIndex, _float3(0.f, 0.5f, 0.f));
 		}
+	}
+	if (ImGui::Button("TESTType"))
+	{
+		for (auto& pCell : m_SelectCell)
+		{
+			//first : Cell
+			//second : +될 값
+			pCell.first->SetType(CCell::CANTMOVE);
+		}
+		for (auto& pCell : m_SelectCell)
+		{
+			Safe_Release(pCell.first);
+		}
+		m_SelectCell.clear();
 	}
 
 	if (ImGui::Button("Delete"))
@@ -1067,15 +1230,6 @@ void CImGui_Manager::Inspector()
 			pTransform->Set_WorldMatrix(WorldMatrix);
 		}
 	}
-}
-
-_bool CImGui_Manager::badValue(CCell * pCell)
-{
-	if (pCell == nullptr)
-	{
-		return true;
-	}
-	return false;
 }
 
 void CImGui_Manager::RenderEnd()

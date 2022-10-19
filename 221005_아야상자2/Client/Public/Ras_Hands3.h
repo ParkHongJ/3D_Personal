@@ -57,18 +57,24 @@ private:
 	_bool					m_bHit = false;
 
 	_float					m_fSpeed = 3.f;
-	_bool					m_bChase = false;
-	_float					m_fCurrentChaseTime = 0.0f;
-	_float					m_fChaseTimeMax = 3.5f;
 
+	_float3					m_vOffsetPosition = { 0.f,0.f,0.f };
+	_float3					m_vOffsetAttack = { 0.f,0.f,0.f };
+
+	_uint					m_iProjectileCount = 0;
+
+	const _uint				m_iProjectileCountMax = 3;
+public:
 	void Set_State(STATE_ANIM eState, _float fTimeDelta);
 
-
-public:
+	void Set_Death();
 	void SetRas_Samrah(class CTransform * pRasTransform);
 	void Set_Target(class CTransform* pTarget);
 	void Set_Pattern(STATE_ANIM eState);
-
+	//본체로부터 얼마나 떨어진 위치에 있을것인가?
+	void Set_OffsetPos(class CTransform* pRasTransform);
+	void MoveToOffsetIdle();
+	void MoveToOffsetAttack();
 protected:
 	HRESULT Ready_Components();
 

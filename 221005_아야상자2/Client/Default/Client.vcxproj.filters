@@ -97,6 +97,12 @@
     <Filter Include="GameMgr">
       <UniqueIdentifier>{acdb323e-eab9-4575-8155-ba917d293f2d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\Projectile">
+      <UniqueIdentifier>{759a6b11-d71a-4337-b604-304bd1584454}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Static">
+      <UniqueIdentifier>{e43fe79e-aae3-48b8-a01a-f5efe7c86e14}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -222,6 +228,12 @@
     <ClInclude Include="..\public\Ras_Hands3.h">
       <Filter>02.GameObjects\Boss\Ras_Samrah\Hands\Hand3</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\StaticObject.h">
+      <Filter>02.GameObjects\Static</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Projectile.h">
+      <Filter>02.GameObjects\Projectile</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -334,6 +346,12 @@
     </ClCompile>
     <ClCompile Include="..\private\Ras_Hands3.cpp">
       <Filter>02.GameObjects\Boss\Ras_Samrah\Hands\Hand3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\StaticObject.cpp">
+      <Filter>02.GameObjects\Static</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Projectile.cpp">
+      <Filter>02.GameObjects\Projectile</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
