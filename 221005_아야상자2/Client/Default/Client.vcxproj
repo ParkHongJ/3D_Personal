@@ -191,6 +191,7 @@
     <ClInclude Include="..\public\Ras_Hands2.h" />
     <ClInclude Include="..\public\Ras_Hands3.h" />
     <ClInclude Include="..\public\Ras_Samrah.h" />
+    <ClInclude Include="..\Public\Sky.h" />
     <ClInclude Include="..\public\StaticObject.h" />
     <ClInclude Include="..\Public\Sword.h" />
     <ClInclude Include="..\Public\Terrain.h" />
@@ -233,6 +234,7 @@
     <ClCompile Include="..\private\Ras_Hands2.cpp" />
     <ClCompile Include="..\private\Ras_Hands3.cpp" />
     <ClCompile Include="..\private\Ras_Samrah.cpp" />
+    <ClCompile Include="..\Private\Sky.cpp" />
     <ClCompile Include="..\private\StaticObject.cpp" />
     <ClCompile Include="..\Private\Sword.cpp" />
     <ClCompile Include="..\Private\Terrain.cpp" />

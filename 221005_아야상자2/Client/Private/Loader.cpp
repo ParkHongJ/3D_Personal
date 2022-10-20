@@ -19,7 +19,7 @@
 #include "Ras_Hands3.h"
 #include "StaticObject.h"
 //#include "Effect.h"
-//#include "Sky.h"
+#include "Sky.h"
 //#include "UI.h"
 
 
@@ -193,6 +193,10 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_StaticObject"),
 		CStaticObject::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
+	/* For.Prototype_GameObject_Sky */
+	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Sky"),
+		CSky::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 	///* For.Prototype_GameObject_Hammer */
 	//if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Camera_Free"),
 	//	CCamera_Free::Create(m_pDevice, m_pContext))))
@@ -361,6 +365,13 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
 	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Plat"),
 		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/Castle/Plat.dat", PivotMatrix))))
+		return E_FAIL;
+
+	//Prototype_Component_Model_Sky
+	PivotMatrix = XMMatrixIdentity();
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Sky"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Sky/SkyDome.dat", PivotMatrix))))
 		return E_FAIL;
 
 	///* For.Prototype_Component_VIBuffer_Cube */

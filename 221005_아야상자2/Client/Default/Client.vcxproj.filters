@@ -103,6 +103,9 @@
     <Filter Include="02.GameObjects\Static">
       <UniqueIdentifier>{e43fe79e-aae3-48b8-a01a-f5efe7c86e14}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\Sky">
+      <UniqueIdentifier>{fdac634d-baf9-4d40-a580-455bf08d41ac}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -234,6 +237,9 @@
     <ClInclude Include="..\public\Projectile.h">
       <Filter>02.GameObjects\Projectile</Filter>
     </ClInclude>
+    <ClInclude Include="..\Public\Sky.h">
+      <Filter>02.GameObjects\Sky</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -352,6 +358,9 @@
     </ClCompile>
     <ClCompile Include="..\private\Projectile.cpp">
       <Filter>02.GameObjects\Projectile</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Sky.cpp">
+      <Filter>02.GameObjects\Sky</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
