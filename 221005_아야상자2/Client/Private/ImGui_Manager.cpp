@@ -374,9 +374,9 @@ void CImGui_Manager::Render()
 					CREATE_INFO tObjInfo;
 					ZeroMemory(&tObjInfo, sizeof(CREATE_INFO));
 
-					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, PrototypeName, strlen(PrototypeName), tObjInfo.pPrototypeTag, MAX_PATH);
-					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, LayerName, strlen(LayerName), tObjInfo.pLayerTag, MAX_PATH);
-					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, ModelName, strlen(ModelName), tObjInfo.pModelTag, MAX_PATH);
+					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, PrototypeName, (_uint)strlen(PrototypeName), tObjInfo.pPrototypeTag, MAX_PATH);
+					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, LayerName, (_uint)strlen(LayerName), tObjInfo.pLayerTag, MAX_PATH);
+					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, ModelName, (_uint)strlen(ModelName), tObjInfo.pModelTag, MAX_PATH);
 
 					tObjInfo.iNumLevel = LEVEL_GAMEPLAY;
 					sprintf_s(tObjInfo.szName, ObjName);
@@ -724,6 +724,19 @@ void CImGui_Manager::Free()
 
 	m_Cells.clear();
 
+	for (auto& pCell : m_SelectCell)
+	{
+		Safe_Release(pCell.first);
+	}
+	m_SelectCell.clear();
+
+	for (auto& pCell : m_SelectCellwithPoints)
+	{
+		Safe_Release(pCell.first);
+	}
+	m_SelectCellwithPoints.clear();
+
+
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
@@ -748,21 +761,17 @@ void CImGui_Manager::PushPickPos(_fvector vPickPos)
 	if (m_eNav != NAV_ADD)
 		return;
 
+	//3번 피킹하지 않았다면
 	if (m_iCurrentNaviIndex <= 2)
 	{
 		XMStoreFloat3(&m_vPickPos[m_iCurrentNaviIndex++], vPickPos);
+		//3번 피킹했다면 셀 생성
 		if (m_iCurrentNaviIndex > 2)
 		{
 			CCell* pCell = CCell::Create(m_pDevice, m_pContext, m_vPickPos, (_int)m_Cells.size());
 			m_Cells.push_back(pCell);
+			//생성 후 피킹카운트 초기화
 			m_iCurrentNaviIndex = 0;
-
-			//삼각형을 만들었다면 기존의 선택한 셀들은 없앰
-			/*for (auto& pCells : m_SelectCells)
-			{
-				Safe_Release(pCells);
-			}
-			m_SelectCells.clear();*/
 		}
 	}
 }
@@ -778,11 +787,8 @@ void CImGui_Manager::DeletePickPos()
 
 void CImGui_Manager::ClearPickPos()
 {
-	for (_uint i = 0; i < 3; ++i)
-	{
-		XMStoreFloat3(&m_vPickPos[i], XMVectorSet(0.f, 0.f, 0.f, 1.f));
-	}
 	m_iCurrentNaviIndex = 0;
+	ZeroMemory(&m_vPickPos, sizeof(m_vPickPos));
 }
 
 HRESULT CImGui_Manager::LoadObject()
@@ -834,6 +840,33 @@ HRESULT CImGui_Manager::LoadObject()
 		m_CreateObj.push_back(tObjInfo);
 	}
 
+	CloseHandle(hFile);
+
+	hFile = CreateFile(TEXT("../Bin/Data/NavigationDataTest.dat"), GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+
+	if (INVALID_HANDLE_VALUE == hFile)
+		return E_FAIL;
+
+	//읽은 바이트 
+	dwByte = 0;
+	dwStrByte = 0;
+
+	while (true)
+	{
+
+		_float3			vPoints[3];
+
+		ReadFile(hFile, vPoints, sizeof(_float3) * 3, &dwByte, nullptr);
+
+		if (0 == dwByte)
+			break;
+
+		CCell*			pCell = CCell::Create(m_pDevice, m_pContext, vPoints, (_int)m_Cells.size());
+		if (nullptr == pCell)
+			return E_FAIL;
+
+		m_Cells.push_back(pCell);
+	}
 	CloseHandle(hFile);
 	return S_OK;
 }
@@ -896,22 +929,6 @@ void CImGui_Manager::ShowNavMesh() {
 		m_SelectCell.clear();
 
 		CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
-		/*if (pGameInstance->Mouse_Down(DIMK_LBUTTON))
-		{
-			_uint iNumCell = 0;
-			for (auto& pCells : m_Cells)
-			{
-				if (nullptr == pCells)
-					continue;
-
-				_bool is_Coll = pCells->Picking(&m_iNumPointIndex);
-				if (is_Coll)
-				{
-					m_iNumCell = iNumCell;
-				}
-				iNumCell++;
-			}
-		}*/
 		if (pGameInstance->Mouse_Down(DIMK_RBUTTON))
 		{
 			_uint iNumCell = 0;
@@ -1041,6 +1058,7 @@ void CImGui_Manager::ShowNavMesh() {
 		}
 		else if (pGameInstance->Mouse_Down(DIMK_LBUTTON))
 		{
+
 			_uint iNumCell = 0;
 			for (auto& pCells : m_Cells)
 			{
@@ -1074,13 +1092,62 @@ void CImGui_Manager::ShowNavMesh() {
 		RELEASE_INSTANCE(CGameInstance);
 	}
 
-	if (ImGui::Button("TEST"))
+	static _float fMove = 0.5f;
+	ImGui::DragFloat("fMove", &fMove, 0.1f, -FLT_MAX, FLT_MAX);
+
+	if (ImGui::Button("X+"))
 	{
 		for (auto& pCell : m_SelectCellwithPoints)
 		{
 			//first : Cell
 			//second : +될 값
-			pCell.first->EditCell(pCell.second.iPointIndex, _float3(0.f, 0.5f, 0.f));
+			pCell.first->EditCell(pCell.second.iPointIndex, _float3(fMove, 0.f, 0.f));
+		}
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Y+"))
+	{
+		for (auto& pCell : m_SelectCellwithPoints)
+		{
+			//first : Cell
+			//second : +될 값
+			pCell.first->EditCell(pCell.second.iPointIndex, _float3(0.f, fMove, 0.f));
+		}
+	}ImGui::SameLine();
+	if (ImGui::Button("Z+"))
+	{
+		for (auto& pCell : m_SelectCellwithPoints)
+		{
+			//first : Cell
+			//second : +될 값
+			pCell.first->EditCell(pCell.second.iPointIndex, _float3(0.f, 0.f, fMove));
+		}
+	}
+	if (ImGui::Button("X-"))
+	{
+		for (auto& pCell : m_SelectCellwithPoints)
+		{
+			//first : Cell
+			//second : +될 값
+			pCell.first->EditCell(pCell.second.iPointIndex, _float3(-fMove, 0.f, 0.f));
+		}
+	}ImGui::SameLine();
+	if (ImGui::Button("Y-"))
+	{
+		for (auto& pCell : m_SelectCellwithPoints)
+		{
+			//first : Cell
+			//second : +될 값
+			pCell.first->EditCell(pCell.second.iPointIndex, _float3(0.f, -fMove, 0.f));
+		}
+	}ImGui::SameLine();
+	if (ImGui::Button("Z-"))
+	{
+		for (auto& pCell : m_SelectCellwithPoints)
+		{
+			//first : Cell
+			//second : +될 값
+			pCell.first->EditCell(pCell.second.iPointIndex, _float3(0.f, 0.f, -fMove));
 		}
 	}
 	if (ImGui::Button("TESTType"))
@@ -1120,7 +1187,7 @@ void CImGui_Manager::ShowNavMesh() {
 
 	if (ImGui::Button("Clear"))
 	{
-		ZeroMemory(&m_vPickPos, sizeof(m_vPickPos));
+		ClearPickPos();
 	}
 
 	if (ImGui::Button("SaveNav"))
@@ -1141,6 +1208,30 @@ void CImGui_Manager::ShowNavMesh() {
 
 		CloseHandle(hFile);
 	}
+	if (ImGui::Button("SaveCellIndex"))
+	{
+		SaveCellIndices();
+	}
+}
+
+void CImGui_Manager::SaveCellIndices()
+{
+	_ulong		dwByte = 0;
+	HANDLE		hFile = CreateFile(TEXT("../Bin/Data/CellSpawnIndex.dat"), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+	if (0 == hFile)
+		return;
+
+	for (auto& pCell : m_SelectCell)
+	{
+		if (nullptr == pCell.first)
+			continue;
+
+		WriteFile(hFile, &pCell.second.iOriginCellIndex, sizeof(_uint), &dwByte, nullptr); 
+		/*_float3* Points = pCell.first->GetPointArray();
+		WriteFile(hFile, &Points[0], sizeof(_float3) * 3, &dwByte, nullptr);*/
+	}
+
+	CloseHandle(hFile);
 }
 
 void CImGui_Manager::ShowHierarchy()
@@ -1183,7 +1274,7 @@ void CImGui_Manager::ShowHierarchy()
 								XMVECTOR test2;
 								XMMatrixDecompose(&test, &test1, &test2, vMatrix);
 								XMStoreFloat3(&vScale, test);
-								XMStoreFloat3(&vRotation, test1);
+								XMStoreFloat4(&vRotation, test1);
 								XMStoreFloat3(&vPosition, test2);
 							}
 						}
@@ -1202,34 +1293,94 @@ void CImGui_Manager::Inspector()
 		/*=============
 		===Transform===
 		=============*/
-		vPos[0] = vPosition.x; vPos[1] = vPosition.y; vPos[2] = vPosition.z;
-		vRot[0] = vRotation.x; vRot[1] = vRotation.y; vRot[2] = vRotation.z;
-		vScal[0] = vScale.x; vScal[1] = vScale.y; vScal[2] = vScale.z;
-
-		ImGui::DragFloat3("Position", vPos, 0.01f, -FLT_MAX, FLT_MAX);
-		ImGui::DragFloat3("Rotation", vRot, 0.01f, -FLT_MAX, FLT_MAX);
-		ImGui::DragFloat3("Scale", vScal, 0.01f, -FLT_MAX, FLT_MAX);
-
-		vPosition.x = vPos[0]; vPosition.y = vPos[1]; vPosition.z = vPos[2];
-		vRotation.x = vRot[0]; vRotation.y = vRot[1]; vRotation.z = vRot[2];
-		vScale.x = vScal[0]; vScale.y = vScal[1]; vScale.z = vScal[2];
-
-		XMVECTOR XmPosition = XMLoadFloat3(&vPosition);
-		XMVECTOR XmScale = XMLoadFloat3(&vScale);
-
-		_matrix WorldMatrix = XMMatrixIdentity() *
-			XMMatrixScalingFromVector(XmScale) *
-			XMMatrixRotationX(XMConvertToRadians(vRotation.x)) *
-			XMMatrixRotationY(XMConvertToRadians(vRotation.y)) *
-			XMMatrixRotationZ(XMConvertToRadians(vRotation.z)) *
-			XMMatrixTranslationFromVector(XmPosition);
-
 		CTransform* pTransform = (CTransform*)m_pSelectedObject->Get_ComponentPtr(L"Com_Transform");
+		CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+		
+		
+		if (pGameInstance->Key_Down(DIK_T))
+		{
+			_vector test = XMQuaternionRotationMatrix(pTransform->Get_WorldMatrix());
+			//XMQuaternionRotationRollPitchYaw()	
+			
+			int a = 1;
+		}
+		RELEASE_INSTANCE(CGameInstance);
+
 		if (pTransform != nullptr)
 		{
-			pTransform->Set_WorldMatrix(WorldMatrix);
+			vPos[0] = vPosition.x; vPos[1] = vPosition.y; vPos[2] = vPosition.z;
+			vRot[0] = vRotation.x; vRot[1] = vRotation.y; vRot[2] = vRotation.z;
+			vScal[0] = vScale.x; vScal[1] = vScale.y; vScal[2] = vScale.z;
+			_float temp = XMConvertToDegrees(vRotation.y);
+			ImGui::DragFloat3("Position", vPos, 0.01f, -FLT_MAX, FLT_MAX);
+			//ImGui::DragFloat3("Rotation", vRot, 0.01f, -FLT_MAX, FLT_MAX);
+			static _float vRotate[3] = { 0.f };
+			ImGui::DragFloat3("Rotation", vRotate, 0.01f, -FLT_MAX, FLT_MAX);
+			ImGui::DragFloat3("Scale", vScal, 0.01f, -FLT_MAX, FLT_MAX);
+
+			vPosition.x = vPos[0]; vPosition.y = vPos[1]; vPosition.z = vPos[2];
+			vRotation.x = vRot[0]; vRotation.y = vRot[1]; vRotation.z = vRot[2];
+			vScale.x = vScal[0]; vScale.y = vScal[1]; vScale.z = vScal[2];
+
+			XMVECTOR XmPosition = XMLoadFloat3(&vPosition);
+			XMVECTOR XmScale = XMLoadFloat3(&vScale);
+
+			
+			//pTransform->Set_Scale(XmScale);
+			_matrix WorldMatrix = XMMatrixIdentity() *
+				XMMatrixScalingFromVector(XmScale)*
+				//XMMatrixRotationRollPitchYawFromVector(XMLoadFloat4(&vRotation))*
+				XMMatrixRotationX(XMConvertToRadians(vRotate[0])) *
+				XMMatrixRotationY(XMConvertToRadians(vRotate[1])) *
+				XMMatrixRotationZ(XMConvertToRadians(vRotate[2])) *
+				XMMatrixTranslationFromVector(XmPosition);
+			
+			
+			if (ImGui::Button("Apply"))
+			{
+				
+				/*pTransform->Set_Scale(XmScale);
+
+				pTransform->Rotation(XMVectorSet(1.f, 0.f, 0.f, 0.f), vRotate[0]);
+				pTransform->Rotation(XMVectorSet(0.f, 1.f, 0.f, 0.f), vRotate[1]);
+				pTransform->Rotation(XMVectorSet(0.f, 0.f, 1.f, 0.f), vRotate[2]);
+				
+				pTransform->Set_State(CTransform::STATE_POSITION, XmPosition);*/
+				pTransform->Set_WorldMatrix(WorldMatrix);
+			}
+
+			//_matrix		TransformationMatrix = XMMatrixAffineTransformation(XMLoadFloat3(&Get_Scale()), XMVectorSet(0.f, 0.f, 0.f, 1.f), vSourRot, XMVectorSetW(Get_State(CTransform::STATE_POSITION), 1.f));
+			//_matrix  WorldMatrix = XMMatrixAffineTransformation(XmScale, XMVectorSet(0.f, 0.f, 0.f, 1.f), XMLoadFloat4(&vRotation), XMVectorSetW(XmPosition, 1.f));
+
+
 		}
 	}
+}
+
+_vector CImGui_Manager::GetRotation(_fmatrix WorldMatrix)
+{
+	
+	/*if (WorldMatrix.r[0].m128_f32[0] == 1.0f)
+	{
+		Yaw = atan2f(WorldMatrix.r[0].m128_f32[2], WorldMatrix.r[2].m128_f32[3]);
+		Pitch = 0;
+		Roll = 0;
+
+	}
+	else if (WorldMatrix.r[0].m128_f32[0] == -1.0f)
+	{
+		Yaw = atan2f(WorldMatrix.r[0].m128_f32[2], WorldMatrix.r[0].m128_f32[3]);
+		Pitch = 0;
+		Roll = 0;
+	}
+	else
+	{
+
+		Yaw = atan2(-_31, _11);
+		Pitch = asin(_21);
+		Roll = atan2(-_23, _22);
+	}*/
+	return XMVectorSet(1.f, 1.f, 1.f, 1.f);
 }
 
 void CImGui_Manager::RenderEnd()

@@ -161,13 +161,13 @@ void CRas_Hands3::Set_State(STATE_ANIM eState, _float fTimeDelta)
 				_vector vTargetPos = m_pTarget->Get_State(CTransform::STATE_POSITION);
 
 				//Look 조절해야함
-				_vector vLook = vPosition - m_pRasTransform->Get_State(CTransform::STATE_POSITION);
+				_vector vLook = XMVector3Normalize(vTargetPos - vPosition);
 
 				vLook = XMVectorSetY(vLook, 0.0f);
 
 				m_pTransformCom->LookDir(vLook);
 
-				XMVectorSetY(vLook, 0.0f);
+				//XMVectorSetY(vLook, 0.0f);
 			}
 		}
 		break;
@@ -209,10 +209,10 @@ void CRas_Hands3::Set_OffsetPos(CTransform * pRasTransform)
 {
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pRasTransform->Get_State(CTransform::STATE_POSITION));
 	XMStoreFloat3(&m_vOffsetPosition, XMVectorSet(-11.f, 20.f, 0.f, 1.f));
-	XMStoreFloat3(&m_vOffsetAttack, XMVectorSet(0.f, 3.f, -6.f, 1.f));
+	XMStoreFloat3(&m_vOffsetAttack, XMVectorSet(0.f, -3.f, -3.f, 1.f));
 
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVector3TransformCoord(XMLoadFloat3(&m_vOffsetPosition), m_pTransformCom->Get_WorldMatrix()));
-	m_pTransformCom->Set_Scale(XMVectorSet(0.3f, 0.3f, 0.3f, 1.f));
+	m_pTransformCom->Set_Scale(XMVectorSet(0.4f, 0.4f, 0.4f, 1.f));
 	m_pTransformCom->Rotation(XMVectorSet(0.f, -1.f, 0.f, 0.f), XMConvertToRadians(-90.f));
 
 
@@ -225,7 +225,7 @@ void CRas_Hands3::MoveToOffsetIdle()
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pRasTransform->Get_State(CTransform::STATE_POSITION));
 
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVector3TransformCoord(XMLoadFloat3(&m_vOffsetPosition), m_pTransformCom->Get_WorldMatrix()));
-	m_pTransformCom->Set_Scale(XMVectorSet(0.3f, 0.3f, 0.3f, 1.f));
+	m_pTransformCom->Set_Scale(XMVectorSet(0.4f, 0.4f, 0.4f, 1.f));
 	m_pTransformCom->Rotation(XMVectorSet(0.f, -1.f, 0.f, 0.f), XMConvertToRadians(-90.f));
 }
 
@@ -235,7 +235,7 @@ void CRas_Hands3::MoveToOffsetAttack()
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pRasTransform->Get_State(CTransform::STATE_POSITION));
 
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVector3TransformCoord(XMLoadFloat3(&m_vOffsetAttack), m_pTransformCom->Get_WorldMatrix()));
-	m_pTransformCom->Set_Scale(XMVectorSet(0.3f, 0.3f, 0.3f, 1.f));
+	m_pTransformCom->Set_Scale(XMVectorSet(0.4f, 0.4f, 0.4f, 1.f));
 	m_pTransformCom->Rotation(XMVectorSet(0.f, 1.f, 0.f, 0.f), XMConvertToRadians(180.f));
 }
 

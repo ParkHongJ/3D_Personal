@@ -9,6 +9,7 @@ class CTexture;
 class CRenderer;
 class CTransform;
 class CModel;
+class CNavigation;
 END
 
 BEGIN(Client)
@@ -20,6 +21,12 @@ public:
 	enum STATE_ANIM {
 		HAND_DEATH, HAND_IDLE, HAND_CINEMATIC1, HAND_CINEMATIC2, HAND_PATTERN2, HAND_END
 	};
+public:
+	typedef struct SpawnInfo {
+		class CTransform*		pTarget = nullptr;
+		_float3					vPos;
+		_uint					iCellIndex;
+	}SPAWN_INFO;
 private:
 	CRas_Hands2(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	CRas_Hands2(const CRas_Hands2& rhs);
@@ -33,7 +40,6 @@ public:
 	virtual HRESULT Render();
 
 
-
 public:
 	virtual void OnCollisionEnter(CGameObject* pOther, _float fTimeDelta) override;
 	virtual void OnCollisionStay(CGameObject* pOther, _float fTimeDelta) override;
@@ -44,6 +50,7 @@ protected:
 	CRenderer*				m_pRendererCom = nullptr;
 	CTransform*				m_pTransformCom = nullptr;
 	CModel*					m_pModelCom = nullptr;
+	CNavigation*			m_pNavigationCom = nullptr;
 
 private:
 	_bool					m_bAnimEnd = false;
@@ -60,7 +67,7 @@ private:
 	_float3					m_vOffsetAttack = { 0.f,0.f,0.f };
 
 
-
+	vector<_uint>			m_iNaviIndices;
 public:
 	void Set_State(STATE_ANIM eState, _float fTimeDelta);
 	void SetRas_Samrah(class CTransform * pRasTransform);

@@ -191,15 +191,15 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 	_matrix		PivotMatrix = XMMatrixIdentity();
 
 	/* For.Prototype_Component_Model_Fiona */
-	/*PivotMatrix =   XMMatrixRotationY(XMConvertToRadians(180.0f));
+	PivotMatrix = XMMatrixRotationY(XMConvertToRadians(180.0f));
 	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Fiona"),
-		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_ANIM, "../Bin/Resources/Meshes/Boss/Hands/", "Hand3.fbx", L"../Bin/Resources/Meshes/Boss/Hands/", L"Hand3.dat", PivotMatrix))))
-		return E_FAIL;*/
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_ANIM, "../Bin/Resources/Meshes/Homonculus/", "Homonculus.fbx", L"../Bin/Resources/Meshes/Homonculus/", L"Homonculus.dat", PivotMatrix))))
+		return E_FAIL;
 
 	/* For.Prototype_Component_Model_ForkLift */
 	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) *XMMatrixRotationY(XMConvertToRadians(180.0f));
 	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_ForkLift"),
-		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Meshes/Sky/", "SkyDome.fbx", L"../Bin/Resources/Meshes/Sky/", L"SkyDome.dat", PivotMatrix))))
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Meshes/Boss/", "Totem.fbx", L"../Bin/Resources/Meshes/Boss/", L"Totem.dat", PivotMatrix))))
 		return E_FAIL;
 
 

@@ -23,6 +23,23 @@ public:
 		return m_iIndex;
 	}
 
+	_vector Get_PositionTriangle() {
+		_vector vPointA;
+		_vector vPointB;
+		_vector vPointC;
+
+		vPointA = XMLoadFloat3(&m_vPoints[POINT_A]);
+		vPointB = XMLoadFloat3(&m_vPoints[POINT_B]);
+		vPointC = XMLoadFloat3(&m_vPoints[POINT_C]);
+
+		_float3 vResult;
+		vResult.x = ((XMVectorGetX(vPointA) + XMVectorGetX(vPointB) + XMVectorGetX(vPointC)) / 3.f);
+		vResult.y = ((XMVectorGetY(vPointA) + XMVectorGetY(vPointB) + XMVectorGetY(vPointC)) / 3.f);
+		vResult.z = ((XMVectorGetZ(vPointA) + XMVectorGetZ(vPointB) + XMVectorGetZ(vPointC)) / 3.f);
+		
+		return XMLoadFloat3(&vResult);
+	}
+
 	void Set_NeighborIndex(LINE eLine, CCell* pNeighbor) {
 		if (nullptr == pNeighbor)
 		{
@@ -57,7 +74,7 @@ public:
 public:
 	HRESULT Initialize(const _float3* pPoints, _int iIndex);
 	_bool Compare(const _float3& vSourPoint, const _float3& vDestPoint);
-	_bool isIn(_fvector vPosition, _int* pNeighborIndex);
+	_bool isIn(_fvector vPosition, _int* pNeighborIndex, CELLTYPE eNeighborCellType = MOVE);
 	_vector GetSliding(_fvector vPosition, _float3* vCurrentPosition);
 	_int GetLine(_fvector vPosition);
 #ifdef _DEBUG

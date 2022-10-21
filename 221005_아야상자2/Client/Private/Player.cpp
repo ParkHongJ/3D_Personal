@@ -34,12 +34,14 @@ HRESULT CPlayer::Initialize(void * pArg)
 		return E_FAIL;
 
 	RELEASE_INSTANCE(CGameInstance);
-	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(0.f,0.f,0.f,1.f));
+	/*m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(0.f,0.f,0.f,1.f));*/
 	strcpy_s(m_szName, "Player");
 
 	CGameMgr* pGameMgr = GET_INSTANCE(CGameMgr);
 	pGameMgr->RegisterPlayer(this);
 	RELEASE_INSTANCE(CGameMgr);
+
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pNavigationCom->GetCellPos(0));
 	return S_OK;
 }
 
@@ -855,6 +857,7 @@ HRESULT CPlayer::Ready_Components()
 	//CTransform* pTransform = (CTransform*)pGameInstance->Get_ComponentPtr(LEVEL_GAMEPLAY, L"Layer_Camera", L"Com_Transform", 0);
 	//m_pCamera = (CCamera_Free*)pTransform->GetOwner();
 	RELEASE_INSTANCE(CGameInstance);
+
 	return S_OK;
 }
 

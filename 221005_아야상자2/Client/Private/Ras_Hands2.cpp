@@ -2,7 +2,7 @@
 #include "..\Public\Ras_Hands2.h"
 #include "GameInstance.h"
 #include "Ras_Samrah.h"
-
+#include <time.h>
 CRas_Hands2::CRas_Hands2(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
 {
@@ -26,6 +26,32 @@ HRESULT CRas_Hands2::Initialize(void * pArg)
 	strcpy_s(m_szName, "Ras_Samrah_Hands2");
 	m_Tag = L"Ras_Samrah_Hands2";
 	m_pModelCom->Set_AnimIndex(HAND_IDLE);
+
+	srand(_uint(time(NULL)));
+	//test
+	HANDLE		hFile = CreateFile(TEXT("../Bin/Data/CellSpawnIndex.dat"), GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+
+	if (INVALID_HANDLE_VALUE == hFile)
+		return E_FAIL;
+
+	//읽은 바이트 
+	DWORD	dwByte = 0;
+	DWORD	dwStrByte = 0;
+
+	while (true)
+	{
+		//인덱스 로드
+		_uint iIndex = 0;
+		ReadFile(hFile, &iIndex, sizeof(_uint), &dwByte, nullptr);
+
+		if (0 == dwByte)
+		{
+			break;
+		}
+		m_iNaviIndices.push_back(iIndex);
+	}
+
+	CloseHandle(hFile);
 	return S_OK;
 }
 
@@ -126,13 +152,46 @@ void CRas_Hands2::Set_State(STATE_ANIM eState, _float fTimeDelta)
 			m_pModelCom->Change_Animation(HAND_IDLE);
 			MoveToOffsetIdle();
 			m_fCurrentChaseTime = 0.0f;
+
+			//호믄클루스 생성
+			CGameInstance*		pGameInstance = GET_INSTANCE(CGameInstance);
+
+			_uint iCellIndex = 4;
+			//이때 랜덤인덱스 줘야함
+			_vector vCellPos = m_pNavigationCom->GetCellPos(m_iNaviIndices[iCellIndex]);
+
+			SPAWN_INFO tSpawnInfo;
+			//레퍼런스카운트는 받고 증가시켜줄거임
+			tSpawnInfo.pTarget = m_pTarget;
+			XMStoreFloat3(&tSpawnInfo.vPos, vCellPos);
+			tSpawnInfo.iCellIndex = m_iNaviIndices[iCellIndex];
+
+			pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Homunculus", LEVEL_GAMEPLAY, L"Layer_Monster", &tSpawnInfo);
+			RELEASE_INSTANCE(CGameInstance);
 		}
 		else
 		{
 			m_fCurrentChaseTime += fTimeDelta;
 			if (m_fCurrentChaseTime >= m_fChaseTimeMax)
 			{
-				m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(0.f, 0.f, 0.f, 1.f));
+				_uint iCellIndex = 4;
+				//이때 랜덤인덱스 줘야함
+				_vector vCellPos = m_pNavigationCom->GetCellPos(m_iNaviIndices[iCellIndex]);
+				
+				//본체(손말고 캐릭터)로부터 CellPos까지의 Y를 제거한 Look
+				_vector vLook = XMVectorSetY(XMVector3Normalize(vCellPos - m_pRasTransform->Get_State(CTransform::STATE_POSITION)), 0.0f);
+
+				//일정 거리만큼 뒤로빼줌 이유 : 내 트랜스폼은 팔뚝에 위치해있기 때문에
+				_vector vPos = vCellPos - vLook * 20.f;
+
+				m_pTransformCom->LookDir(vLook);
+				vPos = XMVectorSetY(vPos, XMVectorGetY(vPos) + 5.f);
+				//5만큼 위로 올림
+				m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPos);
+
+
+				
+
 			}
 		}
 		break;
@@ -170,7 +229,7 @@ void CRas_Hands2::Set_OffsetPos(CTransform * pRasTransform)
 	XMStoreFloat3(&m_vOffsetAttack, XMVectorSet(0.f, 3.f, -6.f, 1.f));
 
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVector3TransformCoord(XMLoadFloat3(&m_vOffsetPosition), m_pTransformCom->Get_WorldMatrix()));
-	m_pTransformCom->Set_Scale(XMVectorSet(0.3f, 0.3f, 0.3f, 1.f));
+	m_pTransformCom->Set_Scale(XMVectorSet(0.4f, 0.4f, 0.4f, 1.f));
 	m_pTransformCom->Rotation(XMVectorSet(0.f, -1.f, 0.f, 0.f), XMConvertToRadians(90.f));
 
 	
@@ -183,7 +242,7 @@ void CRas_Hands2::MoveToOffsetIdle()
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pRasTransform->Get_State(CTransform::STATE_POSITION));
 	
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVector3TransformCoord(XMLoadFloat3(&m_vOffsetPosition), m_pTransformCom->Get_WorldMatrix()));
-	m_pTransformCom->Set_Scale(XMVectorSet(0.3f, 0.3f, 0.3f, 1.f));
+	m_pTransformCom->Set_Scale(XMVectorSet(0.4f, 0.4f, 0.4f, 1.f));
 	m_pTransformCom->Rotation(XMVectorSet(0.f, -1.f, 0.f, 0.f), XMConvertToRadians(90.f));
 }
 
@@ -193,7 +252,7 @@ void CRas_Hands2::MoveToOffsetAttack()
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pRasTransform->Get_State(CTransform::STATE_POSITION));
 	
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVector3TransformCoord(XMLoadFloat3(&m_vOffsetAttack), m_pTransformCom->Get_WorldMatrix()));
-	m_pTransformCom->Set_Scale(XMVectorSet(0.3f, 0.3f, 0.3f, 1.f));
+	m_pTransformCom->Set_Scale(XMVectorSet(0.4f, 0.4f, 0.4f, 1.f));
 	m_pTransformCom->Rotation(XMVectorSet(0.f, 1.f, 0.f, 0.f), XMConvertToRadians(180.f));
 }
 
@@ -222,6 +281,13 @@ HRESULT CRas_Hands2::Ready_Components()
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Hand2"), TEXT("Com_Model"), (CComponent**)&m_pModelCom)))
 		return E_FAIL;
 
+	/* For.Com_Navigation */
+	CNavigation::NAVIGATIONDESC			NaviDesc;
+	ZeroMemory(&NaviDesc, sizeof(CNavigation::NAVIGATIONDESC));
+	NaviDesc.iCurrentIndex = 0;
+
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Navigation"), TEXT("Com_Navigation"), (CComponent**)&m_pNavigationCom, &NaviDesc)))
+		return E_FAIL;
 	return S_OK;
 }
 
@@ -255,6 +321,7 @@ void CRas_Hands2::Free()
 {
 	__super::Free();
 
+	Safe_Release(m_pNavigationCom);
 	Safe_Release(m_pTarget);
 	Safe_Release(m_pRasTransform);
 	Safe_Release(m_pModelCom);

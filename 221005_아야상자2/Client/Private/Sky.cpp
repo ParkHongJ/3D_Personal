@@ -43,7 +43,7 @@ void CSky::LateTick(_float fTimeDelta)
 
 	RELEASE_INSTANCE(CGameInstance);
 
-	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_PRIORITY, this);
+	//m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_PRIORITY, this);
 }
 
 HRESULT CSky::Render()

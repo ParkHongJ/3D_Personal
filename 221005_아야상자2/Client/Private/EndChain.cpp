@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "..\Public\EndChain.h"
 #include "GameInstance.h"
-
+#include "Sword.h"
+#include "Ras_Samrah.h"
 CEndChain::CEndChain(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
 {
@@ -28,7 +29,7 @@ HRESULT CEndChain::Initialize(void * pArg)
 	//m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(3.f, 0.f, 0.f, 1.f));
 	strcpy_s(m_szName, "EndChain");
 	m_Tag = L"EndChain";
-
+	m_bEnable = false;
 
 	m_eChain = CEndChain::NORMAL;
 	return S_OK;
@@ -46,7 +47,8 @@ void CEndChain::LateTick(_float fTimeDelta)
 		return;
 
 	if (m_bEnable)
-		m_pColliderCom->Add_CollisionGroup(CCollider_Manager::PLAYER, m_pColliderCom);
+		m_pColliderCom->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom);
+
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
 }
 
@@ -84,7 +86,10 @@ HRESULT CEndChain::Render()
 			return E_FAIL;
 	}
 #ifdef _DEBUG
-	m_pColliderCom->Render();
+	if (m_bEnable)
+	{
+		m_pColliderCom->Render();
+	}
 #endif
 	return S_OK;
 }
@@ -103,7 +108,27 @@ HRESULT CEndChain::SetUp_State(_fmatrix StateMatrix)
 
 void CEndChain::OnCollisionEnter(CGameObject * pOther, _float fTimeDelta)
 {
-	int a = 10;
+	if (pOther->CompareTag(L"Player_Sword"))
+	{
+		_float fDamage = ((CSword*)pOther)->GetDamage();
+
+		if (nullptr == m_pRasSamrah)
+		{
+			CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+			m_pRasSamrah = (CRas_Samrah*)((CTransform*)pGameInstance->Get_ComponentPtr(LEVEL_GAMEPLAY, L"Layer_Monster", L"Com_Transform", 0)->GetOwner());
+			Safe_AddRef(m_pRasSamrah);
+			RELEASE_INSTANCE(CGameInstance);
+
+			GetDamaged(fDamage);
+			m_pRasSamrah->GetDamaged(fDamage);
+		}
+		else
+		{
+			GetDamaged(fDamage);
+			m_pRasSamrah->GetDamaged(fDamage);
+		}
+		
+	}
 }
 
 void CEndChain::OnCollisionExit(CGameObject * pOther, _float fTimeDelta)
@@ -188,6 +213,7 @@ void CEndChain::Free()
 	for (_uint i = 0; i < CHAIN_END; ++i)
 		Safe_Release(m_pModelCom[i]);
 
+	Safe_Release(m_pRasSamrah);
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pRendererCom);
 	Safe_Release(m_pColliderCom);

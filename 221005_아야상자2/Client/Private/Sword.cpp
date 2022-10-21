@@ -101,10 +101,7 @@ HRESULT CSword::SetUp_State(_fmatrix StateMatrix)
 
 void CSword::OnCollisionEnter(CGameObject * pOther, _float fTimeDelta)
 {
-	if (pOther->CompareTag(L"Ras_Samrah"))
-	{
-		((CRas_Samrah*)pOther)->GetDamaged(m_fDamage);
-	}
+
 }
 
 void CSword::OnCollisionExit(CGameObject * pOther, _float fTimeDelta)

@@ -10,6 +10,7 @@ class CRenderer;
 class CCollider;
 class CTransform;
 class CModel;
+class CNavigation;
 class CHierarchyNode;
 END
 
@@ -65,13 +66,14 @@ public:
 
 public:
 	void GetDamaged(_float fDamage);
+	void SetNaviTypes();
 
 private:
 	CShader*				m_pShaderCom = nullptr;
 	CRenderer*				m_pRendererCom = nullptr;
 	CTransform*				m_pTransformCom = nullptr;
 	CModel*					m_pModelCom = nullptr;
-
+	CNavigation*			m_pNavigationCom = nullptr;
 private:
 	CGameObject*						m_Parts = nullptr;
 	vector<class CHierarchyNode*>		m_Sockets;
@@ -97,6 +99,7 @@ private:
 	_float3								m_OffsetHands2;
 	_float3								m_OffsetHands3;
 
+	vector<_uint>						m_iNaviIndices;
 private:
 	HRESULT Ready_Sockets();
 	HRESULT Ready_Parts();

@@ -2,7 +2,7 @@
 #include "..\Public\Ras_Hands.h"
 #include "GameInstance.h"
 #include "Ras_Samrah.h"
-
+#include "Sword.h"
 CRas_Hands::CRas_Hands(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
 {
@@ -26,7 +26,7 @@ HRESULT CRas_Hands::Initialize(void * pArg)
 	strcpy_s(m_szName, "Ras_Samrah_Hands");
 	m_Tag = L"Ras_Samrah_Hands";
 	m_pModelCom->Set_AnimIndex(HAND_IDLE);
-	m_pTransformCom->Set_Scale(XMVectorSet(0.3f, 0.3f, 0.3f, 1.f));
+	m_pTransformCom->Set_Scale(XMVectorSet(0.4f, 0.4f, 0.4f, 1.f));
 	return S_OK;
 }
 
@@ -134,7 +134,7 @@ void CRas_Hands::OnCollisionEnter(CGameObject * pOther, _float fTimeDelta)
 {
 	if (pOther->CompareTag(L"Player_Sword") && m_bHitEnabled)
 	{
-		((CRas_Samrah*)m_pRasTransform->GetOwner())->GetDamaged(25.f);
+		((CRas_Samrah*)m_pRasTransform->GetOwner())->GetDamaged(((CSword*)pOther)->GetDamage());
 	}
 }
 
@@ -145,6 +145,7 @@ void CRas_Hands::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
 
 void CRas_Hands::OnCollisionExit(CGameObject * pOther, _float fTimeDelta)
 {
+	m_bHitEnabled = true;
 	int a = 10;
 }
 
@@ -215,14 +216,20 @@ void CRas_Hands::Set_State(STATE_ANIM eState, _float fTimeDelta)
 			{
 				_vector vTargetPos = m_pTarget->Get_State(CTransform::STATE_POSITION);
 
-				vPosition = XMVectorLerp(vPosition, vTargetPos, fTimeDelta * m_fSpeed);
-
-				//네비를 태울까?
-				vPosition = XMVectorSetY(vPosition, 6.0f);
-
 				//Look 조절해야함
 				_vector vLook = vPosition - m_pRasTransform->Get_State(CTransform::STATE_POSITION);
 				
+				//타겟을 바라보는 룩을얻어와서
+				_vector vDist = XMVector3Normalize(vTargetPos - m_pRasTransform->Get_State(CTransform::STATE_POSITION));
+				vDist = XMVectorSetY(vDist, 0.f);
+				vTargetPos = vTargetPos - vDist * 8.f;
+
+
+				vPosition = XMVectorLerp(vPosition, vTargetPos, fTimeDelta * m_fSpeed);
+
+				//네비를 태울까?
+				vPosition = XMVectorSetY(vPosition, XMVectorGetY(vTargetPos) + 6.f);
+
 				vLook = XMVectorSetY(vLook, 0.0f);
 
 				m_pTransformCom->LookDir(vLook);

@@ -5,7 +5,7 @@
 #include "Ras_Hands.h"
 #include "Ras_Hands2.h"
 #include "Ras_Hands3.h"
-
+#include "Cell.h"
 CRas_Samrah::CRas_Samrah(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
 {
@@ -49,7 +49,37 @@ HRESULT CRas_Samrah::Initialize(void * pArg)
 		return E_FAIL;
 
 	
-	
+	//test
+	HANDLE		hFile = CreateFile(TEXT("../Bin/Data/CellIndex.dat"), GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+
+	if (INVALID_HANDLE_VALUE == hFile)
+		return E_FAIL;
+
+	//읽은 바이트 
+	DWORD	dwByte = 0;
+	DWORD	dwStrByte = 0;
+
+	//프로토타입
+	//레이어
+	//모델
+	//이름(char)
+	//레벨
+	//매트릭스
+	while (true)
+	{
+		//매트릭스 로드
+		_uint iIndex = 0;
+		ReadFile(hFile, &iIndex, sizeof(_uint), &dwByte, nullptr);
+
+		if (0 == dwByte)
+		{
+			break;
+		}
+		m_iNaviIndices.push_back(iIndex);
+	}
+
+	CloseHandle(hFile);
+
 	return S_OK;
 }
 
@@ -104,7 +134,7 @@ void CRas_Samrah::LateTick(_float fTimeDelta)
 	}
 	
 	CGameInstance*		pGameInstance = GET_INSTANCE(CGameInstance);
-	_bool		isDraw = pGameInstance->isIn_Frustum_WorldSpace(m_pTransformCom->Get_State(CTransform::STATE_POSITION), 2.f);
+	_bool		isDraw = pGameInstance->isIn_Frustum_WorldSpace(m_pTransformCom->Get_State(CTransform::STATE_POSITION), 20.f);
 	RELEASE_INSTANCE(CGameInstance);
 
 	if (true == isDraw)
@@ -176,6 +206,11 @@ void CRas_Samrah::GetDamaged(_float fDamage)
 			m_pHand1->Set_Death();
 			m_pHand2->Set_Death();
 			m_pHand3->Set_Death();
+
+			for (auto& iIndex : m_iNaviIndices)
+			{
+				m_pNavigationCom->SetCellType(iIndex, CCell::CELLTYPE::CANTMOVE);
+			}
 			return;
 		}
 	}
@@ -194,6 +229,14 @@ void CRas_Samrah::GetDamaged(_float fDamage)
 			m_eCurrentAnimState = Jug_FlyHit1;
 			m_pModelCom->Change_Animation(Jug_FlyHit1);
 		}
+	}
+}
+
+void CRas_Samrah::SetNaviTypes()
+{
+	for (auto& iIndex : m_iNaviIndices)
+	{
+		m_pNavigationCom->SetCellType(iIndex, CCell::CELLTYPE::MOVE);
 	}
 }
 
@@ -344,6 +387,14 @@ HRESULT CRas_Samrah::Ready_Components()
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_RasSamrah"), TEXT("Com_Model"), (CComponent**)&m_pModelCom)))
 		return E_FAIL;
 
+	/* For.Com_Navigation */
+	CNavigation::NAVIGATIONDESC			NaviDesc;
+	ZeroMemory(&NaviDesc, sizeof(CNavigation::NAVIGATIONDESC));
+	NaviDesc.iCurrentIndex = 0;
+
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Navigation"), TEXT("Com_Navigation"), (CComponent**)&m_pNavigationCom, &NaviDesc)))
+		return E_FAIL;
+
 	return S_OK;
 }
 
@@ -424,6 +475,7 @@ void CRas_Samrah::Free()
 	Safe_Release(m_pHand2);
 	Safe_Release(m_pHand3);
 	Safe_Release(m_pTargetTransform);
+	Safe_Release(m_pNavigationCom);
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pRendererCom);

@@ -99,6 +99,7 @@ public:
 	
 	/* For NavMesh*/
 	void ShowNavMesh();
+	void SaveCellIndices();
 
 	/* For Hierarchy */
 	void ShowHierarchy();
@@ -110,6 +111,8 @@ public:
 	{
 		return wstring(src, src + strlen(src));
 	}
+
+	_vector GetRotation(_fmatrix WorldMatrix);
 private:
 	ID3D11Device* m_pDevice;
 	ID3D11DeviceContext* m_pContext;
@@ -121,10 +124,11 @@ private:
 	//test
 	_float3	vPosition;
 	_float3	vScale;
-	_float3	vRotation;
+	_float4	vRotation;
 
 	_uint item_current_idx = 0;
 	Tool m_eCurrentTool = TOOL_END;
+
 	/*============
 	===Particle===
 	============*/
@@ -143,7 +147,7 @@ private:
 
 
 	_float vPos[3] = {};
-	_float vRot[3] = {};
+	_float vRot[4] = {};
 	_float vScal[3] = {};
 
 	/* For NavMesh */

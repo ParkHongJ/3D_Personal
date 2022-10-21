@@ -288,6 +288,9 @@
     <ClInclude Include="..\Public\Frustum.h">
       <Filter>04.Utility\04.Frustum</Filter>
     </ClInclude>
+    <ClInclude Include="..\Bin\ShaderFiles\Client_Shader_Defines.hpp">
+      <Filter>03.Components\08.Navigation\Cell\Shader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="99.Defines">

@@ -6,7 +6,6 @@
 BEGIN(Engine)
 class CModel;
 class CShader;
-class CTexture;
 class CRenderer;
 class CCollider;
 class CTransform;
@@ -14,12 +13,12 @@ END
 
 BEGIN(Client)
 
-class CSword final : public CGameObject
+class CTotem final : public CGameObject
 {
 private:
-	CSword(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
-	CSword(const CSword& rhs);
-	virtual ~CSword() = default;
+	CTotem(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
+	CTotem(const CTotem& rhs);
+	virtual ~CTotem() = default;
 
 public:
 	virtual HRESULT Initialize_Prototype();
@@ -27,7 +26,6 @@ public:
 	virtual _bool Tick(_float fTimeDelta);
 	virtual void LateTick(_float fTimeDelta);
 	virtual HRESULT Render();
-	virtual HRESULT SetUp_State(_fmatrix StateMatrix);
 
 public:
 	virtual void OnCollisionEnter(CGameObject* pOther, _float fTimeDelta)override;
@@ -38,26 +36,27 @@ public:
 	void SetEnable(_bool bEnable) {
 		m_bEnable = bEnable;
 	}
-	_float GetDamage() {
-		return m_fDamage;
-	}
+	void GetDamaged(_float fDamage);
 private:
 	_bool m_bEnable = true;
+	_float m_fHp = 25.f;
+	const _float m_fMaxHp = 25.f;
+
+	class CRas_Samrah*		m_pRasSamrah = nullptr;
 private:
 	CShader*				m_pShaderCom = nullptr;
 	CCollider*				m_pColliderCom = nullptr;
 	CRenderer*				m_pRendererCom = nullptr;
 	CTransform*				m_pTransformCom = nullptr;
-	CTransform*				m_pParentTransformCom = nullptr;
 	CModel*					m_pModelCom = nullptr;
 
 
-	_float					m_fDamage = 25.f;
+
 private:
 	HRESULT Ready_Components();
 
 public:
-	static CSword* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
+	static CTotem* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg);
 	virtual void Free() override;
 };

@@ -23,6 +23,19 @@ public:
 public:
 	_bool isMove(_fvector vPosition, _float3* vCurrentPosition);
 	_float GetHeight(_fvector vTargetPos);
+	_vector GetCellPos(_uint iCellIndex);
+
+	void SetCellType(_uint iCellIndex, _uint eCellType);
+	void SetCurrentIndex(_uint iIndex)
+	{
+		//현재 모든셀의 인덱스보다 크면안됨
+		if (m_Cells.size() < iIndex)
+		{
+			MSG_BOX(L"WrongIndex");
+			return;
+		}
+		m_NavigationDesc.iCurrentIndex = iIndex;
+	}
 #ifdef _DEBUG
 public:
 	HRESULT Render();
@@ -36,7 +49,7 @@ private:
 
 private:
 	HRESULT Ready_Neighbor();
-
+	
 public:
 	static CNavigation* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, const _tchar* pNavigationDataFilePath);
 	CComponent* Clone(void* pArg = nullptr) override;

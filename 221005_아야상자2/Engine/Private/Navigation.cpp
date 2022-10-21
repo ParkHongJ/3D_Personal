@@ -50,7 +50,7 @@ HRESULT CNavigation::Initialize_Prototype(const _tchar * pNavigationDataFilePath
 	return S_OK;
 }
 
-HRESULT CNavigation::Initialize(void * pArg)
+HRESULT CNavigation::Initialize(void * pArg) 
 {
 
 	if (nullptr != pArg)
@@ -67,7 +67,12 @@ _bool CNavigation::isMove(_fvector vPosition, _float3* vCurrentPosition)
 	/* 현재 쎌 안에서 움직였다. */
 	/* 나간방향에 이웃이 있다면. 이웃의 인ㄷ게스를 받아오고.
 	이웃이 없다면 안채워온다. */
-	if (true == m_Cells[m_NavigationDesc.iCurrentIndex]->isIn(vPosition, &iNeighborIndex))
+	//처음 실행한게 아니라면.
+
+	_bool bMove = false;
+	bMove = m_Cells[m_NavigationDesc.iCurrentIndex]->isIn(vPosition, &iNeighborIndex);
+
+	if (true == bMove)
 		return true;
 
 	/* 현재 셀을 나갔다. */
@@ -83,6 +88,11 @@ _bool CNavigation::isMove(_fvector vPosition, _float3* vCurrentPosition)
 
 				if (true == m_Cells[iNeighborIndex]->isIn(vPosition, &iNeighborIndex))
 				{
+					if (m_Cells[iNeighborIndex]->GetType() == CCell::CELLTYPE::CANTMOVE)
+					{
+						XMStoreFloat3(&*vCurrentPosition, m_Cells[m_NavigationDesc.iCurrentIndex]->GetSliding(vPosition, vCurrentPosition));
+						return false;
+					}
 					/* 커런트 인덱스를 이웃의 인덱스로 바꿔준다. */
 					m_NavigationDesc.iCurrentIndex = iNeighborIndex;
 
@@ -103,6 +113,14 @@ _bool CNavigation::isMove(_fvector vPosition, _float3* vCurrentPosition)
 _float CNavigation::GetHeight(_fvector vTargetPos)
 {
 	return m_Cells[m_NavigationDesc.iCurrentIndex]->Compute_Height(vTargetPos);
+}
+_vector CNavigation::GetCellPos(_uint iCellIndex)
+{
+	return XMVectorSetW(m_Cells[iCellIndex]->Get_PositionTriangle(), 1.f);
+}
+void CNavigation::SetCellType(_uint iCellIndex, _uint eCellType)
+{
+	m_Cells[iCellIndex]->SetType((CCell::CELLTYPE)eCellType);
 }
 #ifdef _DEBUG
 

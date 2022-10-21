@@ -86,6 +86,7 @@ private:
 	STATE_ANIM				m_eCurrentAnimState = ANIM_END;
 	_bool					m_bSprint = false;
 	_bool					m_bComboAttack = false;
+	//입력이 없을경우 Idle로 돌아가는 변수
 	_float					m_fBehaviorTimeMax = 2.5f;
 	_float					m_fBehaviorTimeCurrent = 0.f;
 	_bool					m_bParry = false;
