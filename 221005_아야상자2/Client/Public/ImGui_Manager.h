@@ -121,6 +121,8 @@ private:
 
 	static vector<pair<string, ID3D11ShaderResourceView*>> resources;
 
+	_bool	m_bPicking = false;
+	_bool	m_bRenderCell = false;
 	//test
 	_float3	vPosition;
 	_float3	vScale;

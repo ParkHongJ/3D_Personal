@@ -444,6 +444,11 @@ HRESULT CModel::Render(CShader* pShader, _uint iMeshIndex, _uint iPassIndex)
 	return S_OK;
 }
 
+void CModel::SetSpeed(_uint iAnimIndex, _float fSpeed)
+{
+	m_Animations[iAnimIndex]->SetSpeed(fSpeed);
+}
+
 HRESULT CModel::Ready_MeshContainers(_fmatrix PivotMatrix)
 {
 	/* 메시의 갯수를 얻어온다. */

@@ -32,8 +32,8 @@ HRESULT CCamera_Free::Initialize(void * pArg)
 	m_pPlayerTransform = (CTransform*)pGameInstance->Get_ComponentPtr(LEVEL_GAMEPLAY, L"Layer_Player", L"Com_Transform", 0);;
 	if (nullptr == m_pPlayerTransform)
 	{
-		return E_FAIL;
 		RELEASE_INSTANCE(CGameInstance);
+		return E_FAIL;
 	}
 	Safe_AddRef(m_pPlayerTransform);
 	RELEASE_INSTANCE(CGameInstance);*/
@@ -105,9 +105,9 @@ _bool CCamera_Free::Tick(_float fTimeDelta)
 
 void CCamera_Free::LateTick(_float fTimeDelta)
 {
-	//m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pPlayerTransform->Get_State(CTransform::STATE_POSITION));
-	//m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVector3TransformCoord(XMLoadFloat3(&m_vCamPosition), m_pTransformCom->Get_WorldMatrix()));
-
+	/*m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pPlayerTransform->Get_State(CTransform::STATE_POSITION));
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVector3TransformCoord(XMLoadFloat3(&m_vCamPosition), m_pTransformCom->Get_WorldMatrix()));
+*/
 	__super::Tick(fTimeDelta);
 }
 

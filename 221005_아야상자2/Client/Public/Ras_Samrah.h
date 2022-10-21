@@ -2,7 +2,7 @@
 
 #include "Client_Defines.h"
 #include "GameObject.h"
-
+#include "Cell.h"
 BEGIN(Engine)
 class CShader;
 class CTexture;
@@ -68,6 +68,7 @@ public:
 	void GetDamaged(_float fDamage);
 	void SetNaviTypes();
 
+	void SetNaviTypes(CCell::CELLTYPE eType);
 private:
 	CShader*				m_pShaderCom = nullptr;
 	CRenderer*				m_pRendererCom = nullptr;

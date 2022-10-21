@@ -758,7 +758,7 @@ bool CImGui_Manager::LoadTextureFromFile(const char* filename, ID3D11ShaderResou
 
 void CImGui_Manager::PushPickPos(_fvector vPickPos)
 {
-	if (m_eNav != NAV_ADD)
+	if (m_eNav != NAV_ADD || !m_bPicking)
 		return;
 
 	//3번 피킹하지 않았다면
@@ -873,6 +873,9 @@ HRESULT CImGui_Manager::LoadObject()
 
 void CImGui_Manager::RenderGizmo()
 {
+	if (!m_bRenderCell)
+		return;
+
 	for (auto& pCell : m_Cells)
 	{
 		if (nullptr != pCell)
@@ -908,6 +911,16 @@ HRESULT CImGui_Manager::AddGameObject(const _tchar * pPrototypeTag, const _tchar
 }
 
 void CImGui_Manager::ShowNavMesh() {
+
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+	if (pGameInstance->Key_Down(DIK_F4))
+	{
+		m_bPicking = !m_bPicking;
+	}
+	RELEASE_INSTANCE(CGameInstance);
+
+	ImGui::Checkbox("RenderCell", &m_bRenderCell);
+
 	static _int SelectMode = 0;
 	ImGui::RadioButton("NAV_ADD", &SelectMode, 0); ImGui::SameLine();
 	ImGui::RadioButton("NAV_EDIT_Point", &SelectMode, 1); ImGui::SameLine();
@@ -1217,7 +1230,7 @@ void CImGui_Manager::ShowNavMesh() {
 void CImGui_Manager::SaveCellIndices()
 {
 	_ulong		dwByte = 0;
-	HANDLE		hFile = CreateFile(TEXT("../Bin/Data/CellSpawnIndex.dat"), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+	HANDLE		hFile = CreateFile(TEXT("../Bin/Data/CellIndex.dat"), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
 	if (0 == hFile)
 		return;
 
@@ -1227,8 +1240,6 @@ void CImGui_Manager::SaveCellIndices()
 			continue;
 
 		WriteFile(hFile, &pCell.second.iOriginCellIndex, sizeof(_uint), &dwByte, nullptr); 
-		/*_float3* Points = pCell.first->GetPointArray();
-		WriteFile(hFile, &Points[0], sizeof(_float3) * 3, &dwByte, nullptr);*/
 	}
 
 	CloseHandle(hFile);
@@ -1288,6 +1299,8 @@ void CImGui_Manager::ShowHierarchy()
 
 void CImGui_Manager::Inspector()
 {
+	ImGui::Checkbox("Picking", &m_bPicking);
+
 	if (m_pSelectedObject != nullptr)
 	{
 		/*=============

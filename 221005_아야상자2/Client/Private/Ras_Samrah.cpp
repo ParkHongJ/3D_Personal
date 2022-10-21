@@ -77,9 +77,9 @@ HRESULT CRas_Samrah::Initialize(void * pArg)
 		}
 		m_iNaviIndices.push_back(iIndex);
 	}
-
+	
 	CloseHandle(hFile);
-
+	SetNaviTypes(CCell::CELLTYPE::CANTMOVE);
 	return S_OK;
 }
 
@@ -237,6 +237,14 @@ void CRas_Samrah::SetNaviTypes()
 	for (auto& iIndex : m_iNaviIndices)
 	{
 		m_pNavigationCom->SetCellType(iIndex, CCell::CELLTYPE::MOVE);
+	}
+}
+
+void CRas_Samrah::SetNaviTypes(CCell::CELLTYPE eType)
+{
+	for (auto& iIndex : m_iNaviIndices)
+	{
+		m_pNavigationCom->SetCellType(iIndex, eType);
 	}
 }
 

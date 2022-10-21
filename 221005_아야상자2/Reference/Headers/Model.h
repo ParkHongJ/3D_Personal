@@ -57,6 +57,7 @@ public:
 	_bool Play_Animation(_float fTimeDelta);
 	HRESULT Render(class CShader* pShader, _uint iMeshIndex, _uint iPassIndex = 0);
 
+	void SetSpeed(_uint iAnimIndex, _float fSpeed);
 private:
 	HSCENE*						m_pHScene = nullptr;
 	_float4x4					m_PivotMatrix;

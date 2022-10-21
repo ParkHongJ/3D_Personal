@@ -4,11 +4,13 @@
 #include "GameInstance.h"
 #include "Level_Loading.h"
 #include "ImGui_Manager.h"
+#include "Time.h"
 using namespace Client;
 
 CMainApp::CMainApp()
 	: m_pGameInstance(CGameInstance::Get_Instance())
 {
+	srand(_uint(time(NULL)));
 	//D3D11_SAMPLER_DESC
 	// D3D11_SAMPLER_DESC
 	Safe_AddRef(m_pGameInstance);

@@ -27,7 +27,6 @@ HRESULT CRas_Hands2::Initialize(void * pArg)
 	m_Tag = L"Ras_Samrah_Hands2";
 	m_pModelCom->Set_AnimIndex(HAND_IDLE);
 
-	srand(_uint(time(NULL)));
 	//test
 	HANDLE		hFile = CreateFile(TEXT("../Bin/Data/CellSpawnIndex.dat"), GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 
@@ -156,27 +155,31 @@ void CRas_Hands2::Set_State(STATE_ANIM eState, _float fTimeDelta)
 			//호믄클루스 생성
 			CGameInstance*		pGameInstance = GET_INSTANCE(CGameInstance);
 
-			_uint iCellIndex = 4;
 			//이때 랜덤인덱스 줘야함
-			_vector vCellPos = m_pNavigationCom->GetCellPos(m_iNaviIndices[iCellIndex]);
+			_vector vCellPos = m_pNavigationCom->GetCellPos(m_iNaviIndices[m_iRandomCellIndex]);
 
 			SPAWN_INFO tSpawnInfo;
 			//레퍼런스카운트는 받고 증가시켜줄거임
 			tSpawnInfo.pTarget = m_pTarget;
 			XMStoreFloat3(&tSpawnInfo.vPos, vCellPos);
-			tSpawnInfo.iCellIndex = m_iNaviIndices[iCellIndex];
+			tSpawnInfo.iCellIndex = m_iNaviIndices[m_iRandomCellIndex];
 
 			pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Homunculus", LEVEL_GAMEPLAY, L"Layer_Monster", &tSpawnInfo);
 			RELEASE_INSTANCE(CGameInstance);
+			m_bGetRandomIndix = false;
 		}
 		else
 		{
 			m_fCurrentChaseTime += fTimeDelta;
 			if (m_fCurrentChaseTime >= m_fChaseTimeMax)
 			{
-				_uint iCellIndex = 4;
+				if (false == m_bGetRandomIndix)
+				{
+					m_iRandomCellIndex = rand() % m_iNaviIndices.size();
+					m_bGetRandomIndix = true;
+				}
 				//이때 랜덤인덱스 줘야함
-				_vector vCellPos = m_pNavigationCom->GetCellPos(m_iNaviIndices[iCellIndex]);
+				_vector vCellPos = m_pNavigationCom->GetCellPos(m_iNaviIndices[m_iRandomCellIndex]);
 				
 				//본체(손말고 캐릭터)로부터 CellPos까지의 Y를 제거한 Look
 				_vector vLook = XMVectorSetY(XMVector3Normalize(vCellPos - m_pRasTransform->Get_State(CTransform::STATE_POSITION)), 0.0f);

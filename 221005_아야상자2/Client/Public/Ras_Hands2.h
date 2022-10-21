@@ -66,6 +66,9 @@ private:
 	_float3					m_vOffsetPosition = { 0.f,0.f,0.f };
 	_float3					m_vOffsetAttack = { 0.f,0.f,0.f };
 
+	//몬스터 소환할때 사용되는 랜덤변수
+	_uint					m_iRandomCellIndex = 0;
+	_bool					m_bGetRandomIndix = false;
 
 	vector<_uint>			m_iNaviIndices;
 public:

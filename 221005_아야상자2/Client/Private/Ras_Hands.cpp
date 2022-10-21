@@ -39,9 +39,14 @@ _bool CRas_Hands::Tick(_float fTimeDelta)
 
 	Set_State(m_eState, fTimeDelta);
 
-	if (m_btemp)
+	if (m_bHitDelay)
 	{
-		m_fCut += fTimeDelta;
+		m_fCurrentDelayTime += fTimeDelta;
+		if (m_fCurrentDelayTime > m_fMaxDelayTime)
+		{
+			m_bHitDelay = false;
+			m_fCurrentDelayTime = 0.f;
+		}
 	}
 	for (auto& pCollider : m_pColliderCom)
 	{
@@ -132,15 +137,19 @@ HRESULT CRas_Hands::Render()
 
 void CRas_Hands::OnCollisionEnter(CGameObject * pOther, _float fTimeDelta)
 {
-	if (pOther->CompareTag(L"Player_Sword") && m_bHitEnabled)
-	{
-		((CRas_Samrah*)m_pRasTransform->GetOwner())->GetDamaged(((CSword*)pOther)->GetDamage());
-	}
+	
 }
 
 void CRas_Hands::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
 {
-	int a = 10;
+	if (pOther->CompareTag(L"Player_Sword") && m_bHitEnabled)
+	{
+		if (!m_bHitDelay)
+		{
+			m_bHitDelay = true;
+			((CRas_Samrah*)m_pRasTransform->GetOwner())->GetDamaged(((CSword*)pOther)->GetDamage());
+		}
+	}
 }
 
 void CRas_Hands::OnCollisionExit(CGameObject * pOther, _float fTimeDelta)
@@ -169,6 +178,7 @@ void CRas_Hands::Set_State(STATE_ANIM eState, _float fTimeDelta)
 		if (m_bAnimEnd)
 		{
 			m_eState = HAND_AOE3;
+			m_pModelCom->SetSpeed(HAND_AOE3, 80.f);
 			m_pModelCom->Change_Animation(HAND_AOE3, 0.0f, false);
 		}
 		//바로 AOE1로 가는 경우도 있음.

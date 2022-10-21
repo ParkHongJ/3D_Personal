@@ -57,6 +57,9 @@ private:
 	STATE_ANIM				m_eState = HAND_END;
 	_bool					m_bAttackEnabled = false;
 	_bool					m_bHitEnabled  = false;
+	_bool					m_bHitDelay = false;
+	_float					m_fCurrentDelayTime = 0.0f;
+	_float					m_fMaxDelayTime = 0.3f;
 
 	_float					m_fSpeed = 3.f;
 	_bool					m_bChase = false;

@@ -47,7 +47,9 @@ public:
 	map<const char*, _uint>* GetMessages() {
 		return &m_Message;
 	}
-
+	void SetSpeed(_float fSpeed) {
+		m_fTickPerSecond = fSpeed;
+	}
 private:
 	/* 애니메이션 이름 */
 	char m_szName[MAX_PATH] = "";
