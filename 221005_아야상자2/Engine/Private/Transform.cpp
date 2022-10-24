@@ -92,6 +92,42 @@ void CTransform::MoveToWards(_fvector target, _float MaxDistanceDelta, CNavigati
 	
 }
 
+void CTransform::MoveToWards(_fvector target, _float MaxDistanceDelta)
+{
+	/*public static Vector3 MoveTowards(Vector3 current, Vector3 target, float maxDistanceDelta)
+	{
+		Vector3 a = target - current;
+		float magnitude = a.magnitude;
+		if (magnitude <= maxDistanceDelta || magnitude == 0f)
+		{
+			return target;
+		}
+		return current + a / magnitude * maxDistanceDelta;
+	}*/
+	_vector		vPosition = Get_State(CTransform::STATE_POSITION);
+
+	_float3		vCurrentPosition;
+	XMStoreFloat3(&vCurrentPosition, Get_State(CTransform::STATE_POSITION));
+
+	_vector		vDistance = target - vPosition;
+
+	_float		fMagnitude;
+	XMStoreFloat(&fMagnitude, XMVector3Length(vDistance));
+
+	if (fMagnitude <= MaxDistanceDelta || fMagnitude == 0.0f)
+	{
+		Set_State(CTransform::STATE_POSITION, target);
+	}
+	else
+	{
+		_vector vFinalPos = vPosition + vDistance / fMagnitude * MaxDistanceDelta;
+
+		Set_State(CTransform::STATE_POSITION, vFinalPos);
+	}
+
+
+}
+
 HRESULT CTransform::Initialize_Prototype()
 {
 	/* vector -> float : XMStore*/

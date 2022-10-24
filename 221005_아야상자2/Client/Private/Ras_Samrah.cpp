@@ -6,6 +6,7 @@
 #include "Ras_Hands2.h"
 #include "Ras_Hands3.h"
 #include "Cell.h"
+#include "Projectile.h"
 CRas_Samrah::CRas_Samrah(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
 {
@@ -32,7 +33,6 @@ HRESULT CRas_Samrah::Initialize(void * pArg)
 	if (FAILED(Ready_Parts()))
 		return E_FAIL;
 
-
 	strcpy_s(m_szName, "Ras_Samrah");
 	m_Tag = L"Ras_Samrah";
 
@@ -43,13 +43,18 @@ HRESULT CRas_Samrah::Initialize(void * pArg)
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(0.f, 10.f, 42.f, 1.f));
 	m_pTransformCom->Rotation(XMVectorSet(0.f, 1.f, 0.f, 0.f), XMConvertToRadians(180));
 
+	_vector vPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+	_float3 vOffsetPos;
+	XMStoreFloat3(&vOffsetPos, vPos);
+	vOffsetPos.y += 10.f;
+	vOffsetPos.z -= 30.f;
+	
+	m_vOffsetPattern = vOffsetPos;
 
+	
 
 	if (FAILED(Ready_Hands()))
 		return E_FAIL;
-
-	
-	//test
 	HANDLE		hFile = CreateFile(TEXT("../Bin/Data/CellIndex.dat"), GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 
 	if (INVALID_HANDLE_VALUE == hFile)
@@ -58,13 +63,6 @@ HRESULT CRas_Samrah::Initialize(void * pArg)
 	//읽은 바이트 
 	DWORD	dwByte = 0;
 	DWORD	dwStrByte = 0;
-
-	//프로토타입
-	//레이어
-	//모델
-	//이름(char)
-	//레벨
-	//매트릭스
 	while (true)
 	{
 		//매트릭스 로드
@@ -80,6 +78,30 @@ HRESULT CRas_Samrah::Initialize(void * pArg)
 	
 	CloseHandle(hFile);
 	SetNaviTypes(CCell::CELLTYPE::CANTMOVE);
+
+	hFile = CreateFile(TEXT("../Bin/Data/CellSpawnIndex.dat"), GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+
+	if (INVALID_HANDLE_VALUE == hFile)
+		return E_FAIL;
+
+	//읽은 바이트 
+	dwByte = 0;
+	dwStrByte = 0;
+
+	while (true)
+	{
+		//인덱스 로드
+		_uint iIndex = 0;
+		ReadFile(hFile, &iIndex, sizeof(_uint), &dwByte, nullptr);
+
+		if (0 == dwByte)
+		{
+			break;
+		}
+		m_iCylinderIndices.push_back(iIndex);
+	}
+
+	CloseHandle(hFile);
 	return S_OK;
 }
 
@@ -98,8 +120,7 @@ _bool CRas_Samrah::Tick(_float fTimeDelta)
 	{
 		m_pHand1->Set_Pattern(CRas_Hands::STATE_ANIM::HAND_SLAM_FLY);
 	}
-
-
+	
 	if (pGameInstance->Key_Down(DIK_M))
 	{
 		m_pHand2->Set_Pattern(CRas_Hands2::HAND_PATTERN2);
@@ -108,10 +129,42 @@ _bool CRas_Samrah::Tick(_float fTimeDelta)
 	{
 		m_pHand3->Set_Pattern(CRas_Hands3::HAND_PATTERN3);
 	}
-
+	//Pattern1 : 망치 휘두르기
+	/*if (pGameInstance->Key_Down(DIK_L))
+	{
+		m_eCurrentAnimState = Pattern1;
+		m_pModelCom->Change_Animation(Pattern1);
+	}*/
+	//Pattern3 : 총알발사, 물기둥
+	if (pGameInstance->Key_Down(DIK_L))
+	{
+		m_ePhase = PHASE_2;
+		m_eCurrentAnimState = Pattern3;
+		m_pModelCom->Change_Animation(Pattern3);
+	}
 	RELEASE_INSTANCE(CGameInstance);
 
+	if (m_bCylinder)
+	{
+		m_fCylinderTime += fTimeDelta;
+		if (m_fCylinderTime > m_fCylinderTimeMax)
+		{
+			m_fCylinderTime = 0.0f;
+			if (m_iCylinderCount <= m_iCylinderCountMax)
+			{
+				m_iCylinderCount++; 
 
+				_uint i = rand() % m_iCylinderIndices.size();
+				_float3 vPos;
+				XMStoreFloat3(&vPos, m_pNavigationCom->GetCellPos(i));
+				Ready_Layer_GameObject(L"Prototype_GameObject_Cylinder", L"Layer_Cylinder", &vPos);
+			}
+			else
+			{				
+				m_bCylinder = false;
+			}
+		}
+	}
 	Update_Weapon();
 
 	m_Parts->Tick(fTimeDelta);
@@ -240,6 +293,18 @@ void CRas_Samrah::SetNaviTypes()
 	}
 }
 
+HRESULT CRas_Samrah::Ready_Layer_GameObject(const _tchar * pPrototypeTag, const _tchar * pLayerTag, void * pArg)
+{
+	CGameInstance*		pGameInstance = GET_INSTANCE(CGameInstance);
+
+	if (FAILED(pGameInstance->Add_GameObjectToLayer(pPrototypeTag, LEVEL_GAMEPLAY, pLayerTag, pArg)))
+		return E_FAIL;
+
+	RELEASE_INSTANCE(CGameInstance);
+
+	return S_OK;
+}
+
 void CRas_Samrah::SetNaviTypes(CCell::CELLTYPE eType)
 {
 	for (auto& iIndex : m_iNaviIndices)
@@ -278,6 +343,40 @@ HRESULT CRas_Samrah::Ready_Parts()
 	return S_OK;
 }
 
+HRESULT CRas_Samrah::Ready_Projectile()
+{
+	CProjectile::ProjectileInfo Projectile;
+	ZeroMemory(&Projectile, sizeof(CProjectile::ProjectileInfo));
+
+	Projectile.vOffset = m_vOffsetPattern;
+	Projectile.fLimitY = XMVectorGetY(m_pTargetTransform->Get_State(CTransform::STATE_POSITION));
+	Projectile.ePhase = CProjectile::PHASE2; //Test
+
+	Projectile.vPos = _float3(5.f,0.f,0.f); //공전의 기준점을 기준으로 어디에 있을건지.
+	Projectile.fDelayTime = 2.0f;
+	Ready_Layer_GameObject(L"Prototype_GameObject_Projectile", L"Layer_Projectile", &Projectile);
+
+	Projectile.vPos = _float3(0.f, 5.f, 0.f); //공전의 기준점을 기준으로 어디에 있을건지.
+	Projectile.fDelayTime = 3.0f;
+	Ready_Layer_GameObject(L"Prototype_GameObject_Projectile", L"Layer_Projectile", &Projectile);
+	
+	Projectile.vPos = _float3(-5.f, 0.f, 0.f); //공전의 기준점을 기준으로 어디에 있을건지.
+	Projectile.fDelayTime = 4.0f;
+	Ready_Layer_GameObject(L"Prototype_GameObject_Projectile", L"Layer_Projectile", &Projectile);
+	
+	Projectile.vPos = _float3(0.f, -5.f, 0.f); //공전의 기준점을 기준으로 어디에 있을건지.
+	Projectile.fDelayTime = 4.5f;
+	Ready_Layer_GameObject(L"Prototype_GameObject_Projectile", L"Layer_Projectile", &Projectile);
+
+	return S_OK;
+}
+
+HRESULT CRas_Samrah::Ready_Cylinder()
+{
+	
+	return S_OK;
+}
+
 void CRas_Samrah::Set_State(STATE_ANIM eAnim, PHASE ePhase, _float fTimeDelta)
 {
 	switch (m_ePhase)
@@ -285,17 +384,24 @@ void CRas_Samrah::Set_State(STATE_ANIM eAnim, PHASE ePhase, _float fTimeDelta)
 	case CRas_Samrah::PHASE_1:
 		switch (m_eCurrentAnimState)
 		{
-		case CRas_Samrah::Death:
-			break;
-		case CRas_Samrah::Fly:
-			break;
 		case CRas_Samrah::Idle1:
-			break;
-		case CRas_Samrah::Pattern1:
-			break;
-		case CRas_Samrah::Pattern3:
-			break;
-		case CRas_Samrah::WalkGround:
+		{
+			//5초에 한번 패턴발동, 랜덤으로 내려치기 발동
+			m_fPatternDelay += fTimeDelta;
+			if (m_fPatternDelay > m_fPatternMaxDelay)
+			{
+				m_fPatternDelay = 0.0f;
+				m_bHand2 = !m_bHand2;
+				if (m_bHand2)
+				{
+					m_pHand2->Set_Pattern(CRas_Hands2::HAND_PATTERN2);
+				}
+				else
+				{
+					m_pHand3->Set_Pattern(CRas_Hands3::HAND_PATTERN3);
+				}
+			}
+		}
 			break;
 		default:
 			break;
@@ -333,6 +439,11 @@ void CRas_Samrah::Set_State(STATE_ANIM eAnim, PHASE ePhase, _float fTimeDelta)
 			}
 			break;
 		case CRas_Samrah::Death:
+			if (m_bAnimEnd)
+			{
+				m_bDestroy = true;
+				break;
+			}
 			break;
 		case CRas_Samrah::Fly:
 			if (m_bAnimEnd)
@@ -346,6 +457,18 @@ void CRas_Samrah::Set_State(STATE_ANIM eAnim, PHASE ePhase, _float fTimeDelta)
 		case CRas_Samrah::Pattern1:
 			break;
 		case CRas_Samrah::Pattern3:
+			if (m_bAnimEnd)
+			{
+				//Ready_Projectile();
+
+					
+				m_bCylinder = true;
+				m_eCurrentAnimState = Idle1;
+				m_pModelCom->Change_Animation(Idle1);
+
+
+			}
+
 			break;
 		case CRas_Samrah::WalkGround:
 			break;
@@ -356,7 +479,6 @@ void CRas_Samrah::Set_State(STATE_ANIM eAnim, PHASE ePhase, _float fTimeDelta)
 	default:
 		break;
 	}
-	
 }
 
 HRESULT CRas_Samrah::Update_Weapon()

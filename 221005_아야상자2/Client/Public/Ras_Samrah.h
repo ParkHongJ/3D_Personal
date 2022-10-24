@@ -67,7 +67,7 @@ public:
 public:
 	void GetDamaged(_float fDamage);
 	void SetNaviTypes();
-
+	HRESULT Ready_Layer_GameObject(const _tchar* pPrototypeTag, const _tchar* pLayerTag, void* pArg = nullptr);
 	void SetNaviTypes(CCell::CELLTYPE eType);
 private:
 	CShader*				m_pShaderCom = nullptr;
@@ -75,6 +75,7 @@ private:
 	CTransform*				m_pTransformCom = nullptr;
 	CModel*					m_pModelCom = nullptr;
 	CNavigation*			m_pNavigationCom = nullptr;
+
 private:
 	CGameObject*						m_Parts = nullptr;
 	vector<class CHierarchyNode*>		m_Sockets;
@@ -100,10 +101,30 @@ private:
 	_float3								m_OffsetHands2;
 	_float3								m_OffsetHands3;
 
+	//길막는용
 	vector<_uint>						m_iNaviIndices;
+	//물기둥소환용
+	vector<_uint>						m_iCylinderIndices;
+
+	_float3								m_vOffsetPattern;
+
+	_float								m_fPatternDelay = 0.0f;
+
+	_float								m_fPatternMaxDelay = 9.0f;
+	_bool								m_bHand2 = false;
+	
+	//물기둥패턴
+	_bool								m_bCylinder = false;
+	_float								m_fCylinderTime = 0.0f;
+	_float								m_fCylinderTimeMax = 0.7f;
+	
+	_uint								m_iCylinderCountMax = 7;
+	_uint								m_iCylinderCount = 0;
 private:
 	HRESULT Ready_Sockets();
 	HRESULT Ready_Parts();
+	HRESULT Ready_Projectile();
+	HRESULT Ready_Cylinder();
 
 	void Set_State(STATE_ANIM eAnim, PHASE ePhase, _float fTimeDelta);
 	HRESULT Update_Weapon();

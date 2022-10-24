@@ -50,6 +50,7 @@ protected:
 	CModel*					m_pModelCom = nullptr;
 	CCollider*				m_pColliderCom[COLLILDERTYPE_END] = { nullptr };
 	CTexture*				m_pTextureCom = nullptr;
+
 private:
 	_bool					m_bAnimEnd = false;
 	class CTransform*		m_pRasTransform = nullptr;
@@ -59,7 +60,7 @@ private:
 	_bool					m_bHitEnabled  = false;
 	_bool					m_bHitDelay = false;
 	_float					m_fCurrentDelayTime = 0.0f;
-	_float					m_fMaxDelayTime = 0.3f;
+	_float					m_fMaxDelayTime = 0.2f;
 
 	_float					m_fSpeed = 3.f;
 	_bool					m_bChase = false;
@@ -70,6 +71,8 @@ private:
 	_float					m_fAttackTimeMax = 2.5f;
 
 
+
+	//µðÁ¹ºê½¦ÀÌ´õ Å×½ºÆ®¿ë
 	_float					m_fCut = 0.0f;
 	_uint					m_iTemp = 0;
 	_bool					m_btemp = false;

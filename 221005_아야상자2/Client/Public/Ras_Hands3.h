@@ -20,7 +20,8 @@ public:
 	enum STATE_ANIM {
 		HAND_DEATH, HAND_IDLE, HAND_PATTERN3, HAND_END
 	};
-	private:
+
+private:
 	CRas_Hands3(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	CRas_Hands3(const CRas_Hands3& rhs);
 	virtual ~CRas_Hands3() = default;
@@ -64,6 +65,9 @@ private:
 	_uint					m_iProjectileCount = 0;
 
 	const _uint				m_iProjectileCountMax = 3;
+	_float					m_fCurrentBulletTime = 0.0f;
+	_float					m_fCurrentDelay = 0.0f;
+	_float					m_fDelayMax = 2.f;
 public:
 	void Set_State(STATE_ANIM eState, _float fTimeDelta);
 
@@ -75,9 +79,10 @@ public:
 	void Set_OffsetPos(class CTransform* pRasTransform);
 	void MoveToOffsetIdle();
 	void MoveToOffsetAttack();
+	HRESULT Ready_Layer_GameObject(const _tchar* pPrototypeTag, const _tchar* pLayerTag, void* pArg = nullptr);
 protected:
 	HRESULT Ready_Components();
-
+	
 public:
 	static CRas_Hands3* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg);

@@ -20,6 +20,8 @@
 #include "StaticObject.h"
 #include "Homonculus.h"
 #include "Totem.h"
+#include "Projectile.h"
+#include "Cylinder.h"
 //#include "Effect.h"
 #include "Sky.h"
 //#include "UI.h"
@@ -207,11 +209,17 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Totem"),
 		CTotem::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
-	///* For.Prototype_GameObject_Hammer */
-	//if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Camera_Free"),
-	//	CCamera_Free::Create(m_pDevice, m_pContext))))
-	//	return E_FAIL;
 
+	/* For.Prototype_GameObject_Totem */
+	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Projectile"),
+		CProjectile::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For.Prototype_GameObject_Cylinder */
+	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Cylinder"),
+		CCylinder::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+	
 	///* For.Prototype_GameObject_Sky */
 	//if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Sky"),
 	//	CSky::Create(m_pGraphic_Device))))
@@ -379,6 +387,12 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
 	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Totem"),
 		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/Totem.dat", PivotMatrix))))
+		return E_FAIL;
+
+	//Prototype_Component_Model_Cylinder
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Cylinder"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/Effect/Cylinder.dat", PivotMatrix))))
 		return E_FAIL;
 
 	///* For.Prototype_Component_VIBuffer_Cube */

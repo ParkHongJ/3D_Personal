@@ -27,6 +27,7 @@ HRESULT CRas_Hands::Initialize(void * pArg)
 	m_Tag = L"Ras_Samrah_Hands";
 	m_pModelCom->Set_AnimIndex(HAND_IDLE);
 	m_pTransformCom->Set_Scale(XMVectorSet(0.4f, 0.4f, 0.4f, 1.f));
+	m_bActive = false;
 	return S_OK;
 }
 
@@ -201,6 +202,7 @@ void CRas_Hands::Set_State(STATE_ANIM eState, _float fTimeDelta)
 				m_bAttackEnabled = false;
 
 				//이때 사라져야함
+				m_bActive = false;
 				m_eState = HAND_IDLE;
 				m_pModelCom->Change_Animation(HAND_IDLE);
 			}
@@ -228,7 +230,7 @@ void CRas_Hands::Set_State(STATE_ANIM eState, _float fTimeDelta)
 
 				//Look 조절해야함
 				_vector vLook = vPosition - m_pRasTransform->Get_State(CTransform::STATE_POSITION);
-				
+
 				//타겟을 바라보는 룩을얻어와서
 				_vector vDist = XMVector3Normalize(vTargetPos - m_pRasTransform->Get_State(CTransform::STATE_POSITION));
 				vDist = XMVectorSetY(vDist, 0.f);
@@ -249,18 +251,53 @@ void CRas_Hands::Set_State(STATE_ANIM eState, _float fTimeDelta)
 				//vPosition -= XMVector3Normalize(vTargetPos - vPosition) * 5.f;
 
 				m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPosition);
-				
+
 			}
 		}
 		break;
 	case CRas_Hands::HAND_SLAM_FLY:
+	{
+		//추적중이라면 플레이어를 바라본 상태로 추적
+		_vector vPosition = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+
+
+		if (nullptr != m_pTarget)
+		{
+			_vector vTargetPos = m_pTarget->Get_State(CTransform::STATE_POSITION);
+
+			//Look 조절해야함
+			_vector vLook = vPosition - m_pRasTransform->Get_State(CTransform::STATE_POSITION);
+
+			//타겟을 바라보는 룩을얻어와서
+			_vector vDist = XMVector3Normalize(vTargetPos - m_pRasTransform->Get_State(CTransform::STATE_POSITION));
+			vDist = XMVectorSetY(vDist, 0.f);
+			vTargetPos = vTargetPos - vDist * 8.f;
+
+
+			vPosition = XMVectorLerp(vPosition, vTargetPos, fTimeDelta * m_fSpeed);
+
+			//네비를 태울까?
+			vPosition = XMVectorSetY(vPosition, XMVectorGetY(vTargetPos) + 6.f);
+
+			vLook = XMVectorSetY(vLook, 0.0f);
+
+			m_pTransformCom->LookDir(vLook);
+
+			XMVectorSetY(vLook, 0.0f);
+
+			//vPosition -= XMVector3Normalize(vTargetPos - vPosition) * 5.f;
+
+			m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPosition);
+
+		}
 		if (m_bAnimEnd)
 		{
 			m_eState = HAND_FIRST_CLOSED;
 			m_pModelCom->Change_Animation(HAND_FIRST_CLOSED);
 			m_bChase = true;
 		}
-		break;
+	}
+	break;
 	case CRas_Hands::HAND_DEATH:
 		//다 죽었다면.
 		if (m_bAnimEnd)
@@ -279,7 +316,7 @@ void CRas_Hands::Set_Death()
 {
 	m_eState = HAND_DEATH;
 	m_bAnimEnd = false;
-	m_pModelCom->Change_Animation(HAND_DEATH);
+	m_pModelCom->Change_Animation(HAND_DEATH, 0.25f, false);
 }
 
 void CRas_Hands::SetRas_Samrah(CTransform * pRasTransform)
@@ -299,6 +336,7 @@ void CRas_Hands::Set_Target(CTransform* pTarget)
 
 void CRas_Hands::Set_Pattern(STATE_ANIM eState)
 {
+	m_bActive = true;
 	m_eState = eState;
 	m_pModelCom->Change_Animation(eState, 0.25f, false);
 }

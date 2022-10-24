@@ -173,6 +173,7 @@
     <ClInclude Include="..\public\Chaudron.h" />
     <ClInclude Include="..\public\ChaudronChain.h" />
     <ClInclude Include="..\Public\Client_Defines.h" />
+    <ClInclude Include="..\public\Cylinder.h" />
     <ClInclude Include="..\public\EndChain.h" />
     <ClInclude Include="..\Public\ForkLift.h" />
     <ClInclude Include="..\public\GameMgr.h" />
@@ -218,6 +219,7 @@
     <ClCompile Include="..\Private\Camera_Free.cpp" />
     <ClCompile Include="..\private\Chaudron.cpp" />
     <ClCompile Include="..\private\ChaudronChain.cpp" />
+    <ClCompile Include="..\private\Cylinder.cpp" />
     <ClCompile Include="..\private\EndChain.cpp" />
     <ClCompile Include="..\Private\ForkLift.cpp" />
     <ClCompile Include="..\private\GameMgr.cpp" />

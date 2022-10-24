@@ -112,6 +112,9 @@
     <Filter Include="02.GameObjects\Boss\Ras_Samrah\Totem">
       <UniqueIdentifier>{8b63a07d-ac94-4de9-b0e7-3c651514c359}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\Boss\Ras_Samrah\Cylinder">
+      <UniqueIdentifier>{c936edc7-d17f-492a-b887-99b005ebdf40}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -252,6 +255,9 @@
     <ClInclude Include="..\public\Totem.h">
       <Filter>02.GameObjects\Boss\Ras_Samrah\Totem</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\Cylinder.h">
+      <Filter>02.GameObjects\Boss\Ras_Samrah\Cylinder</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -379,6 +385,9 @@
     </ClCompile>
     <ClCompile Include="..\private\Totem.cpp">
       <Filter>02.GameObjects\Boss\Ras_Samrah\Totem</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Cylinder.cpp">
+      <Filter>02.GameObjects\Boss\Ras_Samrah\Cylinder</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

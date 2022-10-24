@@ -262,7 +262,7 @@ void CRas_Hands2::MoveToOffsetAttack()
 void CRas_Hands2::Set_Death()
 {
 	m_eState = HAND_DEATH;
-	m_pModelCom->Change_Animation(HAND_DEATH);
+	m_pModelCom->Change_Animation(HAND_DEATH, 0.25f, false);
 	m_bAnimEnd = false;
 }
 

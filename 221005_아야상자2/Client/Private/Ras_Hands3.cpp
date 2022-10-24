@@ -2,6 +2,7 @@
 #include "..\Public\Ras_Hands3.h"
 #include "GameInstance.h"
 #include "Ras_Samrah.h"
+#include "Projectile.h"
 
 CRas_Hands3::CRas_Hands3(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
@@ -124,22 +125,25 @@ void CRas_Hands3::Set_State(STATE_ANIM eState, _float fTimeDelta)
 	case CRas_Hands3::HAND_IDLE:
 		break;
 	case CRas_Hands3::HAND_PATTERN3:
+		m_pModelCom->SetSpeed(HAND_PATTERN3,18.0f);
 		//패턴이 끝났다면 IDLE로 돌아감
 		if (m_bAnimEnd)
 		{
 			//3발을 쐈다면
 			if (m_iProjectileCount >= m_iProjectileCountMax)
 			{
-				m_eState = HAND_IDLE;
 				m_pModelCom->Change_Animation(HAND_IDLE);
-				MoveToOffsetIdle();
-				m_iProjectileCount = 0;
-			}
-			else
-			{
-				//발사횟수를 하나 증가시키고
-				m_iProjectileCount++;
-				//발사
+				if (m_fCurrentDelay >= m_fDelayMax)
+				{
+					m_eState = HAND_IDLE;
+					m_pModelCom->Change_Animation(HAND_IDLE);
+					MoveToOffsetIdle();
+					m_iProjectileCount = 0;
+					m_fCurrentBulletTime = 0.0f;
+					m_fCurrentDelay = 0.0f;
+				}
+				else
+					m_fCurrentDelay += fTimeDelta;
 			}
 		}
 		else
@@ -147,10 +151,12 @@ void CRas_Hands3::Set_State(STATE_ANIM eState, _float fTimeDelta)
 			//3발을 쐈다면
 			if (m_iProjectileCount >= m_iProjectileCountMax)
 			{
-				m_eState = HAND_IDLE;
-				m_pModelCom->Change_Animation(HAND_IDLE);
-				MoveToOffsetIdle();
-				m_iProjectileCount = 0;
+				//m_eState = HAND_IDLE;
+				//m_pModelCom->Change_Animation(HAND_IDLE);
+				//MoveToOffsetIdle();
+				//m_iProjectileCount = 0;
+				//m_fCurrentBulletTime = 0.0f;
+				m_fCurrentDelay += fTimeDelta;
 				break;
 			}
 			//아니라면 계속 플레이어를 바라보고 투사체를 발사함. 최대 3번
@@ -169,6 +175,28 @@ void CRas_Hands3::Set_State(STATE_ANIM eState, _float fTimeDelta)
 
 				//XMVectorSetY(vLook, 0.0f);
 			}
+
+			m_fCurrentBulletTime += 24.0f * fTimeDelta;
+			if (m_fCurrentBulletTime > 32.f && m_iProjectileCount < m_iProjectileCountMax)
+			{
+				//발사횟수를 하나 증가시키고
+				m_iProjectileCount++;
+				m_fCurrentBulletTime = 0.0f;
+				//발사
+				CProjectile::ProjectileInfo Projectile;
+				ZeroMemory(&Projectile, sizeof(CProjectile::ProjectileInfo));
+
+				_matrix WorldMat = m_pRasTransform->Get_WorldMatrix();
+				_vector vPos = XMVector3TransformCoord(XMLoadFloat3(&m_vOffsetAttack), WorldMat);
+				vPos += XMLoadFloat3(&m_vOffsetAttack);
+				vPos = XMVectorSetY(vPos, XMVectorGetY(vPos) + 10.f);
+				XMStoreFloat3(&Projectile.vPos, vPos);
+				XMStoreFloat3(&Projectile.vDir, XMVector3Normalize(m_pTarget->Get_State(CTransform::STATE_POSITION) - vPos));
+				Projectile.fLimitY = XMVectorGetY(m_pTarget->Get_State(CTransform::STATE_POSITION));
+				Projectile.ePhase = CProjectile::PHASE1; //Test
+				if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Projectile", L"Layer_Projectile", &Projectile)))
+					return;
+			}
 		}
 		break;
 	default:
@@ -179,7 +207,7 @@ void CRas_Hands3::Set_State(STATE_ANIM eState, _float fTimeDelta)
 void CRas_Hands3::Set_Death()
 {
 	m_eState = HAND_DEATH;
-	m_pModelCom->Change_Animation(HAND_DEATH);
+	m_pModelCom->Change_Animation(HAND_DEATH, 0.25f, false);
 	m_bAnimEnd = false;
 }
 
@@ -237,6 +265,19 @@ void CRas_Hands3::MoveToOffsetAttack()
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVector3TransformCoord(XMLoadFloat3(&m_vOffsetAttack), m_pTransformCom->Get_WorldMatrix()));
 	m_pTransformCom->Set_Scale(XMVectorSet(0.4f, 0.4f, 0.4f, 1.f));
 	m_pTransformCom->Rotation(XMVectorSet(0.f, 1.f, 0.f, 0.f), XMConvertToRadians(180.f));
+}
+
+HRESULT CRas_Hands3::Ready_Layer_GameObject(const _tchar* pPrototypeTag, const _tchar* pLayerTag, void* pArg)
+{
+	CGameInstance*		pGameInstance = CGameInstance::Get_Instance();
+	Safe_AddRef(pGameInstance);
+
+	if (FAILED(pGameInstance->Add_GameObjectToLayer(pPrototypeTag, LEVEL_GAMEPLAY, pLayerTag, pArg)))
+		return E_FAIL;
+
+	Safe_Release(pGameInstance);
+
+	return S_OK;
 }
 
 HRESULT CRas_Hands3::Ready_Components()

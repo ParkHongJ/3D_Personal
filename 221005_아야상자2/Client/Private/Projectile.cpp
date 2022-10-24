@@ -21,25 +21,92 @@ HRESULT CProjectile::Initialize(void * pArg)
 {
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
+	memcpy(&m_ProjInfo, pArg, sizeof(ProjectileInfo));
+	
+	SetDir(XMLoadFloat3(&m_ProjInfo.vDir));
+	
+	if (m_ProjInfo.ePhase == PHASE1)
+	{
+		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMLoadFloat3(&m_ProjInfo.vPos), 1.f));
+	}
+	else
+	{
+		XMStoreFloat3(&m_vDistance, XMLoadFloat3(&m_ProjInfo.vPos));
+	}
 
-	//m_pModelCom->Set_AnimIndex(0);
-	//m_pTransformCom->Set_Scale(XMVectorSet(0.01f, 0.01f, 0.01f,0.f));
-	//m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(0.f,0.f,2.f,1.f));
-	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet((_float)(rand() % 20), 0.f, (_float)(rand() % 20), 1.f));
-	_float temp = (_float)(rand() % 9);
-	m_pTransformCom->Rotation(XMVectorSet(0.f, 1.f, 0.f, 0.f), temp * 0.5f);
 	return S_OK;
 }
 
 _bool CProjectile::Tick(_float fTimeDelta)
 {
+	//PHASE1 이라면.
+	if (m_ProjInfo.ePhase == CProjectile::PHASE1)
+	{
+		if (m_ProjInfo.fLimitY > XMVectorGetY(m_pTransformCom->Get_State(CTransform::STATE_POSITION)))
+		{
+			m_bDestroy = true;
+			return true;
+		}
+
+		_vector vPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+		vPos += XMLoadFloat3(&m_vDir) * m_fSpeed * fTimeDelta;
+		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(vPos, 1.f));
+	}
+	else if (m_ProjInfo.ePhase == CProjectile::PHASE2 && !m_bReady)
+	{
+		m_fCurrentTime += fTimeDelta;
+		//Offset을 기준으로 회전하다가 일정시간이 지나면 중심부로 이동. 후 발사
+		if (m_fCurrentTime >= m_ProjInfo.fDelayTime)
+		{
+			//중심점으로 이동했다면
+			if (XMVector3Equal(XMLoadFloat3(&m_ProjInfo.vOffset), m_pTransformCom->Get_State(CTransform::STATE_POSITION)))
+			{
+				//발솨
+				if (!m_bReady)
+				{
+					CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+					CTransform* pTarget = (CTransform*)pGameInstance->Get_ComponentPtr(LEVEL_GAMEPLAY, L"Layer_Player", L"Com_Transform", 0);
+					XMStoreFloat3(&m_vDir, XMVector3Normalize(pTarget->Get_State(CTransform::STATE_POSITION) - m_pTransformCom->Get_State(CTransform::STATE_POSITION)));
+					m_ProjInfo.fLimitY = XMVectorGetY(pTarget->Get_State(CTransform::STATE_POSITION));
+					RELEASE_INSTANCE(CGameInstance);
+					m_bReady = true;
+				}
+			}
+			else
+			{
+				//중심점으로 이동하지 않았다면 이동
+				m_pTransformCom->MoveToWards(XMLoadFloat3(&m_ProjInfo.vOffset), fTimeDelta * 15.f);
+			}
+		}
+		else
+		{
+			m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMLoadFloat3(&m_ProjInfo.vOffset), 1.f));
+			m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVector3TransformCoord(XMLoadFloat3(&m_vDistance), m_pTransformCom->Get_WorldMatrix()));
+
+			m_pTransformCom->Turn(XMVectorSet(0.f, 0.f, 1.f, 0.f), fTimeDelta * 0.5f);
+		}
+	}
+
+	if (m_bReady)
+	{
+		_vector vPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+		vPos = vPos + XMLoadFloat3(&m_vDir) * fTimeDelta * m_fSpeed;
+		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(vPos, 1.f));
+		if (m_ProjInfo.fLimitY > XMVectorGetY(m_pTransformCom->Get_State(CTransform::STATE_POSITION)))
+		{
+			//폭발해야함
+			m_bDestroy = true;
+			return true;
+		}
+	}
+
 	m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix());
 	return false;
 }
 
 void CProjectile::LateTick(_float fTimeDelta)
 {
-	if (nullptr == m_pRendererCom)
+	if (nullptr == m_pRendererCom || m_bDestroy)
 		return;
 
 	m_pColliderCom->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom);
@@ -48,20 +115,20 @@ void CProjectile::LateTick(_float fTimeDelta)
 
 HRESULT CProjectile::Render()
 {
-	if (nullptr == m_pModelCom ||
+	/*if (nullptr == m_pModelCom ||
 		nullptr == m_pShaderCom)
-		return E_FAIL;
+		return E_FAIL;*/
 
-	CGameInstance*		pGameInstance = GET_INSTANCE(CGameInstance);
+		/*CGameInstance*		pGameInstance = GET_INSTANCE(CGameInstance);
 
-	if (FAILED(m_pShaderCom->Set_RawValue("g_WorldMatrix", &m_pTransformCom->Get_WorldFloat4x4_TP(), sizeof(_float4x4))))
-		return E_FAIL;
-	if (FAILED(m_pShaderCom->Set_RawValue("g_ViewMatrix", &pGameInstance->Get_TransformFloat4x4_TP(CPipeLine::D3DTS_VIEW), sizeof(_float4x4))))
-		return E_FAIL;
-	if (FAILED(m_pShaderCom->Set_RawValue("g_ProjMatrix", &pGameInstance->Get_TransformFloat4x4_TP(CPipeLine::D3DTS_PROJ), sizeof(_float4x4))))
-		return E_FAIL;
+		if (FAILED(m_pShaderCom->Set_RawValue("g_WorldMatrix", &m_pTransformCom->Get_WorldFloat4x4_TP(), sizeof(_float4x4))))
+			return E_FAIL;
+		if (FAILED(m_pShaderCom->Set_RawValue("g_ViewMatrix", &pGameInstance->Get_TransformFloat4x4_TP(CPipeLine::D3DTS_VIEW), sizeof(_float4x4))))
+			return E_FAIL;
+		if (FAILED(m_pShaderCom->Set_RawValue("g_ProjMatrix", &pGameInstance->Get_TransformFloat4x4_TP(CPipeLine::D3DTS_PROJ), sizeof(_float4x4))))
+			return E_FAIL;
 
-	RELEASE_INSTANCE(CGameInstance);
+		RELEASE_INSTANCE(CGameInstance);*/
 
 
 
@@ -88,7 +155,7 @@ HRESULT CProjectile::Render()
 
 void CProjectile::SetDir(_fvector vDir)
 {
-	m_pTransformCom->LookAt(vDir);
+	XMStoreFloat3(&m_vDir, vDir);
 }
 
 void CProjectile::OnCollisionEnter(CGameObject * pOther, _float fTimeDelta)
@@ -108,8 +175,12 @@ void CProjectile::OnCollisionExit(CGameObject * pOther, _float fTimeDelta)
 
 HRESULT CProjectile::Ready_Components()
 {
+	CTransform::TRANSFORMDESC transformDesc;
+	ZeroMemory(&transformDesc, sizeof(CTransform::TRANSFORMDESC));
+	transformDesc.fRotationPerSec = 5.f;
+	transformDesc.fSpeedPerSec = 3.f;
 	/* For.Com_Transform */
-	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Transform"), TEXT("Com_Transform"), (CComponent**)&m_pTransformCom)))
+	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Transform"), TEXT("Com_Transform"), (CComponent**)&m_pTransformCom, &transformDesc)))
 		return E_FAIL;
 
 	/* For.Com_Renderer */

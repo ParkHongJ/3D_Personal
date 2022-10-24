@@ -51,7 +51,8 @@ public:
 	void Set_State(STATE eState, _fvector vState);
 
 	void MoveToWards(_fvector target, _float MaxDistanceDelta, class CNavigation* pNavigation);
-	
+	void MoveToWards(_fvector target, _float MaxDistanceDelta);
+
 public:
 	virtual HRESULT Initialize_Prototype();
 	virtual HRESULT Initialize(void* pArg);
