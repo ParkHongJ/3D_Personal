@@ -51,7 +51,7 @@ public:
 
 public:
 	HRESULT Ready_Layer_GameObject(const _tchar* pPrototypeTag, const _tchar* pLayerTag, void* pArg = nullptr);
-
+	void GetDamage(_float fDamage);
 private:
 	CShader*				m_pShaderCom = nullptr;
 	CRenderer*				m_pRendererCom = nullptr;
@@ -59,19 +59,36 @@ private:
 	CModel*					m_pModelCom = nullptr;
 	CNavigation*			m_pNavigationCom = nullptr;
 	CCollider*				m_pColliderCom = nullptr;
+	CTransform*				m_pTargetTransform = nullptr;
 
 private:
 	vector<class CHierarchyNode*>		m_Sockets;
 	_float								m_fHp = 100;
 	_bool								m_bAnimEnd = false;
 	_float								m_fSpeed = 40.f;
+	_float								m_fRotationSpeed = 7.f;
+	_float								m_fDashSpeed = 35.f;
+
+	//콤보공격.
+	//현재 몇번째 콤보인지, 최대콤보수
+	_uint								m_iCurrentCombo = 0;
+	const _uint							m_iMaxCombo = 4;
+
+	//콤보가 끝난후 쉬는시간과 최대쉬는시간
+	_float								m_fCurrentDelayTime = 0.0f;
+	const _float						m_fMaxDelayTime = 3.0f;
+
+	//스킬과 스킬사이의 딜레이
+	_float								m_fCurrentGlobalDelayTime = 0.0f;
+	const _float						m_fGlobalMaxDelayTime = 0.15f;
 
 	vector<CGameObject*>				m_Parts;
 	typedef vector<CGameObject*>		PARTS;
 	ANIM_STATE							m_eAnimState = ANIM_END;
 
 public:
-	void Set_State(ANIM_STATE eState);
+	void Set_State(ANIM_STATE eState, _float fTimeDelta);
+
 private:
 	HRESULT Ready_Sockets();
 	HRESULT Ready_Parts();

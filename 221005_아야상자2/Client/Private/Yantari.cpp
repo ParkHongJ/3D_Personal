@@ -34,7 +34,12 @@ HRESULT CYantari::Initialize(void * pArg)
 
 	m_eAnimState = IDLE;
 	m_pModelCom->Change_Animation(IDLE);
-	m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pNavigationCom->GetCellPos(0));
+	m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pNavigationCom->GetCellPos(1));
+	
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+	m_pTargetTransform = (CTransform*)pGameInstance->Get_ComponentPtr(LEVEL_GAMEPLAY, L"Layer_Player", L"Com_Transform", 0);
+	Safe_AddRef(m_pTargetTransform);
+	RELEASE_INSTANCE(CGameInstance);
 	return S_OK;
 }
 
@@ -62,7 +67,7 @@ _bool CYantari::Tick(_float fTimeDelta)
 		m_pModelCom->Change_Animation(ATTACK4_2, 0.25f, false);
 	}
 	RELEASE_INSTANCE(CGameInstance);
-	Set_State(m_eAnimState);
+	Set_State(m_eAnimState, fTimeDelta);
 	
 	Update_Weapon();
 
@@ -160,7 +165,11 @@ HRESULT CYantari::Ready_Layer_GameObject(const _tchar * pPrototypeTag, const _tc
 	return S_OK;
 }
 
-void CYantari::Set_State(ANIM_STATE eState)
+void CYantari::GetDamage(_float fDamage)
+{
+}
+
+void CYantari::Set_State(ANIM_STATE eState, _float fTimeDelta)
 {
 	switch (eState)
 	{
@@ -183,6 +192,17 @@ void CYantari::Set_State(ANIM_STATE eState)
 		{
 			m_eAnimState = CYantari::ATTACK5_BIS;
 			m_pModelCom->Change_Animation(ATTACK5_BIS, 0.f, false);
+		}
+		else
+		{
+			//플레이어와 나 사이의 거리가 일정이상이라면. 대쉬
+			_vector vTargetPos = m_pTargetTransform->Get_State(CTransform::STATE_POSITION);
+			_vector vPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+			_vector vDistance = XMVector3Length(vTargetPos - vPos);
+			if (XMVectorGetX(vDistance) > 3.f)
+			{
+				m_pTransformCom->Go_Straight(fTimeDelta * m_fDashSpeed);
+			}
 		}
 		break;
 
@@ -394,6 +414,7 @@ void CYantari::Set_State(ANIM_STATE eState)
 			m_pModelCom->Change_Animation(IDLE);
 		}
 		break;
+		//폭발과 주변 가시생성패턴임
 	case CYantari::CAST:
 		break;
 	case CYantari::DEATH:
@@ -407,6 +428,78 @@ void CYantari::Set_State(ANIM_STATE eState)
 	case CYantari::HIT_FIN:
 		break;
 	case CYantari::IDLE:
+	{
+		//Look 조절해야함
+		_vector vTargetPos = m_pTargetTransform->Get_State(CTransform::STATE_POSITION);
+		_vector vMyPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+		
+		_vector vDistance = XMVector3Length(vTargetPos - vMyPos);
+
+		//Y축을 없애서 위아래 상관없이 플레이어를 바라보게함
+		_vector vLook = XMVector3Normalize(vTargetPos - vMyPos);
+		vLook = XMVectorSetY(vLook, 0.0f);
+
+		_vector vMyLook = XMVectorSetY(m_pTransformCom->Get_State(CTransform::STATE_LOOK), 0.0f);
+		
+		//회전이 같지않으면
+		if (!XMVector3Equal(vLook, vMyLook))
+		{
+			m_pTransformCom->TurnQuat(vLook, fTimeDelta * m_fRotationSpeed);
+		}
+
+		//최대 콤보수를 넘었다면.
+		if (m_iCurrentCombo >= m_iMaxCombo)
+		{
+			m_fCurrentDelayTime += fTimeDelta;
+			//최대 콤보수를 넘고 쉬는시간도 지났다면
+			if (m_fCurrentDelayTime >= m_fMaxDelayTime)
+			{
+				m_iCurrentCombo = 0;
+				m_fCurrentDelayTime = 0.0f;
+			}
+		}
+		//최대 콤보수를 넘지 않았다면.(콤보중인 경우)
+		else
+		{
+			m_fCurrentGlobalDelayTime += fTimeDelta;
+			if (m_fCurrentGlobalDelayTime >= m_fGlobalMaxDelayTime)
+			{
+				m_fCurrentGlobalDelayTime = 0.0f;
+				//플레이어와 나의 거리가 4.5 이상이라면. 실행
+				if (XMVectorGetX(vDistance) > 4.5f)
+				{
+					m_pTransformCom->LookDir(vLook);
+					m_eAnimState = CYantari::ATTACK1_2;
+					m_pModelCom->Change_Animation(ATTACK1_2, 0.0f, false);
+					m_iCurrentCombo++;
+				}
+				else
+				{
+					_uint iRand = rand() % 4 + 1;
+					switch (iRand)
+					{
+					case 1:
+						m_iCurrentCombo--;
+						break;
+					case 2:
+						m_eAnimState = CYantari::ATTACK2_2;
+						m_pModelCom->Change_Animation(ATTACK2_2, 0.0f, false);
+						break;
+					case 3:
+						m_eAnimState = CYantari::ATTACK3_2;
+						m_pModelCom->Change_Animation(ATTACK3_2, 0.0f, false);
+						break;
+					case 4:
+
+						m_eAnimState = CYantari::ATTACK4_2;
+						m_pModelCom->Change_Animation(ATTACK4_2, 0.0f, false);
+						break;
+					}
+					m_iCurrentCombo++;
+				}
+			}
+		}
+	}
 		break;
 	case CYantari::POST_CRITIC:
 		break;
@@ -473,8 +566,13 @@ HRESULT CYantari::Update_Weapon()
 
 HRESULT CYantari::Ready_Components()
 {
+	CTransform::TRANSFORMDESC TransformDesc;
+	ZeroMemory(&TransformDesc, sizeof(CTransform::TRANSFORMDESC));
+	TransformDesc.fSpeedPerSec = 1.f;
+	TransformDesc.fRotationPerSec = 1.f;
+
 	/* For.Com_Transform */
-	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Transform"), TEXT("Com_Transform"), (CComponent**)&m_pTransformCom)))
+	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Transform"), TEXT("Com_Transform"), (CComponent**)&m_pTransformCom, &TransformDesc)))
 		return E_FAIL;
 
 	/* For.Com_Renderer */
@@ -536,6 +634,7 @@ void CYantari::Free()
 	}
 	m_Parts.clear();
 
+	Safe_Release(m_pTargetTransform);
 	Safe_Release(m_pNavigationCom);
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pShaderCom);

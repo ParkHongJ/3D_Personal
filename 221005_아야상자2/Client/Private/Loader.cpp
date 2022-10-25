@@ -423,6 +423,12 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/Effect/Cylinder.dat", PivotMatrix))))
 		return E_FAIL;
 
+	//Prototype_Component_Model_Cylinder
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Door"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/Castle/Door.dat", PivotMatrix, true))))
+		return E_FAIL;
+
 	/* For.Prototype_Component_Shader_Terrain */
 	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_Terrain"),
 		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxNorTex.hlsl"), VTXNORTEX_DECLARATION::Elements, VTXNORTEX_DECLARATION::iNumElements))))
