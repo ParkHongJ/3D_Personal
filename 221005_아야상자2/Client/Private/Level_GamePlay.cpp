@@ -55,6 +55,8 @@ HRESULT CLevel_GamePlay::Initialize()
 
 	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Totem", L"Layer_Totem")))
 		return E_FAIL;
+	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Yantari", L"Layer_Totem")))
+		return E_FAIL;
 	Load();
 	for (auto& iter : m_CreateObj)
 	{

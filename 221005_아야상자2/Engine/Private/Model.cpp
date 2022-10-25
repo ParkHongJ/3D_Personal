@@ -67,10 +67,10 @@ _uint CModel::Get_MaterialIndex(_uint iMeshIndex)
 	return m_Meshes[iMeshIndex]->Get_MaterialIndex();
 }
 
-HRESULT CModel::Initialize_Prototype(TYPE eType, const _tchar * pModelFilePath, _fmatrix PivotMatrix)
+HRESULT CModel::Initialize_Prototype(TYPE eType, const _tchar * pModelFilePath, _fmatrix PivotMatrix, _bool bNewVersion)
 {
 	m_eModelType = eType;
-	LoadBinary(pModelFilePath);
+	LoadBinary(pModelFilePath, bNewVersion);
 	XMStoreFloat4x4(&m_PivotMatrix, PivotMatrix);
 
 
@@ -82,7 +82,7 @@ HRESULT CModel::Initialize_Prototype(TYPE eType, const _tchar * pModelFilePath, 
 
 	/* 머테리얼정보다.(빛을 받았을때 리턴해야할 색상정보.) */
 	/* 모델마다정의?, 정점마다정의? 픽셀마다 정의(o) 텍스쳐로 표현된다. */
-	if (FAILED(Ready_Materials()))
+	if (FAILED(Ready_Materials(bNewVersion)))
 		return E_FAIL;
 
 
@@ -159,7 +159,7 @@ void CModel::Change_Animation(_uint iAnimIndex, _float fBlendTime, _bool bLoop)
 	}
 }
 
-HRESULT CModel::LoadBinary(const _tchar * ModelFilePath)
+HRESULT CModel::LoadBinary(const _tchar * ModelFilePath, _bool bNewVersion)
 {
 	HANDLE		hFile = CreateFile(ModelFilePath, GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 
@@ -174,6 +174,10 @@ HRESULT CModel::LoadBinary(const _tchar * ModelFilePath)
 
 	ReadFile(hFile, &m_pHScene->mNumMeshes, sizeof(_uint), &dwByte, nullptr);
 	ReadFile(hFile, &m_pHScene->mNumMaterials, sizeof(_uint), &dwByte, nullptr);
+	if (bNewVersion)
+	{
+		ReadFile(hFile, &m_pHScene->mNumNewMaterials, sizeof(_uint), &dwByte, nullptr);
+	}
 
 	if (m_eModelType == TYPE_ANIM)
 	{
@@ -247,20 +251,47 @@ HRESULT CModel::LoadBinary(const _tchar * ModelFilePath)
 		m_pHScene->mMesh.push_back(pMesh);
 	}
 
-	//Material로드
-	for (_uint i = 0; i < m_pHScene->mNumMaterials; ++i)
+	if (bNewVersion)
 	{
-		//TextureName로드
-		Material pMaterial;
-		ZeroMemory(&pMaterial, sizeof(Material));
-		ReadFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
-		ReadFile(hFile, pMaterial.mName, dwStrByte, &dwByte, nullptr);
+		//최대 머테리얼의 개수만큼.
+		for (_uint i = 0; i < m_pHScene->mNumNewMaterials; ++i)
+		{
+			_uint mNewMaterialSize;
+			ReadFile(hFile, &mNewMaterialSize, sizeof(_uint), &dwByte, nullptr);
 
-		ReadFile(hFile, &pMaterial.TextureType, sizeof(_uint), &dwByte, nullptr);
+			vector<Material> pVecMaterial;
+			for (_uint j = 0; j < mNewMaterialSize; ++j)
+			{
+				Material pMaterial;
+				ZeroMemory(&pMaterial, sizeof(Material));
+				//TextureName로드
+				ReadFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
+				ReadFile(hFile, pMaterial.mName, dwStrByte, &dwByte, nullptr);
 
-		m_pHScene->mMaterials.push_back(pMaterial);
+				ReadFile(hFile, &pMaterial.TextureType, sizeof(_uint), &dwByte, nullptr);
+
+				pVecMaterial.push_back(pMaterial);
+			}
+
+			m_pHScene->mNewMaterials.push_back(pVecMaterial);
+		}
 	}
+	else
+	{
+		//Material로드
+		for (_uint i = 0; i < m_pHScene->mNumMaterials; ++i)
+		{
+			//TextureName로드
+			Material pMaterial;
+			ZeroMemory(&pMaterial, sizeof(Material));
+			ReadFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
+			ReadFile(hFile, pMaterial.mName, dwStrByte, &dwByte, nullptr);
 
+			ReadFile(hFile, &pMaterial.TextureType, sizeof(_uint), &dwByte, nullptr);
+
+			m_pHScene->mMaterials.push_back(pMaterial);
+		}
+	}
 	if (m_eModelType == TYPE_ANIM)
 	{
 		//Animation로드
@@ -483,7 +514,7 @@ HRESULT CModel::Ready_InstanceMeshContainers(_uint iNumInstance, _fmatrix PivotM
 	return S_OK;
 }
 
-HRESULT CModel::Ready_Materials()
+HRESULT CModel::Ready_Materials(_bool bNewVersion)
 {
 	if (nullptr == m_pHScene)
 		return E_FAIL;
@@ -491,15 +522,32 @@ HRESULT CModel::Ready_Materials()
 	/* 이 모델은 몇개의 머테리얼 정보를 이용하는가. */
 	/* 머테리얼(MATERIALDESC) : 텍스쳐[디퓨즈or앰비언트or노말or이미시브 등등등 ] */
 	m_iNumMaterials = m_pHScene->mNumMaterials;
-
-	for (auto& mat : m_pHScene->mMaterials)
+	if (bNewVersion)
 	{
-		MATERIALDESC		MaterialDesc;
-		ZeroMemory(&MaterialDesc, sizeof(MATERIALDESC));
-		MaterialDesc.pTexture[mat.TextureType] = CTexture::Create(m_pDevice, m_pContext, mat.mName);
-		m_Materials.push_back(MaterialDesc);
+		for (_uint i = 0; i < m_pHScene->mNewMaterials.size(); ++i)
+		{
+			MATERIALDESC		MaterialDesc;
+			ZeroMemory(&MaterialDesc, sizeof(MATERIALDESC));
+			for (_uint j = 0; j < m_pHScene->mNewMaterials[i].size(); ++j)
+			{
+				Material mat = m_pHScene->mNewMaterials[i][j];
+				MaterialDesc.pTexture[mat.TextureType] = CTexture::Create(m_pDevice, m_pContext, mat.mName);
+			}
+			m_Materials.push_back(MaterialDesc);
+		}
+		//m_TempScene->mNumMaterials
 	}
+	else
+	{
+		for (auto& mat : m_pHScene->mMaterials)
+		{
+			MATERIALDESC		MaterialDesc;
+			ZeroMemory(&MaterialDesc, sizeof(MATERIALDESC));
+			MaterialDesc.pTexture[mat.TextureType] = CTexture::Create(m_pDevice, m_pContext, mat.mName);
+			m_Materials.push_back(MaterialDesc);
+		}
 
+	}
 	return S_OK;
 }
 
@@ -548,13 +596,13 @@ HRESULT CModel::Ready_Animations()
 	return S_OK;
 }
 
-CModel * CModel::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, TYPE eType, const _tchar * pModelFilePath, _fmatrix PivotMatrix)
+CModel * CModel::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, TYPE eType, const _tchar * pModelFilePath, _fmatrix PivotMatrix, _bool bNewVersion)
 {
 	CModel*			pInstance = new CModel(pDevice, pContext);
 
-	if (FAILED(pInstance->Initialize_Prototype(eType, pModelFilePath, PivotMatrix)))
+	if (FAILED(pInstance->Initialize_Prototype(eType, pModelFilePath, PivotMatrix, bNewVersion)))
 	{
-		MSG_BOX(TEXT("Failed To Created : CTexture"));
+		MSG_BOX(TEXT("Failed To Created : CModel"));
 		Safe_Release(pInstance);
 	}
 
@@ -567,7 +615,7 @@ CModel * CModel::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, 
 
 	if (FAILED(pInstance->Initialize_Prototype(eType, pModelFilePath, iNumInstance, PivotMatrix)))
 	{
-		MSG_BOX(TEXT("Failed To Created : CTexture"));
+		MSG_BOX(TEXT("Failed To Created : CModel"));
 		Safe_Release(pInstance);
 	}
 

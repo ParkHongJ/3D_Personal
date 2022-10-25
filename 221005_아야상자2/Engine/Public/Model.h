@@ -39,11 +39,11 @@ public:
 	void Change_Animation(_uint iAnimIndex, _float fBlendTime = 0.25f, _bool bLoop = true);
 
 	/* For. LoadBinary */
-	HRESULT LoadBinary(const _tchar* ModelFilePath);
+	HRESULT LoadBinary(const _tchar* ModelFilePath, _bool bNewVersion = false);
 	void LoadNode(HANDLE hFile, Node* pNode, DWORD& dwByte, DWORD& dwStrByte);
 	
 public:
-	virtual HRESULT Initialize_Prototype(TYPE eType, const _tchar* pModelFilePath, _fmatrix PivotMatrix);
+	virtual HRESULT Initialize_Prototype(TYPE eType, const _tchar* pModelFilePath, _fmatrix PivotMatrix, _bool bNewVersion = false);
 	virtual HRESULT Initialize_Prototype(TYPE eType, const _tchar* pModelFilePath, _uint iNumInstance, _fmatrix PivotMatrix);
 	virtual HRESULT Initialize(void* pArg);
 
@@ -88,7 +88,7 @@ private:
 private:
 	HRESULT Ready_MeshContainers(_fmatrix PivotMatrix);
 	HRESULT Ready_InstanceMeshContainers(_uint iNumInstance, _fmatrix PivotMatrix);
-	HRESULT Ready_Materials();
+	HRESULT Ready_Materials(_bool bNewVersion = false);
 	HRESULT Ready_HierarchyNodes(Node* pNode, class CHierarchyNode* pParent, _uint iDepth);
 	HRESULT Ready_Animations();
 
@@ -97,7 +97,7 @@ private:
 
 
 public:
-	static CModel* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, TYPE eType, const _tchar* pModelFilePath, _fmatrix PivotMatrix = XMMatrixIdentity());
+	static CModel* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, TYPE eType, const _tchar* pModelFilePath, _fmatrix PivotMatrix = XMMatrixIdentity(), _bool bNewVersion = false);
 	static CModel* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, TYPE eType, const _tchar* pModelFilePath, _uint iNumInstance, _fmatrix PivotMatrix = XMMatrixIdentity());
 	virtual CComponent* Clone(void* pArg = nullptr);
 	virtual void Free() override;

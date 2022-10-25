@@ -52,19 +52,6 @@ _bool CPlayer::Tick(_float fTimeDelta)
 
 	
 	SetState(m_eCurrentAnimState, fTimeDelta);
-	
-	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
-	if (pGameInstance->Key_Pressing(DIK_NUMPAD1))
-	{
-		m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f,0.f), -fTimeDelta);
-	}
-	if (pGameInstance->Key_Pressing(DIK_NUMPAD3))
-	{
-		m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), fTimeDelta);
-	}
-
-	
-	RELEASE_INSTANCE(CGameInstance);
 
 	Update_Weapon();
 

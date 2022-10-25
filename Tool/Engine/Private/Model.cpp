@@ -99,7 +99,7 @@ HRESULT CModel::SaveFBXToBinary(const _tchar* ModelSavePath)
 
 	WriteFile(hFile, &m_TempScene->mNumMeshes, sizeof(_uint), &dwByte, nullptr);
 	WriteFile(hFile, &m_TempScene->mNumMaterials, sizeof(_uint), &dwByte, nullptr);
-
+	WriteFile(hFile, &m_TempScene->mNumNewMaterials, sizeof(_uint), &dwByte, nullptr);
 
 	if (m_eModelType == TYPE_ANIM)
 	{
@@ -163,18 +163,44 @@ HRESULT CModel::SaveFBXToBinary(const _tchar* ModelSavePath)
 		}
 	}
 
+	////Material저장
+	//for (_uint i = 0; i < m_TempScene->mNumMaterials; ++i)
+	//{
+	//	//Texture경로 저장
+	//	Material pMaterial = m_TempScene->mMaterials.front();
+	//	dwStrByte = DWORD(sizeof(_tchar) * wcslen(pMaterial.mName));
+	//	//텍스쳐 이름 저장
+	//	WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
+	//	WriteFile(hFile, &pMaterial.mName, dwStrByte, &dwByte, nullptr);
+
+	//	//텍스쳐 타입 저장
+	//	WriteFile(hFile, &pMaterial.TextureType, sizeof(_uint), &dwByte, nullptr);
+	//	
+	//	m_TempScene->mMaterials.pop_front();
+	//}
 	//Material저장
 	for (_uint i = 0; i < m_TempScene->mNumMaterials; ++i)
 	{
-		//Texture경로 저장
-		Material pMaterial = m_TempScene->mMaterials.front();
-		dwStrByte = DWORD(sizeof(_tchar) * wcslen(pMaterial.mName));
-		WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
-		WriteFile(hFile, &pMaterial.mName, dwStrByte, &dwByte, nullptr);
-
-		WriteFile(hFile, &pMaterial.TextureType, sizeof(_uint), &dwByte, nullptr);
+		_uint mNewMaterialSize = m_TempScene->mNewMaterials[i].size();
+		WriteFile(hFile, &mNewMaterialSize, sizeof(_uint), &dwByte, nullptr);
 		
-		m_TempScene->mMaterials.pop_front();
+		for (_uint j = 0; j < m_TempScene->mNewMaterials[i].size(); ++j)
+		{
+			//Texture경로 저장
+			Material pMaterial = m_TempScene->mNewMaterials[i][j];
+			dwStrByte = DWORD(sizeof(_tchar) * wcslen(pMaterial.mName));
+
+			//Material pMaterial = m_TempScene->mMaterials.front();
+			//dwStrByte = DWORD(sizeof(_tchar) * wcslen(pMaterial.mName));
+			//텍스쳐 이름 저장
+			WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
+			WriteFile(hFile, &pMaterial.mName, dwStrByte, &dwByte, nullptr);
+
+			//텍스쳐 타입 저장
+			WriteFile(hFile, &pMaterial.TextureType, sizeof(_uint), &dwByte, nullptr);
+
+			//m_TempScene->mNewMaterials[j].pop_front();
+		}
 	}
 	if (m_eModelType == TYPE_ANIM)
 	{
@@ -725,7 +751,7 @@ HRESULT CModel::Ready_Materials(const char* pModelFilePath, const _tchar* pModel
 	{
 		MATERIALDESC		MaterialDesc;
 		ZeroMemory(&MaterialDesc, sizeof(MATERIALDESC));
-
+		vector<Material>	TestMat;
 		aiMaterial*			pAIMaterial = m_pAIScene->mMaterials[i];
 
 		for (_uint j = 0; j < AI_TEXTURE_TYPE_MAX; ++j)
@@ -765,13 +791,15 @@ HRESULT CModel::Ready_Materials(const char* pModelFilePath, const _tchar* pModel
 			wcscpy_s(pMaterial.mName, tszFullPath);
 			pMaterial.TextureType = j;
 			m_TempScene->mMaterials.push_back(pMaterial);
-			
+			TestMat.push_back(pMaterial);
 			if (nullptr == MaterialDesc.pTexture[j])
 				return E_FAIL;			
 		}	
 
+		m_TempScene->mNewMaterials.push_back(TestMat);
 		m_Materials.push_back(MaterialDesc);
 	}
+	m_TempScene->mNumNewMaterials = m_TempScene->mNewMaterials.size();
 	return S_OK;
 }
 

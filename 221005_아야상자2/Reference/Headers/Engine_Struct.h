@@ -248,9 +248,11 @@ namespace Engine
 		unsigned int mNumMeshes;
 		unsigned int mNumMaterials;
 		unsigned int mNumAnimations;
+		unsigned int mNumNewMaterials;
 		NODE mRootNode;
 		std::vector<ANIMATION> mAnimations;
 		std::list<Material> mMaterials;
+		std::vector<std::vector<Material>> mNewMaterials;
 		std::vector<Mesh> mMesh;
 	}HSCENE;
 }

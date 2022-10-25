@@ -115,6 +115,12 @@
     <Filter Include="02.GameObjects\Boss\Ras_Samrah\Cylinder">
       <UniqueIdentifier>{c936edc7-d17f-492a-b887-99b005ebdf40}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\Boss\Yantari">
+      <UniqueIdentifier>{cf370963-c587-477e-abcd-8a091551a720}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Boss\Yantari\Weapon">
+      <UniqueIdentifier>{3369a6da-ef0a-4b70-ae48-38b61296cdef}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -258,6 +264,12 @@
     <ClInclude Include="..\public\Cylinder.h">
       <Filter>02.GameObjects\Boss\Ras_Samrah\Cylinder</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\Yantari.h">
+      <Filter>02.GameObjects\Boss\Yantari</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\YantariWeapon.h">
+      <Filter>02.GameObjects\Boss\Yantari\Weapon</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -388,6 +400,12 @@
     </ClCompile>
     <ClCompile Include="..\private\Cylinder.cpp">
       <Filter>02.GameObjects\Boss\Ras_Samrah\Cylinder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Yantari.cpp">
+      <Filter>02.GameObjects\Boss\Yantari</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\YantariWeapon.cpp">
+      <Filter>02.GameObjects\Boss\Yantari\Weapon</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

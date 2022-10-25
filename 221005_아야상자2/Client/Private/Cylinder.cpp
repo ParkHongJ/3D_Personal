@@ -40,26 +40,31 @@ HRESULT CCylinder::Initialize(void * pArg)
 
 _bool CCylinder::Tick(_float fTimeDelta)
 {
-	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
-	if (pGameInstance->Key_Down(DIK_Y))
-	{
-		bTest = true;
-	}
-	if (bTest)
-	{
-		_vector vStartScale = XMVectorSetW(XMLoadFloat3(&m_vStartScale), 1.f);
-		_vector vMaxScale = XMVectorSetW(XMLoadFloat3(&m_vMaxScale), 1.f);
-		_vector vCurrentScale = XMVectorLerp(vStartScale, vMaxScale, fTimeDelta);
-		m_pTransformCom->Set_Scale(vCurrentScale);
+	if (!m_bActive)
+		return false;
+	if (m_bDestroy)
+		return true;
 
+	m_fCurrentTime += fTimeDelta;
+	if (m_fCurrentTime >= m_fDuration)
+	{
+		return true;
 	}
+	_vector vStartScale = XMVectorSetW(XMLoadFloat3(&m_vStartScale), 1.f);
+	_vector vMaxScale = XMVectorSetW(XMLoadFloat3(&m_vMaxScale), 1.f);
+	_vector vCurrentScale = XMVectorLerp(vStartScale, vMaxScale, fTimeDelta);
+	m_pTransformCom->Set_Scale(vCurrentScale);
+
 	m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix());
-	RELEASE_INSTANCE(CGameInstance);
 	return false;
 }
 
 void CCylinder::LateTick(_float fTimeDelta)
 {
+	if (!m_bActive)
+		return;
+	if (m_bDestroy)
+		return;
 	if (nullptr == m_pRendererCom)
 		return;
 
