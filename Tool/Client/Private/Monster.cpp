@@ -46,7 +46,7 @@ void CMonster::LateTick(_float fTimeDelta)
 
 	//m_pModelCom->Play_Animation(fTimeDelta);
 
-	temp += fTimeDelta * 0.35f;
+	temp += fTimeDelta;
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_PRIORITY, this);
 }
 
