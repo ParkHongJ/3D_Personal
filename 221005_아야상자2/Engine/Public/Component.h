@@ -18,6 +18,10 @@ public:
 	virtual HRESULT Initialize(void* pArg);
 	void SetOwner(class CGameObject* pOwner);
 	class CGameObject* GetOwner();
+#ifdef _DEBUG
+public:
+	virtual HRESULT Render() { return S_OK; }
+#endif // _DEBUG
 protected:
 	ID3D11Device*			m_pDevice = nullptr;
 	ID3D11DeviceContext*	m_pContext = nullptr;

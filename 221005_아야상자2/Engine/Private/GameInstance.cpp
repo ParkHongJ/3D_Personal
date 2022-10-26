@@ -15,7 +15,9 @@ CGameInstance::CGameInstance()
 	, m_pKey_Manager(CKey_Manager::Get_Instance())
 	, m_pPicking(CPicking::Get_Instance())
 	, m_pFrustum(CFrustum::Get_Instance())
+	, m_pTarget_Manager(CTarget_Manager::Get_Instance())
 {
+	Safe_AddRef(m_pTarget_Manager);
 	Safe_AddRef(m_pFrustum);
 	Safe_AddRef(m_pLight_Manager);
 	Safe_AddRef(m_pPipeLine);
@@ -354,6 +356,8 @@ void CGameInstance::Release_Engine()
 
 	CPicking::Get_Instance()->Destroy_Instance();
 
+	CTarget_Manager::Get_Instance()->Destroy_Instance();
+
 	CPipeLine::Get_Instance()->Destroy_Instance();
 
 	CFrustum::Get_Instance()->Destroy_Instance();
@@ -367,6 +371,7 @@ void CGameInstance::Release_Engine()
 
 void CGameInstance::Free()
 {
+	Safe_Release(m_pTarget_Manager);
 	Safe_Release(m_pFrustum);
 	Safe_Release(m_pLight_Manager);
 	Safe_Release(m_pPicking);

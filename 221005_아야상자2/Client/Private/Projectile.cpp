@@ -111,6 +111,10 @@ void CProjectile::LateTick(_float fTimeDelta)
 
 	m_pColliderCom->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom);
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
+
+#ifdef _DEBUG
+	m_pRendererCom->Add_DebugGroup(m_pColliderCom);
+#endif
 }
 
 HRESULT CProjectile::Render()
@@ -146,9 +150,6 @@ HRESULT CProjectile::Render()
 	//		return E_FAIL;
 	//}
 
-#ifdef _DEBUG
-	m_pColliderCom->Render();
-#endif
 
 	return S_OK;
 }

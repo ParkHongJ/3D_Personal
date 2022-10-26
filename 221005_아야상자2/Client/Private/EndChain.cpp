@@ -50,6 +50,12 @@ void CEndChain::LateTick(_float fTimeDelta)
 		m_pColliderCom->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom);
 
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
+#ifdef _DEBUG
+	if (m_bEnable)
+	{
+		m_pRendererCom->Add_DebugGroup(m_pColliderCom);
+	}
+#endif
 }
 
 HRESULT CEndChain::Render()
@@ -85,12 +91,7 @@ HRESULT CEndChain::Render()
 		if (FAILED(m_pModelCom[m_eChain]->Render(m_pShaderCom, i)))
 			return E_FAIL;
 	}
-#ifdef _DEBUG
-	if (m_bEnable)
-	{
-		m_pColliderCom->Render();
-	}
-#endif
+
 	return S_OK;
 }
 

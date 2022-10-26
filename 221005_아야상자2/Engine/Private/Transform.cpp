@@ -128,6 +128,24 @@ void CTransform::MoveToWards(_fvector target, _float MaxDistanceDelta)
 
 }
 
+_vector CTransform::MoveToWards(_fvector current, _fvector target, _float MaxDistanceDelta)
+{
+	_vector		vDistance = target - current;
+
+	_float		fMagnitude;
+	XMStoreFloat(&fMagnitude, XMVector3Length(vDistance));
+
+	if (fMagnitude <= MaxDistanceDelta || fMagnitude == 0.0f)
+	{
+		return target;
+	}
+	else
+	{
+		_vector vFinalPos = current + vDistance / fMagnitude * MaxDistanceDelta;
+		return vFinalPos;
+	}
+}
+
 HRESULT CTransform::Initialize_Prototype()
 {
 	/* vector -> float : XMStore*/
@@ -323,6 +341,37 @@ void CTransform::TurnQuat(_fvector vDir, _float fTimeDelta)
 	_matrix		TransformationMatrix = XMMatrixAffineTransformation(XMLoadFloat3(&Get_Scale()), XMVectorSet(0.f, 0.f, 0.f, 1.f), vSourRot, XMVectorSetW(Get_State(CTransform::STATE_POSITION), 1.f));
 
 	XMStoreFloat4x4(&m_WorldMatrix, TransformationMatrix);
+}
+
+void CTransform::TurnQuatByAxis(_fvector vAxis, _fvector vLook, _float fTimeDelta)
+{
+	_vector vOriginLook = XMVectorSetY(XMVector3Normalize(Get_State(CTransform::STATE_LOOK)), 0.f);
+	_vector vDestLook	= XMVectorSetY(XMVector3Normalize(vLook), 0.f);
+
+	_vector fRadian = XMVector3Dot(vOriginLook, vDestLook);
+
+	_matrix OriginMatrix = XMLoadFloat4x4(&m_WorldMatrix);
+	Rotation(vAxis, XMConvertToRadians(XMVectorGetX(fRadian)));
+	LookAt(vLook);
+	_matrix DestMatrix = XMLoadFloat4x4(&m_WorldMatrix);
+
+	_vector		vSourRot;
+	vSourRot = XMQuaternionRotationMatrix(OriginMatrix);
+
+	_vector		vDestRot;
+	vDestRot = XMQuaternionRotationMatrix(DestMatrix);
+
+	if (XMQuaternionEqual(vSourRot, vDestRot))
+	{
+		return;
+	}
+
+	vSourRot = XMQuaternionSlerp(vSourRot, vDestRot, fTimeDelta);
+
+	_matrix		TransformationMatrix = XMMatrixAffineTransformation(XMLoadFloat3(&Get_Scale()), XMVectorSet(0.f, 0.f, 0.f, 1.f), vSourRot, XMVectorSetW(Get_State(CTransform::STATE_POSITION), 1.f));
+
+	XMStoreFloat4x4(&m_WorldMatrix, TransformationMatrix);
+
 }
 
 void CTransform::LookAt(_fvector vAt)

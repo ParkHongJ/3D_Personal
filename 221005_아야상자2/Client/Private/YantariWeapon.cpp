@@ -46,6 +46,9 @@ void CYantariWeapon::LateTick(_float fTimeDelta)
 	if (m_bEnable)
 		m_pColliderCom->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom);
 
+#ifdef _DEBUG
+	m_pRendererCom->Add_DebugGroup(m_pColliderCom);
+#endif
 }
 
 HRESULT CYantariWeapon::Render()
@@ -81,9 +84,6 @@ HRESULT CYantariWeapon::Render()
 		if (FAILED(m_pModelCom->Render(m_pShaderCom, i)))
 			return E_FAIL;
 	}
-#ifdef _DEBUG
-	m_pColliderCom->Render();
-#endif
 	return S_OK;
 }
 

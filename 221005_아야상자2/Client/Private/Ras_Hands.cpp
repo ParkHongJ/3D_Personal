@@ -76,6 +76,17 @@ void CRas_Hands::LateTick(_float fTimeDelta)
 	}
 	
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
+
+#ifdef _DEBUG
+	if (m_bHitEnabled)
+	{
+		m_pRendererCom->Add_DebugGroup(m_pColliderCom[COLLIDERTYPE_SPHERE]);
+	}
+	if (m_bAttackEnabled)
+	{
+		m_pRendererCom->Add_DebugGroup(m_pColliderCom[COLLIDERTYPE_OBB]);
+	}
+#endif
 }
 
 HRESULT CRas_Hands::Render()
@@ -117,21 +128,7 @@ HRESULT CRas_Hands::Render()
 			return E_FAIL;
 	}
 
-#ifdef _DEBUG
-	/*for (_uint i = 0; i < COLLILDERTYPE_END; ++i)
-	{
-		if (nullptr != m_pColliderCom[i])
-			m_pColliderCom[i]->Render();
-	}*/
-	if (m_bHitEnabled)
-	{
-		m_pColliderCom[COLLIDERTYPE_SPHERE]->Render();
-	}
-	if (m_bAttackEnabled)
-	{
-		m_pColliderCom[COLLIDERTYPE_OBB]->Render();
-	}
-#endif
+
 
 	return S_OK;
 }

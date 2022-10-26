@@ -55,7 +55,7 @@ HRESULT CLevel_GamePlay::Initialize()
 
 	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Totem", L"Layer_Totem")))
 		return E_FAIL;
-	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Yantari", L"Layer_Totem")))
+	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Yantari", L"Layer_Yantari")))
 		return E_FAIL;
 
 	Load();
@@ -103,7 +103,7 @@ HRESULT CLevel_GamePlay::Ready_Lights()
 	LightDesc.eType = LIGHTDESC::TYPE_DIRECTIONAL;
 	LightDesc.vDirection = _float4(1.f, -1.f, 1.f, 0.f);
 	LightDesc.vDiffuse = _float4(1.f, 1.f, 1.f, 1.f);
-	LightDesc.vAmbient = _float4(1.f, 1.f, 1.f, 1.f);
+	LightDesc.vAmbient = _float4(0.5f, 0.5f, 0.5f, 1.f);
 	LightDesc.vSpecular = _float4(1.f, 0.f, 0.f, 1.f);
 
 	if (FAILED(pGameInstance->Add_Light(m_pDevice, m_pContext, LightDesc)))

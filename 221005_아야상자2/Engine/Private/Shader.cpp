@@ -81,6 +81,20 @@ HRESULT CShader::Set_RawValue(const char* pContantName, const void* pData, _uint
 	return pVariable->SetRawValue(pData, 0, iByteLength);	
 }
 
+HRESULT CShader::Set_MatrixArray(const char * pConstantName, const _float4x4 * pData, _uint iNumMatrices)
+{
+	if (nullptr == m_pEffect)
+		return E_FAIL;
+
+	ID3DX11EffectVariable*		pVariable = m_pEffect->GetVariableByName(pConstantName);
+	if (nullptr == pVariable)
+		return E_FAIL;
+
+	ID3DX11EffectMatrixVariable*		pMatrixVariable = pVariable->AsMatrix();
+
+	return pMatrixVariable->SetMatrixArray(&pData->_11, 0, iNumMatrices);
+}
+
 HRESULT CShader::Set_ShaderResourceView(const char * pContantName, ID3D11ShaderResourceView * pSRV)
 {
 	if (nullptr == m_pEffect)
@@ -95,6 +109,22 @@ HRESULT CShader::Set_ShaderResourceView(const char * pContantName, ID3D11ShaderR
 		return E_FAIL;
 
 	return pShaderResource->SetResource(pSRV);
+}
+
+HRESULT CShader::Set_ShaderResourceViewArray(const char * pConstantName, ID3D11ShaderResourceView ** ppSRV, _uint iNumTexture)
+{
+	if (nullptr == m_pEffect)
+		return E_FAIL;
+
+	ID3DX11EffectVariable*		pVariable = m_pEffect->GetVariableByName(pConstantName);
+	if (nullptr == pVariable)
+		return E_FAIL;
+
+	ID3DX11EffectShaderResourceVariable*		pShaderResourceVariable = pVariable->AsShaderResource();
+	if (nullptr == pShaderResourceVariable)
+		return E_FAIL;
+
+	return pShaderResourceVariable->SetResourceArray(ppSRV, 0, iNumTexture);
 }
 
 HRESULT CShader::Begin(_uint iPassIndex)

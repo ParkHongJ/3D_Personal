@@ -72,6 +72,10 @@ void CCylinder::LateTick(_float fTimeDelta)
 
 	m_fTime += fTimeDelta* 0.35f;
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
+
+#ifdef _DEBUG
+	m_pRendererCom->Add_DebugGroup(m_pColliderCom);
+#endif
 }
 
 HRESULT CCylinder::Render()
@@ -105,9 +109,7 @@ HRESULT CCylinder::Render()
 		if (FAILED(m_pModelCom->Render(m_pShaderCom, i, 1)))
 			return E_FAIL;
 	}
-#ifdef _DEBUG
-	m_pColliderCom->Render();
-#endif
+
 	return S_OK;
 }
 

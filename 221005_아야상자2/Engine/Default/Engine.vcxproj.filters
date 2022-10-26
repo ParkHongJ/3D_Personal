@@ -136,6 +136,12 @@
     <ClCompile Include="..\Private\Frustum.cpp">
       <Filter>04.Utility\04.Frustum</Filter>
     </ClCompile>
+    <ClCompile Include="..\Private\RenderTarget.cpp">
+      <Filter>04.Utility\05. RenderTargets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Target_Manager.cpp">
+      <Filter>04.Utility\05. RenderTargets\Manager</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Public\Engine_Defines.h">
@@ -291,6 +297,12 @@
     <ClInclude Include="..\Bin\ShaderFiles\Client_Shader_Defines.hpp">
       <Filter>03.Components\08.Navigation\Cell\Shader</Filter>
     </ClInclude>
+    <ClInclude Include="..\Public\RenderTarget.h">
+      <Filter>04.Utility\05. RenderTargets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Target_Manager.h">
+      <Filter>04.Utility\05. RenderTargets\Manager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="99.Defines">
@@ -437,10 +449,22 @@
     <Filter Include="04.Utility\04.Frustum">
       <UniqueIdentifier>{7eed1e1f-fe6b-44e6-935c-9edac6edbc59}</UniqueIdentifier>
     </Filter>
+    <Filter Include="04.Utility\05. RenderTargets">
+      <UniqueIdentifier>{44b6a4a8-80e4-484a-88e4-7e7020baa72d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04.Utility\05. RenderTargets\Manager">
+      <UniqueIdentifier>{e7d0c6b2-9316-4264-b14b-480fd447446d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Components\01.Renderer\Shader">
+      <UniqueIdentifier>{e1fd532b-dfcf-4b39-88f5-2cb1e13e9c58}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_Cell.hlsl">
       <Filter>03.Components\08.Navigation\Cell\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_Deferred.hlsl">
+      <Filter>03.Components\01.Renderer\Shader</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

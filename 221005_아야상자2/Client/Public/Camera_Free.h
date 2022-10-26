@@ -23,9 +23,11 @@ public:
 
 	HRESULT Set_Player(class CTransform* pPlayerTransform);
 private:
+	class CTransform* m_pTargetTransform = nullptr;
 	class CTransform* m_pPlayerTransform = nullptr;
-
 	_float3 m_vCamPosition;
+
+	_float3	m_vPivot;
 public:
 	static CCamera_Free* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg);

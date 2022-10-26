@@ -52,7 +52,7 @@ public:
 
 	void MoveToWards(_fvector target, _float MaxDistanceDelta, class CNavigation* pNavigation);
 	void MoveToWards(_fvector target, _float MaxDistanceDelta);
-
+	_vector MoveToWards(_fvector current, _fvector target, _float MaxDistanceDelta);
 public:
 	virtual HRESULT Initialize_Prototype();
 	virtual HRESULT Initialize(void* pArg);
@@ -70,6 +70,8 @@ public:
 	void Turn(_fvector vAxis, _float fTimeDelta);
 	void Rotation(_fvector vAxis, _float fRadian);
 	void TurnQuat(_fvector vDir, _float fTimeDelta);
+	void TurnQuatByAxis(_fvector vAxis, _fvector vLook, _float fTimeDelta);
+
 
 	void LookAt(_fvector vAt);
 	void LookDir(_fvector vDir);

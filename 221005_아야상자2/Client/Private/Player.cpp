@@ -82,6 +82,9 @@ void CPlayer::LateTick(_float fTimeDelta)
 	}
 	m_pColliderCom[COLLIDERTYPE_OBB]->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom[COLLIDERTYPE_OBB]);
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
+
+	m_pRendererCom->Add_DebugGroup(m_pColliderCom[COLLIDERTYPE_OBB]);
+	m_pRendererCom->Add_DebugGroup(m_pNavigationCom);
 }
 
 HRESULT CPlayer::Render()
@@ -117,12 +120,6 @@ HRESULT CPlayer::Render()
 			return E_FAIL;
 	}	
 
-
-#ifdef _DEBUG
-	m_pColliderCom[COLLIDERTYPE_OBB]->Render();
-
-	m_pNavigationCom->Render();
-#endif
 
 	return S_OK;
 }
@@ -433,6 +430,7 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 	case CPlayer::CoupFaible1_prepa2:
 		break;
 	case CPlayer::CoupFaible2_fin:
+		m_bWeaponEnable = false;
 		if (m_bAnimEnd)
 		{
 			if (m_bLockOn)
@@ -455,6 +453,7 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 		}
 		break;
 	case CPlayer::CoupFaible2_frappe2:
+		m_bWeaponEnable = true;
 		if (m_bAnimEnd)
 		{
 			m_pModelCom->Change_Animation(CoupFaible2_fin, 0.25f, false);
