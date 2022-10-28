@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "..\Public\YantariWeapon.h"
 #include "GameInstance.h"
-
+#include "Yantari.h"
 CYantariWeapon::CYantariWeapon(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
 {
@@ -138,15 +138,14 @@ HRESULT CYantariWeapon::Ready_Components()
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_YantariWeapon"), TEXT("Com_Model"), (CComponent**)&m_pModelCom)))
 		return E_FAIL;
 
-	/* For.Com_OBB */
+	/* For.Com_Sphere */
 	CCollider::COLLIDERDESC		ColliderDesc;
 	ZeroMemory(&ColliderDesc, sizeof(CCollider::COLLIDERDESC));
 
-	ColliderDesc.vSize = _float3(0.3f, 1.3f, 0.3f);
-	ColliderDesc.vCenter = _float3(0.f, ColliderDesc.vSize.y * 0.5f + 0.25f, 0.f);
-	/*ColliderDesc.vRotation = _float3(0.f, XMConvertToRadians(45.f), 0.f);*/
+	ColliderDesc.vSize = _float3(2.5f, 2.5f, 2.5f);
+	ColliderDesc.vCenter = _float3(0.f, 2.75f, 0.f);
 	ColliderDesc.vRotation = _float3(0.f, 0.f, 0.f);
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_OBB"), TEXT("Com_OBB"), (CComponent**)&m_pColliderCom, &ColliderDesc)))
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_Sphere"), TEXT("Com_SPHERE"), (CComponent**)&m_pColliderCom, &ColliderDesc)))
 		return E_FAIL;
 
 	return S_OK;
@@ -181,6 +180,9 @@ CGameObject * CYantariWeapon::Clone(void * pArg)
 void CYantariWeapon::Free()
 {
 	__super::Free();
+
+	if (nullptr != m_pYantari)
+		Safe_Release(m_pYantari);
 
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pShaderCom);

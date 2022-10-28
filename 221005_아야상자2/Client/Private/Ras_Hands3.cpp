@@ -176,7 +176,7 @@ void CRas_Hands3::Set_State(STATE_ANIM eState, _float fTimeDelta)
 				//XMVectorSetY(vLook, 0.0f);
 			}
 
-			m_fCurrentBulletTime += 24.0f * fTimeDelta;
+			m_fCurrentBulletTime += 18.0f * fTimeDelta;
 			if (m_fCurrentBulletTime > 32.f && m_iProjectileCount < m_iProjectileCountMax)
 			{
 				//발사횟수를 하나 증가시키고
@@ -237,7 +237,7 @@ void CRas_Hands3::Set_OffsetPos(CTransform * pRasTransform)
 {
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pRasTransform->Get_State(CTransform::STATE_POSITION));
 	XMStoreFloat3(&m_vOffsetPosition, XMVectorSet(-11.f, 20.f, 0.f, 1.f));
-	XMStoreFloat3(&m_vOffsetAttack, XMVectorSet(0.f, -3.f, -3.f, 1.f));
+	XMStoreFloat3(&m_vOffsetAttack, XMVectorSet(0.f, -3.f, -12.f, 1.f));
 
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVector3TransformCoord(XMLoadFloat3(&m_vOffsetPosition), m_pTransformCom->Get_WorldMatrix()));
 	m_pTransformCom->Set_Scale(XMVectorSet(0.4f, 0.4f, 0.4f, 1.f));

@@ -6,20 +6,18 @@
 BEGIN(Engine)
 class CModel;
 class CShader;
-class CTexture;
 class CRenderer;
-class CCollider;
 class CTransform;
 END
 
 BEGIN(Client)
 
-class CYantariWeapon final : public CGameObject
+class CAspiration final : public CGameObject
 {
 private:
-	CYantariWeapon(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
-	CYantariWeapon(const CYantariWeapon& rhs);
-	virtual ~CYantariWeapon() = default;
+	CAspiration(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
+	CAspiration(const CAspiration& rhs);
+	virtual ~CAspiration() = default;
 
 public:
 	virtual HRESULT Initialize_Prototype();
@@ -27,37 +25,31 @@ public:
 	virtual _bool Tick(_float fTimeDelta);
 	virtual void LateTick(_float fTimeDelta);
 	virtual HRESULT Render();
-	virtual HRESULT SetUp_State(_fmatrix StateMatrix);
 
 public:
 	virtual void OnCollisionEnter(CGameObject* pOther, _float fTimeDelta)override;
 	virtual void OnCollisionExit(CGameObject* pOther, _float fTimeDelta)override;
 	virtual void OnCollisionStay(CGameObject* pOther, _float fTimeDelta)override;
 
-public:
-	void SetEnable(_bool bEnable) {
-		m_bEnable = bEnable;
-	}
-	_float GetDamage() {
-		return m_fDamage;
-	}
-private:
-	_bool m_bEnable = true;
 private:
 	CShader*				m_pShaderCom = nullptr;
-	CCollider*				m_pColliderCom = nullptr;
 	CRenderer*				m_pRendererCom = nullptr;
 	CTransform*				m_pTransformCom = nullptr;
-	CTransform*				m_pParentTransformCom = nullptr;
 	CModel*					m_pModelCom = nullptr;
-	class CYantari*			m_pYantari = nullptr;
 
-	_float					m_fDamage = 25.f;
+private:
+	_float3					m_vStartScale;// 0.035
+	_float3					m_vMaxScale;// 0.04
+
+	_float					m_fDuration = 2.5f;
+	_float					m_fCurrentTime = 0.0f;
+	_float					m_fTime = 0.f;
+	_bool					bTest = false;
 private:
 	HRESULT Ready_Components();
 
 public:
-	static CYantariWeapon* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
+	static CAspiration* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg);
 	virtual void Free() override;
 };

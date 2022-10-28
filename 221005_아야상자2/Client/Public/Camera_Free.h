@@ -3,6 +3,9 @@
 #include "Client_Defines.h"
 #include "Camera.h"
 
+BEGIN(Engine)
+class CCollider;
+END
 BEGIN(Client)
 
 class CCamera_Free final : public CCamera
@@ -21,10 +24,16 @@ public:
 public:
 	_float3 GetNormalizeDir(_uint eState);
 
+	class CTransform* GetTargetTransform();
 	HRESULT Set_Player(class CTransform* pPlayerTransform);
+	HRESULT Set_Target(class CTransform* pTargetTransform);
+
+	void ReleaseTarget();
 private:
 	class CTransform* m_pTargetTransform = nullptr;
 	class CTransform* m_pPlayerTransform = nullptr;
+
+	CCollider*		  m_pColliderCom = nullptr;
 	_float3 m_vCamPosition;
 
 	_float3	m_vPivot;

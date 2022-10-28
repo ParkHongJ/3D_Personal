@@ -224,9 +224,21 @@ void CTransform::Go_Backward(_float fTimeDelta, CNavigation* pNavigation)
 		isMove = pNavigation->isMove(vPosition, &vCurrentPosition);
 
 	if (true == isMove)
+	{
+		/*_float fHeight = ;*/
+		vPosition = XMVectorSetY(vPosition, pNavigation->GetHeight(vPosition));
 		Set_State(CTransform::STATE_POSITION, vPosition);
+	}
 	else
-		Set_State(CTransform::STATE_POSITION, Get_State(CTransform::STATE_POSITION) + XMLoadFloat3(&vCurrentPosition));
+	{
+		_float3		vCurPos;
+		XMStoreFloat3(&vCurPos, Get_State(CTransform::STATE_POSITION));
+
+		if (isMove = pNavigation->isMove(Get_State(CTransform::STATE_POSITION) + XMLoadFloat3(&vCurrentPosition), &vCurPos))
+		{
+			Set_State(CTransform::STATE_POSITION, Get_State(CTransform::STATE_POSITION) + XMLoadFloat3(&vCurrentPosition));
+		}
+	}
 }
 
 void CTransform::Go_Left(_float fTimeDelta, CNavigation* pNavigation)
@@ -246,9 +258,21 @@ void CTransform::Go_Left(_float fTimeDelta, CNavigation* pNavigation)
 		isMove = pNavigation->isMove(vPosition, &vCurrentPosition);
 
 	if (true == isMove)
+	{
+		/*_float fHeight = ;*/
+		vPosition = XMVectorSetY(vPosition, pNavigation->GetHeight(vPosition));
 		Set_State(CTransform::STATE_POSITION, vPosition);
+	}
 	else
-		Set_State(CTransform::STATE_POSITION, Get_State(CTransform::STATE_POSITION) + XMLoadFloat3(&vCurrentPosition));
+	{
+		_float3		vCurPos;
+		XMStoreFloat3(&vCurPos, Get_State(CTransform::STATE_POSITION));
+
+		if (isMove = pNavigation->isMove(Get_State(CTransform::STATE_POSITION) + XMLoadFloat3(&vCurrentPosition), &vCurPos))
+		{
+			Set_State(CTransform::STATE_POSITION, Get_State(CTransform::STATE_POSITION) + XMLoadFloat3(&vCurrentPosition));
+		}
+	}
 }
 
 void CTransform::Go_Right(_float fTimeDelta, CNavigation* pNavigation)
@@ -268,9 +292,21 @@ void CTransform::Go_Right(_float fTimeDelta, CNavigation* pNavigation)
 		isMove = pNavigation->isMove(vPosition, &vCurrentPosition);
 
 	if (true == isMove)
+	{
+		/*_float fHeight = ;*/
+		vPosition = XMVectorSetY(vPosition, pNavigation->GetHeight(vPosition));
 		Set_State(CTransform::STATE_POSITION, vPosition);
+	}
 	else
-		Set_State(CTransform::STATE_POSITION, Get_State(CTransform::STATE_POSITION) + XMLoadFloat3(&vCurrentPosition));
+	{
+		_float3		vCurPos;
+		XMStoreFloat3(&vCurPos, Get_State(CTransform::STATE_POSITION));
+
+		if (isMove = pNavigation->isMove(Get_State(CTransform::STATE_POSITION) + XMLoadFloat3(&vCurrentPosition), &vCurPos))
+		{
+			Set_State(CTransform::STATE_POSITION, Get_State(CTransform::STATE_POSITION) + XMLoadFloat3(&vCurrentPosition));
+		}
+	}
 }
 
 void CTransform::Set_Scale(_fvector vScaleInfo)

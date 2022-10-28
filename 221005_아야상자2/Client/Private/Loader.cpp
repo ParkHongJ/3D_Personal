@@ -24,6 +24,7 @@
 #include "Cylinder.h"
 #include "Yantari.h"
 #include "YantariWeapon.h"
+#include "Aspiration.h"
 //#include "Effect.h"
 #include "Sky.h"
 //#include "UI.h"
@@ -232,6 +233,11 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 		CYantariWeapon::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+	/* For.Prototype_GameObject_Aspiration */
+	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Aspiration"),
+		CAspiration::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 	///* For.Prototype_GameObject_Sky */
 	//if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Sky"),
 	//	CSky::Create(m_pGraphic_Device))))
@@ -423,11 +429,22 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/Effect/Cylinder.dat", PivotMatrix))))
 		return E_FAIL;
 
-	//Prototype_Component_Model_Cylinder
+	//Prototype_Component_Model_Door
 	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
 	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Door"),
 		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/Castle/Door.dat", PivotMatrix, true))))
 		return E_FAIL;
+
+	//Prototype_Component_Model_Aspiration01
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Aspiration01"),
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/Effect/Aspiration01.dat", PivotMatrix))))
+		return E_FAIL;
+
+
+
+
+	//Shader
 
 	/* For.Prototype_Component_Shader_Terrain */
 	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_Terrain"),

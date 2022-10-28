@@ -2,6 +2,7 @@
 #include "..\Public\Yantari.h"
 #include "GameInstance.h"
 #include "HierarchyNode.h"
+#include "Sword.h"
 
 CYantari::CYantari(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
@@ -45,30 +46,33 @@ HRESULT CYantari::Initialize(void * pArg)
 
 _bool CYantari::Tick(_float fTimeDelta)
 {
-	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
-	if (pGameInstance->Key_Down(DIK_O))
-	{
-		m_eAnimState = CYantari::ATTACK1_2;
-		m_pModelCom->Change_Animation(ATTACK1_2, 0.25f, false);
-	}
-	if (pGameInstance->Key_Down(DIK_NUMPAD2))
-	{
-		m_eAnimState = CYantari::ATTACK2_2;
-		m_pModelCom->Change_Animation(ATTACK2_2, 0.25f, false);
-	}
-	if (pGameInstance->Key_Down(DIK_NUMPAD3))
-	{
-		m_eAnimState = CYantari::ATTACK3_2;
-		m_pModelCom->Change_Animation(ATTACK3_2, 0.25f, false);
-	}
-	if (pGameInstance->Key_Down(DIK_NUMPAD4))
-	{
-		m_eAnimState = CYantari::ATTACK4_2;
-		m_pModelCom->Change_Animation(ATTACK4_2, 0.25f, false);
-	}
-	RELEASE_INSTANCE(CGameInstance);
+	if (!m_bActive)
+		return false;
+	if (m_bDestroy)
+		return true;
 	Set_State(m_eAnimState, fTimeDelta);
 	
+	//돌진기를 사용 할 수 없다면. 쿨타임적용.
+	if (!m_bCanDashAttack)
+	{
+		m_fCurrentDashAttackTime += fTimeDelta;
+		if (m_fCurrentDashAttackTime >= m_fMaxDashAttackTime)
+		{
+			m_fCurrentDashAttackTime = 0.0f;
+			m_bCanDashAttack = true;
+		}
+	}
+	if (m_bHitDelay)
+	{
+		m_fCurrentHitDelayTime += fTimeDelta;
+		if (m_fCurrentHitDelayTime > m_fMaxHitDelayTime)
+		{
+			m_bHitDelay = false;
+			m_fCurrentHitDelayTime = 0.f;
+		}
+	}
+
+	m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix());
 	Update_Weapon();
 
 	for (auto& pPart : m_Parts)
@@ -82,6 +86,10 @@ _bool CYantari::Tick(_float fTimeDelta)
 void CYantari::LateTick(_float fTimeDelta)
 {
 	if (nullptr == m_pRendererCom)
+		return;
+	if (!m_bActive)
+		return;
+	if (m_bDestroy)
 		return;
 
 	m_bAnimEnd = m_pModelCom->Play_Animation(fTimeDelta);
@@ -100,6 +108,9 @@ void CYantari::LateTick(_float fTimeDelta)
 
 	if (true == isDraw)
 		m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
+
+	m_pColliderCom->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom);
+	m_pRendererCom->Add_DebugGroup(m_pColliderCom);
 }
 
 HRESULT CYantari::Render()
@@ -145,7 +156,14 @@ void CYantari::OnCollisionEnter(CGameObject * pOther, _float fTimeDelta)
 
 void CYantari::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
 {
-	int a = 10;
+	if (pOther->CompareTag(L"Player_Sword") && m_bHitEnabled)
+	{
+		if (!m_bHitDelay)
+		{
+			m_bHitDelay = true;
+			GetDamage(((CSword*)pOther)->GetDamage());
+		}
+	}
 }
 
 void CYantari::OnCollisionExit(CGameObject * pOther, _float fTimeDelta)
@@ -167,6 +185,17 @@ HRESULT CYantari::Ready_Layer_GameObject(const _tchar * pPrototypeTag, const _tc
 
 void CYantari::GetDamage(_float fDamage)
 {
+	m_fHp -= fDamage;
+	if (m_eAnimState == IDLE || m_eAnimState == WALK_BACK || m_eAnimState == WALK_FRONT || m_eAnimState == WALK_LEFT || m_eAnimState == WALK_RIGHT)
+	{
+		m_eAnimState = HIT_FIN;
+		m_pModelCom->Change_Animation(HIT_FIN);
+	}
+	if (m_fHp <= 0.f)
+	{
+		m_eAnimState = DEATH;
+		m_pModelCom->Change_Animation(DEATH);
+	}
 }
 
 void CYantari::Set_State(ANIM_STATE eState, _float fTimeDelta)
@@ -199,7 +228,7 @@ void CYantari::Set_State(ANIM_STATE eState, _float fTimeDelta)
 			_vector vTargetPos = m_pTargetTransform->Get_State(CTransform::STATE_POSITION);
 			_vector vPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
 			_vector vDistance = XMVector3Length(vTargetPos - vPos);
-			if (XMVectorGetX(vDistance) > 3.f)
+			if (XMVectorGetX(vDistance) > 5.f)
 			{
 				m_pTransformCom->Go_Straight(fTimeDelta * m_fDashSpeed);
 			}
@@ -232,6 +261,7 @@ void CYantari::Set_State(ANIM_STATE eState, _float fTimeDelta)
 		{
 			m_eAnimState = CYantari::IDLE;
 			m_pModelCom->Change_Animation(IDLE);
+			m_bCanDashAttack = false;
 		}
 		break;
 	case CYantari::ATTACK1_8:
@@ -418,6 +448,10 @@ void CYantari::Set_State(ANIM_STATE eState, _float fTimeDelta)
 	case CYantari::CAST:
 		break;
 	case CYantari::DEATH:
+		if (m_bAnimEnd)
+		{
+			m_bActive = true;
+		}
 		break;
 	case CYantari::GETUP:
 		break;
@@ -426,13 +460,19 @@ void CYantari::Set_State(ANIM_STATE eState, _float fTimeDelta)
 	case CYantari::HIT_DEBUT:
 		break;
 	case CYantari::HIT_FIN:
+		if (m_bAnimEnd)
+		{
+			m_eAnimState = IDLE;
+			m_pModelCom->Change_Animation(IDLE);
+		}
 		break;
 	case CYantari::IDLE:
 	{
+#pragma region 플레이어 바라보기
 		//Look 조절해야함
 		_vector vTargetPos = m_pTargetTransform->Get_State(CTransform::STATE_POSITION);
 		_vector vMyPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
-		
+
 		_vector vDistance = XMVector3Length(vTargetPos - vMyPos);
 
 		//Y축을 없애서 위아래 상관없이 플레이어를 바라보게함
@@ -440,16 +480,37 @@ void CYantari::Set_State(ANIM_STATE eState, _float fTimeDelta)
 		vLook = XMVectorSetY(vLook, 0.0f);
 
 		_vector vMyLook = XMVectorSetY(m_pTransformCom->Get_State(CTransform::STATE_LOOK), 0.0f);
-		
+
 		//회전이 같지않으면
 		if (!XMVector3Equal(vLook, vMyLook))
 		{
 			m_pTransformCom->TurnQuat(vLook, fTimeDelta * m_fRotationSpeed);
 		}
+#pragma endregion
+
 
 		//최대 콤보수를 넘었다면.
 		if (m_iCurrentCombo >= m_iMaxCombo)
 		{
+			if (XMVectorGetX(vDistance) < 5.f)
+			{
+				_uint iRand = rand() % 3 + 1;
+				switch (iRand)
+				{
+				case 1:
+					m_eAnimState = WALK_LEFT;
+					m_pModelCom->Change_Animation(WALK_LEFT);
+					break;
+				case 2:
+					m_eAnimState = WALK_RIGHT;
+					m_pModelCom->Change_Animation(WALK_RIGHT);
+					break;
+				case 3:
+					break;
+				default:
+					break;
+				}
+			}
 			m_fCurrentDelayTime += fTimeDelta;
 			//최대 콤보수를 넘고 쉬는시간도 지났다면
 			if (m_fCurrentDelayTime >= m_fMaxDelayTime)
@@ -468,13 +529,24 @@ void CYantari::Set_State(ANIM_STATE eState, _float fTimeDelta)
 				//플레이어와 나의 거리가 4.5 이상이라면. 실행
 				if (XMVectorGetX(vDistance) > 4.5f)
 				{
-					m_pTransformCom->LookDir(vLook);
-					m_eAnimState = CYantari::ATTACK1_2;
-					m_pModelCom->Change_Animation(ATTACK1_2, 0.0f, false);
-					m_iCurrentCombo++;
+					//대쉬어택이 가능하다면 대쉬어택
+					if (m_bCanDashAttack)
+					{
+						m_pTransformCom->LookDir(vLook);
+						m_eAnimState = CYantari::ATTACK1_2;
+						m_pModelCom->Change_Animation(ATTACK1_2, 0.0f, false);
+						m_iCurrentCombo++;
+					}
+					else
+					{
+						//대쉬어택이 가능하지 않고 현재 거리가 멀다면 앞으로감.
+						m_eAnimState = WALK_FRONT;
+						m_pModelCom->Change_Animation(WALK_FRONT);
+					}
 				}
 				else
 				{
+					//현재 거리가 가깝고.(대쉬어택이 불가능하고) 
 					_uint iRand = rand() % 4 + 1;
 					switch (iRand)
 					{
@@ -490,9 +562,8 @@ void CYantari::Set_State(ANIM_STATE eState, _float fTimeDelta)
 						m_pModelCom->Change_Animation(ATTACK3_2, 0.0f, false);
 						break;
 					case 4:
-
 						m_eAnimState = CYantari::ATTACK4_2;
-						m_pModelCom->Change_Animation(ATTACK4_2, 0.0f, false);
+						m_pModelCom->Change_Animation(ATTACK4_2, 0.0f, false);						
 						break;
 					}
 					m_iCurrentCombo++;
@@ -504,17 +575,134 @@ void CYantari::Set_State(ANIM_STATE eState, _float fTimeDelta)
 	case CYantari::POST_CRITIC:
 		break;
 	case CYantari::WALK_BACK:
+	{
+#pragma region 플레이어 바라보기
+		//Look 조절해야함
+		_vector vTargetPos = m_pTargetTransform->Get_State(CTransform::STATE_POSITION);
+		_vector vMyPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+
+		_vector vDistance = XMVector3Length(vTargetPos - vMyPos);
+
+		//Y축을 없애서 위아래 상관없이 플레이어를 바라보게함
+		_vector vLook = XMVector3Normalize(vTargetPos - vMyPos);
+		vLook = XMVectorSetY(vLook, 0.0f);
+
+		_vector vMyLook = XMVectorSetY(m_pTransformCom->Get_State(CTransform::STATE_LOOK), 0.0f);
+
+		//회전이 같지않으면
+		if (!XMVector3Equal(vLook, vMyLook))
+		{
+			m_pTransformCom->TurnQuat(vLook, fTimeDelta * m_fRotationSpeed);
+		}
+		m_pTransformCom->Go_Backward(fTimeDelta * m_fMoveSpeed);
+#pragma endregion
+	}
 		break;
 	case CYantari::WALK_FRONT:
+	{
+#pragma region 플레이어 바라보기
+		//Look 조절해야함
+		_vector vTargetPos = m_pTargetTransform->Get_State(CTransform::STATE_POSITION);
+		_vector vMyPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+
+		_vector vDistance = XMVector3Length(vTargetPos - vMyPos);
+
+		//Y축을 없애서 위아래 상관없이 플레이어를 바라보게함
+		_vector vLook = XMVector3Normalize(vTargetPos - vMyPos);
+		vLook = XMVectorSetY(vLook, 0.0f);
+
+		_vector vMyLook = XMVectorSetY(m_pTransformCom->Get_State(CTransform::STATE_LOOK), 0.0f);
+
+		//회전이 같지않으면
+		if (!XMVector3Equal(vLook, vMyLook))
+		{
+			m_pTransformCom->TurnQuat(vLook, fTimeDelta * m_fRotationSpeed);
+		}
+#pragma endregion
+
+		//일정거리 이상이면 걸음
+		if (XMVectorGetX(vDistance) > 3.f)
+		{
+			m_pTransformCom->Go_Straight(fTimeDelta* m_fMoveSpeed);
+		}
+		else
+		{
+			//일정거리 이하라면.
+			m_eAnimState = IDLE;
+			m_pModelCom->Change_Animation(IDLE);
+		}
+	}
 		break;
 	case CYantari::WALK_LEFT:
+	{
+#pragma region 플레이어 바라보기
+		//Look 조절해야함
+		_vector vTargetPos = m_pTargetTransform->Get_State(CTransform::STATE_POSITION);
+		_vector vMyPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+
+		_vector vDistance = XMVector3Length(vTargetPos - vMyPos);
+
+		//Y축을 없애서 위아래 상관없이 플레이어를 바라보게함
+		_vector vLook = XMVector3Normalize(vTargetPos - vMyPos);
+		vLook = XMVectorSetY(vLook, 0.0f);
+
+		_vector vMyLook = XMVectorSetY(m_pTransformCom->Get_State(CTransform::STATE_LOOK), 0.0f);
+
+		//회전이 같지않으면
+		if (!XMVector3Equal(vLook, vMyLook))
+		{
+			m_pTransformCom->TurnQuat(vLook, fTimeDelta * m_fRotationSpeed);
+		}
+		m_pTransformCom->Go_Left(fTimeDelta* m_fMoveSpeed);
+#pragma endregion
+
+		m_fCurrentDelayTime += fTimeDelta;
+		//최대 콤보수를 넘고 쉬는시간도 지났다면
+		if (m_fCurrentDelayTime >= m_fMaxDelayTime)
+		{
+			m_iCurrentCombo = 0;
+			m_eAnimState = IDLE;
+			m_pModelCom->Change_Animation(IDLE);
+		}
+	}
 		break;
 	case CYantari::WALK_RIGHT:
+	{
+#pragma region 플레이어 바라보기
+		//Look 조절해야함
+		_vector vTargetPos = m_pTargetTransform->Get_State(CTransform::STATE_POSITION);
+		_vector vMyPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+
+		_vector vDistance = XMVector3Length(vTargetPos - vMyPos);
+
+		//Y축을 없애서 위아래 상관없이 플레이어를 바라보게함
+		_vector vLook = XMVector3Normalize(vTargetPos - vMyPos);
+		vLook = XMVectorSetY(vLook, 0.0f);
+
+		_vector vMyLook = XMVectorSetY(m_pTransformCom->Get_State(CTransform::STATE_LOOK), 0.0f);
+
+		//회전이 같지않으면
+		if (!XMVector3Equal(vLook, vMyLook))
+		{
+			m_pTransformCom->TurnQuat(vLook, fTimeDelta * m_fRotationSpeed);
+		}
+		m_pTransformCom->Go_Right(fTimeDelta* m_fMoveSpeed);
+#pragma endregion
+		m_fCurrentDelayTime += fTimeDelta;
+		//최대 콤보수를 넘고 쉬는시간도 지났다면
+		if (m_fCurrentDelayTime >= m_fMaxDelayTime)
+		{
+			m_iCurrentCombo = 0;
+			m_eAnimState = IDLE;
+			m_pModelCom->Change_Animation(IDLE);
+		}
+	}
 		break;
 	default:
 		break;
 	}
 }
+
 
 HRESULT CYantari::Ready_Sockets()
 {
@@ -587,6 +775,16 @@ HRESULT CYantari::Ready_Components()
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Yantari"), TEXT("Com_Model"), (CComponent**)&m_pModelCom)))
 		return E_FAIL;
 
+	/* For.Com_Sphere */
+	CCollider::COLLIDERDESC		ColliderDesc;
+	ZeroMemory(&ColliderDesc, sizeof(CCollider::COLLIDERDESC));
+
+	ColliderDesc.vSize = _float3(1.5f, 4.f, 1.5f);
+	ColliderDesc.vCenter = _float3(0.f, ColliderDesc.vSize.y * 0.5f, 0.f);
+	ColliderDesc.vRotation = _float3(0.f, 0.f, 0.f);
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_OBB"), TEXT("Com_OBB"), (CComponent**)&m_pColliderCom, &ColliderDesc)))
+		return E_FAIL;
+
 	/* For.Com_Navigation */
 	CNavigation::NAVIGATIONDESC			NaviDesc;
 	ZeroMemory(&NaviDesc, sizeof(CNavigation::NAVIGATIONDESC));
@@ -634,6 +832,7 @@ void CYantari::Free()
 	}
 	m_Parts.clear();
 
+	Safe_Release(m_pColliderCom);
 	Safe_Release(m_pTargetTransform);
 	Safe_Release(m_pNavigationCom);
 	Safe_Release(m_pModelCom);

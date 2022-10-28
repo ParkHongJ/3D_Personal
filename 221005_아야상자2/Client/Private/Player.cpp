@@ -141,10 +141,81 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 	case CPlayer::DashAir:
 		break;
 	case CPlayer::DashBack:
+		m_fDashCurrentTime += fTimeDelta;
+		if (m_fDashCurrentTime >= m_fDashMaxTime)
+		{
+			m_fDashCurrentTime = 0.0f;
+			m_eCurrentAnimState = IdleFight;
+			m_pModelCom->Change_Animation(IdleFight);
+		}
+		else
+		{
+			_vector vLook = XMVector3Normalize(XMVectorSetY(m_pTargetTransform->Get_State(CTransform::STATE_POSITION) - m_pTransformCom->Get_State(CTransform::STATE_POSITION), 0.f));
+			_vector vMyLook = XMVector3Normalize(XMVectorSetY(m_pTransformCom->Get_State(CTransform::STATE_LOOK), 0.f));
+			if (!XMVector3Equal(vLook, vMyLook))
+			{
+				m_pTransformCom->TurnQuat(vLook, fTimeDelta * m_fRotationSpeed);
+			}
+			m_pTransformCom->Go_Backward(fTimeDelta * m_fDashSpeed, m_pNavigationCom);
+		}
 		break;
 	case CPlayer::DashFront:
+		m_fDashCurrentTime += fTimeDelta;
+		if (m_fDashCurrentTime >= m_fDashMaxTime)
+		{
+			m_fDashCurrentTime = 0.0f;
+			m_eCurrentAnimState = IdleFight;
+			m_pModelCom->Change_Animation(IdleFight);
+		}
+		else
+		{
+			_vector vLook = XMVector3Normalize(XMVectorSetY(m_pTargetTransform->Get_State(CTransform::STATE_POSITION) - m_pTransformCom->Get_State(CTransform::STATE_POSITION), 0.f));
+			_vector vMyLook = XMVector3Normalize(XMVectorSetY(m_pTransformCom->Get_State(CTransform::STATE_LOOK), 0.f));
+			if (!XMVector3Equal(vLook, vMyLook))
+			{
+				m_pTransformCom->TurnQuat(vLook, fTimeDelta * m_fRotationSpeed);
+			}
+			m_pTransformCom->Go_Straight(fTimeDelta * m_fDashSpeed, m_pNavigationCom);
+		}
 		break;
 	case CPlayer::DashLeft:
+		m_fDashCurrentTime += fTimeDelta;
+		if (m_fDashCurrentTime >= m_fDashMaxTime)
+		{
+			m_fDashCurrentTime = 0.0f;
+			m_eCurrentAnimState = IdleFight;
+			m_pModelCom->Change_Animation(IdleFight);
+		}
+		else
+		{
+			_vector vLook = XMVector3Normalize(XMVectorSetY(m_pTargetTransform->Get_State(CTransform::STATE_POSITION) - m_pTransformCom->Get_State(CTransform::STATE_POSITION), 0.f));
+			_vector vMyLook = XMVector3Normalize(XMVectorSetY(m_pTransformCom->Get_State(CTransform::STATE_LOOK), 0.f));
+			if (!XMVector3Equal(vLook, vMyLook))
+			{
+				m_pTransformCom->TurnQuat(vLook, fTimeDelta * m_fRotationSpeed);
+			}
+			m_pTransformCom->Go_Left(fTimeDelta * m_fDashSpeed, m_pNavigationCom);
+		}
+		break;
+
+	case CPlayer::dash_right_v2:
+		m_fDashCurrentTime += fTimeDelta;
+		if (m_fDashCurrentTime >= m_fDashMaxTime)
+		{
+			m_fDashCurrentTime = 0.0f;
+			m_eCurrentAnimState = IdleFight;
+			m_pModelCom->Change_Animation(IdleFight);
+		}
+		else
+		{
+			_vector vLook = XMVector3Normalize(XMVectorSetY(m_pTargetTransform->Get_State(CTransform::STATE_POSITION) - m_pTransformCom->Get_State(CTransform::STATE_POSITION), 0.f));
+			_vector vMyLook = XMVector3Normalize(XMVectorSetY(m_pTransformCom->Get_State(CTransform::STATE_LOOK), 0.f));
+			if (!XMVector3Equal(vLook, vMyLook))
+			{
+				m_pTransformCom->TurnQuat(vLook, fTimeDelta * m_fRotationSpeed);
+			}
+			m_pTransformCom->Go_Right(fTimeDelta * m_fDashSpeed, m_pNavigationCom);
+		}
 		break;
 	case CPlayer::Death:
 		break;
@@ -219,13 +290,16 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 		}
 		break;
 	case CPlayer::Parry_2:
+		m_bWeaponEnable = true;
 		if (m_bParry)
 		{
+			m_bWeaponEnable = false;
 			m_pModelCom->Change_Animation(IdleFight);
 			m_eCurrentAnimState = IdleFight;
 		}
 		else
 		{
+			//패링 실패시
 			if (m_bAnimEnd)
 			{
 				m_pModelCom->Change_Animation(Parry_3, 0.0f, false);
@@ -234,6 +308,7 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 		}
 		break;
 	case CPlayer::Parry_3:
+		m_bWeaponEnable = false;
 		if (m_bAnimEnd)
 		{
 			m_pModelCom->Change_Animation(IdleFight);
@@ -317,8 +392,6 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 	case CPlayer::fight_prep2:
 		break;
 	case CPlayer::dash_air_v3:
-		break;
-	case CPlayer::dash_right_v2:
 		break;
 	case CPlayer::interaction_v2:
 		break;
@@ -488,8 +561,6 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 		break;
 	case CPlayer::HitFail:
 		break;
-	case CPlayer::ANIM_END:
-		break;
 	default:
 		break;
 	}
@@ -498,6 +569,19 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 void CPlayer::Idle_State(_float fTimeDelta)
 {
 	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+#pragma region LockOn
+	//락온키를 눌렀을때.
+	if (pGameInstance->Key_Down(LockON))
+	{
+		//새로운 타겟을 등록
+		Set_Target(LEVEL_GAMEPLAY, L"Layer_Yantari", L"Com_Transform", 0);
+
+		m_eCurrentAnimState = IdleFight;
+		m_pModelCom->Change_Animation(IdleFight);
+	}
+
+#pragma endregion
+
 	if (pGameInstance->Key_Pressing(MoveForward) || (pGameInstance->Key_Pressing(MoveBack) ||
 		pGameInstance->Key_Pressing(MoveLeft) || pGameInstance->Key_Pressing(MoveRight)))
 	{
@@ -621,12 +705,86 @@ void CPlayer::Run_State(_float fTimeDelta)
 		m_pModelCom->Change_Animation((_uint)IdlePeace);
 		m_eCurrentAnimState = IdlePeace;
 	}
+
+#pragma region LockOn
+	//락온키를 눌렀을때.
+	if (pGameInstance->Key_Down(LockON))
+	{
+		//새로운 타겟을 등록
+		Set_Target(LEVEL_GAMEPLAY, L"Layer_Yantari", L"Com_Transform", 0);
+
+		m_eCurrentAnimState = IdleFight;
+		m_pModelCom->Change_Animation(IdleFight);
+	}
+
+#pragma endregion
+
+
 	RELEASE_INSTANCE(CGameInstance);
 }
 
 void CPlayer::Idle_Fight_State(_float fTimeDelta)
 {
 	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+
+	//락온키를 눌렀을때.
+	if (pGameInstance->Key_Down(LockON))
+	{
+		//이미 타겟이 있었다면(락온 중이였다면.) 해제
+		if (nullptr != m_pTargetTransform)
+		{
+			Safe_Release(m_pTargetTransform);
+			m_bLockOn = false;
+
+			m_eCurrentAnimState = IdlePeace;
+			m_pModelCom->Change_Animation(IdlePeace);
+
+			m_pCamera->ReleaseTarget();
+
+			RELEASE_INSTANCE(CGameInstance);
+			return;
+		}
+	}
+	//타겟을 향해 회전
+#pragma region 타겟회전
+	_vector vLook = XMVector3Normalize(XMVectorSetY(m_pTargetTransform->Get_State(CTransform::STATE_POSITION) - m_pTransformCom->Get_State(CTransform::STATE_POSITION), 0.f));
+	_vector vMyLook = XMVector3Normalize(XMVectorSetY(m_pTransformCom->Get_State(CTransform::STATE_LOOK), 0.f));
+	if (!XMVector3Equal(vLook, vMyLook))
+	{
+		m_pTransformCom->TurnQuat(vLook, fTimeDelta * m_fRotationSpeed);
+	}
+#pragma endregion
+
+
+	if (pGameInstance->Key_Pressing(MoveForward) && pGameInstance->Key_Down(DIK_SPACE))
+	{
+		m_pModelCom->Change_Animation(DashFront);
+		m_eCurrentAnimState = DashFront;
+		RELEASE_INSTANCE(CGameInstance);
+		return;
+	}
+	else if (pGameInstance->Key_Pressing(MoveBack) && pGameInstance->Key_Down(DIK_SPACE))
+	{
+		m_pModelCom->Change_Animation(DashBack);
+		m_eCurrentAnimState = DashBack;
+		RELEASE_INSTANCE(CGameInstance);
+		return;
+	}
+	else if (pGameInstance->Key_Pressing(MoveLeft) && pGameInstance->Key_Down(DIK_SPACE))
+	{
+		m_pModelCom->Change_Animation(DashLeft);
+		m_eCurrentAnimState = DashLeft;
+		RELEASE_INSTANCE(CGameInstance);
+		return;
+	}
+	else if (pGameInstance->Key_Pressing(MoveRight) && pGameInstance->Key_Down(DIK_SPACE))
+	{
+		m_pModelCom->Change_Animation(dash_right_v2);
+		m_eCurrentAnimState = dash_right_v2;
+		RELEASE_INSTANCE(CGameInstance);
+		return;
+	}
+
 	if (pGameInstance->Get_DIMKeyState(DIMK_LBUTTON))
 	{
 		m_pModelCom->Change_Animation(CoupFaible1_frappe1, 0.25f, false);
@@ -668,14 +826,17 @@ void CPlayer::Idle_Fight_State(_float fTimeDelta)
 	{
 		m_pModelCom->Change_Animation(IdleFight);
 
-		m_fBehaviorTimeCurrent += fTimeDelta;
-		if (m_fBehaviorTimeCurrent >= m_fBehaviorTimeMax)
+		if (nullptr == m_pTargetTransform)
 		{
-			m_fBehaviorTimeCurrent = 0.0f;
-			m_pModelCom->Change_Animation(IdlePeace);
-			m_eCurrentAnimState = IdlePeace;
-			RELEASE_INSTANCE(CGameInstance);
-			return;
+			m_fBehaviorTimeCurrent += fTimeDelta;
+			if (m_fBehaviorTimeCurrent >= m_fBehaviorTimeMax)
+			{
+				m_fBehaviorTimeCurrent = 0.0f;
+				m_pModelCom->Change_Animation(IdlePeace);
+				m_eCurrentAnimState = IdlePeace;
+				RELEASE_INSTANCE(CGameInstance);
+				return;
+			}
 		}
 	}
 	RELEASE_INSTANCE(CGameInstance);
@@ -760,6 +921,26 @@ HRESULT CPlayer::Set_Camera(CCamera_Free * pCamera)
 		return E_FAIL;
 	}
 	Safe_AddRef(m_pCamera);
+	return S_OK;
+}
+
+HRESULT CPlayer::Set_Target(_uint iLevel, const _tchar * pLayerTag, const _tchar * pComponentTag, _uint iLayerIndex)
+{
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+	if (nullptr == m_pTargetTransform)
+	{
+		m_pTargetTransform = (CTransform*)pGameInstance->Get_ComponentPtr(iLevel, pLayerTag, pComponentTag, iLayerIndex);
+		if (nullptr != m_pTargetTransform)
+			Safe_AddRef(m_pTargetTransform);
+	}
+
+	m_bLockOn = true;
+	m_pModelCom->Change_Animation(IdleFight);
+	m_eCurrentAnimState = IdleFight;
+
+	m_pCamera->Set_Target(m_pTargetTransform);
+
+	RELEASE_INSTANCE(CGameInstance);
 	return S_OK;
 }
 
@@ -941,6 +1122,9 @@ void CPlayer::Free()
 
 	for (auto& pCollider : m_pColliderCom)
 		Safe_Release(pCollider);
+
+	if (nullptr != m_pTargetTransform)
+		Safe_Release(m_pTargetTransform);
 
 	Safe_Release(m_pCamera);
 	Safe_Release(m_pNavigationCom);

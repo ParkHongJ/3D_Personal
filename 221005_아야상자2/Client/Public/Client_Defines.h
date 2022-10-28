@@ -3,6 +3,7 @@
 #define MoveBack DIK_DOWN 
 #define MoveLeft DIK_LEFT 
 #define MoveRight DIK_RIGHT 
+#define LockON DIK_NUMPAD9
 namespace Client
 {
 	static const unsigned int g_iWinSizeX = 1280;

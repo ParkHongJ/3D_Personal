@@ -52,6 +52,7 @@ public:
 public:
 	HRESULT Ready_Layer_GameObject(const _tchar* pPrototypeTag, const _tchar* pLayerTag, void* pArg = nullptr);
 	void GetDamage(_float fDamage);
+
 private:
 	CShader*				m_pShaderCom = nullptr;
 	CRenderer*				m_pRendererCom = nullptr;
@@ -68,11 +69,18 @@ private:
 	_float								m_fSpeed = 40.f;
 	_float								m_fRotationSpeed = 7.f;
 	_float								m_fDashSpeed = 35.f;
-
+	_float								m_fMoveSpeed = 3.f;
 	//콤보공격.
 	//현재 몇번째 콤보인지, 최대콤보수
 	_uint								m_iCurrentCombo = 0;
 	const _uint							m_iMaxCombo = 4;
+
+
+	//피격 관련변수
+	_bool								m_bHitEnabled = true; // 맞을 수 있는지
+	_bool								m_bHitDelay = false; // 딜레이 줄건지
+	_float								m_fCurrentHitDelayTime = 0.0f; //현재 시간
+	_float								m_fMaxHitDelayTime = 0.2f; //피격 딜레이시간
 
 	//콤보가 끝난후 쉬는시간과 최대쉬는시간
 	_float								m_fCurrentDelayTime = 0.0f;
@@ -81,6 +89,11 @@ private:
 	//스킬과 스킬사이의 딜레이
 	_float								m_fCurrentGlobalDelayTime = 0.0f;
 	const _float						m_fGlobalMaxDelayTime = 0.15f;
+
+	//돌진기 쿨타임
+	_bool								m_bCanDashAttack = true; // 돌진기 사용 할 수 있다면 True.
+	_float								m_fCurrentDashAttackTime = 0.0f;
+	const _float						m_fMaxDashAttackTime = 5.f;
 
 	vector<CGameObject*>				m_Parts;
 	typedef vector<CGameObject*>		PARTS;

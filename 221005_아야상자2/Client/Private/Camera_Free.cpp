@@ -25,7 +25,14 @@ HRESULT CCamera_Free::Initialize(void * pArg)
 {
 	if (FAILED(__super::Initialize(pArg)))
 		return E_FAIL;
+	/* For.Com_AABB */
+	CCollider::COLLIDERDESC		ColliderDesc;
+	ZeroMemory(&ColliderDesc, sizeof(CCollider::COLLIDERDESC));
 
+	ColliderDesc.vSize = _float3(1.f, 2.f, 1.f);
+	ColliderDesc.vCenter = _float3(0.f, ColliderDesc.vSize.y * 0.5f, 0.f);
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_Sphere"), TEXT("Com_SPHERE"), (CComponent**)&m_pColliderCom, &ColliderDesc)))
+		return E_FAIL;
 
 	
 
@@ -40,21 +47,6 @@ HRESULT CCamera_Free::Initialize(void * pArg)
 _bool CCamera_Free::Tick(_float fTimeDelta)
 {
 	CGameInstance*		pGameInstance = GET_INSTANCE(CGameInstance);
-
-	//Layer_Yantari
-	if (pGameInstance->Key_Down(DIK_NUMPAD9))
-	{
-		if (nullptr != m_pTargetTransform)
-			Safe_Release(m_pTargetTransform);
-		else if (nullptr == m_pTargetTransform)
-		{
-			m_pTargetTransform = (CTransform*)pGameInstance->Get_ComponentPtr(LEVEL_GAMEPLAY, L"Layer_Yantari", L"Com_Transform", 0);;
-			if (nullptr != m_pTargetTransform)
-			{
-				Safe_AddRef(m_pTargetTransform);
-			}
-		}
-	}
 
 	if (pGameInstance->Key_Pressing(DIK_W))
 	{
@@ -90,17 +82,20 @@ _bool CCamera_Free::Tick(_float fTimeDelta)
 			m_pTransformCom->Turn(m_pTransformCom->Get_State(CTransform::STATE_RIGHT), MouseMove * fTimeDelta * 0.05f);
 		}
 	}*/
-	
-	/*if (MouseMove = pGameInstance->Get_DIMMoveState(DIMM_X))
-	{
-		m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), MouseMove * fTimeDelta * 0.05f);
-	}
 
-	if (MouseMove = pGameInstance->Get_DIMMoveState(DIMM_Y))
+	if (nullptr == m_pTargetTransform)
 	{
-		m_pTransformCom->Turn(m_pTransformCom->Get_State(CTransform::STATE_RIGHT), MouseMove * fTimeDelta * 0.05f);
+		if (MouseMove = pGameInstance->Get_DIMMoveState(DIMM_X))
+		{
+			m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), MouseMove * fTimeDelta * 0.05f);
+		}
+
+		if (MouseMove = pGameInstance->Get_DIMMoveState(DIMM_Y))
+		{
+			m_pTransformCom->Turn(m_pTransformCom->Get_State(CTransform::STATE_RIGHT), MouseMove * fTimeDelta * 0.05f);
+		}
+
 	}
-*/
 	RELEASE_INSTANCE(CGameInstance);
 
 
@@ -129,6 +124,8 @@ void CCamera_Free::LateTick(_float fTimeDelta)
 		vMyPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
 		vMyPos -= XMVector3Normalize(m_pTransformCom->Get_State(CTransform::STATE_LOOK)) * 5.f;
 		m_pTransformCom->Set_State(CTransform::STATE_POSITION, vMyPos);
+
+		
 	}
 	else
 	{
@@ -136,6 +133,7 @@ void CCamera_Free::LateTick(_float fTimeDelta)
 		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(m_pPlayerTransform->Get_State(CTransform::STATE_POSITION), 1.f));
 		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMVector3TransformCoord(XMLoadFloat3(&m_vCamPosition), m_pTransformCom->Get_WorldMatrix()),1.f));
 	}
+	
 	__super::Tick(fTimeDelta);
 }
 
@@ -154,6 +152,14 @@ _float3 CCamera_Free::GetNormalizeDir(_uint eState)
 	return vDir;
 }
 
+CTransform * CCamera_Free::GetTargetTransform()
+{
+	if (nullptr != m_pTargetTransform)
+		return m_pTargetTransform;
+
+	return nullptr;
+}
+
 HRESULT CCamera_Free::Set_Player(CTransform * pPlayerTransform)
 {
 	m_pPlayerTransform = pPlayerTransform;
@@ -162,13 +168,37 @@ HRESULT CCamera_Free::Set_Player(CTransform * pPlayerTransform)
 		return E_FAIL;
 	}
 
-	XMStoreFloat3(&m_vCamPosition, XMVectorSet(0.f, 1.f, -5.f, 0.f));
+	XMStoreFloat3(&m_vCamPosition, XMVectorSet(0.f, 1.f, -10.f, 0.f));
 	_vector vPlayerPos = m_pPlayerTransform->Get_State(CTransform::STATE_POSITION);
-	vPlayerPos = vPlayerPos + XMVectorSet(0.f, 0.f, 3.f, 0.f);
+	vPlayerPos = vPlayerPos + XMVectorSet(0.f, 0.f, 5.f, 0.f);
 	m_pTransformCom->LookAt(vPlayerPos);
 	Safe_AddRef(m_pPlayerTransform);
 	m_fCamDistance = 12.f;
 	return S_OK;
+}
+
+HRESULT CCamera_Free::Set_Target(CTransform * pTargetTransform)
+{
+	//이전에 락온중이였다면. 해제 해줌
+	if (nullptr != m_pTargetTransform)
+		Safe_Release(m_pTargetTransform);
+
+	//이후에 새로운 타겟을 등록
+	m_pTargetTransform = pTargetTransform;
+	if (nullptr != m_pTargetTransform)
+	{
+		Safe_AddRef(m_pTargetTransform);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
+void CCamera_Free::ReleaseTarget()
+{
+	if (nullptr != m_pTargetTransform)
+	{
+		Safe_Release(m_pTargetTransform);
+	}
 }
 
 CCamera_Free * CCamera_Free::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
@@ -207,4 +237,6 @@ void CCamera_Free::Free()
 		Safe_Release(m_pTargetTransform);
 	if (nullptr != m_pPlayerTransform)
 		Safe_Release(m_pPlayerTransform);
+
+	Safe_Release(m_pColliderCom);
 }

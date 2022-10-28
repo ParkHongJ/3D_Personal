@@ -112,14 +112,20 @@
     <Filter Include="02.GameObjects\Boss\Ras_Samrah\Totem">
       <UniqueIdentifier>{8b63a07d-ac94-4de9-b0e7-3c651514c359}</UniqueIdentifier>
     </Filter>
-    <Filter Include="02.GameObjects\Boss\Ras_Samrah\Cylinder">
-      <UniqueIdentifier>{c936edc7-d17f-492a-b887-99b005ebdf40}</UniqueIdentifier>
-    </Filter>
     <Filter Include="02.GameObjects\Boss\Yantari">
       <UniqueIdentifier>{cf370963-c587-477e-abcd-8a091551a720}</UniqueIdentifier>
     </Filter>
     <Filter Include="02.GameObjects\Boss\Yantari\Weapon">
       <UniqueIdentifier>{3369a6da-ef0a-4b70-ae48-38b61296cdef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Boss\Ras_Samrah\RasEffect">
+      <UniqueIdentifier>{c936edc7-d17f-492a-b887-99b005ebdf40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Boss\Ras_Samrah\RasEffect\Cylinder">
+      <UniqueIdentifier>{78e930c2-512a-401d-9574-832fbb61089f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Boss\Ras_Samrah\RasEffect\Aspiration">
+      <UniqueIdentifier>{83a51a54-df4e-48f7-9933-017ba120fcf4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -261,14 +267,17 @@
     <ClInclude Include="..\public\Totem.h">
       <Filter>02.GameObjects\Boss\Ras_Samrah\Totem</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\Cylinder.h">
-      <Filter>02.GameObjects\Boss\Ras_Samrah\Cylinder</Filter>
-    </ClInclude>
     <ClInclude Include="..\public\Yantari.h">
       <Filter>02.GameObjects\Boss\Yantari</Filter>
     </ClInclude>
     <ClInclude Include="..\public\YantariWeapon.h">
       <Filter>02.GameObjects\Boss\Yantari\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Cylinder.h">
+      <Filter>02.GameObjects\Boss\Ras_Samrah\RasEffect\Cylinder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Aspiration.h">
+      <Filter>02.GameObjects\Boss\Ras_Samrah\RasEffect\Aspiration</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -398,14 +407,17 @@
     <ClCompile Include="..\private\Totem.cpp">
       <Filter>02.GameObjects\Boss\Ras_Samrah\Totem</Filter>
     </ClCompile>
-    <ClCompile Include="..\private\Cylinder.cpp">
-      <Filter>02.GameObjects\Boss\Ras_Samrah\Cylinder</Filter>
-    </ClCompile>
     <ClCompile Include="..\private\Yantari.cpp">
       <Filter>02.GameObjects\Boss\Yantari</Filter>
     </ClCompile>
     <ClCompile Include="..\private\YantariWeapon.cpp">
       <Filter>02.GameObjects\Boss\Yantari\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Cylinder.cpp">
+      <Filter>02.GameObjects\Boss\Ras_Samrah\RasEffect\Cylinder</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Aspiration.cpp">
+      <Filter>02.GameObjects\Boss\Ras_Samrah\RasEffect\Aspiration</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

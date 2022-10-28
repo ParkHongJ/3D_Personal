@@ -22,7 +22,6 @@ class CPlayer final : public CGameObject
 public:
 	enum PARTTYPE { PART_WEAPON, PART_END };
 	enum COLLIDERTYPE { COLLIDERTYPE_AABB, COLLIDERTYPE_OBB, COLLIDERTYPE_SPHERE, COLLILDERTYPE_END };
-	enum STATE_PLAYER { STATE_IDLE, STATE_WALK, STATE_RUN, STATE_ATTACK, STATE_JUMP, STATE_END };
 	enum STATE_ANIM { Backstab_Deb_1, Backstab_Deb_2, Backstab_Deb_3, Backstab_Fin, Backstab_Fin_inter, 
 		DashAir, DashBack, DashFront, DashLeft, Death, DeathLong, DoubleJumpCloth_Start, Health, 
 		IdleFight, IdlePeace, JumpCloth_Air, JumpCloth_Land, JumpCloth_Start, LowFight1, Magic,
@@ -65,6 +64,7 @@ public:
 
 public:
 	HRESULT Set_Camera(class CCamera_Free* pCamera);
+	HRESULT Set_Target(_uint iLevel, const _tchar* pLayerTag, const _tchar* pComponentTag, _uint iLayerIndex);
 
 private:
 	CShader*				m_pShaderCom = nullptr;
@@ -81,17 +81,22 @@ private:
 	vector<class CHierarchyNode*>		m_Sockets;
 
 private:
-	STATE_PLAYER			m_eCurrentState = STATE_END;
 	_bool					m_bAnimEnd = false;
 	STATE_ANIM				m_eCurrentAnimState = ANIM_END;
 	_bool					m_bSprint = false;
 	_bool					m_bComboAttack = false;
+
 	//입력이 없을경우 Idle로 돌아가는 변수
-	_float					m_fBehaviorTimeMax = 2.5f;
+	const _float			m_fBehaviorTimeMax = 2.5f;
 	_float					m_fBehaviorTimeCurrent = 0.f;
 	_bool					m_bParry = false;
 	_float					m_fSpeed = 3.f;
 	_float					m_fRotationSpeed = 7.f;
+
+	//전투 대쉬 관련
+	_float					m_fDashCurrentTime = 0.0f;
+	const _float			m_fDashMaxTime = 0.3f;
+	_float					m_fDashSpeed = 3.f;
 
 	//Jump
 	_bool					m_bJumping = false;
@@ -108,6 +113,9 @@ private:
 	//Camera
 	class CCamera_Free*		m_pCamera = nullptr;
 	_bool					m_bLockOn = false;
+
+	//Target
+	class CTransform*		m_pTargetTransform = nullptr;
 public:
 	virtual void OnCollisionEnter(CGameObject* pOther, _float fTimeDelta)override;
 	virtual void OnCollisionStay(CGameObject* pOther, _float fTimeDelta)override;
@@ -121,6 +129,7 @@ private:
 
 	HRESULT Update_Weapon();
 	_float3 GetNormalizeDir(_uint eState);
+
 public:
 	static CPlayer* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg);

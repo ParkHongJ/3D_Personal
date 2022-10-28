@@ -120,15 +120,6 @@ _bool CRas_Samrah::Tick(_float fTimeDelta)
 	{
 		m_pHand1->Set_Pattern(CRas_Hands::STATE_ANIM::HAND_SLAM_FLY);
 	}
-	
-	if (pGameInstance->Key_Down(DIK_M))
-	{
-		m_pHand2->Set_Pattern(CRas_Hands2::HAND_PATTERN2);
-	}
-	if (pGameInstance->Key_Down(DIK_N))
-	{
-		m_pHand3->Set_Pattern(CRas_Hands3::HAND_PATTERN3);
-	}
 	//Pattern1 : ∏¡ƒ° »÷µŒ∏£±‚
 	/*if (pGameInstance->Key_Down(DIK_L))
 	{
@@ -400,6 +391,11 @@ void CRas_Samrah::Set_State(STATE_ANIM eAnim, PHASE ePhase, _float fTimeDelta)
 				{
 					m_pHand3->Set_Pattern(CRas_Hands3::HAND_PATTERN3);
 				}
+				_uint iRand = rand() % 10;
+				if (iRand >= 0 && iRand <= 7)
+				{
+					m_pHand1->Set_Pattern(CRas_Hands::STATE_ANIM::HAND_SLAM_FLY);
+				}
 			}
 		}
 			break;
@@ -453,13 +449,28 @@ void CRas_Samrah::Set_State(STATE_ANIM eAnim, PHASE ePhase, _float fTimeDelta)
 			}
 			break;
 		case CRas_Samrah::Idle2:
+			//2∆‰¿Ã¡Ó Idle
+		{
+			_uint iRand = rand() % 3;
+			switch (iRand)
+			{
+			case 0:
+				break;
+			case 1:
+				break;
+			case 2:
+				break;
+			default:
+				break;
+			}
+		}
 			break;
 		case CRas_Samrah::Pattern1:
 			break;
 		case CRas_Samrah::Pattern3:
 			if (m_bAnimEnd)
 			{
-				//Ready_Projectile();
+				Ready_Projectile();
 
 					
 				m_bCylinder = true;
