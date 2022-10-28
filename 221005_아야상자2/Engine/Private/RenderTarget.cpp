@@ -56,7 +56,7 @@ HRESULT CRenderTarget::Clear()
 
 HRESULT CRenderTarget::Bind_SRV(CShader * pShader, const char * pConstantName)
 {
-	return pShader->Set_ShaderResourceView(pConstantName, m_pSRV);	
+	return pShader->Set_ShaderResourceView(pConstantName, m_pSRV);
 }
 
 #ifdef _DEBUG
@@ -67,9 +67,9 @@ HRESULT CRenderTarget::Initialize_Debug(_float fX, _float fY, _float fSizeX, _fl
 	D3D11_VIEWPORT		ViewportDesc;
 	m_pContext->RSGetViewports(&iNumViewport, &ViewportDesc);
 
-	XMStoreFloat4x4(&m_WorldMatrix, 
+	XMStoreFloat4x4(&m_WorldMatrix,
 		XMMatrixTranspose(XMMatrixScaling(fSizeX, fSizeY, 0.f) * XMMatrixTranslation(fX - ViewportDesc.Width * 0.5f, -fY + ViewportDesc.Height * 0.5f, 0.f)));
-	
+
 	return S_OK;
 }
 
@@ -80,7 +80,7 @@ HRESULT CRenderTarget::Render_Debug(CShader* pShader, CVIBuffer * pVIBuffer)
 
 	pShader->Set_ShaderResourceView("g_DiffuseTexture", m_pSRV);
 
-	pShader->Begin(0);	
+	pShader->Begin(0);
 
 	return pVIBuffer->Render();
 }

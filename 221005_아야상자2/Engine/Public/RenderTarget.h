@@ -37,12 +37,12 @@ public:
 private:
 	ID3D11Device*				m_pDevice = nullptr;
 	ID3D11DeviceContext*		m_pContext = nullptr;
-	
+
 	ID3D11Texture2D*			m_pTexture2D = nullptr;
 	ID3D11RenderTargetView*		m_pRTV = nullptr;
 	ID3D11ShaderResourceView*	m_pSRV = nullptr;
 
-	_float4						m_vClearColor = _float4(0.f, 0.f, 0.f, 1.f);	
+	_float4						m_vClearColor = _float4(0.f, 0.f, 0.f, 1.f);
 
 #ifdef _DEBUG
 private:

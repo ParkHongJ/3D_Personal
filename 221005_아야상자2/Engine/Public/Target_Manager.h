@@ -11,7 +11,7 @@ public:
 	CTarget_Manager();
 	virtual ~CTarget_Manager() = default;
 
-public:	
+public:
 	HRESULT Add_RenderTarget(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, const _tchar* pTargetTag, _uint iSizeX, _uint iSizeY, DXGI_FORMAT eFormat, const _float4* pClearColor);
 	HRESULT Add_MRT(const _tchar* pMRTTag, const _tchar* pTargetTag);
 
@@ -25,7 +25,7 @@ public:
 	HRESULT End_MRT(ID3D11DeviceContext* pContext);
 
 #ifdef _DEBUG
-public:	
+public:
 	HRESULT Initialize_Debug(const _tchar* pTargetTag, _float fX, _float fY, _float fSizeX, _float fSizeY);
 	HRESULT Render_Debug(const _tchar* pMRTTag, class CVIBuffer* pVIBuffer, class CShader* pShader);
 #endif // _DEBUG

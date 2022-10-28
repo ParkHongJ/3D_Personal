@@ -241,6 +241,16 @@ void CTransform::Go_Backward(_float fTimeDelta, CNavigation* pNavigation)
 	}
 }
 
+void CTransform::Go_Backward(_float fTimeDelta)
+{
+	_vector		vPosition = Get_State(CTransform::STATE_POSITION);
+	_vector		vLook = Get_State(CTransform::STATE_LOOK);
+
+	vPosition -= XMVector3Normalize(vLook) * m_TransformDesc.fSpeedPerSec * fTimeDelta;
+
+	Set_State(CTransform::STATE_POSITION, vPosition);
+}
+
 void CTransform::Go_Left(_float fTimeDelta, CNavigation* pNavigation)
 {
 	_vector		vPosition = Get_State(CTransform::STATE_POSITION);
@@ -275,6 +285,16 @@ void CTransform::Go_Left(_float fTimeDelta, CNavigation* pNavigation)
 	}
 }
 
+void CTransform::Go_Left(_float fTimeDelta)
+{
+	_vector		vPosition = Get_State(CTransform::STATE_POSITION);
+	_vector		vRight = Get_State(CTransform::STATE_RIGHT);
+
+	vPosition -= XMVector3Normalize(vRight) * m_TransformDesc.fSpeedPerSec * fTimeDelta;
+
+	Set_State(CTransform::STATE_POSITION, vPosition);
+}
+
 void CTransform::Go_Right(_float fTimeDelta, CNavigation* pNavigation)
 {
 	_vector		vPosition = Get_State(CTransform::STATE_POSITION);
@@ -307,6 +327,16 @@ void CTransform::Go_Right(_float fTimeDelta, CNavigation* pNavigation)
 			Set_State(CTransform::STATE_POSITION, Get_State(CTransform::STATE_POSITION) + XMLoadFloat3(&vCurrentPosition));
 		}
 	}
+}
+
+void CTransform::Go_Right(_float fTimeDelta)
+{
+	_vector		vPosition = Get_State(CTransform::STATE_POSITION);
+	_vector		vRight = Get_State(CTransform::STATE_RIGHT);
+
+	vPosition += XMVector3Normalize(vRight) * m_TransformDesc.fSpeedPerSec * fTimeDelta;
+
+	Set_State(CTransform::STATE_POSITION, vPosition);
 }
 
 void CTransform::Set_Scale(_fvector vScaleInfo)

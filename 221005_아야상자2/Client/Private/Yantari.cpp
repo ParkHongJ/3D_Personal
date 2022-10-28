@@ -624,6 +624,12 @@ void CYantari::Set_State(ANIM_STATE eState, _float fTimeDelta)
 		if (XMVectorGetX(vDistance) > 3.f)
 		{
 			m_pTransformCom->Go_Straight(fTimeDelta* m_fMoveSpeed);
+			if (m_bCanDashAttack)
+			{
+				m_pTransformCom->LookDir(vLook);
+				m_eAnimState = CYantari::ATTACK1_2;
+				m_pModelCom->Change_Animation(ATTACK1_2, 0.0f, false);
+			}
 		}
 		else
 		{
