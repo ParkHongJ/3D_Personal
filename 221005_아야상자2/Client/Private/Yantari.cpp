@@ -450,7 +450,7 @@ void CYantari::Set_State(ANIM_STATE eState, _float fTimeDelta)
 	case CYantari::DEATH:
 		if (m_bAnimEnd)
 		{
-			m_bActive = true;
+			m_bActive = false;
 		}
 		break;
 	case CYantari::GETUP:

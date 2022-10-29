@@ -116,16 +116,16 @@ _bool CRas_Samrah::Tick(_float fTimeDelta)
 
 	//일정시간마다 손의 이벤트를 만들어야함
 	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
-	if (pGameInstance->Key_Down(DIK_U))
+	/*if (pGameInstance->Key_Down(DIK_U))
 	{
 		m_pHand1->Set_Pattern(CRas_Hands::STATE_ANIM::HAND_SLAM_FLY);
-	}
+	}*/
 	//Pattern1 : 망치 휘두르기
-	/*if (pGameInstance->Key_Down(DIK_L))
+	if (pGameInstance->Key_Down(DIK_U))
 	{
 		m_eCurrentAnimState = Pattern1;
 		m_pModelCom->Change_Animation(Pattern1);
-	}*/
+	}
 	//Pattern3 : 총알발사, 물기둥
 	if (pGameInstance->Key_Down(DIK_L))
 	{
@@ -193,11 +193,15 @@ HRESULT CRas_Samrah::Render()
 
 	CGameInstance*		pGameInstance = GET_INSTANCE(CGameInstance);
 
+	if (FAILED(m_pShaderCom->Set_RawValue("g_Cut", &m_fCut, sizeof(_float))))
+		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_WorldMatrix", &m_pTransformCom->Get_WorldFloat4x4_TP(), sizeof(_float4x4))))
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_ViewMatrix", &pGameInstance->Get_TransformFloat4x4_TP(CPipeLine::D3DTS_VIEW), sizeof(_float4x4))))
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_ProjMatrix", &pGameInstance->Get_TransformFloat4x4_TP(CPipeLine::D3DTS_PROJ), sizeof(_float4x4))))
+		return E_FAIL;
+	if (FAILED(m_pTextureCom->Set_SRV(m_pShaderCom, "g_DissolveTexture")))
 		return E_FAIL;
 
 	RELEASE_INSTANCE(CGameInstance);
@@ -214,7 +218,7 @@ HRESULT CRas_Samrah::Render()
 		return E_FAIL;*/
 
 
-		if (FAILED(m_pModelCom->Render(m_pShaderCom, i)))
+		if (FAILED(m_pModelCom->Render(m_pShaderCom, i, m_iPass)))
 			return E_FAIL;
 	}
 
@@ -243,6 +247,7 @@ void CRas_Samrah::GetDamaged(_float fDamage)
 	{
 		if (m_ePhase != PHASE_2)
 		{
+			
 			m_ePhase = PHASE_2;
 			m_eCurrentAnimState = HitPhase2;
 			m_pModelCom->Change_Animation(HitPhase2, 0.0f, false);
@@ -423,6 +428,18 @@ void CRas_Samrah::Set_State(STATE_ANIM eAnim, PHASE ePhase, _float fTimeDelta)
 			}
 			break;
 		case CRas_Samrah::SpawnHammer:
+			m_fCurrentEffectTime += fTimeDelta;
+			if (!m_bEffectEnable && m_fCurrentEffectTime > m_fMaxEffectTime)
+			{
+				CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+				_float3 vPos = { -14.f, 40.f, 40.f };
+				//XMStoreFloat3(&vPos, XMVector3TransformCoord(m_Sockets[0]->Get_CombinedTransformation().r[3], m_pTransformCom->Get_WorldMatrix()));
+				if (FAILED(pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Aspiration", LEVEL_GAMEPLAY, L"Layer_Effect", &vPos)))
+					E_FAIL;
+				RELEASE_INSTANCE(CGameInstance);
+				m_bEffectEnable = true;
+
+			}
 			m_bTimeCheck = true;
 			if (m_fHammerSpawnTime > m_fHammerSpawnMaxTime)
 			{
@@ -528,6 +545,10 @@ HRESULT CRas_Samrah::Ready_Components()
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_RasSamrah"), TEXT("Com_Model"), (CComponent**)&m_pModelCom)))
 		return E_FAIL;
 
+	/* For.Com_Texture*/
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Noise"), TEXT("Com_Texture"), (CComponent**)&m_pTextureCom)))
+		return E_FAIL;
+
 	/* For.Com_Navigation */
 	CNavigation::NAVIGATIONDESC			NaviDesc;
 	ZeroMemory(&NaviDesc, sizeof(CNavigation::NAVIGATIONDESC));
@@ -611,7 +632,7 @@ void CRas_Samrah::Free()
 	__super::Free();
 
 	Safe_Release(m_Parts);
-
+	Safe_Release(m_pTextureCom);
 	Safe_Release(m_pHand1);
 	Safe_Release(m_pHand2);
 	Safe_Release(m_pHand3);

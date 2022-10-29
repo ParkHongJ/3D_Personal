@@ -51,6 +51,8 @@ HRESULT CRas_Hands2::Initialize(void * pArg)
 	}
 
 	CloseHandle(hFile);
+
+	m_eState = HAND_IDLE;
 	return S_OK;
 }
 
@@ -60,8 +62,34 @@ _bool CRas_Hands2::Tick(_float fTimeDelta)
 		return true;
 	if (!m_bActive)
 		return false;
-	Set_State(m_eState, fTimeDelta);
+
 	
+	//눈에 보일때만 진행
+	Set_State(m_eState, fTimeDelta);
+
+	if (m_bDissolve && m_iPass == 1)
+	{
+		// 다사라졌다면
+		m_fCut += fTimeDelta* m_fDissolveSpeed;
+		if (m_fCut >= 1.f)
+		{
+			m_bDissolveEnd = true;
+			//m_iPass = 0;
+		}
+		else
+			m_bDissolveEnd = false;
+	}
+	else if (!m_bDissolve && m_iPass == 1)
+	{
+		m_fCut -= fTimeDelta * m_fDissolveSpeed;
+		if (m_fCut <= 0.f)
+		{
+			m_bDissolveEnd = true;
+			//m_iPass = 0;
+		}
+		else
+			m_bDissolveEnd = false;
+	}
 
 	return false;
 }
@@ -87,7 +115,8 @@ HRESULT CRas_Hands2::Render()
 		return E_FAIL;
 
 	CGameInstance*		pGameInstance = GET_INSTANCE(CGameInstance);
-
+	if (FAILED(m_pShaderCom->Set_RawValue("g_Cut", &m_fCut, sizeof(_float))))
+		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_WorldMatrix", &m_pTransformCom->Get_WorldFloat4x4_TP(), sizeof(_float4x4))))
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_ViewMatrix", &pGameInstance->Get_TransformFloat4x4_TP(CPipeLine::D3DTS_VIEW), sizeof(_float4x4))))
@@ -109,7 +138,7 @@ HRESULT CRas_Hands2::Render()
 		return E_FAIL;*/
 
 
-		if (FAILED(m_pModelCom->Render(m_pShaderCom, i)))
+		if (FAILED(m_pModelCom->Render(m_pShaderCom, i, m_iPass)))
 			return E_FAIL;
 	}
 	return S_OK;
@@ -137,22 +166,59 @@ void CRas_Hands2::Set_State(STATE_ANIM eState, _float fTimeDelta)
 		m_pModelCom->Change_Animation(HAND_DEATH);
 		if (m_bAnimEnd)
 		{
-			m_bActive = false;
+			if (m_fCut >= 1.f)
+			{
+				m_bActive = false;
+			}
 		}
 		break;
 	case CRas_Hands2::HAND_IDLE:
 		//m_pModelCom->Change_Animation(HAND_IDLE);
+		//사라지는 쉐이더가 끝나고 다음패턴이 공격이면.
+		//용암푸는곳으로 옮김
+		if (m_bDissolve && m_bDissolveEnd && m_eNextState == HAND_PATTERN2)
+		{
+			m_bDissolve = false;
+			m_fCut = 1.f;
+			MoveToOffsetAttack();
+		}
+		if (!m_bDissolve && m_eNextState == HAND_PATTERN2)
+		{
+			m_eState = HAND_PATTERN2;
+			m_pModelCom->Change_Animation(HAND_PATTERN2);
+			m_eNextState = HAND_END;
+		}
+
+		//패턴2가 끝났다면
+		if (m_bPatternEnd)
+		{
+			if (m_fCut >= 1.f)
+			{
+				//원래위치로 옮김
+				MoveToOffsetIdle();
+				m_bPatternEnd = false;
+				m_bDissolve = false;
+				m_fCut = 1.f;
+			}
+		}
 		break;
 	case CRas_Hands2::HAND_PATTERN2:
 		if (m_bAnimEnd)
 		{
+			m_bTemp = false;
+			m_bPatternEnd = true;
 			//애니메이션이 끝났다면 사라짐.
 			m_eState = HAND_IDLE;
 			m_pModelCom->Change_Animation(HAND_IDLE);
-			MoveToOffsetIdle();
+
+
+			m_bDissolve = true;
+			m_fCut = 0.f;
+			m_iPass = 1;
+			/*MoveToOffsetIdle();*/
 			m_fCurrentChaseTime = 0.0f;
 
-			//호믄클루스 생성
+			//호문클루스 생성
 			CGameInstance*		pGameInstance = GET_INSTANCE(CGameInstance);
 
 			//이때 랜덤인덱스 줘야함
@@ -170,7 +236,21 @@ void CRas_Hands2::Set_State(STATE_ANIM eState, _float fTimeDelta)
 		}
 		else
 		{
+			//용암을 퍼올리고 쥐고있는 시간이 최대시간을 초과하면 몬스터 소환
 			m_fCurrentChaseTime += fTimeDelta;
+			if (m_fCurrentChaseTime >= m_fChaseTimeMax - .5f && !m_bDissolve && !m_bTemp)
+			{
+				m_iPass = 1;
+				m_fCut = 0.f;
+				m_bDissolve = true;
+				m_bTemp = true;
+			}
+			if (m_bTemp && m_fCut >= 1.f)
+			{
+				m_iPass = 1;
+				m_fCut = 1.f;
+				m_bDissolve = false;
+			}
 			if (m_fCurrentChaseTime >= m_fChaseTimeMax)
 			{
 				if (false == m_bGetRandomIndix)
@@ -220,9 +300,16 @@ void CRas_Hands2::Set_Target(CTransform* pTarget)
 
 void CRas_Hands2::Set_Pattern(STATE_ANIM eState)
 {
-	m_eState = eState;
+	/*if (m_eState == HAND_PATTERN2)
+	{
 	m_pModelCom->Change_Animation(HAND_PATTERN2);
 	MoveToOffsetAttack();
+	}*/
+	m_bPatternEnd = false;
+	m_eNextState = eState;
+	m_bDissolve = true;
+	m_fCut = 0.f;
+	m_iPass = 1; 
 }
 
 void CRas_Hands2::Set_OffsetPos(CTransform * pRasTransform)
@@ -264,6 +351,8 @@ void CRas_Hands2::Set_Death()
 	m_eState = HAND_DEATH;
 	m_pModelCom->Change_Animation(HAND_DEATH, 0.25f, false);
 	m_bAnimEnd = false;
+	m_bDissolve = true;
+	m_fCut = 0.f;
 }
 
 HRESULT CRas_Hands2::Ready_Components()

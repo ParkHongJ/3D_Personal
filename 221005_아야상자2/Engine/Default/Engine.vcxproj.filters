@@ -20,10 +20,10 @@
       <Filter>05.System\01.Input</Filter>
     </ClCompile>
     <ClCompile Include="..\Private\Timer.cpp">
-      <Filter>04.Utility\00.Tijmers</Filter>
+      <Filter>04.Utility\00.Timers</Filter>
     </ClCompile>
     <ClCompile Include="..\Private\Timer_Manager.cpp">
-      <Filter>04.Utility\00.Tijmers\00.Manager</Filter>
+      <Filter>04.Utility\00.Timers\00.Manager</Filter>
     </ClCompile>
     <ClCompile Include="..\Private\Component_Manager.cpp">
       <Filter>03.Components\00.Manager</Filter>
@@ -181,10 +181,10 @@
       <Filter>05.System\01.Input</Filter>
     </ClInclude>
     <ClInclude Include="..\Public\Timer.h">
-      <Filter>04.Utility\00.Tijmers</Filter>
+      <Filter>04.Utility\00.Timers</Filter>
     </ClInclude>
     <ClInclude Include="..\Public\Timer_Manager.h">
-      <Filter>04.Utility\00.Tijmers\00.Manager</Filter>
+      <Filter>04.Utility\00.Timers\00.Manager</Filter>
     </ClInclude>
     <ClInclude Include="..\Public\Component_Manager.h">
       <Filter>03.Components\00.Manager</Filter>
@@ -335,12 +335,6 @@
     <Filter Include="05.System\01.Input">
       <UniqueIdentifier>{9cc8e11b-5005-4bd6-9db9-8c179ac5c304}</UniqueIdentifier>
     </Filter>
-    <Filter Include="04.Utility\00.Tijmers">
-      <UniqueIdentifier>{3378d695-3c24-442f-b782-8395b3438830}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="04.Utility\00.Tijmers\00.Manager">
-      <UniqueIdentifier>{5d095fe2-8db8-473e-b791-8a35419607a7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="03.Components\00.Manager">
       <UniqueIdentifier>{e6fd675b-5459-4def-84e7-146ece62fe31}</UniqueIdentifier>
     </Filter>
@@ -457,6 +451,12 @@
     </Filter>
     <Filter Include="03.Components\01.Renderer\Shader">
       <UniqueIdentifier>{e1fd532b-dfcf-4b39-88f5-2cb1e13e9c58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04.Utility\00.Timers">
+      <UniqueIdentifier>{3378d695-3c24-442f-b782-8395b3438830}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="04.Utility\00.Timers\00.Manager">
+      <UniqueIdentifier>{5d095fe2-8db8-473e-b791-8a35419607a7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

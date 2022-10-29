@@ -68,6 +68,16 @@ private:
 	_float					m_fCurrentBulletTime = 0.0f;
 	_float					m_fCurrentDelay = 0.0f;
 	_float					m_fDelayMax = 2.f;
+
+	//test
+	STATE_ANIM							m_eNextState = HAND_END;
+	_bool								m_bPatternEnd = false;
+
+	//Effect Test
+	_uint								m_iPass = 1;
+	_float								m_fCut = 1.0f;
+	_float								m_fDissolveSpeed = 2.f;
+	_bool								m_bDissolve = false;
 public:
 	void Set_State(STATE_ANIM eState, _float fTimeDelta);
 

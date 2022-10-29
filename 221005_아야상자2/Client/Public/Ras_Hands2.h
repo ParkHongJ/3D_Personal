@@ -71,6 +71,18 @@ private:
 	_bool					m_bGetRandomIndix = false;
 
 	vector<_uint>			m_iNaviIndices;
+
+	//테스트용
+	_bool								m_bTemp = false;
+	_bool								m_bPatternEnd = false;
+	//Effect Test
+	_uint								m_iPass = 0;
+	_float								m_fCut = 0.0f;
+	_float								m_fDissolveSpeed = 2.f;
+	_bool								m_bDissolve = false;
+	_bool								m_bDissolveEnd = false;
+
+	STATE_ANIM							m_eNextState = HAND_END;
 public:
 	void Set_State(STATE_ANIM eState, _float fTimeDelta);
 	void SetRas_Samrah(class CTransform * pRasTransform);

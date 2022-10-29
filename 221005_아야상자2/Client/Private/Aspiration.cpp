@@ -30,10 +30,11 @@ HRESULT CAspiration::Initialize(void * pArg)
 
 	_float3 vPos;
 	memcpy(&vPos, pArg, sizeof(_float3));
-	m_pTransformCom->Set_Scale(XMVectorSet(0.04f, 0.04f, 0.04f, 1.f));
+	m_pTransformCom->Set_Scale(XMVectorSet(0.1f, 0.1f, 0.1f, 1.f));
 
 	/*m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(rand() % 5, 0.f, rand() % 5, 1.f));*/
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMLoadFloat3(&vPos), 1.f));
+	//m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(0.f,10.f,30.f,1.f));
 	return S_OK;
 }
 
@@ -49,10 +50,6 @@ _bool CAspiration::Tick(_float fTimeDelta)
 	{
 		return true;
 	}
-	_vector vStartScale = XMVectorSetW(XMLoadFloat3(&m_vStartScale), 1.f);
-	_vector vMaxScale = XMVectorSetW(XMLoadFloat3(&m_vMaxScale), 1.f);
-	_vector vCurrentScale = XMVectorLerp(vStartScale, vMaxScale, fTimeDelta);
-	m_pTransformCom->Set_Scale(vCurrentScale);
 
 	return false;
 }
@@ -66,7 +63,7 @@ void CAspiration::LateTick(_float fTimeDelta)
 	if (nullptr == m_pRendererCom)
 		return;
 
-	m_fTime += fTimeDelta* 0.35f;
+	m_fTime += fTimeDelta * 5.f;
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
 
 }

@@ -72,10 +72,11 @@ private:
 
 
 
-	//디졸브쉐이더 테스트용
-	_float					m_fCut = 0.0f;
-	_uint					m_iTemp = 0;
-	_bool					m_btemp = false;
+	//Effect Test
+	_uint								m_iPass = 1;
+	_float								m_fCut = 1.0f;
+	_float								m_fDissolveSpeed = 2.f;
+	_bool								m_bDissolve = false;
 public:
 	void SetRas_Samrah(class CTransform * pRasTransform);
 	void Set_Target(class CTransform* pTarget);

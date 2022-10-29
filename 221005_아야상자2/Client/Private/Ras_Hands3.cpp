@@ -26,7 +26,7 @@ HRESULT CRas_Hands3::Initialize(void * pArg)
 
 	strcpy_s(m_szName, "Ras_Samrah_Hands3");
 	m_Tag = L"Ras_Samrah_Hands3";
-	
+
 	m_eState = HAND_IDLE;
 	m_pModelCom->Set_AnimIndex(HAND_IDLE);
 	return S_OK;
@@ -39,6 +39,29 @@ _bool CRas_Hands3::Tick(_float fTimeDelta)
 	if (!m_bActive)
 		return false;
 	Set_State(m_eState, fTimeDelta);
+	if (m_bDissolve && m_iPass == 1)
+	{
+		// 다사라졌다면
+		m_fCut += fTimeDelta* m_fDissolveSpeed;
+		//if (m_fCut >= 1.f)
+		//{
+		//	m_bDissolveEnd = true;
+		//	//m_iPass = 0;
+		//}
+		//else
+		//	m_bDissolveEnd = false;
+	}
+	else if (!m_bDissolve && m_iPass == 1)
+	{
+		m_fCut -= fTimeDelta * m_fDissolveSpeed;
+		//if (m_fCut <= 0.f)
+		//{
+		//	m_bDissolveEnd = true;
+		//	//m_iPass = 0;
+		//}
+		//else
+		//	m_bDissolveEnd = false;
+	}
 	return false;
 }
 
@@ -65,6 +88,8 @@ HRESULT CRas_Hands3::Render()
 
 	CGameInstance*		pGameInstance = GET_INSTANCE(CGameInstance);
 
+	if (FAILED(m_pShaderCom->Set_RawValue("g_Cut", &m_fCut, sizeof(_float))))
+		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_WorldMatrix", &m_pTransformCom->Get_WorldFloat4x4_TP(), sizeof(_float4x4))))
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_ViewMatrix", &pGameInstance->Get_TransformFloat4x4_TP(CPipeLine::D3DTS_VIEW), sizeof(_float4x4))))
@@ -86,7 +111,7 @@ HRESULT CRas_Hands3::Render()
 		return E_FAIL;*/
 
 
-		if (FAILED(m_pModelCom->Render(m_pShaderCom, i)))
+		if (FAILED(m_pModelCom->Render(m_pShaderCom, i, m_iPass)))
 			return E_FAIL;
 	}
 
@@ -119,13 +144,46 @@ void CRas_Hands3::Set_State(STATE_ANIM eState, _float fTimeDelta)
 	case CRas_Hands3::HAND_DEATH:
 		if (m_bAnimEnd)
 		{
-			m_bActive = false;
+			if (m_fCut >= 1.f)
+			{
+				m_bActive = false;
+			}
 		}
 		break;
 	case CRas_Hands3::HAND_IDLE:
+		if (m_eNextState == HAND_PATTERN3)
+		{
+			//다 사라졌다면
+			if (m_fCut >= 1.f && m_bDissolve && m_eNextState == HAND_PATTERN3)
+			{
+				MoveToOffsetAttack();
+				m_bDissolve = false;
+				m_fCut = 1.f;
+			}
+			//다시 다 나타났다면.
+			else if (m_fCut <= 0.f && !m_bDissolve && m_eNextState == HAND_PATTERN3)
+			{
+				m_eState = HAND_PATTERN3;
+				m_pModelCom->Change_Animation(HAND_PATTERN3);
+			}
+
+			
+		}
+		//패턴2가 끝났다면
+		if (m_bPatternEnd)
+		{
+			if (m_fCut >= 1.f)
+			{
+				//원래위치로 옮김
+				MoveToOffsetIdle();
+				m_bPatternEnd = false;
+				m_bDissolve = false;
+				m_fCut = 1.f;
+			}
+		}
 		break;
 	case CRas_Hands3::HAND_PATTERN3:
-		m_pModelCom->SetSpeed(HAND_PATTERN3,18.0f);
+		m_pModelCom->SetSpeed(HAND_PATTERN3, 18.0f);
 		//패턴이 끝났다면 IDLE로 돌아감
 		if (m_bAnimEnd)
 		{
@@ -137,10 +195,16 @@ void CRas_Hands3::Set_State(STATE_ANIM eState, _float fTimeDelta)
 				{
 					m_eState = HAND_IDLE;
 					m_pModelCom->Change_Animation(HAND_IDLE);
-					MoveToOffsetIdle();
+					
 					m_iProjectileCount = 0;
 					m_fCurrentBulletTime = 0.0f;
 					m_fCurrentDelay = 0.0f;
+
+					m_eNextState = HAND_END;
+					m_bPatternEnd = true;
+					m_bDissolve = true;
+					m_fCut = 0.f;
+					//MoveToOffsetIdle();
 				}
 				else
 					m_fCurrentDelay += fTimeDelta;
@@ -209,6 +273,11 @@ void CRas_Hands3::Set_Death()
 	m_eState = HAND_DEATH;
 	m_pModelCom->Change_Animation(HAND_DEATH, 0.25f, false);
 	m_bAnimEnd = false;
+
+	m_bDissolve = true;
+	m_fCut = 0.f;
+	m_iPass = 1;
+	m_fDissolveSpeed = 0.3f;
 }
 
 void CRas_Hands3::SetRas_Samrah(CTransform * pRasTransform)
@@ -228,9 +297,12 @@ void CRas_Hands3::Set_Target(CTransform* pTarget)
 
 void CRas_Hands3::Set_Pattern(STATE_ANIM eState)
 {
-	m_eState = eState;	
-	m_pModelCom->Change_Animation(HAND_PATTERN3);
-	MoveToOffsetAttack();
+	m_eNextState = eState;
+
+
+	m_iPass = 1;
+	m_bDissolve = true;
+	m_fCut = 0.f;
 }
 
 void CRas_Hands3::Set_OffsetPos(CTransform * pRasTransform)

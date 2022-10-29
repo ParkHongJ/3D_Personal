@@ -33,32 +33,33 @@ void CLevel_Loading::Tick(_float fTimeDelta)
 
 	if (true == m_pLoader->Get_Finished())
 	{
+		CGameInstance*		pGameInstance = CGameInstance::Get_Instance();
+		Safe_AddRef(pGameInstance);
+
+		CLevel*		pNewLevel = nullptr;
+
+		switch (m_eNextLevel)
+		{
+		case LEVEL_LOGO:
+			pNewLevel = CLevel_Logo::Create(m_pDevice, m_pContext);
+			break;
+		case LEVEL_GAMEPLAY:
+			pNewLevel = CLevel_GamePlay::Create(m_pDevice, m_pContext);
+			break;
+		}
+
+		if (nullptr == pNewLevel)
+			goto except;
+
+		if (FAILED(pGameInstance->Open_Level(m_eNextLevel, pNewLevel)))
+			goto except;
+
+
+	except:
+		Safe_Release(pGameInstance);
 		if (GetKeyState(VK_RETURN) & 0x8000)
 		{
-			CGameInstance*		pGameInstance = CGameInstance::Get_Instance();
-			Safe_AddRef(pGameInstance);
-
-			CLevel*		pNewLevel = nullptr;
-
-			switch (m_eNextLevel)
-			{
-			case LEVEL_LOGO:
-				pNewLevel = CLevel_Logo::Create(m_pDevice, m_pContext);
-				break;
-			case LEVEL_GAMEPLAY:
-				pNewLevel = CLevel_GamePlay::Create(m_pDevice, m_pContext);
-				break;
-			}
-
-			if (nullptr == pNewLevel)
-				goto except;
-
-			if (FAILED(pGameInstance->Open_Level(m_eNextLevel, pNewLevel)))
-				goto except;
-
-
-			except:
-			Safe_Release(pGameInstance);
+			
 		}
 	}
 }

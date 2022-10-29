@@ -37,7 +37,7 @@ HRESULT CRenderer::Initialize_Prototype()
 	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_Depth"), (_uint)ViewportDesc.Width, (_uint)ViewportDesc.Height, DXGI_FORMAT_R32G32B32A32_FLOAT, &_float4(0.0f, 0.f, 0.f, 1.f))))
 		return E_FAIL;
 
-	/* For.Target_Shader */
+	/* For.Target_Shade */
 	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_Shade"), (_uint)ViewportDesc.Width, (_uint)ViewportDesc.Height, DXGI_FORMAT_R16G16B16A16_UNORM, &_float4(0.0f, 0.f, 0.f, 1.f))))
 		return E_FAIL;
 
@@ -197,7 +197,7 @@ HRESULT CRenderer::Render_Lights()
 	if (nullptr == m_pTarget_Manager)
 		return E_FAIL;
 
-	/* Target_Shader타겟에 빛 연산한 결과를 그린다. */
+	/* Target_Shade타겟에 빛 연산한 결과를 그린다. */
 	if (FAILED(m_pTarget_Manager->Begin_MRT(m_pContext, TEXT("MRT_LightAcc"))))
 		return E_FAIL;
 

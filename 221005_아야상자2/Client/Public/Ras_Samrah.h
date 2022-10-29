@@ -75,7 +75,7 @@ private:
 	CTransform*				m_pTransformCom = nullptr;
 	CModel*					m_pModelCom = nullptr;
 	CNavigation*			m_pNavigationCom = nullptr;
-
+	CTexture*				m_pTextureCom = nullptr;
 private:
 	CGameObject*						m_Parts = nullptr;
 	vector<class CHierarchyNode*>		m_Sockets;
@@ -92,8 +92,8 @@ private:
 	class CRas_Hands*					m_pHand1 = nullptr;
 	class CRas_Hands2*					m_pHand2 = nullptr;
 	class CRas_Hands3*					m_pHand3 = nullptr;
-	class CTransform*					m_pTargetTransform = nullptr;
-
+	CTransform*							m_pTargetTransform = nullptr;
+	
 	//패턴3 투사체발사할때 기준점
 	_float3								m_OffsetProjectile;
 	
@@ -120,6 +120,18 @@ private:
 	
 	_uint								m_iCylinderCountMax = 7;
 	_uint								m_iCylinderCount = 0;
+
+
+	//해머스폰 이펙트
+	_float								m_fCurrentEffectTime = 0.0f;
+	const _float						m_fMaxEffectTime = 0.2f;
+	_bool								m_bEffectEnable = false;
+
+	//Effect Test
+	_uint								m_iPass = 0;
+	_float								m_fCut = 0.0f;
+	_float								m_fDissolveSpeed = 3.f;
+	_bool								m_bDissolve = false;
 private:
 	HRESULT Ready_Sockets();
 	HRESULT Ready_Parts();

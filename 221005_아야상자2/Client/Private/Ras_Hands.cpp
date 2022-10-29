@@ -40,6 +40,20 @@ _bool CRas_Hands::Tick(_float fTimeDelta)
 
 	Set_State(m_eState, fTimeDelta);
 
+	if (m_bDissolve)
+	{
+		m_fCut += fTimeDelta* m_fDissolveSpeed;
+		if (m_fCut >= 1.f)
+		{
+			m_eState = HAND_IDLE;
+			m_pModelCom->Change_Animation(HAND_IDLE);
+			m_bActive = false;
+		}
+	}
+	else
+	{
+		m_fCut -= fTimeDelta * m_fDissolveSpeed;
+	}
 	if (m_bHitDelay)
 	{
 		m_fCurrentDelayTime += fTimeDelta;
@@ -49,6 +63,10 @@ _bool CRas_Hands::Tick(_float fTimeDelta)
 			m_fCurrentDelayTime = 0.f;
 		}
 	}
+
+
+
+
 	for (auto& pCollider : m_pColliderCom)
 	{
 		if (nullptr != pCollider)
@@ -124,7 +142,7 @@ HRESULT CRas_Hands::Render()
 		return E_FAIL;*/
 
 
-		if (FAILED(m_pModelCom->Render(m_pShaderCom, i, m_iTemp)))
+		if (FAILED(m_pModelCom->Render(m_pShaderCom, i, m_iPass)))
 			return E_FAIL;
 	}
 
@@ -199,9 +217,8 @@ void CRas_Hands::Set_State(STATE_ANIM eState, _float fTimeDelta)
 				m_bAttackEnabled = false;
 
 				//이때 사라져야함
-				m_bActive = false;
-				m_eState = HAND_IDLE;
-				m_pModelCom->Change_Animation(HAND_IDLE);
+				m_bDissolve = true;
+				m_fCut = 0.f;
 			}
 		}
 		break;
@@ -299,7 +316,10 @@ void CRas_Hands::Set_State(STATE_ANIM eState, _float fTimeDelta)
 		//다 죽었다면.
 		if (m_bAnimEnd)
 		{
-			m_bActive = false;
+			if (m_fCut >= 1.f)
+			{
+				m_bActive = false;
+			}
 		}
 		break;
 	case CRas_Hands::HAND_IDLE:
@@ -314,6 +334,10 @@ void CRas_Hands::Set_Death()
 	m_eState = HAND_DEATH;
 	m_bAnimEnd = false;
 	m_pModelCom->Change_Animation(HAND_DEATH, 0.25f, false);
+
+	m_bDissolve = true;
+	m_fCut = 0.f;
+	m_fDissolveSpeed = 0.3f;
 }
 
 void CRas_Hands::SetRas_Samrah(CTransform * pRasTransform)
@@ -333,9 +357,39 @@ void CRas_Hands::Set_Target(CTransform* pTarget)
 
 void CRas_Hands::Set_Pattern(STATE_ANIM eState)
 {
+	m_fCut = 1.f;
+	m_bDissolve = false;
+
 	m_bActive = true;
 	m_eState = eState;
 	m_pModelCom->Change_Animation(eState, 0.25f, false);
+
+	_vector vPosition = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+
+	if (nullptr != m_pTarget)
+	{
+		_vector vTargetPos = m_pTarget->Get_State(CTransform::STATE_POSITION);
+
+		//Look 조절해야함
+		_vector vLook = vPosition - m_pRasTransform->Get_State(CTransform::STATE_POSITION);
+
+		//타겟을 바라보는 룩을얻어와서
+		_vector vDist = XMVector3Normalize(vTargetPos - m_pRasTransform->Get_State(CTransform::STATE_POSITION));
+		vDist = XMVectorSetY(vDist, 0.f);
+		vTargetPos = vTargetPos - vDist * 8.f;
+
+		//네비를 태울까?
+		vPosition = XMVectorSetY(vPosition, XMVectorGetY(vTargetPos) + 6.f);
+
+		vLook = XMVectorSetY(vLook, 0.0f);
+
+		m_pTransformCom->LookDir(vLook);
+
+		XMVectorSetY(vLook, 0.0f);
+
+		m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPosition);
+
+	}
 }
 
 HRESULT CRas_Hands::Ready_Components()
