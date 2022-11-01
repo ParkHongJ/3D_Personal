@@ -393,7 +393,20 @@ void CImGui_Manager::Render()
 
 				if (ImGui::Button("TestPopupButton1"))
 				{
+					CREATE_INFO tObjInfo;
+					ZeroMemory(&tObjInfo, sizeof(CREATE_INFO));
 
+					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, PrototypeName, (_uint)strlen(PrototypeName), tObjInfo.pPrototypeTag, MAX_PATH);
+					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, LayerName, (_uint)strlen(LayerName), tObjInfo.pLayerTag, MAX_PATH);
+					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, ModelName, (_uint)strlen(ModelName), tObjInfo.pModelTag, MAX_PATH);
+
+					tObjInfo.iNumLevel = LEVEL_GAMEPLAY;
+					sprintf_s(tObjInfo.szName, ObjName);
+
+					XMStoreFloat4x4(&tObjInfo.WorldMatrix, XMMatrixIdentity());
+
+					AddGameObject(tObjInfo.pPrototypeTag, tObjInfo.pLayerTag, tObjInfo.iNumLevel, &tObjInfo);
+					m_CreateObj.push_back(tObjInfo);
 				}
 				ImGui::EndPopup();
 			}

@@ -1,23 +1,23 @@
 #include "stdafx.h"
-#include "..\Public\BackGround.h"
+#include "..\Public\ProgressBar.h"
 #include "GameInstance.h"
 
-CBackGround::CBackGround(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
+CProgressBar::CProgressBar(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
 {
 }
 
-CBackGround::CBackGround(const CBackGround & rhs)
+CProgressBar::CProgressBar(const CProgressBar & rhs)
 	: CGameObject(rhs)
 {
 }
 
-HRESULT CBackGround::Initialize_Prototype()
+HRESULT CProgressBar::Initialize_Prototype()
 {
 	return S_OK;
 }
 
-HRESULT CBackGround::Initialize(void * pArg)
+HRESULT CProgressBar::Initialize(void * pArg)
 {
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
@@ -35,7 +35,7 @@ HRESULT CBackGround::Initialize(void * pArg)
 	return S_OK;
 }
 
-_bool CBackGround::Tick(_float fTimeDelta)
+_bool CProgressBar::Tick(_float fTimeDelta)
 {
 	m_pTransformCom->Set_Scale(XMVectorSet(m_fSizeX, m_fSizeY, 1.f, 0.f));
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(m_fX - g_iWinSizeX * 0.5f, -m_fY + g_iWinSizeY * 0.5f, 0.0f, 1.f));
@@ -43,7 +43,7 @@ _bool CBackGround::Tick(_float fTimeDelta)
 	return false;
 }
 
-void CBackGround::LateTick(_float fTimeDelta)
+void CProgressBar::LateTick(_float fTimeDelta)
 {
 	if (nullptr == m_pRendererCom)
 		return;
@@ -51,19 +51,19 @@ void CBackGround::LateTick(_float fTimeDelta)
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_PRIORITY, this);
 }
 
-HRESULT CBackGround::Render()
+HRESULT CProgressBar::Render()
 {
 	if (nullptr == m_pVIBufferCom ||
 		nullptr == m_pShaderCom)
 		return E_FAIL;
 
-	
+
 
 	m_pShaderCom->Set_RawValue("g_WorldMatrix", &m_pTransformCom->Get_WorldFloat4x4_TP(), sizeof(_float4x4));
 	m_pShaderCom->Set_RawValue("g_ViewMatrix", &m_ViewMatrix, sizeof(_float4x4));
 	m_pShaderCom->Set_RawValue("g_ProjMatrix", &m_ProjMatrix, sizeof(_float4x4));
 
-	if (FAILED(m_pTextureCom->Set_SRV(m_pShaderCom, "g_DiffuseTexture", 0)))
+	if (FAILED(m_pTextureCom->Set_SRV(m_pShaderCom, "g_DiffuseTexture", 1)))
 		return E_FAIL;
 
 	if (FAILED(m_pShaderCom->Begin(1)))
@@ -75,7 +75,7 @@ HRESULT CBackGround::Render()
 	return S_OK;
 }
 
-HRESULT CBackGround::Ready_Components()
+HRESULT CProgressBar::Ready_Components()
 {
 	/* For.Com_Transform */
 	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Transform"), TEXT("Com_Transform"), (CComponent**)&m_pTransformCom)))
@@ -94,39 +94,39 @@ HRESULT CBackGround::Ready_Components()
 		return E_FAIL;
 
 	/* For.Com_Texture */
-	if (FAILED(__super::Add_Component(LEVEL_LOGO, TEXT("Prototype_Component_Texture_Inventory"), TEXT("Com_Texture"), (CComponent**)&m_pTextureCom)))
+	if (FAILED(__super::Add_Component(LEVEL_LOGO, TEXT("Prototype_Component_Texture_Default"), TEXT("Com_Texture"), (CComponent**)&m_pTextureCom)))
 		return E_FAIL;
 
 	return S_OK;
 }
 
-CBackGround * CBackGround::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
+CProgressBar * CProgressBar::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 {
-	CBackGround*		pInstance = new CBackGround(pDevice, pContext);
+	CProgressBar*		pInstance = new CProgressBar(pDevice, pContext);
 
 	if (FAILED(pInstance->Initialize_Prototype()))
 	{
-		MSG_BOX(TEXT("Failed To Created : CBackGround"));
+		MSG_BOX(TEXT("Failed To Created : CProgressBar"));
 		Safe_Release(pInstance);
 	}
 
 	return pInstance;
 }
 
-CGameObject * CBackGround::Clone(void * pArg)
+CGameObject * CProgressBar::Clone(void * pArg)
 {
-	CBackGround*		pInstance = new CBackGround(*this);
+	CProgressBar*		pInstance = new CProgressBar(*this);
 
 	if (FAILED(pInstance->Initialize(pArg)))
 	{
-		MSG_BOX(TEXT("Failed To Cloned : CBackGround"));
+		MSG_BOX(TEXT("Failed To Cloned : CProgressBar"));
 		Safe_Release(pInstance);
 	}
 
 	return pInstance;
 }
 
-void CBackGround::Free()
+void CProgressBar::Free()
 {
 	__super::Free();
 

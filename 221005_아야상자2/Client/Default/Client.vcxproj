@@ -189,6 +189,7 @@
     <ClInclude Include="..\Public\Monster.h" />
     <ClInclude Include="..\Public\Particle_Rect.h" />
     <ClInclude Include="..\Public\Player.h" />
+    <ClInclude Include="..\public\ProgressBar.h" />
     <ClInclude Include="..\public\Projectile.h" />
     <ClInclude Include="..\public\Ras_Hands.h" />
     <ClInclude Include="..\public\Ras_Hands2.h" />
@@ -238,6 +239,7 @@
     <ClCompile Include="..\Private\Monster.cpp" />
     <ClCompile Include="..\Private\Particle_Rect.cpp" />
     <ClCompile Include="..\Private\Player.cpp" />
+    <ClCompile Include="..\private\ProgressBar.cpp" />
     <ClCompile Include="..\private\Projectile.cpp" />
     <ClCompile Include="..\private\Ras_Hands.cpp" />
     <ClCompile Include="..\private\Ras_Hands2.cpp" />

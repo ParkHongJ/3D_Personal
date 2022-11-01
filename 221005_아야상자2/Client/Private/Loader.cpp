@@ -26,6 +26,7 @@
 #include "YantariWeapon.h"
 #include "Aspiration.h"
 #include "Sky.h"
+#include "ProgressBar.h"
 //#include "Effect.h"
 //#include "UI.h"
 
@@ -97,6 +98,20 @@ HRESULT CLoader::Loading_ForLogoLevel()
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Default%d.jpg"), 2))))
 		return E_FAIL;
 
+	/* For.Prototype_Component_Texture_HealthBar */
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_LOGO, TEXT("Prototype_Component_Texture_HealthBar"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/ShatterdUIResources/HealthBar.png"), 1))))
+		return E_FAIL;
+
+	/* For.Prototype_Component_Texture_UIBackGround */
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_LOGO, TEXT("Prototype_Component_Texture_UIBackGround"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/ShatterdUIResources/UIBackGround.png"), 1))))
+		return E_FAIL;
+
+	/* For.Prototype_Component_Texture_Inventory */
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_LOGO, TEXT("Prototype_Component_Texture_Inventory"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/ShatterdUIResources/InventoryBackGround.png"), 1))))
+		return E_FAIL;
 
 	lstrcpy(m_szLoadingText, TEXT("모델을 로딩중입니다. "));	
 	/* 모델를 로드한다. */
@@ -236,6 +251,11 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 	/* For.Prototype_GameObject_Aspiration */
 	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Aspiration"),
 		CAspiration::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For.Prototype_GameObject_ProgressBar */
+	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_ProgressBar"),
+		CProgressBar::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
 	///* For.Prototype_GameObject_Sky */

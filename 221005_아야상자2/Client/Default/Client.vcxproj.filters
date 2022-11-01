@@ -61,9 +61,6 @@
     <Filter Include="XML_Parser">
       <UniqueIdentifier>{7f100785-ccc0-4a4c-8f91-37baefc35752}</UniqueIdentifier>
     </Filter>
-    <Filter Include="97.Manager">
-      <UniqueIdentifier>{0aa36cc6-88f2-49e7-aa8c-3b6f0da72a97}</UniqueIdentifier>
-    </Filter>
     <Filter Include="02.GameObjects\Boss">
       <UniqueIdentifier>{f935ba2f-c1e9-4115-84db-0af1e1616417}</UniqueIdentifier>
     </Filter>
@@ -126,6 +123,12 @@
     </Filter>
     <Filter Include="02.GameObjects\Boss\Ras_Samrah\RasEffect\Aspiration">
       <UniqueIdentifier>{83a51a54-df4e-48f7-9933-017ba120fcf4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{0aa36cc6-88f2-49e7-aa8c-3b6f0da72a97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\ProgressBar">
+      <UniqueIdentifier>{0f0928c7-0d5d-4ae2-b696-3c6bb605f9d4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -217,7 +220,7 @@
       <Filter>XML_Parser</Filter>
     </ClInclude>
     <ClInclude Include="..\public\UI_Manager.h">
-      <Filter>97.Manager</Filter>
+      <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Ras_Samrah.h">
       <Filter>02.GameObjects\Boss\Ras_Samrah</Filter>
@@ -278,6 +281,9 @@
     </ClInclude>
     <ClInclude Include="..\public\Aspiration.h">
       <Filter>02.GameObjects\Boss\Ras_Samrah\RasEffect\Aspiration</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\ProgressBar.h">
+      <Filter>UI\ProgressBar</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -360,7 +366,7 @@
       <Filter>XML_Parser</Filter>
     </ClCompile>
     <ClCompile Include="..\private\UI_Manager.cpp">
-      <Filter>97.Manager</Filter>
+      <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Ras_Samrah.cpp">
       <Filter>02.GameObjects\Boss\Ras_Samrah</Filter>
@@ -418,6 +424,9 @@
     </ClCompile>
     <ClCompile Include="..\private\Aspiration.cpp">
       <Filter>02.GameObjects\Boss\Ras_Samrah\RasEffect\Aspiration</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\ProgressBar.cpp">
+      <Filter>UI\ProgressBar</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
