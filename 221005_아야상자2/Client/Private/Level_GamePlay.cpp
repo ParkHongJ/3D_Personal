@@ -30,9 +30,6 @@ HRESULT CLevel_GamePlay::Initialize()
 	if (FAILED(Ready_Layer_Effect(TEXT("Layer_Effect"))))
 		return E_FAIL;
 
-	if (FAILED(Ready_Layer_UI(TEXT("Layer_UI"))))
-		return E_FAIL;
-
 	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_ChaudronChain", L"Layer_ChaudronChain")))
 		return E_FAIL;
 
@@ -49,10 +46,10 @@ HRESULT CLevel_GamePlay::Initialize()
 	if (FAILED(Ready_Layer_Monster(TEXT("Layer_Monster"))))
 		return E_FAIL;
 
-	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Totem", L"Layer_Totem")))
-		return E_FAIL;
-	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Yantari", L"Layer_Yantari")))
-		return E_FAIL;
+	//if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Totem", L"Layer_Totem")))
+	//	return E_FAIL;
+	//if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Yantari", L"Layer_Yantari")))
+	//	return E_FAIL;
 
 	Load();
 	for (auto& iter : m_CreateObj)
@@ -60,17 +57,16 @@ HRESULT CLevel_GamePlay::Initialize()
 		if (FAILED(Ready_Layer_GameObject(iter.pPrototypeTag, iter.pLayerTag, &iter)))
 			return E_FAIL;
 	}
-	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_HPBackGround", L"Canvas")))
-		return E_FAIL;
 	
-	CUI_Manager::Get_Instance()->Initialize();
+	
+	//CUI_Manager::Get_Instance()->Initialize();
 	return S_OK;
 }
 
 void CLevel_GamePlay::Tick(_float fTimeDelta)
 {
 	__super::Tick(fTimeDelta);
-	CUI_Manager::Get_Instance()->Tick(fTimeDelta);
+	//CUI_Manager::Get_Instance()->Tick(fTimeDelta);
 }
 
 HRESULT CLevel_GamePlay::Render()
@@ -78,7 +74,7 @@ HRESULT CLevel_GamePlay::Render()
 	if (FAILED(__super::Render()))
 		return E_FAIL;
 
-	CUI_Manager::Get_Instance()->Render();
+	//CUI_Manager::Get_Instance()->Render();
 	SetWindowText(g_hWnd, TEXT("게임플레이레벨임"));
 
 	return S_OK;
@@ -103,7 +99,7 @@ HRESULT CLevel_GamePlay::Ready_Lights()
 
 	LightDesc.eType = LIGHTDESC::TYPE_DIRECTIONAL;
 	LightDesc.vDirection = _float4(1.f, -1.f, 1.f, 0.f);
-	LightDesc.vDiffuse = _float4(0.8f, 0.8f, 0.8f, 1.f);
+	LightDesc.vDiffuse = _float4(1.f, 1.f, 1.f, 1.f);
 	LightDesc.vAmbient = _float4(0.5f, 0.5f, 0.5f, 1.f);
 	LightDesc.vSpecular = _float4(.1f, .1f, .1f, 1.f);
 
@@ -322,7 +318,7 @@ CLevel_GamePlay * CLevel_GamePlay::Create(ID3D11Device* pDevice, ID3D11DeviceCon
 void CLevel_GamePlay::Free()
 {
 	__super::Free();
-	CUI_Manager::Get_Instance()->Destroy_Instance();
+	//CUI_Manager::Get_Instance()->Destroy_Instance();
 	CGameMgr::Get_Instance()->Destroy_Instance();
 }
 

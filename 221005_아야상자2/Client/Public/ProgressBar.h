@@ -2,7 +2,6 @@
 
 #include "Client_Defines.h"
 #include "GameObject.h"
-
 BEGIN(Engine)
 class CShader;
 class CTexture;
@@ -37,6 +36,9 @@ private:
 	_float					m_fX, m_fY, m_fSizeX, m_fSizeY;
 	_float4x4				m_ViewMatrix, m_ProjMatrix;
 
+
+	_uint m_iPass = 1;
+	_float m_fAlpha = 1.f;
 
 private:
 	HRESULT Ready_Components(void* pArg);

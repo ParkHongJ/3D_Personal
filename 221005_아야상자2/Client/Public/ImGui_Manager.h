@@ -70,12 +70,12 @@ public:
 		//¸ðµ¨¸í
 		char szName[260] = "";
 		wchar_t pPrototypeTag[260] = L"";
-		wchar_t pLayerTag[260] = L"";
 		unsigned int iNumLevel = LEVEL_END;
 		wchar_t pTextureTag[260] = L"";
 
 		XMFLOAT4X4 WorldMatrix;
-
+		_uint iPass;
+		_float fAlpha;
 	}CREATE_UI_INFO;
 	//typedef struct CreateObjInfo
 	//{

@@ -321,10 +321,7 @@ void CImGui_Manager::Render()
 				}
 				ImGui::EndCombo();
 			}
-			//LayerName
-			ImGui::InputTextWithHint("Layer Name", "Layer", LayerName, IM_ARRAYSIZE(LayerName));
-
-			//ModelComponent
+			//TextureComponent
 			if (ImGui::BeginCombo("ModelComponent", TextureName))
 			{
 				if (m_pPrototypeComponent == nullptr)
@@ -348,7 +345,10 @@ void CImGui_Manager::Render()
 				}
 				ImGui::EndCombo();
 			}
-
+			static _float fAlpha = 1.f;
+			ImGui::DragFloat("Alpha", &fAlpha, 0.1f, 0.f, 1.f);
+			static int iPass = 1;
+			ImGui::DragInt("Pass", &iPass, 1, 0, 2);
 			//게임오브젝트 추가하기
 			if (ImGui::Button("AddGameUI"))
 			{
@@ -361,17 +361,15 @@ void CImGui_Manager::Render()
 				ZeroMemory(&tObjInfo, sizeof(CREATE_UI_INFO));
 
 				MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, PrototypeName, (_uint)strlen(PrototypeName), tObjInfo.pPrototypeTag, MAX_PATH);
-				MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, LayerName, (_uint)strlen(LayerName), tObjInfo.pLayerTag, MAX_PATH);
 				MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, TextureName, (_uint)strlen(TextureName), tObjInfo.pTextureTag, MAX_PATH);
 
 				tObjInfo.iNumLevel = LEVEL_GAMEPLAY;
 				sprintf_s(tObjInfo.szName, ObjName);
 
-				wsprintf(tObjInfo.pLayerTag, L"Canvas");
-
 				XMStoreFloat4x4(&tObjInfo.WorldMatrix, XMMatrixIdentity());
-
-				AddUIObject(tObjInfo.pPrototypeTag, tObjInfo.pLayerTag, tObjInfo.iNumLevel, &tObjInfo);
+				tObjInfo.fAlpha = fAlpha;
+				tObjInfo.iPass = iPass;
+				AddUIObject(tObjInfo.pPrototypeTag, L"Canvas", tObjInfo.iNumLevel, &tObjInfo);
 				m_CreateUIObj.push_back(tObjInfo);
 			}
 			if (ImGui::Button("Save"))
@@ -385,7 +383,7 @@ void CImGui_Manager::Render()
 					list<class CGameObject*>* pLeafHierachyList = Pair.second->Get_Layer();
 					for (auto& iter : *pLeafHierachyList)
 					{
-						for (auto& iter2 : m_CreateObj)
+						for (auto& iter2 : m_CreateUIObj)
 						{
 							if (!strcmp(iter->GetName(), iter2.szName))
 							{
@@ -413,12 +411,7 @@ void CImGui_Manager::Render()
 					WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
 					WriteFile(hFile, &iter.pPrototypeTag, dwStrByte, &dwByte, nullptr);
 
-					//Layer
-					dwStrByte = DWORD(sizeof(_tchar) * wcslen(iter.pLayerTag));
-					WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
-					WriteFile(hFile, &iter.pLayerTag, dwStrByte, &dwByte, nullptr);
-
-					//Model
+					//Texture
 					dwStrByte = DWORD(sizeof(_tchar) * wcslen(iter.pTextureTag));
 					WriteFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
 					WriteFile(hFile, &iter.pTextureTag, dwStrByte, &dwByte, nullptr);
@@ -433,6 +426,12 @@ void CImGui_Manager::Render()
 
 					//Matrix
 					WriteFile(hFile, &iter.WorldMatrix, sizeof(_float4x4), &dwByte, nullptr);
+
+					//Pass
+					WriteFile(hFile, &iter.iPass, sizeof(_int), &dwByte, nullptr);
+
+					//Alpha
+					WriteFile(hFile, &iter.fAlpha, sizeof(_float), &dwByte, nullptr);
 				}
 				CloseHandle(hFile);
 			}

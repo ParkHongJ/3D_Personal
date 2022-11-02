@@ -23,10 +23,10 @@ HRESULT CChaudron::Initialize(void * pArg)
 		return E_FAIL;
 
 	m_pTransformCom->Rotation(XMVectorSet(-1.f, 0.f, 0.f, 0.f), XMConvertToRadians(90));
-	m_pTransformCom->Set_Scale(XMVectorSet(0.9f, 0.9f, 0.9f, 1.f));
+	m_pTransformCom->Set_Scale(XMVectorSet(0.01f, 0.01f, 0.01f, 1.f));
 	strcpy_s(m_szName, "Chaudron");
 	m_Tag = L"Chaudron";
-	m_pModelCom->Set_AnimIndex(1);
+	//m_pModelCom->Set_AnimIndex(1);
 	return S_OK;
 }
 
@@ -40,7 +40,7 @@ void CChaudron::LateTick(_float fTimeDelta)
 	if (nullptr == m_pRendererCom)
 		return;
 
-	m_bAnimEnd = m_pModelCom->Play_Animation(fTimeDelta);
+	//m_bAnimEnd = m_pModelCom->Play_Animation(fTimeDelta);
 
 
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
@@ -132,7 +132,7 @@ HRESULT CChaudron::Ready_Components()
 		return E_FAIL;
 
 	/* For.Com_Shader */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_AnimModel"), TEXT("Com_Shader"), (CComponent**)&m_pShaderCom)))
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_Model"), TEXT("Com_Shader"), (CComponent**)&m_pShaderCom)))
 		return E_FAIL;
 
 	/* For.Com_Model */

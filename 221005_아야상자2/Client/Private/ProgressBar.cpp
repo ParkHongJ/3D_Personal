@@ -1,8 +1,7 @@
 #include "stdafx.h"
 #include "..\Public\ProgressBar.h"
 #include "GameInstance.h"
-#include "ImGui_Manager.h"
-
+#include "UI_Manager.h"
 CProgressBar::CProgressBar(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
 {
@@ -46,8 +45,8 @@ void CProgressBar::LateTick(_float fTimeDelta)
 	if (nullptr == m_pRendererCom)
 		return;
 
-	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_PRIORITY, this);
-}
+	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_UI, this);
+}                                                                                                                                             
 
 HRESULT CProgressBar::Render()
 {
@@ -55,6 +54,7 @@ HRESULT CProgressBar::Render()
 		nullptr == m_pShaderCom)
 		return E_FAIL;
 
+	m_pShaderCom->Set_RawValue("g_fAlpha", &m_fAlpha, sizeof(_float));
 	m_pShaderCom->Set_RawValue("g_WorldMatrix", &m_pTransformCom->Get_WorldFloat4x4_TP(), sizeof(_float4x4));
 	m_pShaderCom->Set_RawValue("g_ViewMatrix", &m_ViewMatrix, sizeof(_float4x4));
 	m_pShaderCom->Set_RawValue("g_ProjMatrix", &m_ProjMatrix, sizeof(_float4x4));
@@ -62,7 +62,7 @@ HRESULT CProgressBar::Render()
 	if (FAILED(m_pTextureCom->Set_SRV(m_pShaderCom, "g_DiffuseTexture", 0)))
 		return E_FAIL;
 
-	if (FAILED(m_pShaderCom->Begin(1)))
+	if (FAILED(m_pShaderCom->Begin(m_iPass)))
 		return E_FAIL;
 
 	if (FAILED(m_pVIBufferCom->Render()))
@@ -73,18 +73,21 @@ HRESULT CProgressBar::Render()
 
 HRESULT CProgressBar::Ready_Components(void* pArg)
 {
-	CImGui_Manager::CREATE_UI_INFO tObjInfo;
+	CUI_Manager::CREATE_UI_INFO tInfo;
 	if (pArg != nullptr)
 	{
-		memcpy(&tObjInfo, pArg, sizeof(CImGui_Manager::CREATE_UI_INFO));
-		sprintf_s(m_szName, tObjInfo.szName);
+		memcpy(&tInfo, pArg, sizeof(CUI_Manager::CREATE_UI_INFO));
+		sprintf_s(m_szName, tInfo.szName);
 	}
+	m_iPass = tInfo.iPass;
+	m_fAlpha = tInfo.fAlpha;
+
 
 	/* For.Com_Transform */
 	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Transform"), TEXT("Com_Transform"), (CComponent**)&m_pTransformCom)))
 		return E_FAIL;
 
-	m_pTransformCom->Set_WorldMatrix(XMLoadFloat4x4(&tObjInfo.WorldMatrix));
+	m_pTransformCom->Set_WorldMatrix(XMLoadFloat4x4(&tInfo.WorldMatrix));
 
 	/* For.Com_Renderer */
 	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Renderer"), TEXT("Com_Renderer"), (CComponent**)&m_pRendererCom)))
@@ -99,7 +102,7 @@ HRESULT CProgressBar::Ready_Components(void* pArg)
 		return E_FAIL;
 
 	/* For.Com_Texture */
-	if (FAILED(__super::Add_Component(tObjInfo.iNumLevel, tObjInfo.pTextureTag, TEXT("Com_Texture"), (CComponent**)&m_pTextureCom)))
+	if (FAILED(__super::Add_Component(tInfo.iNumLevel, tInfo.pTextureTag, TEXT("Com_Texture"), (CComponent**)&m_pTextureCom)))
 		return E_FAIL;
 
 	return S_OK;

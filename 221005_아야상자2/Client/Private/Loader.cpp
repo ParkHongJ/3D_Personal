@@ -288,6 +288,16 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/ShatterdUIResources/InventoryBackGround.png"), 1))))
 		return E_FAIL;
 
+	/* For.Prototype_Component_Texture_StaminaBar */
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_StaminaBar"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/ShatterdUIResources/StaminaBar.png"), 1))))
+		return E_FAIL;
+
+	/* For.Prototype_Component_Texture_ScreenBlood */
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_ScreenBlood"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/ShatterdUIResources/ScreenBlood.png"), 1))))
+		return E_FAIL;
+
 	//if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Terrain"),
 	//	CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Terrain/Tile0.jpg"), 1))))
 	//	return E_FAIL;
@@ -390,7 +400,7 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 	//Chaudron
 	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f)); 
 	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Chaudron"),
-		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_ANIM, L"../Bin/Resources/Meshes/Boss/Chaudron/ChaudronTeapot.dat", PivotMatrix))))
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/Chaudron/ChaudronTeapot.dat", PivotMatrix, true))))
 		return E_FAIL;
 
 	//ChaudronEndChain

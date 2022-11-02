@@ -197,10 +197,10 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 		return E_FAIL;
 
 	/* For.Prototype_Component_Model_ForkLift */
-	/*PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) *XMMatrixRotationY(XMConvertToRadians(180.0f));
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) *XMMatrixRotationY(XMConvertToRadians(180.0f));
 	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_ForkLift"),
-		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Meshes/Boss/Effect/", "Aspiration02.fbx", L"../Bin/Resources/Meshes/Boss/Effect/", L"Aspiration02.dat", PivotMatrix))))
-		return E_FAIL;*/
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Meshes/Boss/Chaudron/", "ChaudronTeapot.fbx", L"../Bin/Resources/Meshes/Boss/Chaudron/", L"ChaudronTeapot.dat", PivotMatrix))))
+		return E_FAIL;
 
 
 	

@@ -51,10 +51,9 @@ HRESULT CRas_Samrah::Initialize(void * pArg)
 	
 	m_vOffsetPattern = vOffsetPos;
 
-	
-
 	if (FAILED(Ready_Hands()))
 		return E_FAIL;
+
 	HANDLE		hFile = CreateFile(TEXT("../Bin/Data/CellIndex.dat"), GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 
 	if (INVALID_HANDLE_VALUE == hFile)
@@ -116,10 +115,7 @@ _bool CRas_Samrah::Tick(_float fTimeDelta)
 
 	//일정시간마다 손의 이벤트를 만들어야함
 	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
-	/*if (pGameInstance->Key_Down(DIK_U))
-	{
-		m_pHand1->Set_Pattern(CRas_Hands::STATE_ANIM::HAND_SLAM_FLY);
-	}*/
+
 	//Pattern1 : 망치 휘두르기
 	if (pGameInstance->Key_Down(DIK_U))
 	{
@@ -454,6 +450,7 @@ void CRas_Samrah::Set_State(STATE_ANIM eAnim, PHASE ePhase, _float fTimeDelta)
 			if (m_bAnimEnd)
 			{
 				m_bDestroy = true;
+				
 				break;
 			}
 			break;
