@@ -111,7 +111,7 @@ void CYantari::LateTick(_float fTimeDelta)
 
 	m_pColliderCom->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom);
 	
-#ifdef DEBUG
+#ifdef _DEBUG
 	m_pRendererCom->Add_DebugGroup(m_pColliderCom);
 #endif // DEBUG
 
