@@ -76,12 +76,13 @@ _bool CSphere::Picking(_fvector vRayPos, _fvector vRayDir, _float fDist)
 	return isColl;
 }
 
+#ifdef _DEBUG
 HRESULT CSphere::Render()
 {
 	if (FAILED(__super::Render()))
 		return E_FAIL;
 
-	m_pBatch->Begin();	
+	m_pBatch->Begin();
 
 	DX::Draw(m_pBatch, *m_pSphere, XMLoadFloat4(&m_vColor));
 
@@ -90,6 +91,8 @@ HRESULT CSphere::Render()
 
 	return S_OK;
 }
+#endif // _DEBUG
+
 
 CSphere * CSphere::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, CCollider::TYPE eColliderType)
 {

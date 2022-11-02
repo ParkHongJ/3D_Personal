@@ -136,8 +136,8 @@ HRESULT CRenderer::Draw()
 #ifdef _DEBUG
 
 
-	if (FAILED(Render_Debug()))
-		return E_FAIL;
+	/*if (FAILED(Render_Debug()))
+		return E_FAIL;*/
 
 
 #endif
@@ -146,6 +146,7 @@ HRESULT CRenderer::Draw()
 	return S_OK;
 }
 
+#ifdef _DEBUG
 HRESULT CRenderer::Add_DebugGroup(CComponent* pDebugCom)
 {
 	m_DebugObject.push_back(pDebugCom);
@@ -154,6 +155,8 @@ HRESULT CRenderer::Add_DebugGroup(CComponent* pDebugCom)
 
 	return S_OK;
 }
+#endif // DEBUG
+
 
 HRESULT CRenderer::Render_Priority()
 {
@@ -278,7 +281,9 @@ HRESULT CRenderer::Render_Blend()
 
 	m_pShader->Begin(3);
 
+#ifdef _DEBUG
 	m_pVIBuffer->Render();
+#endif
 
 	return S_OK;
 }

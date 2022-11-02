@@ -12,11 +12,6 @@
 #include "VIBuffer_Cube.h"
 #include "VIBuffer_Terrain.h"
 #include "VIBuffer_Rect_Instance.h"
-
-
-
-
-
 BEGIN(Engine)
 
 class CComponent_Manager final : public CBase

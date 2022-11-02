@@ -110,7 +110,11 @@ void CYantari::LateTick(_float fTimeDelta)
 		m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
 
 	m_pColliderCom->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom);
+	
+#ifdef DEBUG
 	m_pRendererCom->Add_DebugGroup(m_pColliderCom);
+#endif // DEBUG
+
 }
 
 HRESULT CYantari::Render()
@@ -139,8 +143,7 @@ HRESULT CYantari::Render()
 		if (FAILED(m_pModelCom->SetUp_OnShader(m_pShaderCom, m_pModelCom->Get_MaterialIndex(i), aiTextureType_DIFFUSE, "g_DiffuseTexture")))
 			return E_FAIL;
 		/*if (FAILED(m_pModelCom->SetUp_OnShader(m_pShaderCom, m_pModelCom->Get_MaterialIndex(i), aiTextureType_NORMALS, "g_NormalTexture")))
-		return E_FAIL;*/
-
+			return E_FAIL;*/
 
 		if (FAILED(m_pModelCom->Render(m_pShaderCom, i)))
 			return E_FAIL;

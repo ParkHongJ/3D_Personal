@@ -38,6 +38,16 @@ map<const _tchar*, class CLayer*>* CObject_Manager::GetLayers(_uint iLevelIndex)
 		return nullptr;
 }
 
+list<class CGameObject*>* CObject_Manager::GetLayers(const _tchar * pLayerTag, _uint iLevelIndex)
+{
+	CLayer*		pLayer = Find_Layer(iLevelIndex, pLayerTag);
+
+	if (nullptr == pLayer)
+		return nullptr;
+	else
+		return pLayer->Get_Layer();
+}
+
 HRESULT CObject_Manager::Reserve_Container(_uint iNumLevels)
 {
 	if (nullptr != m_pLayers)

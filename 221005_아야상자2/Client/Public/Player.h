@@ -65,7 +65,7 @@ public:
 public:
 	HRESULT Set_Camera(class CCamera_Free* pCamera);
 	HRESULT Set_Target(_uint iLevel, const _tchar* pLayerTag, const _tchar* pComponentTag, _uint iLayerIndex);
-
+	void GetDamage(_float fDamage);
 private:
 	CShader*				m_pShaderCom = nullptr;
 	CRenderer*				m_pRendererCom = nullptr;
@@ -86,6 +86,7 @@ private:
 	_bool					m_bSprint = false;
 	_bool					m_bComboAttack = false;
 
+	_float					m_fHP = 200.f;
 	//입력이 없을경우 Idle로 돌아가는 변수
 	const _float			m_fBehaviorTimeMax = 2.5f;
 	_float					m_fBehaviorTimeCurrent = 0.f;

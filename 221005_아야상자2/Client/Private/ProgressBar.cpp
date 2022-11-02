@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "..\Public\ProgressBar.h"
 #include "GameInstance.h"
+#include "ImGui_Manager.h"
 
 CProgressBar::CProgressBar(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
@@ -19,7 +20,7 @@ HRESULT CProgressBar::Initialize_Prototype()
 
 HRESULT CProgressBar::Initialize(void * pArg)
 {
-	if (FAILED(Ready_Components()))
+	if (FAILED(Ready_Components(pArg)))
 		return E_FAIL;
 
 	m_fSizeX = g_iWinSizeX;
@@ -28,18 +29,15 @@ HRESULT CProgressBar::Initialize(void * pArg)
 	m_fX = m_fSizeX * 0.5f;
 	m_fY = m_fSizeY * 0.5f;
 
-
+	
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixIdentity());
 	XMStoreFloat4x4(&m_ProjMatrix, XMMatrixTranspose(XMMatrixOrthographicLH((_float)g_iWinSizeX, (_float)g_iWinSizeY, 0.f, 1.f)));
-
+	m_pTransformCom->Set_Scale(XMVectorSet(m_fSizeX, m_fSizeY, 1.f, 0.f));
 	return S_OK;
 }
 
 _bool CProgressBar::Tick(_float fTimeDelta)
 {
-	m_pTransformCom->Set_Scale(XMVectorSet(m_fSizeX, m_fSizeY, 1.f, 0.f));
-	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(m_fX - g_iWinSizeX * 0.5f, -m_fY + g_iWinSizeY * 0.5f, 0.0f, 1.f));
-
 	return false;
 }
 
@@ -57,13 +55,11 @@ HRESULT CProgressBar::Render()
 		nullptr == m_pShaderCom)
 		return E_FAIL;
 
-
-
 	m_pShaderCom->Set_RawValue("g_WorldMatrix", &m_pTransformCom->Get_WorldFloat4x4_TP(), sizeof(_float4x4));
 	m_pShaderCom->Set_RawValue("g_ViewMatrix", &m_ViewMatrix, sizeof(_float4x4));
 	m_pShaderCom->Set_RawValue("g_ProjMatrix", &m_ProjMatrix, sizeof(_float4x4));
 
-	if (FAILED(m_pTextureCom->Set_SRV(m_pShaderCom, "g_DiffuseTexture", 1)))
+	if (FAILED(m_pTextureCom->Set_SRV(m_pShaderCom, "g_DiffuseTexture", 0)))
 		return E_FAIL;
 
 	if (FAILED(m_pShaderCom->Begin(1)))
@@ -75,11 +71,20 @@ HRESULT CProgressBar::Render()
 	return S_OK;
 }
 
-HRESULT CProgressBar::Ready_Components()
+HRESULT CProgressBar::Ready_Components(void* pArg)
 {
+	CImGui_Manager::CREATE_UI_INFO tObjInfo;
+	if (pArg != nullptr)
+	{
+		memcpy(&tObjInfo, pArg, sizeof(CImGui_Manager::CREATE_UI_INFO));
+		sprintf_s(m_szName, tObjInfo.szName);
+	}
+
 	/* For.Com_Transform */
 	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Transform"), TEXT("Com_Transform"), (CComponent**)&m_pTransformCom)))
 		return E_FAIL;
+
+	m_pTransformCom->Set_WorldMatrix(XMLoadFloat4x4(&tObjInfo.WorldMatrix));
 
 	/* For.Com_Renderer */
 	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Renderer"), TEXT("Com_Renderer"), (CComponent**)&m_pRendererCom)))
@@ -94,7 +99,7 @@ HRESULT CProgressBar::Ready_Components()
 		return E_FAIL;
 
 	/* For.Com_Texture */
-	if (FAILED(__super::Add_Component(LEVEL_LOGO, TEXT("Prototype_Component_Texture_Default"), TEXT("Com_Texture"), (CComponent**)&m_pTextureCom)))
+	if (FAILED(__super::Add_Component(tObjInfo.iNumLevel, tObjInfo.pTextureTag, TEXT("Com_Texture"), (CComponent**)&m_pTextureCom)))
 		return E_FAIL;
 
 	return S_OK;

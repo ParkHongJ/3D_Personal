@@ -36,6 +36,7 @@ public: /* For.Engine */
 	
 public: /* For.Imgui */
 	map<const _tchar*, class CLayer*>*	GetLayers(_uint iLevelIndex);
+	list<class CGameObject*>*	GetLayers(const _tchar* pLayerTag, _uint iLevelIndex);
 	map<const _tchar*, class CComponent*>* GetPrototypeComponent(_uint iLevelIndex);
 	map<const _tchar*, class CGameObject*>* GetPrototypeGameObject();
 

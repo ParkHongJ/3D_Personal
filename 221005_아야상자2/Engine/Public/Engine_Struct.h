@@ -133,12 +133,11 @@ namespace Engine
 		XMFLOAT3		vTangent;
 		XMUINT4			vBlendIndex; /* 이 정점에 영향을 주는 뼈의 인덱스 네개. */
 		XMFLOAT4		vBlendWeight; /* 영향르 주고 있는 각 뼈대의 영향 비율 */
-		XMFLOAT2        vNoise;
 	}VTXANIMMODEL;
 
 	typedef struct ENGINE_DLL tagVertexAnimModel_Declaration
 	{
-		static const unsigned int iNumElements = 7;
+		static const unsigned int iNumElements = 6;
 		static const D3D11_INPUT_ELEMENT_DESC Elements[iNumElements];
 	}VTXANIMMODEL_DECLARATION;
 

@@ -1,7 +1,7 @@
 #pragma once
 #include "Client_Defines.h"
 #include "Base.h"
-
+#include "ProgressBar.h"
 BEGIN(Engine)
 class CShader;
 class CTexture;
@@ -16,10 +16,12 @@ public:
 	virtual ~CUI_Manager() = default;
 
 public:
+	void Initialize(const _tchar* pPath = nullptr);
 	void SetValue(const _char* pUITag, _float fValue);
-
+	void Tick(_float fTimeDelta);
+	void Render();
 private:
-	map<const _char*, class CProgressBar*> m_ProgressBar;
+	map<_char*, CProgressBar*> m_ProgressBar;
 
 public:
 	virtual void Free() override;

@@ -243,12 +243,12 @@ _bool CCell::Picking()
 	RELEASE_INSTANCE(CPicking);
 	return false;
 }
-#endif // _DEBUG
-
 void CCell::EditCell(_uint iNumIndex, _float3 vPos)
 {
 	m_pVIBuffer->EditVerteces(iNumIndex, vPos, m_vPoints[iNumIndex]);
 }
+#endif // DEBUG
+
 
 CCell * CCell::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, const _float3 * pPoints, _int iIndex)
 {
@@ -268,11 +268,12 @@ void CCell::Free()
 #ifdef _DEBUG
 	Safe_Release(m_pVIBuffer);
 	Safe_Release(m_pShader);
-#endif // _DEBUG
 	for (auto& pCollider : m_pCollider)
 	{
 		Safe_Release(pCollider);
 	}
+
+#endif // _DEBUG
 	Safe_Release(m_pDevice);
 	Safe_Release(m_pContext);
 }

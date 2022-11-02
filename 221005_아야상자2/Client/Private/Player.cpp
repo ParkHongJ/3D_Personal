@@ -83,8 +83,11 @@ void CPlayer::LateTick(_float fTimeDelta)
 	m_pColliderCom[COLLIDERTYPE_OBB]->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom[COLLIDERTYPE_OBB]);
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
 
+#ifdef DEBUG
 	m_pRendererCom->Add_DebugGroup(m_pColliderCom[COLLIDERTYPE_OBB]);
 	m_pRendererCom->Add_DebugGroup(m_pNavigationCom);
+#endif // DEBUG
+
 }
 
 HRESULT CPlayer::Render()
@@ -942,6 +945,19 @@ HRESULT CPlayer::Set_Target(_uint iLevel, const _tchar * pLayerTag, const _tchar
 
 	RELEASE_INSTANCE(CGameInstance);
 	return S_OK;
+}
+
+void CPlayer::GetDamage(_float fDamage)
+{
+	m_fHP -= fDamage;
+	if (m_fHP <= 0.f)
+	{
+		//Á×À½
+	}
+	else
+	{
+		//UIÃâ·Â
+	}
 }
 
 void CPlayer::OnCollisionEnter(CGameObject * pOther, _float fTimeDelta)

@@ -16,7 +16,7 @@ class CImGui_Manager final : public CBase
 {
 	DECLARE_SINGLETON(CImGui_Manager)
 public:
-	enum Tool { TOOL_MAP, TOOL_UNIT, TOOL_CAMERA, TOOL_PARTICLE, TOOL_ANIMATION, TOOL_NAVIGATION, TOOL_END };
+	enum Tool { TOOL_MAP, TOOL_UNIT, TOOL_CAMERA, TOOL_UI, TOOL_PARTICLE, TOOL_ANIMATION, TOOL_NAVIGATION, TOOL_END };
 	enum NavMesh { NAV_ADD, NAV_EDIT_POINT, NAV_EDIT_CELL, NAV_END };
 	typedef struct AnimInfo {
 		string name;
@@ -59,6 +59,24 @@ public:
 		XMFLOAT4X4 WorldMatrix;
 
 	}CREATE_INFO;
+
+	typedef struct CreateUIInfo
+	{
+		//생성할때 필요한 자료.
+		//이름
+		//프로토타입 태그
+		//레이어 태그
+		//레벨
+		//모델명
+		char szName[260] = "";
+		wchar_t pPrototypeTag[260] = L"";
+		wchar_t pLayerTag[260] = L"";
+		unsigned int iNumLevel = LEVEL_END;
+		wchar_t pTextureTag[260] = L"";
+
+		XMFLOAT4X4 WorldMatrix;
+
+	}CREATE_UI_INFO;
 	//typedef struct CreateObjInfo
 	//{
 	//	//생성할때 필요한 자료.
@@ -96,6 +114,7 @@ public:
 	void RenderGizmo();
 
 	HRESULT AddGameObject(const _tchar * pPrototypeTag, const _tchar * pLayerTag, _uint iNumLevel, void* pArg = nullptr);
+	HRESULT AddUIObject(const _tchar * pPrototypeTag, const _tchar * pLayerTag, _uint iNumLevel, void* pArg = nullptr);
 	
 	/* For NavMesh*/
 	void ShowNavMesh();
@@ -118,6 +137,7 @@ private:
 	ID3D11DeviceContext* m_pContext;
 
 	list<CREATE_INFO> m_CreateObj;
+	list<CREATE_UI_INFO> m_CreateUIObj;
 
 	static vector<pair<string, ID3D11ShaderResourceView*>> resources;
 

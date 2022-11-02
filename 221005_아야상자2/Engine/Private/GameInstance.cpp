@@ -100,6 +100,13 @@ map<const _tchar*, class CLayer*>* CGameInstance::GetLayers(_uint iLevelIndex)
 	return m_pObject_Manager->GetLayers(iLevelIndex);
 }
 
+list<class CGameObject*>* CGameInstance::GetLayers(const _tchar * pLayerTag, _uint iLevelIndex)
+{
+	//m_pObject_Manager->/
+	return m_pObject_Manager->GetLayers(pLayerTag, iLevelIndex);
+	
+}
+
 map<const _tchar*, class CComponent*>* CGameInstance::GetPrototypeComponent(_uint iLevelIndex)
 {
 	return m_pComponent_Manager->GetPrototypeComponent(iLevelIndex);

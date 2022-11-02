@@ -12,7 +12,6 @@ class CVIBuffer_Rect;
 END
 
 BEGIN(Client)
-
 class CProgressBar final : public CGameObject
 {
 private:
@@ -38,8 +37,9 @@ private:
 	_float					m_fX, m_fY, m_fSizeX, m_fSizeY;
 	_float4x4				m_ViewMatrix, m_ProjMatrix;
 
+
 private:
-	HRESULT Ready_Components();
+	HRESULT Ready_Components(void* pArg);
 
 public:
 	static CProgressBar* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);

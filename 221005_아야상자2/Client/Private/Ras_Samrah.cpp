@@ -214,8 +214,7 @@ HRESULT CRas_Samrah::Render()
 	{
 		if (FAILED(m_pModelCom->SetUp_OnShader(m_pShaderCom, m_pModelCom->Get_MaterialIndex(i), aiTextureType_DIFFUSE, "g_DiffuseTexture")))
 			return E_FAIL;
-		/*if (FAILED(m_pModelCom->SetUp_OnShader(m_pShaderCom, m_pModelCom->Get_MaterialIndex(i), aiTextureType_NORMALS, "g_NormalTexture")))
-		return E_FAIL;*/
+		
 
 
 		if (FAILED(m_pModelCom->Render(m_pShaderCom, i, m_iPass)))

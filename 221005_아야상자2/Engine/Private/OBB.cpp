@@ -81,6 +81,7 @@ _bool COBB::Collision(CCollider * pTargetCollider)
 	return m_isColl;
 }
 
+#ifdef _DEBUG
 HRESULT COBB::Render()
 {
 	if (FAILED(__super::Render()))
@@ -94,6 +95,8 @@ HRESULT COBB::Render()
 
 	return S_OK;
 }
+#endif // _DEBUG
+
 
 COBB * COBB::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, CCollider::TYPE eColliderType)
 {

@@ -19,6 +19,7 @@ public:
 
 	map<const _tchar*, class CGameObject*>* GetPrototypeGameObjects();//프로토타입 얻어오는 함수
 	map<const _tchar*, class CLayer*>* GetLayers(_uint iLevelIndex);//레이어 얻어오는 함수
+	list<class CGameObject*>* GetLayers(const _tchar* pLayerTag, _uint iLevelIndex);//레이어 얻어오는 함수
 
 public:
 	HRESULT Reserve_Container(_uint iNumLevels);

@@ -43,11 +43,12 @@ private:
 	class CTarget_Manager*					m_pTarget_Manager = nullptr;
 	class CLight_Manager*					m_pLight_Manager = nullptr;
 
-#ifdef _DEBUG
+
 private:
 	class CShader*							m_pShader = nullptr;
-	class CVIBuffer_Rect*					m_pVIBuffer = nullptr;
 	_float4x4								m_ViewMatrix, m_ProjMatrix;
+#ifdef _DEBUG
+	class CVIBuffer_Rect*					m_pVIBuffer = nullptr;
 #endif // _DEBUG
 
 private:

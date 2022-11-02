@@ -80,8 +80,6 @@ HRESULT CLoader::Loading_ForLogoLevel()
 {
 	lstrcpy(m_szLoadingText, TEXT("객체원형을 로딩중입니다. "));
 
-	//CGameInstance*		pGameInstance = CGameInstance::Get_Instance();
-	//Safe_AddRef(pGameInstance);
 	CGameInstance*		pGameInstance = GET_INSTANCE(CGameInstance);
 
 	/* 개ㅑㄱ체원형 로드한다. */	
@@ -98,20 +96,6 @@ HRESULT CLoader::Loading_ForLogoLevel()
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Default%d.jpg"), 2))))
 		return E_FAIL;
 
-	/* For.Prototype_Component_Texture_HealthBar */
-	if (FAILED(pGameInstance->Add_Prototype(LEVEL_LOGO, TEXT("Prototype_Component_Texture_HealthBar"),
-		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/ShatterdUIResources/HealthBar.png"), 1))))
-		return E_FAIL;
-
-	/* For.Prototype_Component_Texture_UIBackGround */
-	if (FAILED(pGameInstance->Add_Prototype(LEVEL_LOGO, TEXT("Prototype_Component_Texture_UIBackGround"),
-		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/ShatterdUIResources/UIBackGround.png"), 1))))
-		return E_FAIL;
-
-	/* For.Prototype_Component_Texture_Inventory */
-	if (FAILED(pGameInstance->Add_Prototype(LEVEL_LOGO, TEXT("Prototype_Component_Texture_Inventory"),
-		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/ShatterdUIResources/InventoryBackGround.png"), 1))))
-		return E_FAIL;
 
 	lstrcpy(m_szLoadingText, TEXT("모델을 로딩중입니다. "));	
 	/* 모델를 로드한다. */
@@ -288,6 +272,20 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 	/* For.Prototype_Component_Texture_Noise */
 	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Noise"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Dissolve/T_NoisyClouds.png"), 1))))
+		return E_FAIL;
+	/* For.Prototype_Component_Texture_HealthBar */
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_HealthBar"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/ShatterdUIResources/HealthBar.png"), 1))))
+		return E_FAIL;
+
+	/* For.Prototype_Component_Texture_UIBackGround */
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_UIBackGround"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/ShatterdUIResources/UIBackGround.png"), 1))))
+		return E_FAIL;
+
+	/* For.Prototype_Component_Texture_Inventory */
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Inventory"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/ShatterdUIResources/InventoryBackGround.png"), 1))))
 		return E_FAIL;
 
 	//if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Terrain"),
