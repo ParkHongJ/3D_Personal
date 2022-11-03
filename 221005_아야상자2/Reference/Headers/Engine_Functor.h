@@ -24,4 +24,27 @@ namespace Engine
 			return false;
 		}
 	};
+
+	class CTag_FinderC
+	{
+	private:
+		const char*	m_pStr;
+
+	public:
+		CTag_FinderC(const char* pStr)
+			: m_pStr(pStr)
+		{
+
+		}
+
+	public:
+		template<typename T>
+		bool	operator()(T& Pair)
+		{
+			if (!strcmp(m_pStr, Pair.first))
+				return true;
+
+			return false;
+		}
+	};
 }

@@ -11,7 +11,6 @@ class CCollider;
 class CRenderer;
 class CTransform;
 class CNavigation;
-
 class CHierarchyNode;
 END
 
@@ -66,6 +65,9 @@ public:
 	HRESULT Set_Camera(class CCamera_Free* pCamera);
 	HRESULT Set_Target(_uint iLevel, const _tchar* pLayerTag, const _tchar* pComponentTag, _uint iLayerIndex);
 	void GetDamage(_float fDamage);
+
+	_bool SetStamina(_float fValue);
+	void IncreaseStamina(_float fTimeDelta, _float fIncreaseSpeed);
 private:
 	CShader*				m_pShaderCom = nullptr;
 	CRenderer*				m_pRendererCom = nullptr;
@@ -83,14 +85,36 @@ private:
 private:
 	_bool					m_bAnimEnd = false;
 	STATE_ANIM				m_eCurrentAnimState = ANIM_END;
+	
+
+	//스프린트(달리기관련)
 	_bool					m_bSprint = false;
+	
+	//공격중에 다른공격으로 전이될 수 있는지
 	_bool					m_bComboAttack = false;
 
-	_float					m_fHP = 200.f;
+	//체력 게이지
+	const _float			m_fMaxHp = 200.f;
+	_float					m_fHP = m_fMaxHp;
+
+	//스테미너 게이지
+	const _float			m_fMaxStamina = 200.f;
+	_float					m_fStamina = m_fMaxStamina;
+	_float					m_fTestVariable = 20.f;
+
+	//공격 후 스테미너가 차는 딜레이
+	const _float			m_fStaminaTimeMax = 1.0f;
+	_float					m_fStaminaTimeCurrent = 0.f;
+	_bool					m_bIncreaseStamina = false;
+
 	//입력이 없을경우 Idle로 돌아가는 변수
 	const _float			m_fBehaviorTimeMax = 2.5f;
 	_float					m_fBehaviorTimeCurrent = 0.f;
+
+	//패링 가능한지
 	_bool					m_bParry = false;
+
+	//이동속도와 회전속도
 	_float					m_fSpeed = 3.f;
 	_float					m_fRotationSpeed = 7.f;
 

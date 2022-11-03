@@ -130,6 +130,9 @@
     <Filter Include="UI\ProgressBar">
       <UniqueIdentifier>{0f0928c7-0d5d-4ae2-b696-3c6bb605f9d4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="01.Levels\03.Yantari">
+      <UniqueIdentifier>{6bec0125-7763-4fc5-a5b5-3c04648d2c1d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -285,6 +288,12 @@
     <ClInclude Include="..\public\ProgressBar.h">
       <Filter>UI\ProgressBar</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\Level_Yantari.h">
+      <Filter>01.Levels\03.Yantari</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Hit_Rect.h">
+      <Filter>02.GameObjects\Effect</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -427,6 +436,12 @@
     </ClCompile>
     <ClCompile Include="..\private\ProgressBar.cpp">
       <Filter>UI\ProgressBar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Level_Yantari.cpp">
+      <Filter>01.Levels\03.Yantari</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Hit_Rect.cpp">
+      <Filter>02.GameObjects\Effect</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

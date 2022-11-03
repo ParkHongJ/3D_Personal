@@ -31,7 +31,7 @@ HRESULT CProgressBar::Initialize(void * pArg)
 	
 	XMStoreFloat4x4(&m_ViewMatrix, XMMatrixIdentity());
 	XMStoreFloat4x4(&m_ProjMatrix, XMMatrixTranspose(XMMatrixOrthographicLH((_float)g_iWinSizeX, (_float)g_iWinSizeY, 0.f, 1.f)));
-	m_pTransformCom->Set_Scale(XMVectorSet(m_fSizeX, m_fSizeY, 1.f, 0.f));
+	//m_pTransformCom->Set_Scale(XMVectorSet(m_fSizeX, m_fSizeY, 1.f, 0.f));
 	return S_OK;
 }
 
@@ -54,6 +54,7 @@ HRESULT CProgressBar::Render()
 		nullptr == m_pShaderCom)
 		return E_FAIL;
 
+	m_pShaderCom->Set_RawValue("g_fRatio", &m_fValue, sizeof(_float));
 	m_pShaderCom->Set_RawValue("g_fAlpha", &m_fAlpha, sizeof(_float));
 	m_pShaderCom->Set_RawValue("g_WorldMatrix", &m_pTransformCom->Get_WorldFloat4x4_TP(), sizeof(_float4x4));
 	m_pShaderCom->Set_RawValue("g_ViewMatrix", &m_ViewMatrix, sizeof(_float4x4));
@@ -69,6 +70,11 @@ HRESULT CProgressBar::Render()
 		return E_FAIL;
 
 	return S_OK;
+}
+
+void CProgressBar::SetValue(_float fValue)
+{
+	m_fValue = fValue;
 }
 
 HRESULT CProgressBar::Ready_Components(void* pArg)

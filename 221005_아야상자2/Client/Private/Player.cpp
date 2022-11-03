@@ -4,6 +4,7 @@
 #include "HierarchyNode.h"
 #include "Camera_Free.h"
 #include "GameMgr.h"
+#include "UI_Manager.h"
 CPlayer::CPlayer(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
 {
@@ -50,9 +51,18 @@ _bool CPlayer::Tick(_float fTimeDelta)
 	if (m_bDestroy)
 		return true;
 
-	
 	SetState(m_eCurrentAnimState, fTimeDelta);
 
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+	if (pGameInstance->Key_Down(DIK_Y))
+	{
+		pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Hit_Effect", LEVEL_GAMEPLAY, L"Effect");
+	}
+	RELEASE_INSTANCE(CGameInstance);
+	if (m_bIncreaseStamina)
+	{
+		IncreaseStamina(fTimeDelta, 70.f);
+	}
 	Update_Weapon();
 
 	for (auto& pPart : m_Parts)
@@ -83,7 +93,7 @@ void CPlayer::LateTick(_float fTimeDelta)
 	m_pColliderCom[COLLIDERTYPE_OBB]->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom[COLLIDERTYPE_OBB]);
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
 
-#ifdef DEBUG
+#ifdef _DEBUG
 	m_pRendererCom->Add_DebugGroup(m_pColliderCom[COLLIDERTYPE_OBB]);
 	m_pRendererCom->Add_DebugGroup(m_pNavigationCom);
 #endif // DEBUG
@@ -494,6 +504,12 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 		{
 			m_pModelCom->Change_Animation(CoupFaible1_fin, 0.1f, false);
 			m_eCurrentAnimState = CoupFaible1_fin;
+
+			if (m_bComboAttack)
+			{
+				if (!SetStamina(m_fTestVariable))
+					m_bComboAttack = false;
+			}
 		}
 
 		RELEASE_INSTANCE(CGameInstance);
@@ -577,7 +593,7 @@ void CPlayer::Idle_State(_float fTimeDelta)
 	if (pGameInstance->Key_Down(LockON))
 	{
 		//새로운 타겟을 등록
-		Set_Target(LEVEL_GAMEPLAY, L"Layer_Yantari", L"Com_Transform", 0);
+		Set_Target(LEVEL_GAMEPLAY, L"Layer_Monster", L"Com_Transform", 0);
 
 		m_eCurrentAnimState = IdleFight;
 		m_pModelCom->Change_Animation(IdleFight);
@@ -601,15 +617,31 @@ void CPlayer::Idle_State(_float fTimeDelta)
 	}
 	else if (pGameInstance->Get_DIMKeyState(DIMK_LBUTTON))
 	{
-		m_pModelCom->Change_Animation(CoupFaible1_frappe1, 0.25f, false);
-		m_eCurrentAnimState = CoupFaible1_frappe1;
-		m_bAnimEnd = false;
+		if (SetStamina(m_fTestVariable))
+		{
+			m_pModelCom->Change_Animation(CoupFaible1_frappe1, 0.25f, false);
+			m_eCurrentAnimState = CoupFaible1_frappe1;
+			m_bAnimEnd = false;
+			m_fStaminaTimeCurrent = 0.f;
+			m_bIncreaseStamina = false;
+		}
 	}
 	else if (pGameInstance->Get_DIMKeyState(DIMK_RBUTTON))
 	{
 		m_pModelCom->Change_Animation(power_fight_01, 0.25f, false);
 		m_eCurrentAnimState = power_fight_01;
 		m_bAnimEnd = false;
+		m_fStaminaTimeCurrent = 0.f;
+		m_bIncreaseStamina = false;
+	}
+	else
+	{
+		m_fStaminaTimeCurrent += fTimeDelta;
+		if (m_fStaminaTimeCurrent >= m_fStaminaTimeMax)
+		{
+			//스테미너 증가
+			m_bIncreaseStamina = true;
+		}
 	}
 	RELEASE_INSTANCE(CGameInstance);
 }
@@ -660,12 +692,16 @@ void CPlayer::Run_State(_float fTimeDelta)
 		m_pModelCom->Change_Animation(CoupFaible1_frappe1, 0.25f, false);
 		m_eCurrentAnimState = CoupFaible1_frappe1;
 		m_bAnimEnd = false;
+		m_fStaminaTimeCurrent = 0.f;
+		m_bIncreaseStamina = false;
 	}
 	else if (pGameInstance->Get_DIMKeyState(DIMK_RBUTTON))
 	{
 		m_pModelCom->Change_Animation(power_fight_01, 0.25f, false);
 		m_eCurrentAnimState = power_fight_01;
 		m_bAnimEnd = false;
+		m_fStaminaTimeCurrent = 0.f;
+		m_bIncreaseStamina = false;
 	}
 	else if (pGameInstance->Key_Pressing(MoveForward))
 	{
@@ -793,12 +829,16 @@ void CPlayer::Idle_Fight_State(_float fTimeDelta)
 		m_pModelCom->Change_Animation(CoupFaible1_frappe1, 0.25f, false);
 		m_eCurrentAnimState = CoupFaible1_frappe1;
 		m_bAnimEnd = false;
+		m_fStaminaTimeCurrent = 0.f;
+		m_bIncreaseStamina = false;
 	}
 	else if (pGameInstance->Get_DIMKeyState(DIMK_RBUTTON))
 	{
 		m_pModelCom->Change_Animation(power_fight_01, 0.1f, false);
 		m_eCurrentAnimState = power_fight_01;
 		m_bAnimEnd = false;
+		m_fStaminaTimeCurrent = 0.f;
+		m_bIncreaseStamina = false;
 	}
 	else if (pGameInstance->Key_Pressing(MoveForward))
 	{
@@ -840,6 +880,13 @@ void CPlayer::Idle_Fight_State(_float fTimeDelta)
 				RELEASE_INSTANCE(CGameInstance);
 				return;
 			}
+		}
+
+		m_fStaminaTimeCurrent += fTimeDelta;
+		if (m_fStaminaTimeCurrent >= m_fStaminaTimeMax)
+		{
+			//스테미너 증가
+			m_bIncreaseStamina = true;
 		}
 	}
 	RELEASE_INSTANCE(CGameInstance);
@@ -953,12 +1000,53 @@ void CPlayer::GetDamage(_float fDamage)
 	if (m_fHP <= 0.f)
 	{
 		//죽음
+		m_fHP = 0.f;
+		CUI_Manager::Get_Instance()->SetValue("HealthBar", m_fHP);
+
+		m_eCurrentAnimState = Death;
+		m_pModelCom->Change_Animation(Death);
 	}
 	else
 	{
 		//UI출력
+		_float fCurrentRatio = m_fHP / m_fMaxHp;
+		CUI_Manager::Get_Instance()->SetValue("HealthBar", fCurrentRatio);
 	}
 }
+
+_bool CPlayer::SetStamina(_float fValue)
+{
+	if (m_fStamina <= 0.f)
+		return false;
+
+	//인자로 들어온 값으로 비율을 구해서 넘겨줄거임.
+	m_fStamina -= fValue;
+	if (m_fStamina <= 0.f)
+	{
+		//0보다 작으면 UI매니저에 0던짐
+		m_fStamina = 0.f;
+		CUI_Manager::Get_Instance()->SetValue("StaminaBar", m_fStamina);
+	}
+	else
+	{
+		_float fCurrentRatio = m_fStamina / m_fMaxStamina;
+		CUI_Manager::Get_Instance()->SetValue("StaminaBar", fCurrentRatio);
+	}
+
+	return true;
+}
+
+void CPlayer::IncreaseStamina(_float fTimeDelta, _float fIncreaseSpeed)
+{
+	m_fStamina += fTimeDelta* fIncreaseSpeed;
+	if (m_fStamina >= m_fMaxStamina)
+	{
+		m_fStamina = m_fMaxStamina;
+	}
+	_float fCurrentRatio = m_fStamina / m_fMaxStamina;
+	CUI_Manager::Get_Instance()->SetValue("StaminaBar", fCurrentRatio);
+}
+
 
 void CPlayer::OnCollisionEnter(CGameObject * pOther, _float fTimeDelta)
 {

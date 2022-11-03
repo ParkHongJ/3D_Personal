@@ -181,11 +181,13 @@
     <ClInclude Include="..\Public\ForkLift.h" />
     <ClInclude Include="..\public\GameMgr.h" />
     <ClInclude Include="..\public\Hammer.h" />
+    <ClInclude Include="..\public\Hit_Rect.h" />
     <ClInclude Include="..\public\Homonculus.h" />
     <ClInclude Include="..\Public\ImGui_Manager.h" />
     <ClInclude Include="..\Public\Level_GamePlay.h" />
     <ClInclude Include="..\Public\Level_Loading.h" />
     <ClInclude Include="..\Public\Level_Logo.h" />
+    <ClInclude Include="..\public\Level_Yantari.h" />
     <ClInclude Include="..\Public\Loader.h" />
     <ClInclude Include="..\Public\MainApp.h" />
     <ClInclude Include="..\Public\Monster.h" />
@@ -231,11 +233,13 @@
     <ClCompile Include="..\Private\ForkLift.cpp" />
     <ClCompile Include="..\private\GameMgr.cpp" />
     <ClCompile Include="..\private\Hammer.cpp" />
+    <ClCompile Include="..\private\Hit_Rect.cpp" />
     <ClCompile Include="..\Private\Homonculus.cpp" />
     <ClCompile Include="..\Private\ImGui_Manager.cpp" />
     <ClCompile Include="..\Private\Level_GamePlay.cpp" />
     <ClCompile Include="..\Private\Level_Loading.cpp" />
     <ClCompile Include="..\Private\Level_Logo.cpp" />
+    <ClCompile Include="..\private\Level_Yantari.cpp" />
     <ClCompile Include="..\Private\Loader.cpp" />
     <ClCompile Include="..\Private\MainApp.cpp" />
     <ClCompile Include="..\Private\Monster.cpp" />

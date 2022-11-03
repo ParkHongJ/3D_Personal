@@ -1,16 +1,16 @@
 #include "stdafx.h"
-#include "..\Public\Level_GamePlay.h"
+#include "..\Public\Level_Yantari.h"
 
 #include "GameInstance.h"
 #include "Camera_Free.h"
 #include "GameMgr.h"
 #include "UI_Manager.h"
-CLevel_GamePlay::CLevel_GamePlay(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
+CLevel_Yantari::CLevel_Yantari(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CLevel(pDevice, pContext)
 {
 }
 
-HRESULT CLevel_GamePlay::Initialize()
+HRESULT CLevel_Yantari::Initialize()
 {
 	if (FAILED(__super::Initialize()))
 		return E_FAIL;
@@ -26,50 +26,23 @@ HRESULT CLevel_GamePlay::Initialize()
 	if (FAILED(Ready_Layer_Camera(TEXT("Layer_Camera"))))
 		return E_FAIL;
 
-	
 	if (FAILED(Ready_Layer_Effect(TEXT("Layer_Effect"))))
 		return E_FAIL;
 
-	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_ChaudronChain", L"Layer_ChaudronChain")))
-		return E_FAIL;
-
-	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Ras_Hands", L"Layer_RasHands")))
-		return E_FAIL;
-
-	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Ras_Hands2", L"Layer_RasHands")))
-		return E_FAIL;
-
-	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Ras_Hands3", L"Layer_RasHands")))
-		return E_FAIL;
-
-	//Rassamrah
-	if (FAILED(Ready_Layer_Monster(TEXT("Layer_Monster"))))
-		return E_FAIL;
-
-	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Totem", L"Layer_Totem")))
-		return E_FAIL;
 	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Yantari", L"Layer_Yantari")))
 		return E_FAIL;
 
-	Load();
-	for (auto& iter : m_CreateObj)
-	{
-		if (FAILED(Ready_Layer_GameObject(iter.pPrototypeTag, iter.pLayerTag, &iter)))
-			return E_FAIL;
-	}
-	
-	
 	CUI_Manager::Get_Instance()->Initialize();
 	return S_OK;
 }
 
-void CLevel_GamePlay::Tick(_float fTimeDelta)
+void CLevel_Yantari::Tick(_float fTimeDelta)
 {
 	__super::Tick(fTimeDelta);
 	CUI_Manager::Get_Instance()->Tick(fTimeDelta);
 }
 
-HRESULT CLevel_GamePlay::Render()
+HRESULT CLevel_Yantari::Render()
 {
 	if (FAILED(__super::Render()))
 		return E_FAIL;
@@ -80,7 +53,7 @@ HRESULT CLevel_GamePlay::Render()
 	return S_OK;
 }
 
-HRESULT CLevel_GamePlay::Ready_Lights()
+HRESULT CLevel_Yantari::Ready_Lights()
 {
 	CGameInstance*		pGameInstance = GET_INSTANCE(CGameInstance);
 
@@ -111,7 +84,7 @@ HRESULT CLevel_GamePlay::Ready_Lights()
 	return S_OK;
 }
 
-HRESULT CLevel_GamePlay::Ready_Layer_Camera(const _tchar * pLayerTag)
+HRESULT CLevel_Yantari::Ready_Layer_Camera(const _tchar * pLayerTag)
 {
 	CGameInstance*		pGameInstance = CGameInstance::Get_Instance();
 	Safe_AddRef(pGameInstance);
@@ -136,7 +109,7 @@ HRESULT CLevel_GamePlay::Ready_Layer_Camera(const _tchar * pLayerTag)
 	return S_OK;
 }
 
-HRESULT CLevel_GamePlay::Ready_Layer_Player(const _tchar * pLayerTag)
+HRESULT CLevel_Yantari::Ready_Layer_Player(const _tchar * pLayerTag)
 {
 	CGameInstance*		pGameInstance = CGameInstance::Get_Instance();
 	Safe_AddRef(pGameInstance);
@@ -150,7 +123,7 @@ HRESULT CLevel_GamePlay::Ready_Layer_Player(const _tchar * pLayerTag)
 	return S_OK;
 }
 
-HRESULT CLevel_GamePlay::Ready_Layer_BackGround(const _tchar * pLayerTag)
+HRESULT CLevel_Yantari::Ready_Layer_BackGround(const _tchar * pLayerTag)
 {
 	CGameInstance*		pGameInstance = CGameInstance::Get_Instance();
 	Safe_AddRef(pGameInstance);
@@ -164,14 +137,14 @@ HRESULT CLevel_GamePlay::Ready_Layer_BackGround(const _tchar * pLayerTag)
 
 
 	/*if (FAILED(pGameInstance->Add_GameObjectToLayer(TEXT("Prototype_GameObject_ForkLift"), LEVEL_GAMEPLAY, pLayerTag)))
-		return E_FAIL;*/
+	return E_FAIL;*/
 
 	Safe_Release(pGameInstance);
 
 	return S_OK;
 }
 
-HRESULT CLevel_GamePlay::Ready_Layer_Monster(const _tchar * pLayerTag)
+HRESULT CLevel_Yantari::Ready_Layer_Monster(const _tchar * pLayerTag)
 {
 	CGameInstance*		pGameInstance = CGameInstance::Get_Instance();
 	Safe_AddRef(pGameInstance);
@@ -184,19 +157,19 @@ HRESULT CLevel_GamePlay::Ready_Layer_Monster(const _tchar * pLayerTag)
 	return S_OK;
 }
 
-HRESULT CLevel_GamePlay::Ready_Layer_UI(const _tchar * pLayerTag)
+HRESULT CLevel_Yantari::Ready_Layer_UI(const _tchar * pLayerTag)
 {
 	CGameInstance*		pGameInstance = CGameInstance::Get_Instance();
 	Safe_AddRef(pGameInstance);
 
 	/*for (_uint i = 0; i < 1; ++i)
 	{
-		if (FAILED(pGameInstance->Add_GameObjectToLayer(TEXT("Prototype_GameObject_UI"), LEVEL_GAMEPLAY, pLayerTag)))
-			return E_FAIL;
+	if (FAILED(pGameInstance->Add_GameObjectToLayer(TEXT("Prototype_GameObject_UI"), LEVEL_GAMEPLAY, pLayerTag)))
+	return E_FAIL;
 
 	}
 
-*/
+	*/
 	Safe_Release(pGameInstance);
 
 
@@ -204,7 +177,7 @@ HRESULT CLevel_GamePlay::Ready_Layer_UI(const _tchar * pLayerTag)
 	return S_OK;
 }
 
-HRESULT CLevel_GamePlay::Ready_Layer_Effect(const _tchar * pLayerTag)
+HRESULT CLevel_Yantari::Ready_Layer_Effect(const _tchar * pLayerTag)
 {
 	CGameInstance*		pGameInstance = CGameInstance::Get_Instance();
 	Safe_AddRef(pGameInstance);
@@ -223,7 +196,7 @@ HRESULT CLevel_GamePlay::Ready_Layer_Effect(const _tchar * pLayerTag)
 	return S_OK;
 }
 
-HRESULT CLevel_GamePlay::Ready_Layer_ForkLift(const _tchar * pLayerTag)
+HRESULT CLevel_Yantari::Ready_Layer_ForkLift(const _tchar * pLayerTag)
 {
 	CGameInstance*		pGameInstance = CGameInstance::Get_Instance();
 	Safe_AddRef(pGameInstance);
@@ -236,7 +209,7 @@ HRESULT CLevel_GamePlay::Ready_Layer_ForkLift(const _tchar * pLayerTag)
 	return S_OK;
 }
 
-HRESULT CLevel_GamePlay::Ready_Layer_GameObject(const _tchar * pPrototypeTag, const _tchar * pLayerTag, void* pArg)
+HRESULT CLevel_Yantari::Ready_Layer_GameObject(const _tchar * pPrototypeTag, const _tchar * pLayerTag, void* pArg)
 {
 	CGameInstance*		pGameInstance = CGameInstance::Get_Instance();
 	Safe_AddRef(pGameInstance);
@@ -249,7 +222,7 @@ HRESULT CLevel_GamePlay::Ready_Layer_GameObject(const _tchar * pPrototypeTag, co
 	return S_OK;
 }
 
-HRESULT CLevel_GamePlay::Load()
+HRESULT CLevel_Yantari::Load()
 {
 	HANDLE		hFile = CreateFile(TEXT("../Bin/Data/MapStaticInfo.dat"), GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 
@@ -302,24 +275,22 @@ HRESULT CLevel_GamePlay::Load()
 	return S_OK;
 }
 
-CLevel_GamePlay * CLevel_GamePlay::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
+CLevel_Yantari * CLevel_Yantari::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 {
-	CLevel_GamePlay*		pInstance = new CLevel_GamePlay(pDevice, pContext);
+	CLevel_Yantari*		pInstance = new CLevel_Yantari(pDevice, pContext);
 
 	if (FAILED(pInstance->Initialize()))
 	{
-		MSG_BOX(TEXT("Failed To Created : CLevel_GamePlay"));
+		MSG_BOX(TEXT("Failed To Created : CLevel_Yantari"));
 		Safe_Release(pInstance);
 	}
 
 	return pInstance;
 }
 
-void CLevel_GamePlay::Free()
+void CLevel_Yantari::Free()
 {
 	__super::Free();
 	CUI_Manager::Get_Instance()->Destroy_Instance();
 	CGameMgr::Get_Instance()->Destroy_Instance();
 }
-
-

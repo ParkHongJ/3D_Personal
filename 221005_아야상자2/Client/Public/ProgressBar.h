@@ -36,10 +36,11 @@ private:
 	_float					m_fX, m_fY, m_fSizeX, m_fSizeY;
 	_float4x4				m_ViewMatrix, m_ProjMatrix;
 
-
 	_uint m_iPass = 1;
 	_float m_fAlpha = 1.f;
-
+	_float m_fValue = 1.f;
+public:
+	void SetValue(_float fValue);
 private:
 	HRESULT Ready_Components(void* pArg);
 

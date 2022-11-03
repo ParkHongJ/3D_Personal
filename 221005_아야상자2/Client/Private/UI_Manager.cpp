@@ -11,20 +11,17 @@ void CUI_Manager::Initialize(const _tchar * pPath)
 {
 	Load();
 
-	/*CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
-	list<CGameObject*>* pLayers = pGameInstance->GetLayers(L"Canvas", LEVEL_GAMEPLAY);
-
-	for (auto& iter : *pLayers)
-	{
-		m_ProgressBar.insert({ (_char*)iter->GetName(), (CProgressBar*)iter });
-		Safe_AddRef(iter);
-	}
-	RELEASE_INSTANCE(CGameInstance);*/
+	
 
 }
-void CUI_Manager::SetValue(const _char * pUITag, _float fValue)
+void CUI_Manager::SetValue(const char * pUITag, _float fValue)
 {
+	auto	iter = find_if(m_ProgressBar.begin(), m_ProgressBar.end(), CTag_FinderC(pUITag));
 
+	if (iter == m_ProgressBar.end())
+		return;
+
+	iter->second->SetValue(fValue);
 }
 void CUI_Manager::Tick(_float fTimeDelta)
 {
@@ -89,6 +86,19 @@ HRESULT CUI_Manager::Load()
 	}
 
 	CloseHandle(hFile);
+
+	//UI오브젝트들 등록
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+	list<CGameObject*>* pLayers = pGameInstance->GetLayers(L"Canvas", LEVEL_GAMEPLAY);
+
+	for (auto& iter : *pLayers)
+	{
+		m_ProgressBar.insert({ iter->GetName(), (CProgressBar*)iter });
+		Safe_AddRef(iter);
+	}
+	RELEASE_INSTANCE(CGameInstance);
+	
+	return S_OK;
 }
 
 void CUI_Manager::Free()

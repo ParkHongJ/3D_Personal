@@ -33,7 +33,7 @@ HRESULT CLayer::Initialize()
 
 void CLayer::Tick(_float fTimeDelta)
 {
-	_uint iIndex = 0;
+	list<CGameObject*>::iterator iter = m_GameObjects.begin();
 	for (auto& pGameObject : m_GameObjects)
 	{
 		if (nullptr != pGameObject && pGameObject->IsActive())
@@ -41,10 +41,11 @@ void CLayer::Tick(_float fTimeDelta)
 			_bool bDestroy = pGameObject->Tick(fTimeDelta);
 			if (bDestroy) { 
 				Safe_Release(pGameObject);
+				//m_GameObjects.erase(iter);
 				//m_GameObjects.remove(iIndex);
 			}
 		}
-		iIndex++;
+		iter++;
 	}
 }
 

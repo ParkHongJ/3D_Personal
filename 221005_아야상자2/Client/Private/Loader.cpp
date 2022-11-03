@@ -26,6 +26,7 @@
 #include "YantariWeapon.h"
 #include "Aspiration.h"
 #include "Sky.h"
+#include "Hit_Rect.h"
 #include "ProgressBar.h"
 //#include "Effect.h"
 //#include "UI.h"
@@ -242,6 +243,11 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 		CProgressBar::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+	/* For.Prototype_GameObject_Hit_Effect*/
+	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Hit_Effect"),
+		CHit_Rect::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 	///* For.Prototype_GameObject_Sky */
 	//if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Sky"),
 	//	CSky::Create(m_pGraphic_Device))))
@@ -298,6 +304,10 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/ShatterdUIResources/ScreenBlood.png"), 1))))
 		return E_FAIL;
 
+	/* For.Prototype_Component_Texture_ProgressBackGround */
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_ProgressBackGround"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/ShatterdUIResources/ProgressBackGround.png"), 1))))
+		return E_FAIL;
 	//if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Terrain"),
 	//	CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Terrain/Tile0.jpg"), 1))))
 	//	return E_FAIL;
@@ -388,7 +398,7 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 	//Hammer
 	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
 	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Hammer"),
-		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/Hammer/Hammer.txt", PivotMatrix))))
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/Hammer/Hammer.dat", PivotMatrix,true))))
 		return E_FAIL;
 
 	//ChaudronChain

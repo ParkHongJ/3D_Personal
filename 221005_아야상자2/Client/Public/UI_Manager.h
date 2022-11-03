@@ -17,9 +17,8 @@ public:
 		//생성할때 필요한 자료.
 		//이름
 		//프로토타입 태그
-		//레이어 태그
 		//레벨
-		//모델명
+		//텍스쳐이름
 		char szName[260] = "";
 		wchar_t pPrototypeTag[260] = L"";
 		unsigned int iNumLevel = LEVEL_END;
@@ -36,12 +35,12 @@ public:
 
 public:
 	void Initialize(const _tchar* pPath = nullptr);
-	void SetValue(const _char* pUITag, _float fValue);
+	void SetValue(const char* pUITag, _float fValue);
 	void Tick(_float fTimeDelta);
 	void Render();
 	HRESULT Load();
 private:
-	map<_char*, CProgressBar*> m_ProgressBar;
+	map<const char*, CProgressBar*> m_ProgressBar;
 
 public:
 	virtual void Free() override;
