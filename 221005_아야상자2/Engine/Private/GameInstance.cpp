@@ -205,6 +205,16 @@ CComponent * CGameInstance::Clone_Component(_uint iLevelIndex, const _tchar * pP
 	return m_pComponent_Manager->Clone_Component(iLevelIndex, pPrototypeTag, pArg);	
 }
 
+_bool CGameInstance::IsOverlapComponent(_uint iLevelIndex, const _tchar * pPrototypeTag)
+{
+	//찾는 컴포넌트가 이미 있다면
+	if (nullptr != m_pComponent_Manager->Find_Component(iLevelIndex, pPrototypeTag))
+		return true;
+	
+	//없다면 false를 리턴
+	return false;
+}
+
 HRESULT CGameInstance::Add_CollisionGroup(CCollider_Manager::COLLISIONGROUP eCollisionGroup, CCollider * pGameObject)
 {
 	m_pCollider_Manager->Add_CollisionGroup(eCollisionGroup, pGameObject);

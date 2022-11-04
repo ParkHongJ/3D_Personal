@@ -3,6 +3,7 @@
 #include "GameInstance.h"
 #include "Sword.h"
 #include "Ras_Samrah.h"
+#include "ChaudronChain.h"
 CEndChain::CEndChain(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
 {
@@ -26,7 +27,6 @@ HRESULT CEndChain::Initialize(void * pArg)
 	m_pTransformCom->Set_Scale(XMVectorSet(0.01f, 0.01f, 0.01f, 1.f));
 	m_pTransformCom->Rotation(XMVectorSet(0.f, 0.f, 1.f, 0.f), XMConvertToRadians(90.0f));
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(0.f, 0.f, -0.5f, 1.f));
-	//m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(3.f, 0.f, 0.f, 1.f));
 	strcpy_s(m_szName, "EndChain");
 	m_Tag = L"EndChain";
 	m_bEnable = false;
@@ -70,6 +70,8 @@ HRESULT CEndChain::Render()
 
 	XMStoreFloat4x4(&WorldMatrix, XMMatrixTranspose(m_pTransformCom->Get_WorldMatrix() * m_pParentTransformCom->Get_WorldMatrix()));
 
+	if (FAILED(m_pShaderCom->Set_RawValue("g_vChainColor", &m_vColor, sizeof(_float3))))
+		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_WorldMatrix", &WorldMatrix, sizeof(_float4x4))))
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_ViewMatrix", &pGameInstance->Get_TransformFloat4x4_TP(CPipeLine::D3DTS_VIEW), sizeof(_float4x4))))
@@ -88,7 +90,7 @@ HRESULT CEndChain::Render()
 		if (FAILED(m_pModelCom[m_eChain]->SetUp_OnShader(m_pShaderCom, m_pModelCom[m_eChain]->Get_MaterialIndex(i), aiTextureType_DIFFUSE, "g_DiffuseTexture")))
 			return E_FAIL;
 
-		if (FAILED(m_pModelCom[m_eChain]->Render(m_pShaderCom, i)))
+		if (FAILED(m_pModelCom[m_eChain]->Render(m_pShaderCom, i, 3)))
 			return E_FAIL;
 	}
 
@@ -140,6 +142,33 @@ void CEndChain::OnCollisionExit(CGameObject * pOther, _float fTimeDelta)
 void CEndChain::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
 {
 	int a = 10;
+}
+
+void CEndChain::Broken()
+{
+	//부서진걸로 교체하고 콜라이더를 끔.
+	m_fHp = 0.f;
+	m_eChain = BREAKED;
+	m_bEnable = false;
+	m_vColor = _float3(0.f, 0.f, 0.f);
+}
+
+void CEndChain::GetDamaged(_float fDamage)
+{
+
+	m_fHp -= fDamage;
+
+	//보스에게도 데미지
+
+	//최대 체력보다 낮으면
+	if (m_fHp <= 0.0f)
+	{
+		Broken();
+		CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+		CChaudronChain* pChaudronChain = (CChaudronChain*)(pGameInstance->Get_ComponentPtr(LEVEL_GAMEPLAY, L"Layer_ChaudronChain", L"Com_Transform", 0)->GetOwner());
+		pChaudronChain->CheckChain();
+		RELEASE_INSTANCE(CGameInstance);
+	}
 }
 
 HRESULT CEndChain::Ready_Components()

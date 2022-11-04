@@ -36,7 +36,7 @@ public:
 	virtual void OnCollisionExit(CGameObject* pOther, _float fTimeDelta) override;
 
 public:
-	void GetDamaged(_float fDamage);
+	void CheckChain();
 
 private:
 	CShader*				m_pShaderCom = nullptr;

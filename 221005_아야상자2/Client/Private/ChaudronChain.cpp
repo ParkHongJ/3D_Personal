@@ -114,9 +114,17 @@ void CChaudronChain::OnCollisionExit(CGameObject * pOther, _float fTimeDelta)
 	int a = 10;
 }
 
-void CChaudronChain::GetDamaged(_float fDamage)
+void CChaudronChain::CheckChain()
 {
-
+	for (_uint i = 1; i <= 3; ++i)
+	{
+		//체인이 부셔저있으면( 비활성화 되어있으면 )
+		if (!((CEndChain*)m_Parts[i])->GetEanble())
+		{
+			((CEndChain*)m_Parts[i + 1])->Broken();
+		}
+		i++;
+	}
 }
 
 HRESULT CChaudronChain::Ready_Components()
@@ -204,7 +212,7 @@ HRESULT CChaudronChain::Ready_Parts()
 	//총 4개의 사슬중에 2개만 킴
 	((CEndChain*)m_Parts[1])->SetEnable(true);
 	((CEndChain*)m_Parts[3])->SetEnable(true);
-
+	
 
 	RELEASE_INSTANCE(CGameInstance);
 	return S_OK;

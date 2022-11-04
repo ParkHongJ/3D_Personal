@@ -82,8 +82,10 @@ CGameObject * CObject_Manager::Clone_GameObject(const _tchar * pPrototypeTag, vo
 HRESULT CObject_Manager::Add_Prototype(const _tchar * pPrototypeTag, CGameObject * pPrototype)
 {
 	if (nullptr != Find_Prototype(pPrototypeTag))
-		return E_FAIL;
-
+	{
+		Safe_Release(pPrototype);
+		return S_OK;
+	}
 	m_Prototypes.emplace(pPrototypeTag, pPrototype);			
 
 	return S_OK;

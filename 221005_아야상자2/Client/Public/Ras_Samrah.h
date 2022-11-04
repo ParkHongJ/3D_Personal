@@ -69,6 +69,10 @@ public:
 	void SetNaviTypes();
 	HRESULT Ready_Layer_GameObject(const _tchar* pPrototypeTag, const _tchar* pLayerTag, void* pArg = nullptr);
 	void SetNaviTypes(CCell::CELLTYPE eType);
+	const _float GetMaxHP() {
+		return m_fMaxHP;
+	}
+
 private:
 	CShader*				m_pShaderCom = nullptr;
 	CRenderer*				m_pRendererCom = nullptr;
@@ -79,7 +83,8 @@ private:
 private:
 	CGameObject*						m_Parts = nullptr;
 	vector<class CHierarchyNode*>		m_Sockets;
-	_float								m_fHp = 100;
+	const _float						m_fMaxHP = 100.f;
+	_float								m_fHp = m_fMaxHP;
 
 	STATE_ANIM							m_eCurrentAnimState = ANIM_END;
 	PHASE								m_ePhase = PHASE_END;

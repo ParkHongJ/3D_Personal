@@ -35,6 +35,7 @@ public:
 	HRESULT Initialize(LEVEL eNextLevelID);
 	HRESULT Loading_ForLogoLevel();
 	HRESULT Loading_ForGamePlayLevel();
+	HRESULT Loading_ForGameYantariLevel();
 
 private:
 	ID3D11Device*			m_pDevice = nullptr;

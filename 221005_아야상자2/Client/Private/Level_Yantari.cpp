@@ -5,6 +5,7 @@
 #include "Camera_Free.h"
 #include "GameMgr.h"
 #include "UI_Manager.h"
+#include "Level_Loading.h"
 CLevel_Yantari::CLevel_Yantari(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CLevel(pDevice, pContext)
 {
@@ -14,32 +15,20 @@ HRESULT CLevel_Yantari::Initialize()
 {
 	if (FAILED(__super::Initialize()))
 		return E_FAIL;
-	if (FAILED(Ready_Lights()))
-		return E_FAIL;
-
-	if (FAILED(Ready_Layer_BackGround(TEXT("Layer_BackGround"))))
-		return E_FAIL;
-
-	if (FAILED(Ready_Layer_Player(TEXT("Layer_Player"))))
-		return E_FAIL;
-
-	if (FAILED(Ready_Layer_Camera(TEXT("Layer_Camera"))))
-		return E_FAIL;
-
-	if (FAILED(Ready_Layer_Effect(TEXT("Layer_Effect"))))
-		return E_FAIL;
-
-	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Yantari", L"Layer_Yantari")))
-		return E_FAIL;
-
-	CUI_Manager::Get_Instance()->Initialize();
+	
+	Ready_Layer_GameObject(L"Prototype_GameObject_Yantari", L"Layer_Yantari");
 	return S_OK;
 }
 
 void CLevel_Yantari::Tick(_float fTimeDelta)
 {
 	__super::Tick(fTimeDelta);
-	CUI_Manager::Get_Instance()->Tick(fTimeDelta);
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+	if (pGameInstance->Key_Down(DIK_RETURN))
+	{
+		pGameInstance->Open_Level(LEVEL_LOADING, CLevel_Loading::Create(m_pDevice, m_pContext, LEVEL_GAMEPLAY));
+	}
+	RELEASE_INSTANCE(CGameInstance);
 }
 
 HRESULT CLevel_Yantari::Render()
@@ -47,8 +36,7 @@ HRESULT CLevel_Yantari::Render()
 	if (FAILED(__super::Render()))
 		return E_FAIL;
 
-	CUI_Manager::Get_Instance()->Render();
-	SetWindowText(g_hWnd, TEXT("게임플레이레벨임"));
+	SetWindowText(g_hWnd, TEXT("LEVEL_YANTARI"));
 
 	return S_OK;
 }
@@ -214,7 +202,7 @@ HRESULT CLevel_Yantari::Ready_Layer_GameObject(const _tchar * pPrototypeTag, con
 	CGameInstance*		pGameInstance = CGameInstance::Get_Instance();
 	Safe_AddRef(pGameInstance);
 
-	if (FAILED(pGameInstance->Add_GameObjectToLayer(pPrototypeTag, LEVEL_GAMEPLAY, pLayerTag, pArg)))
+	if (FAILED(pGameInstance->Add_GameObjectToLayer(pPrototypeTag, LEVEL_YANTARI, pLayerTag, pArg)))
 		return E_FAIL;
 
 	Safe_Release(pGameInstance);

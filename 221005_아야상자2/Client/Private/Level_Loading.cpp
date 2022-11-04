@@ -4,7 +4,7 @@
 
 #include "Level_Logo.h"
 #include "Level_GamePlay.h"
-
+#include "Level_Yantari.h"
 #include "Loader.h"
 
 
@@ -46,6 +46,9 @@ void CLevel_Loading::Tick(_float fTimeDelta)
 		case LEVEL_GAMEPLAY:
 			pNewLevel = CLevel_GamePlay::Create(m_pDevice, m_pContext);
 			break;
+		case LEVEL_YANTARI:
+			pNewLevel = CLevel_Yantari::Create(m_pDevice, m_pContext);
+			break;
 		}
 
 		if (nullptr == pNewLevel)
@@ -57,10 +60,6 @@ void CLevel_Loading::Tick(_float fTimeDelta)
 
 	except:
 		Safe_Release(pGameInstance);
-		if (GetKeyState(VK_RETURN) & 0x8000)
-		{
-			
-		}
 	}
 }
 

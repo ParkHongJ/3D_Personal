@@ -122,10 +122,8 @@ void CCamera_Free::LateTick(_float fTimeDelta)
 		
 		m_pTransformCom->LookAt((vTargetPos + vPlayerPos) * 0.5f);
 		vMyPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
-		vMyPos -= XMVector3Normalize(m_pTransformCom->Get_State(CTransform::STATE_LOOK)) * 5.f;
+		vMyPos -= XMVector3Normalize(m_pTransformCom->Get_State(CTransform::STATE_LOOK)) * 8.f;
 		m_pTransformCom->Set_State(CTransform::STATE_POSITION, vMyPos);
-
-		
 	}
 	else
 	{

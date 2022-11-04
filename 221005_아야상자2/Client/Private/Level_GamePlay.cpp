@@ -5,6 +5,7 @@
 #include "Camera_Free.h"
 #include "GameMgr.h"
 #include "UI_Manager.h"
+#include "Level_Loading.h"
 CLevel_GamePlay::CLevel_GamePlay(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CLevel(pDevice, pContext)
 {
@@ -26,7 +27,6 @@ HRESULT CLevel_GamePlay::Initialize()
 	if (FAILED(Ready_Layer_Camera(TEXT("Layer_Camera"))))
 		return E_FAIL;
 
-	
 	if (FAILED(Ready_Layer_Effect(TEXT("Layer_Effect"))))
 		return E_FAIL;
 
@@ -42,13 +42,13 @@ HRESULT CLevel_GamePlay::Initialize()
 	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Ras_Hands3", L"Layer_RasHands")))
 		return E_FAIL;
 
+	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Yantari", L"Layer_Yantari")))
+		return E_FAIL;
 	//Rassamrah
 	if (FAILED(Ready_Layer_Monster(TEXT("Layer_Monster"))))
 		return E_FAIL;
 
 	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Totem", L"Layer_Totem")))
-		return E_FAIL;
-	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Yantari", L"Layer_Yantari")))
 		return E_FAIL;
 
 	Load();
@@ -67,6 +67,14 @@ void CLevel_GamePlay::Tick(_float fTimeDelta)
 {
 	__super::Tick(fTimeDelta);
 	CUI_Manager::Get_Instance()->Tick(fTimeDelta);
+	
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+	if (pGameInstance->Key_Down(DIK_RETURN))
+	{
+		if (FAILED(pGameInstance->Open_Level(LEVEL_LOADING, CLevel_Loading::Create(m_pDevice, m_pContext, LEVEL_YANTARI))))
+			return;
+	}
+	RELEASE_INSTANCE(CGameInstance);
 }
 
 HRESULT CLevel_GamePlay::Render()
