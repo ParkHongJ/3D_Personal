@@ -5,6 +5,7 @@
 #include "Camera_Free.h"
 #include "GameMgr.h"
 #include "UI_Manager.h"
+#include "Sword.h"
 CPlayer::CPlayer(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
 {
@@ -301,6 +302,7 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 			m_pModelCom->Change_Animation(Parry_2, 0.f, false);
 			m_eCurrentAnimState = Parry_2;
 		}
+		m_bCanParry = true;
 		break;
 	case CPlayer::Parry_2:
 		m_bWeaponEnable = true;
@@ -309,6 +311,7 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 			m_bWeaponEnable = false;
 			m_pModelCom->Change_Animation(IdleFight);
 			m_eCurrentAnimState = IdleFight;
+			m_bCanParry = false;
 		}
 		else
 		{
@@ -317,6 +320,7 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 			{
 				m_pModelCom->Change_Animation(Parry_3, 0.0f, false);
 				m_eCurrentAnimState = Parry_3;
+				m_bCanParry = false;
 			}
 		}
 		break;
@@ -593,7 +597,7 @@ void CPlayer::Idle_State(_float fTimeDelta)
 	if (pGameInstance->Key_Down(LockON))
 	{
 		//새로운 타겟을 등록
-		Set_Target(LEVEL_GAMEPLAY, L"Layer_Monster", L"Com_Transform", 0);
+		Set_Target(LEVEL_GAMEPLAY, L"Layer_Yantari", L"Com_Transform", 0);
 
 		m_eCurrentAnimState = IdleFight;
 		m_pModelCom->Change_Animation(IdleFight);
@@ -1156,6 +1160,7 @@ HRESULT CPlayer::Ready_PlayerParts()
 	if (nullptr == pGameObject)
 		return E_FAIL;
 
+	((CSword*)pGameObject)->SetPlayer(this);
 	m_Parts.push_back(pGameObject);
 
 	return S_OK;

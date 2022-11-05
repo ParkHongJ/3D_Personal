@@ -68,6 +68,10 @@ public:
 
 	_bool SetStamina(_float fValue);
 	void IncreaseStamina(_float fTimeDelta, _float fIncreaseSpeed);
+
+	_bool CanParry() {
+		return m_bCanParry;
+	}
 private:
 	CShader*				m_pShaderCom = nullptr;
 	CRenderer*				m_pRendererCom = nullptr;
@@ -112,7 +116,8 @@ private:
 	_float					m_fBehaviorTimeCurrent = 0.f;
 
 	//패링 가능한지
-	_bool					m_bParry = false;
+	_bool					m_bParry = false; //패링을 했냐
+	_bool					m_bCanParry = false; //패링을 할 수 있냐
 
 	//이동속도와 회전속도
 	_float					m_fSpeed = 3.f;

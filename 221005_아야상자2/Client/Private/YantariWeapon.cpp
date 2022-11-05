@@ -25,8 +25,7 @@ HRESULT CYantariWeapon::Initialize(void * pArg)
 	m_pTransformCom->Set_Scale(XMVectorSet(0.025f, 0.025f, 0.025f, 1.f));
 	m_pTransformCom->Rotation(XMVectorSet(0.f, 1.f, 0.f, 0.f), XMConvertToRadians(90.0f));
 	strcpy_s(m_szName, "YantariWeapon");
-	
-
+	m_Tag = L"YantariWeapon";
 
 
 	return S_OK;
@@ -117,6 +116,20 @@ void CYantariWeapon::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
 	int a = 10;
 }
 
+void CYantariWeapon::SetParry()
+{
+	if (nullptr == m_pYantari)
+		return;
+
+	m_pYantari->Parried();
+}
+
+void CYantariWeapon::SetYantari(CYantari * pYantari)
+{
+	m_pYantari = pYantari;
+	Safe_AddRef(m_pYantari);
+}
+
 HRESULT CYantariWeapon::Ready_Components()
 {
 	/* For.Com_Transform */
@@ -184,9 +197,7 @@ void CYantariWeapon::Free()
 {
 	__super::Free();
 
-	if (nullptr != m_pYantari)
-		Safe_Release(m_pYantari);
-
+	Safe_Release(m_pYantari);
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pRendererCom);

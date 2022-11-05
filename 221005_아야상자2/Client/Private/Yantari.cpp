@@ -3,6 +3,7 @@
 #include "GameInstance.h"
 #include "HierarchyNode.h"
 #include "Sword.h"
+#include "YantariWeapon.h"
 
 CYantari::CYantari(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
@@ -50,7 +51,7 @@ _bool CYantari::Tick(_float fTimeDelta)
 		return false;
 	if (m_bDestroy)
 		return true;
-	Set_State(m_eAnimState, fTimeDelta);
+	//Set_State(m_eAnimState, fTimeDelta);
 	
 	//돌진기를 사용 할 수 없다면. 쿨타임적용.
 	if (!m_bCanDashAttack)
@@ -97,11 +98,17 @@ void CYantari::LateTick(_float fTimeDelta)
 	//나중에 이거 수정해라
 	for (auto& pPart : m_Parts)
 	{
-		pPart->LateTick(fTimeDelta);
-		m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, pPart);
+		if (m_bPartsEnable)
+		{
+			pPart->LateTick(fTimeDelta);
+			m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, pPart);
+		}
 	}
 
-
+	for (auto& pPart : m_Parts)
+	{
+		m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, pPart);
+	}
 	CGameInstance*		pGameInstance = GET_INSTANCE(CGameInstance);
 	_bool		isDraw = pGameInstance->isIn_Frustum_WorldSpace(m_pTransformCom->Get_State(CTransform::STATE_POSITION), 20.f);
 	RELEASE_INSTANCE(CGameInstance);
@@ -201,6 +208,12 @@ void CYantari::GetDamage(_float fDamage)
 	}
 }
 
+void CYantari::Parried()
+{
+	m_eAnimState = HIT;
+	m_pModelCom->Change_Animation(HIT);
+}
+
 void CYantari::Set_State(ANIM_STATE eState, _float fTimeDelta)
 {
 	switch (eState)
@@ -224,6 +237,8 @@ void CYantari::Set_State(ANIM_STATE eState, _float fTimeDelta)
 		{
 			m_eAnimState = CYantari::ATTACK5_BIS;
 			m_pModelCom->Change_Animation(ATTACK5_BIS, 0.f, false);
+			//켜기
+			m_bPartsEnable = true;
 		}
 		else
 		{
@@ -370,8 +385,11 @@ void CYantari::Set_State(ANIM_STATE eState, _float fTimeDelta)
 		break;
 	case CYantari::ATTACK3_5:
 		m_pModelCom->SetSpeed(ATTACK3_5, m_fSpeed);
+		m_bPartsEnable = true;
 		if (m_bAnimEnd)
 		{
+			//켜기
+			m_bPartsEnable = false;
 			m_eAnimState = CYantari::ATTACK3_6;
 			m_pModelCom->Change_Animation(ATTACK3_6, 0.f, false);
 		}
@@ -736,6 +754,8 @@ HRESULT CYantari::Ready_Parts()
 
 	if (nullptr == pGameObject)
 		return E_FAIL;
+
+	((CYantariWeapon*)pGameObject)->SetYantari(this);
 
 	m_Parts.push_back(pGameObject);
 

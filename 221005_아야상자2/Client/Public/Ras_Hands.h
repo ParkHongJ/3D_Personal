@@ -73,10 +73,11 @@ private:
 
 
 	//Effect Test
-	_uint								m_iPass = 1;
-	_float								m_fCut = 1.0f;
-	_float								m_fDissolveSpeed = 2.f;
-	_bool								m_bDissolve = false;
+	_uint					m_iPass = 1;
+	_float					m_fCut = 1.0f;
+	_float					m_fDissolveSpeed = 2.f;
+	_bool					m_bDissolve = false;
+	_bool					m_bRender = false;;
 public:
 	void SetRas_Samrah(class CTransform * pRasTransform);
 	void Set_Target(class CTransform* pTarget);

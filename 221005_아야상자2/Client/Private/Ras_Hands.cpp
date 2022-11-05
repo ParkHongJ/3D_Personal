@@ -43,17 +43,27 @@ _bool CRas_Hands::Tick(_float fTimeDelta)
 	if (m_bDissolve)
 	{
 		m_fCut += fTimeDelta* m_fDissolveSpeed;
+		m_iPass = 1;
 		if (m_fCut >= 1.f)
 		{
 			m_eState = HAND_IDLE;
 			m_pModelCom->Change_Animation(HAND_IDLE);
 			m_bActive = false;
+			m_bRender = false;
 		}
 	}
 	else
 	{
 		m_fCut -= fTimeDelta * m_fDissolveSpeed;
+		m_iPass = 1;
+		if (m_fCut <= 0.f)
+		{
+			m_iPass = 0;
+			m_bRender = true;
+		}
 	}
+
+
 	if (m_bHitDelay)
 	{
 		m_fCurrentDelayTime += fTimeDelta;
@@ -93,7 +103,10 @@ void CRas_Hands::LateTick(_float fTimeDelta)
 		m_bHitEnabled = true;
 	}
 	
-	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
+	if (m_bRender)
+	{
+		m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
+	}
 
 #ifdef _DEBUG
 	if (m_bHitEnabled)
@@ -237,7 +250,6 @@ void CRas_Hands::Set_State(STATE_ANIM eState, _float fTimeDelta)
 			//추적중이라면 플레이어를 바라본 상태로 추적
 			_vector vPosition = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
 
-
 			if (nullptr != m_pTarget)
 			{
 				_vector vTargetPos = m_pTarget->Get_State(CTransform::STATE_POSITION);
@@ -249,11 +261,9 @@ void CRas_Hands::Set_State(STATE_ANIM eState, _float fTimeDelta)
 				_vector vDist = XMVector3Normalize(vTargetPos - m_pRasTransform->Get_State(CTransform::STATE_POSITION));
 				vDist = XMVectorSetY(vDist, 0.f);
 				vTargetPos = vTargetPos - vDist * 8.f;
-
-
+				
 				vPosition = XMVectorLerp(vPosition, vTargetPos, fTimeDelta * m_fSpeed);
 
-				//네비를 태울까?
 				vPosition = XMVectorSetY(vPosition, XMVectorGetY(vTargetPos) + 6.f);
 
 				vLook = XMVectorSetY(vLook, 0.0f);
@@ -274,7 +284,6 @@ void CRas_Hands::Set_State(STATE_ANIM eState, _float fTimeDelta)
 		//추적중이라면 플레이어를 바라본 상태로 추적
 		_vector vPosition = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
 
-
 		if (nullptr != m_pTarget)
 		{
 			_vector vTargetPos = m_pTarget->Get_State(CTransform::STATE_POSITION);
@@ -286,8 +295,7 @@ void CRas_Hands::Set_State(STATE_ANIM eState, _float fTimeDelta)
 			_vector vDist = XMVector3Normalize(vTargetPos - m_pRasTransform->Get_State(CTransform::STATE_POSITION));
 			vDist = XMVectorSetY(vDist, 0.f);
 			vTargetPos = vTargetPos - vDist * 8.f;
-
-
+			
 			vPosition = XMVectorLerp(vPosition, vTargetPos, fTimeDelta * m_fSpeed);
 
 			//네비를 태울까?
@@ -298,8 +306,6 @@ void CRas_Hands::Set_State(STATE_ANIM eState, _float fTimeDelta)
 			m_pTransformCom->LookDir(vLook);
 
 			XMVectorSetY(vLook, 0.0f);
-
-			//vPosition -= XMVector3Normalize(vTargetPos - vPosition) * 5.f;
 
 			m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPosition);
 
@@ -362,6 +368,8 @@ void CRas_Hands::Set_Pattern(STATE_ANIM eState)
 
 	m_bActive = true;
 	m_eState = eState;
+	m_bRender = true;
+
 	m_pModelCom->Change_Animation(eState, 0.25f, false);
 
 	_vector vPosition = m_pTransformCom->Get_State(CTransform::STATE_POSITION);

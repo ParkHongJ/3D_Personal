@@ -50,8 +50,6 @@ private:
 	_float	m_fAmplitude = 0.f;
 	_float  m_fAmplitudeMaxTime = 0.005f;
 	_bool	m_bShake = false;
-
-	_float3	m_vOriginPos;
 public:
 	static CCamera_Free* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg);

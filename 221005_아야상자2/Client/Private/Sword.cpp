@@ -2,6 +2,8 @@
 #include "..\Public\Sword.h"
 #include "GameInstance.h"
 #include "Ras_Samrah.h"
+#include "YantariWeapon.h"
+#include "Player.h"
 CSword::CSword(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
 {
@@ -113,6 +115,16 @@ void CSword::OnCollisionExit(CGameObject * pOther, _float fTimeDelta)
 void CSword::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
 {
 	int a = 10;
+	if (pOther->CompareTag(L"YantariWeapon") && m_pPlayer->CanParry())
+	{
+		((CYantariWeapon*)pOther)->SetParry();
+	}
+}
+
+void CSword::SetPlayer(CPlayer * pPlayer)
+{
+	//m_pPlayer = pPlayer;
+	//Safe_AddRef(m_pPlayer);
 }
 
 HRESULT CSword::Ready_Components()
@@ -183,6 +195,7 @@ void CSword::Free()
 {
 	__super::Free();
 
+	Safe_Release(m_pPlayer);
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pRendererCom);

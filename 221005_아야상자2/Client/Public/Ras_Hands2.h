@@ -81,7 +81,7 @@ private:
 	_float								m_fDissolveSpeed = 2.f;
 	_bool								m_bDissolve = false;
 	_bool								m_bDissolveEnd = false;
-
+	_bool								m_bRender = true;
 	STATE_ANIM							m_eNextState = HAND_END;
 public:
 	void Set_State(STATE_ANIM eState, _float fTimeDelta);

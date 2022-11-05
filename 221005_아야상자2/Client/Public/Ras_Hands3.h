@@ -78,6 +78,7 @@ private:
 	_float								m_fCut = 1.0f;
 	_float								m_fDissolveSpeed = 2.f;
 	_bool								m_bDissolve = false;
+	_bool								m_bRender = true;
 public:
 	void Set_State(STATE_ANIM eState, _float fTimeDelta);
 

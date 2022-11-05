@@ -77,7 +77,7 @@ _bool CCamera_Free::Tick(_float fTimeDelta)
 	{
 		//Shake
 		m_bShake = true;
-		XMStoreFloat3(&m_vOriginPos, m_pTransformCom->Get_State(CTransform::STATE_POSITION));
+		
 	}
 	_long	MouseMove = 0;
 
@@ -94,23 +94,20 @@ _bool CCamera_Free::Tick(_float fTimeDelta)
 		}
 	}*/
 
-	if (!m_bShake)
+	if (nullptr == m_pTargetTransform)
 	{
-		if (nullptr == m_pTargetTransform)
+		if (MouseMove = pGameInstance->Get_DIMMoveState(DIMM_X))
 		{
-			if (MouseMove = pGameInstance->Get_DIMMoveState(DIMM_X))
-			{
-				m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), MouseMove * fTimeDelta * 0.05f);
-			}
+			m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), MouseMove * fTimeDelta * 0.05f);
+		}
 
-			if (MouseMove = pGameInstance->Get_DIMMoveState(DIMM_Y))
-			{
-				m_pTransformCom->Turn(m_pTransformCom->Get_State(CTransform::STATE_RIGHT), MouseMove * fTimeDelta * 0.05f);
-			}
-
+		if (MouseMove = pGameInstance->Get_DIMMoveState(DIMM_Y))
+		{
+			m_pTransformCom->Turn(m_pTransformCom->Get_State(CTransform::STATE_RIGHT), MouseMove * fTimeDelta * 0.05f);
 		}
 
 	}
+
 	RELEASE_INSTANCE(CGameInstance);
 
 	ImGui::Begin("Camera");
@@ -125,7 +122,7 @@ _bool CCamera_Free::Tick(_float fTimeDelta)
 
 	ImGui::DragFloat("MaxShakeTime", &m_fMaxShakeTime, 0.01f, -FLT_MAX, +FLT_MAX);
 	ImGui::DragFloat("ShakeStrength", &m_fShakeStrength, 0.01f, -FLT_MAX, +FLT_MAX);
-	ImGui::DragFloat("TestMaxTime", &m_fAmplitude, 0.001f, -FLT_MAX, +FLT_MAX);
+	ImGui::DragFloat("TestMaxTime", &m_fAmplitudeMaxTime, 0.001f, -FLT_MAX, +FLT_MAX);
 
 	ImGui::End();
 
@@ -134,9 +131,9 @@ _bool CCamera_Free::Tick(_float fTimeDelta)
 
 void CCamera_Free::LateTick(_float fTimeDelta)
 {
-	if (!m_bShake)
+	if (nullptr != m_pTargetTransform)
 	{
-		if (nullptr != m_pTargetTransform)
+		if (!m_bShake)
 		{
 			//Å¸°ÙÀ§Ä¡
 			_vector vTargetPos = m_pTargetTransform->Get_State(CTransform::STATE_POSITION);
@@ -156,16 +153,18 @@ void CCamera_Free::LateTick(_float fTimeDelta)
 			vMyPos -= XMVector3Normalize(m_pTransformCom->Get_State(CTransform::STATE_LOOK)) * 8.f;
 			m_pTransformCom->Set_State(CTransform::STATE_POSITION, vMyPos);
 		}
-		else
-		{
-			XMStoreFloat3(&m_vPivot, m_pTransformCom->Get_State(CTransform::STATE_POSITION));
-			m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(m_pPlayerTransform->Get_State(CTransform::STATE_POSITION), 1.f));
-			m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMVector3TransformCoord(XMLoadFloat3(&m_vCamPosition), m_pTransformCom->Get_WorldMatrix()), 1.f));
-		}
-
 	}
 	else
+	{
+		XMStoreFloat3(&m_vPivot, m_pTransformCom->Get_State(CTransform::STATE_POSITION));
+		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(m_pPlayerTransform->Get_State(CTransform::STATE_POSITION), 1.f));
+		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMVector3TransformCoord(XMLoadFloat3(&m_vCamPosition), m_pTransformCom->Get_WorldMatrix()), 1.f));
+	}
+
+	if (m_bShake)
+	{
 		Shake(fTimeDelta);
+	}
 
 	__super::Tick(fTimeDelta);
 }
@@ -236,7 +235,7 @@ void CCamera_Free::ReleaseTarget()
 
 void CCamera_Free::Shake(_float fTimeDelta)
 {
-	_vector vPos = XMLoadFloat3(&m_vOriginPos);
+	_vector vPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
 
 	m_fCurrentShakeTime += fTimeDelta;
 
@@ -244,7 +243,10 @@ void CCamera_Free::Shake(_float fTimeDelta)
 
 	if (m_fAmplitude >= m_fAmplitudeMaxTime)
 	{
-		_float fY = (rand() % 3 + -1)  * m_fShakeStrength;
+		_float fY = (rand() % 3 + -1)  * m_fShakeStrength * m_fShakeStrength;
+
+		//sin(x*10.0f) * powf(0.5f, x)
+		//_float fY = sin(m_fAmplitude * 10.f) * powf(0.5f, m_fAmplitude) * m_fShakeStrength;
 
 		vPos = XMVectorSetY(vPos, XMVectorGetY(vPos) + fY);
 
@@ -255,7 +257,7 @@ void CCamera_Free::Shake(_float fTimeDelta)
 
 	if (m_fCurrentShakeTime >= m_fMaxShakeTime)
 	{
-		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMLoadFloat3(&m_vOriginPos), 1.f));
+		//m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMLoadFloat3(&m_vOriginPos), 1.f));
 		m_fAmplitude = 0.f;
 		m_fCurrentShakeTime = 0.f;
 		m_bShake = false;
@@ -266,7 +268,7 @@ void CCamera_Free::ShakeStart(_float fShakeStrength)
 {
 	m_bShake = true;
 	m_fShakeStrength = fShakeStrength;
-	XMStoreFloat3(&m_vOriginPos, m_pTransformCom->Get_State(CTransform::STATE_POSITION));
+	//XMStoreFloat3(&m_vOriginPos, m_pTransformCom->Get_State(CTransform::STATE_POSITION));
 }
 
 CCamera_Free * CCamera_Free::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)

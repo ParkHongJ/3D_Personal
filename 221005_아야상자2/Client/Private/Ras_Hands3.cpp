@@ -38,29 +38,27 @@ _bool CRas_Hands3::Tick(_float fTimeDelta)
 		return true;
 	if (!m_bActive)
 		return false;
+	
 	Set_State(m_eState, fTimeDelta);
-	if (m_bDissolve && m_iPass == 1)
+	if (m_bDissolve)
 	{
 		// 다사라졌다면
 		m_fCut += fTimeDelta* m_fDissolveSpeed;
-		//if (m_fCut >= 1.f)
-		//{
-		//	m_bDissolveEnd = true;
-		//	//m_iPass = 0;
-		//}
-		//else
-		//	m_bDissolveEnd = false;
+		m_iPass = 1;
+		if (m_fCut >= 1.f)
+		{
+			m_bRender = false;
+		}
 	}
-	else if (!m_bDissolve && m_iPass == 1)
+	else if (!m_bDissolve)
 	{
 		m_fCut -= fTimeDelta * m_fDissolveSpeed;
-		//if (m_fCut <= 0.f)
-		//{
-		//	m_bDissolveEnd = true;
-		//	//m_iPass = 0;
-		//}
-		//else
-		//	m_bDissolveEnd = false;
+		m_iPass = 1;
+		m_bRender = true;
+		if (m_fCut <= 0.f)
+		{
+			m_iPass = 0;
+		}
 	}
 	return false;
 }
@@ -77,7 +75,10 @@ void CRas_Hands3::LateTick(_float fTimeDelta)
 	m_bAnimEnd = m_pModelCom->Play_Animation(fTimeDelta);
 
 
-	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
+	if (m_bRender)
+	{
+		m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
+	}
 }
 
 HRESULT CRas_Hands3::Render()
@@ -166,9 +167,8 @@ void CRas_Hands3::Set_State(STATE_ANIM eState, _float fTimeDelta)
 				m_eState = HAND_PATTERN3;
 				m_pModelCom->Change_Animation(HAND_PATTERN3);
 			}
-
-			
 		}
+
 		//패턴2가 끝났다면
 		if (m_bPatternEnd)
 		{
@@ -179,6 +179,7 @@ void CRas_Hands3::Set_State(STATE_ANIM eState, _float fTimeDelta)
 				m_bPatternEnd = false;
 				m_bDissolve = false;
 				m_fCut = 1.f;
+				m_bRender = false;
 			}
 		}
 		break;

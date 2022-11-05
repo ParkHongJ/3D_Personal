@@ -53,6 +53,7 @@ public:
 	HRESULT Ready_Layer_GameObject(const _tchar* pPrototypeTag, const _tchar* pLayerTag, void* pArg = nullptr);
 	void GetDamage(_float fDamage);
 
+	void Parried();
 private:
 	CShader*				m_pShaderCom = nullptr;
 	CRenderer*				m_pRendererCom = nullptr;
@@ -97,6 +98,10 @@ private:
 
 	vector<CGameObject*>				m_Parts;
 	typedef vector<CGameObject*>		PARTS;
+	
+	//무기 활성화
+	_bool								m_bPartsEnable = false;
+
 	ANIM_STATE							m_eAnimState = ANIM_END;
 
 public:

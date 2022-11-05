@@ -41,6 +41,7 @@ public:
 	_float GetDamage() {
 		return m_fDamage;
 	}
+	void SetPlayer(class CPlayer* pPlayer);
 private:
 	_bool m_bEnable = true;
 private:
@@ -51,6 +52,7 @@ private:
 	CTransform*				m_pParentTransformCom = nullptr;
 	CModel*					m_pModelCom = nullptr;
 
+	class CPlayer*			m_pPlayer = nullptr;
 
 	_float					m_fDamage = 25.f;
 private:

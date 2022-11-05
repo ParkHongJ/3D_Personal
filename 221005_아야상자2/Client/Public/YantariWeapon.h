@@ -41,6 +41,8 @@ public:
 	_float GetDamage() {
 		return m_fDamage;
 	}
+	void SetParry();
+	void SetYantari(class CYantari* pYantari);
 private:
 	_bool m_bEnable = true;
 private:

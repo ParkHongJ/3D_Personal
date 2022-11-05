@@ -63,33 +63,39 @@ _bool CRas_Hands2::Tick(_float fTimeDelta)
 	if (!m_bActive)
 		return false;
 
-	
-	//눈에 보일때만 진행
-	Set_State(m_eState, fTimeDelta);
-
-	if (m_bDissolve && m_iPass == 1)
+	if (m_bDissolve)
 	{
 		// 다사라졌다면
 		m_fCut += fTimeDelta* m_fDissolveSpeed;
+		m_iPass = 1;
 		if (m_fCut >= 1.f)
 		{
 			m_bDissolveEnd = true;
-			//m_iPass = 0;
+			m_bRender = false;
 		}
 		else
+		{
 			m_bDissolveEnd = false;
+			m_bRender = true;
+		}
 	}
-	else if (!m_bDissolve && m_iPass == 1)
+	else if (!m_bDissolve)
 	{
 		m_fCut -= fTimeDelta * m_fDissolveSpeed;
+		m_iPass = 1;
+		m_bRender = true;
 		if (m_fCut <= 0.f)
 		{
 			m_bDissolveEnd = true;
-			//m_iPass = 0;
+			m_iPass = 0;
 		}
 		else
 			m_bDissolveEnd = false;
 	}
+	//눈에 보일때만 진행
+	Set_State(m_eState, fTimeDelta);
+
+	
 
 	return false;
 }
@@ -105,7 +111,10 @@ void CRas_Hands2::LateTick(_float fTimeDelta)
 
 	m_bAnimEnd = m_pModelCom->Play_Animation(fTimeDelta);
 
-	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
+	if (m_bRender)
+	{
+		m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
+	}
 }
 
 HRESULT CRas_Hands2::Render()
@@ -271,10 +280,6 @@ void CRas_Hands2::Set_State(STATE_ANIM eState, _float fTimeDelta)
 				vPos = XMVectorSetY(vPos, XMVectorGetY(vPos) + 5.f);
 				//5만큼 위로 올림
 				m_pTransformCom->Set_State(CTransform::STATE_POSITION, vPos);
-
-
-				
-
 			}
 		}
 		break;

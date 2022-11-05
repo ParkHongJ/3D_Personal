@@ -13,9 +13,10 @@ public:
 	void RegisterCamera(class CCamera_Free* pCamera);
 	void RegisterPlayer(class CPlayer* pPlayer);
 
+	void Shake();
 private:
 	class CPlayer* m_pPlayer = nullptr;
-
+	class CCamera_Free* m_pCamera = nullptr;
 public:
 	virtual void Free() override;
 };

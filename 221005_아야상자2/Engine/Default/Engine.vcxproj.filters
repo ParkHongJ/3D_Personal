@@ -466,8 +466,5 @@
     <FxCompile Include="..\Bin\ShaderFiles\Shader_Deferred.hlsl">
       <Filter>03.Components\01.Renderer\Shader</Filter>
     </FxCompile>
-    <FxCompile Include="..\Bin\ShaderFiles\Shader_SSAO.hlsl">
-      <Filter>03.Components\01.Renderer\Shader</Filter>
-    </FxCompile>
   </ItemGroup>
 </Project>
