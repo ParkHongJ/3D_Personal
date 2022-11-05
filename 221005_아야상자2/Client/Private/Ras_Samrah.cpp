@@ -428,7 +428,6 @@ void CRas_Samrah::Set_State(STATE_ANIM eAnim, PHASE ePhase, _float fTimeDelta)
 			{
 				CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 				_float3 vPos = { -14.f, 40.f, 40.f };
-				//XMStoreFloat3(&vPos, XMVector3TransformCoord(m_Sockets[0]->Get_CombinedTransformation().r[3], m_pTransformCom->Get_WorldMatrix()));
 				if (FAILED(pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Aspiration", LEVEL_GAMEPLAY, L"Layer_Effect", &vPos)))
 					E_FAIL;
 				RELEASE_INSTANCE(CGameInstance);

@@ -29,6 +29,8 @@ public:
 	HRESULT Set_Target(class CTransform* pTargetTransform);
 
 	void ReleaseTarget();
+	void Shake(_float fTimeDelta);
+	void ShakeStart(_float fShakeStrength = 0.25f);
 private:
 	class CTransform* m_pTargetTransform = nullptr;
 	class CTransform* m_pPlayerTransform = nullptr;
@@ -37,6 +39,19 @@ private:
 	_float3 m_vCamPosition;
 
 	_float3	m_vPivot;
+
+	//Shake
+	_float  m_fCurrentShakeTime = 0.0f;
+	_float  m_fMaxShakeTime = 0.15f;
+
+	_float  m_fShakeStrength = 0.25f;
+
+	//진동 주기
+	_float	m_fAmplitude = 0.f;
+	_float  m_fAmplitudeMaxTime = 0.005f;
+	_bool	m_bShake = false;
+
+	_float3	m_vOriginPos;
 public:
 	static CCamera_Free* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg);

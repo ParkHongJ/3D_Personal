@@ -600,6 +600,7 @@ HRESULT CLoader::Loading_ForGameYantariLevel()
 	lstrcpy(m_szLoadingText, TEXT("Yantari Level"));
 
 	_matrix		PivotMatrix = XMMatrixIdentity();
+
 	//Yantari
 	/* For.Prototype_Component_Model_Yantari */
 	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);

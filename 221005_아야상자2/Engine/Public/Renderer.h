@@ -11,7 +11,7 @@ class ENGINE_DLL CRenderer final : public CComponent
 {
 public: /* 그려지는 순서에 따른 정의 */
 	enum RENDERGROUP { RENDER_PRIORITY, RENDER_NONALPHABLEND, RENDER_NONLIGHT, RENDER_ALPHABLEND, RENDER_UI, RENDER_END };
-
+	enum SHADERTYPE { SHADER_DEFERRED, SHADER_SSAO, SHADER_END };
 
 private:
 	CRenderer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
@@ -45,7 +45,7 @@ private:
 
 
 private:
-	class CShader*							m_pShader = nullptr;
+	class CShader*							m_pShader[SHADER_END] = { nullptr };
 	_float4x4								m_ViewMatrix, m_ProjMatrix;
 #ifdef _DEBUG
 	class CVIBuffer_Rect*					m_pVIBuffer = nullptr;

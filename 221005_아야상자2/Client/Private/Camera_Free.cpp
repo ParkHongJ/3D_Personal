@@ -1,7 +1,12 @@
 #include "stdafx.h"
+#include "..\Default\Imgui\imgui.h"
+#include "..\Default\Imgui\imgui_impl_dx11.h"
+#include "..\Default\Imgui\imgui_impl_win32.h"
 #include "..\Public\Camera_Free.h"
 #include "GameInstance.h"
 #include "GameMgr.h"
+
+
 CCamera_Free::CCamera_Free(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CCamera(pDevice, pContext)
 {
@@ -68,6 +73,12 @@ _bool CCamera_Free::Tick(_float fTimeDelta)
 		m_pTransformCom->Go_Right(fTimeDelta);
 	}
 
+	if (pGameInstance->Key_Down(DIK_NUMPAD7))
+	{
+		//Shake
+		m_bShake = true;
+		XMStoreFloat3(&m_vOriginPos, m_pTransformCom->Get_State(CTransform::STATE_POSITION));
+	}
 	_long	MouseMove = 0;
 
 	/*if (pGameInstance->Get_DIMKeyState(DIMK_RBUTTON))
@@ -83,55 +94,79 @@ _bool CCamera_Free::Tick(_float fTimeDelta)
 		}
 	}*/
 
-	if (nullptr == m_pTargetTransform)
+	if (!m_bShake)
 	{
-		if (MouseMove = pGameInstance->Get_DIMMoveState(DIMM_X))
+		if (nullptr == m_pTargetTransform)
 		{
-			m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), MouseMove * fTimeDelta * 0.05f);
-		}
+			if (MouseMove = pGameInstance->Get_DIMMoveState(DIMM_X))
+			{
+				m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), MouseMove * fTimeDelta * 0.05f);
+			}
 
-		if (MouseMove = pGameInstance->Get_DIMMoveState(DIMM_Y))
-		{
-			m_pTransformCom->Turn(m_pTransformCom->Get_State(CTransform::STATE_RIGHT), MouseMove * fTimeDelta * 0.05f);
+			if (MouseMove = pGameInstance->Get_DIMMoveState(DIMM_Y))
+			{
+				m_pTransformCom->Turn(m_pTransformCom->Get_State(CTransform::STATE_RIGHT), MouseMove * fTimeDelta * 0.05f);
+			}
+
 		}
 
 	}
 	RELEASE_INSTANCE(CGameInstance);
 
+	ImGui::Begin("Camera");
 
+	/*_float  m_fCurrentShakeTime = 0.0f;
+	_float  m_fMaxShakeTime = 0.15f;
+
+	_float  m_fShakeStrength = 0.25f;
+
+	_float	m_fTestTime = 0.f;
+	_float  m_fTestMaxTime = 0.005f;*/
+
+	ImGui::DragFloat("MaxShakeTime", &m_fMaxShakeTime, 0.01f, -FLT_MAX, +FLT_MAX);
+	ImGui::DragFloat("ShakeStrength", &m_fShakeStrength, 0.01f, -FLT_MAX, +FLT_MAX);
+	ImGui::DragFloat("TestMaxTime", &m_fAmplitude, 0.001f, -FLT_MAX, +FLT_MAX);
+
+	ImGui::End();
 
 	return false;
 }
 
 void CCamera_Free::LateTick(_float fTimeDelta)
 {
-	if (nullptr != m_pTargetTransform)
+	if (!m_bShake)
 	{
-		//타겟위치
-		_vector vTargetPos = m_pTargetTransform->Get_State(CTransform::STATE_POSITION);
+		if (nullptr != m_pTargetTransform)
+		{
+			//타겟위치
+			_vector vTargetPos = m_pTargetTransform->Get_State(CTransform::STATE_POSITION);
 
-		//플레이어 위치
-		_vector vPlayerPos = m_pPlayerTransform->Get_State(CTransform::STATE_POSITION);
+			//플레이어 위치
+			_vector vPlayerPos = m_pPlayerTransform->Get_State(CTransform::STATE_POSITION);
 
-		_vector vMyPos = XMLoadFloat3(&m_vPivot);
-		_vector vTarget = m_pPlayerTransform->Get_State(CTransform::STATE_POSITION) + XMVectorSet(0.f, 3.f, 0.f, 0.f);
+			_vector vMyPos = XMLoadFloat3(&m_vPivot);
+			_vector vTarget = m_pPlayerTransform->Get_State(CTransform::STATE_POSITION) + XMVectorSet(0.f, 3.f, 0.f, 0.f);
 
-		XMStoreFloat3(&m_vPivot, m_pTransformCom->MoveToWards(vMyPos, vTarget, XMVectorGetX(XMVector3Length(vMyPos - vTarget)) * fTimeDelta * 3.f));
-		
-		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMLoadFloat3(&m_vPivot), 1.f));
-		
-		m_pTransformCom->LookAt((vTargetPos + vPlayerPos) * 0.5f);
-		vMyPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
-		vMyPos -= XMVector3Normalize(m_pTransformCom->Get_State(CTransform::STATE_LOOK)) * 8.f;
-		m_pTransformCom->Set_State(CTransform::STATE_POSITION, vMyPos);
+			XMStoreFloat3(&m_vPivot, m_pTransformCom->MoveToWards(vMyPos, vTarget, XMVectorGetX(XMVector3Length(vMyPos - vTarget)) * fTimeDelta * 3.f));
+
+			m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMLoadFloat3(&m_vPivot), 1.f));
+
+			m_pTransformCom->LookAt((vTargetPos + vPlayerPos) * 0.5f);
+			vMyPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+			vMyPos -= XMVector3Normalize(m_pTransformCom->Get_State(CTransform::STATE_LOOK)) * 8.f;
+			m_pTransformCom->Set_State(CTransform::STATE_POSITION, vMyPos);
+		}
+		else
+		{
+			XMStoreFloat3(&m_vPivot, m_pTransformCom->Get_State(CTransform::STATE_POSITION));
+			m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(m_pPlayerTransform->Get_State(CTransform::STATE_POSITION), 1.f));
+			m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMVector3TransformCoord(XMLoadFloat3(&m_vCamPosition), m_pTransformCom->Get_WorldMatrix()), 1.f));
+		}
+
 	}
 	else
-	{
-		XMStoreFloat3(&m_vPivot, m_pTransformCom->Get_State(CTransform::STATE_POSITION));
-		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(m_pPlayerTransform->Get_State(CTransform::STATE_POSITION), 1.f));
-		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMVector3TransformCoord(XMLoadFloat3(&m_vCamPosition), m_pTransformCom->Get_WorldMatrix()),1.f));
-	}
-	
+		Shake(fTimeDelta);
+
 	__super::Tick(fTimeDelta);
 }
 
@@ -197,6 +232,41 @@ void CCamera_Free::ReleaseTarget()
 	{
 		Safe_Release(m_pTargetTransform);
 	}
+}
+
+void CCamera_Free::Shake(_float fTimeDelta)
+{
+	_vector vPos = XMLoadFloat3(&m_vOriginPos);
+
+	m_fCurrentShakeTime += fTimeDelta;
+
+	m_fAmplitude += fTimeDelta;
+
+	if (m_fAmplitude >= m_fAmplitudeMaxTime)
+	{
+		_float fY = (rand() % 3 + -1)  * m_fShakeStrength;
+
+		vPos = XMVectorSetY(vPos, XMVectorGetY(vPos) + fY);
+
+		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(vPos, 1.f));
+		
+		m_fAmplitude = 0.f;
+	}
+
+	if (m_fCurrentShakeTime >= m_fMaxShakeTime)
+	{
+		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMLoadFloat3(&m_vOriginPos), 1.f));
+		m_fAmplitude = 0.f;
+		m_fCurrentShakeTime = 0.f;
+		m_bShake = false;
+	}
+}
+
+void CCamera_Free::ShakeStart(_float fShakeStrength)
+{
+	m_bShake = true;
+	m_fShakeStrength = fShakeStrength;
+	XMStoreFloat3(&m_vOriginPos, m_pTransformCom->Get_State(CTransform::STATE_POSITION));
 }
 
 CCamera_Free * CCamera_Free::Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
