@@ -154,6 +154,7 @@ void CHomonculus::Set_State(ANIM_STATE eState, _float fTimeDelta)
 		{
 			m_eState = Death_01;
 			m_pModelCom->Change_Animation(Death_01, 0.25f, false);
+			CreateExplosion();
 		}
 		break;
 	case CHomonculus::GetUp:
@@ -202,6 +203,31 @@ void CHomonculus::WalkState(_float fTimeDelta)
 		m_eState = Explode;
 		m_pModelCom->Change_Animation(Explode, 0.25f, false);
 	}
+}
+
+void CHomonculus::CreateExplosion()
+{
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+	for (_uint i = 0; i < 5; ++i)
+	{
+		/*vector v(rand(-1, 1), rand(-1, 1), rand(-1, 1));
+		v.normalize();
+		v *= rand(0, radius);*/
+		_vector vPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+		//rand()%(b-a+1)+a ==> a부터 b의 범위이다.
+		_float3 vRandPos = { (_float)(rand() % 3 - 1), (_float)(rand() % 3 - 1) , (_float)(rand() % 3 - 1) };
+		XMStoreFloat3(&vRandPos, XMVector3Normalize(XMLoadFloat3(&vRandPos)));
+		_float fRadius = (_float)(rand() % 1) + 3.5f;
+
+		vRandPos.x *= fRadius;
+		vRandPos.y *= fRadius;
+		vRandPos.z *= fRadius;
+
+		XMStoreFloat3(&vRandPos, XMLoadFloat3(&vRandPos) + vPos);
+
+		pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Explosion", LEVEL_GAMEPLAY, L"Effect", &vRandPos);
+	}
+	RELEASE_INSTANCE(CGameInstance);
 }
 
 HRESULT CHomonculus::Ready_Components()

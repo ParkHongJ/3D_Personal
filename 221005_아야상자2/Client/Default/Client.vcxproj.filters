@@ -133,6 +133,9 @@
     <Filter Include="01.Levels\03.Yantari">
       <UniqueIdentifier>{6bec0125-7763-4fc5-a5b5-3c04648d2c1d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\Boss\Ras_Samrah\RasEffect\Explosion">
+      <UniqueIdentifier>{c3c8ed44-a106-4ef6-85b1-2f5e6f5b3a15}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -294,6 +297,9 @@
     <ClInclude Include="..\public\Hit_Rect.h">
       <Filter>02.GameObjects\Effect</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\Explosion.h">
+      <Filter>02.GameObjects\Boss\Ras_Samrah\RasEffect\Explosion</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -442,6 +448,9 @@
     </ClCompile>
     <ClCompile Include="..\private\Hit_Rect.cpp">
       <Filter>02.GameObjects\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Explosion.cpp">
+      <Filter>02.GameObjects\Boss\Ras_Samrah\RasEffect\Explosion</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

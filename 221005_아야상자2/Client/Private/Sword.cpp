@@ -123,7 +123,7 @@ void CSword::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
 
 void CSword::SetPlayer(CPlayer * pPlayer)
 {
-	//m_pPlayer = pPlayer;
+	m_pPlayer = pPlayer;
 	//Safe_AddRef(m_pPlayer);
 }
 
@@ -195,7 +195,6 @@ void CSword::Free()
 {
 	__super::Free();
 
-	Safe_Release(m_pPlayer);
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pRendererCom);

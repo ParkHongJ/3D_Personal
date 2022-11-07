@@ -36,7 +36,7 @@ HRESULT CPlayer::Initialize(void * pArg)
 		return E_FAIL;
 
 	RELEASE_INSTANCE(CGameInstance);
-	/*m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(0.f,0.f,0.f,1.f));*/
+
 	strcpy_s(m_szName, "Player");
 
 	CGameMgr* pGameMgr = GET_INSTANCE(CGameMgr);
@@ -59,6 +59,7 @@ _bool CPlayer::Tick(_float fTimeDelta)
 	{
 		pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Hit_Effect", LEVEL_GAMEPLAY, L"Effect");
 	}
+	
 	RELEASE_INSTANCE(CGameInstance);
 	if (m_bIncreaseStamina)
 	{
@@ -303,6 +304,7 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 			m_eCurrentAnimState = Parry_2;
 		}
 		m_bCanParry = true;
+		((CSword*)(m_Parts[PART_WEAPON]))->SetState(CSword::PARRY);
 		break;
 	case CPlayer::Parry_2:
 		m_bWeaponEnable = true;
@@ -499,6 +501,7 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 	case CPlayer::CoupFaible1_frappe2:
 	{
 		m_bWeaponEnable = true;
+		((CSword*)(m_Parts[PART_WEAPON]))->SetState(CSword::ATTACK);
 		CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 		if (pGameInstance->Get_DIMKeyState(DIMK_LBUTTON))
 		{

@@ -79,7 +79,7 @@ void CGameInstance::Tick_Engine(_float fTimeDelta)
 	m_pFrustum->Tick();
 
 	m_pPicking->Tick();
-
+	
 	m_pObject_Manager->LateTick(fTimeDelta);
 
 	m_pCollider_Manager->Collision(CCollider_Manager::PLAYER, CCollider_Manager::MONSTER, fTimeDelta);

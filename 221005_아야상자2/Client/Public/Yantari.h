@@ -65,7 +65,7 @@ private:
 
 private:
 	vector<class CHierarchyNode*>		m_Sockets;
-	_float								m_fHp = 100;
+	_float								m_fHp = 1000;
 	_bool								m_bAnimEnd = false;
 	_float								m_fSpeed = 40.f;
 	_float								m_fRotationSpeed = 7.f;

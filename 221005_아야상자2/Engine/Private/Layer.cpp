@@ -34,19 +34,36 @@ HRESULT CLayer::Initialize()
 void CLayer::Tick(_float fTimeDelta)
 {
 	list<CGameObject*>::iterator iter = m_GameObjects.begin();
-	for (auto& pGameObject : m_GameObjects)
+
+	for (iter = m_GameObjects.begin(); iter != m_GameObjects.end();)
 	{
-		if (nullptr != pGameObject && pGameObject->IsActive())
+		if ((*iter)->IsActive())
 		{
-			_bool bDestroy = pGameObject->Tick(fTimeDelta);
-			if (bDestroy) { 
-				Safe_Release(pGameObject);
-				//m_GameObjects.erase(iter);
-				//m_GameObjects.remove(iIndex);
+			_bool bDestroy = (*iter)->Tick(fTimeDelta);
+			if (bDestroy) {
+				Safe_Release(*iter);
+				iter = m_GameObjects.erase(iter);
 			}
+			else
+				iter++;
 		}
-		iter++;
+		else
+			iter++;
 	}
+	//for (auto& pGameObject : m_GameObjects)
+	//{
+	//	if (nullptr != pGameObject && pGameObject->IsActive())
+	//	{
+	//		_bool bDestroy = pGameObject->Tick(fTimeDelta);
+	//		if (bDestroy) { 
+	//			Safe_Release(pGameObject);
+	//			iter = m_GameObjects.erase(iter);
+	//			//m_GameObjects.remove(iIndex);
+	//		}
+	//		else
+	//			iter++;
+	//	}
+	//}
 }
 
 void CLayer::LateTick(_float fTimeDelta)

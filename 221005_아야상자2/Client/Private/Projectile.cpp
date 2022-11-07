@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "..\Public\Projectile.h"
 #include "GameInstance.h"
-
+#include <time.h>
 CProjectile::CProjectile(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
 {
@@ -44,6 +44,7 @@ _bool CProjectile::Tick(_float fTimeDelta)
 	{
 		if (m_ProjInfo.fLimitY > XMVectorGetY(m_pTransformCom->Get_State(CTransform::STATE_POSITION)))
 		{
+			CreateExplosion();
 			m_bDestroy = true;
 			return true;
 		}
@@ -157,6 +158,31 @@ HRESULT CProjectile::Render()
 void CProjectile::SetDir(_fvector vDir)
 {
 	XMStoreFloat3(&m_vDir, vDir);
+}
+
+void CProjectile::CreateExplosion()
+{
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+	for (_uint i = 0; i < 5; ++i)
+	{
+		/*vector v(rand(-1, 1), rand(-1, 1), rand(-1, 1));
+		v.normalize();
+		v *= rand(0, radius);*/
+		_vector vPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+		//rand()%(b-a+1)+a ==> a부터 b의 범위이다.
+		_float3 vRandPos = { (_float)(rand() % 3 - 1), (_float)(rand() % 3 - 1) , (_float)(rand() % 3 - 1) };
+		XMStoreFloat3(&vRandPos, XMVector3Normalize(XMLoadFloat3(&vRandPos)));
+		_float fRadius = (_float)(rand() % 1) + 3.5f;
+
+		vRandPos.x *= fRadius;
+		vRandPos.y *= fRadius;
+		vRandPos.z *= fRadius;
+
+		XMStoreFloat3(&vRandPos, XMLoadFloat3(&vRandPos) + vPos);
+
+		pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Explosion", LEVEL_GAMEPLAY, L"Effect", &vRandPos);
+	}
+	RELEASE_INSTANCE(CGameInstance);
 }
 
 void CProjectile::OnCollisionEnter(CGameObject * pOther, _float fTimeDelta)

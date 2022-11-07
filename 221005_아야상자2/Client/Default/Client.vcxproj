@@ -178,6 +178,7 @@
     <ClInclude Include="..\Public\Client_Defines.h" />
     <ClInclude Include="..\public\Cylinder.h" />
     <ClInclude Include="..\public\EndChain.h" />
+    <ClInclude Include="..\public\Explosion.h" />
     <ClInclude Include="..\Public\ForkLift.h" />
     <ClInclude Include="..\public\GameMgr.h" />
     <ClInclude Include="..\public\Hammer.h" />
@@ -230,6 +231,7 @@
     <ClCompile Include="..\private\ChaudronChain.cpp" />
     <ClCompile Include="..\private\Cylinder.cpp" />
     <ClCompile Include="..\private\EndChain.cpp" />
+    <ClCompile Include="..\private\Explosion.cpp" />
     <ClCompile Include="..\Private\ForkLift.cpp" />
     <ClCompile Include="..\private\GameMgr.cpp" />
     <ClCompile Include="..\private\Hammer.cpp" />

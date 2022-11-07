@@ -5,6 +5,7 @@
 #include "Level_Loading.h"
 #include "ImGui_Manager.h"
 #include "Time.h"
+#include "GameMgr.h"
 using namespace Client;
 
 CMainApp::CMainApp()
@@ -59,8 +60,8 @@ void CMainApp::Tick(_float fTimeDelta)
 	CImGui_Manager::Get_Instance()->RenderBegin();
 #endif // _DEBUG
 
-	
-	m_pGameInstance->Tick_Engine(fTimeDelta);
+	_float fResultTimeDelta = CGameMgr::Get_Instance()->Tick(fTimeDelta);
+	m_pGameInstance->Tick_Engine(fResultTimeDelta);
 	
 #ifdef _DEBUG
 	CImGui_Manager::Get_Instance()->Render();
@@ -224,8 +225,7 @@ void CMainApp::Free()
 #ifdef _DEBUG
 	CImGui_Manager::Get_Instance()->Destroy_Instance();
 #endif // _DEBUG
-
+	CGameMgr::Get_Instance()->Destroy_Instance();
 	
 	CGameInstance::Release_Engine();
-
 }

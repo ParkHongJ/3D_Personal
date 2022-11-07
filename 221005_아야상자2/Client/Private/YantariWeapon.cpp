@@ -127,7 +127,6 @@ void CYantariWeapon::SetParry()
 void CYantariWeapon::SetYantari(CYantari * pYantari)
 {
 	m_pYantari = pYantari;
-	Safe_AddRef(m_pYantari);
 }
 
 HRESULT CYantariWeapon::Ready_Components()
@@ -139,8 +138,6 @@ HRESULT CYantariWeapon::Ready_Components()
 	/* For.Com_ParentTransform */
 	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Transform"), TEXT("Com_ParentTransform"), (CComponent**)&m_pParentTransformCom)))
 		return E_FAIL;
-
-
 
 	/* For.Com_Renderer */
 	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Renderer"), TEXT("Com_Renderer"), (CComponent**)&m_pRendererCom)))
@@ -197,7 +194,6 @@ void CYantariWeapon::Free()
 {
 	__super::Free();
 
-	Safe_Release(m_pYantari);
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pRendererCom);

@@ -55,6 +55,9 @@ public:
 	void Set_State(ANIM_STATE eState, _float fTimeDelta);
 	void GetDamaged(_float fDamage);
 	void WalkState(_float fTimeDelta);
+
+
+	void CreateExplosion();
 private:
 	HRESULT Ready_Components();
 

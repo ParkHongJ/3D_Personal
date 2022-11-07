@@ -3,6 +3,7 @@
 #include "GameInstance.h"
 #include "Ras_Samrah.h"
 #include "Sword.h"
+#include "GameMgr.h"
 CRas_Hands::CRas_Hands(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
 {
@@ -176,20 +177,25 @@ void CRas_Hands::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
 		if (!m_bHitDelay)
 		{
 			m_bHitDelay = true;
-			((CRas_Samrah*)m_pRasTransform->GetOwner())->GetDamaged(((CSword*)pOther)->GetDamage());
+			CSword* pSword = (CSword*)pOther;
+			if (pSword->GetState() == CSword::ATTACK)
+			{
+				((CRas_Samrah*)m_pRasTransform->GetOwner())->GetDamaged((pSword)->GetDamage());
+				CGameMgr::Get_Instance()->SetTimeScale(0.1f, 0.25f);
+				CGameMgr::Get_Instance()->Shake(0.35f);
+			}
 		}
 	}
 }
 
 void CRas_Hands::OnCollisionExit(CGameObject * pOther, _float fTimeDelta)
 {
-	m_bHitEnabled = true;
 	int a = 10;
 }
 
 void CRas_Hands::GetDamaged(_float fDamage)
 {
-	 ((CRas_Samrah*)m_pRasTransform->GetOwner())->GetDamaged(fDamage);
+	((CRas_Samrah*)m_pRasTransform->GetOwner())->GetDamaged(fDamage);
 }
 
 void CRas_Hands::Set_State(STATE_ANIM eState, _float fTimeDelta)
@@ -218,12 +224,13 @@ void CRas_Hands::Set_State(STATE_ANIM eState, _float fTimeDelta)
 			if (!m_bAttackEnabled && !m_bHitEnabled)
 			{
 				m_bAttackEnabled = true;
+				CGameMgr::Get_Instance()->Shake(0.4f, 0.55f);
 			}
 			m_fAttackTime += fTimeDelta;
 
 			//땅바닥에 내리치고 피격이 가능한시간.
 			//이제 피격이 안되면
-			if (m_fAttackTime > m_fAttackTimeMax)
+			if (m_fAttackTime >= m_fAttackTimeMax)
 			{
 				m_bHitEnabled = false;
 				m_fAttackTime = 0.f;
@@ -232,6 +239,9 @@ void CRas_Hands::Set_State(STATE_ANIM eState, _float fTimeDelta)
 				//이때 사라져야함
 				m_bDissolve = true;
 				m_fCut = 0.f;
+
+				//m_pModelCom->Change_Animation(HAND_IDLE);
+				m_eState = HAND_END;
 			}
 		}
 		break;

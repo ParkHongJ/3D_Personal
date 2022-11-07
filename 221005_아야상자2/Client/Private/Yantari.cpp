@@ -4,6 +4,7 @@
 #include "HierarchyNode.h"
 #include "Sword.h"
 #include "YantariWeapon.h"
+#include "GameMgr.h"
 
 CYantari::CYantari(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
@@ -51,7 +52,7 @@ _bool CYantari::Tick(_float fTimeDelta)
 		return false;
 	if (m_bDestroy)
 		return true;
-	//Set_State(m_eAnimState, fTimeDelta);
+	Set_State(m_eAnimState, fTimeDelta);
 	
 	//돌진기를 사용 할 수 없다면. 쿨타임적용.
 	if (!m_bCanDashAttack)
@@ -171,7 +172,13 @@ void CYantari::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
 		if (!m_bHitDelay)
 		{
 			m_bHitDelay = true;
-			GetDamage(((CSword*)pOther)->GetDamage());
+			CSword* pSword = ((CSword*)pOther);
+			if (pSword->GetState() == CSword::ATTACK)
+			{
+				GetDamage(pSword->GetDamage());
+				CGameMgr::Get_Instance()->SetTimeScale(0.1f, 0.25f);
+				CGameMgr::Get_Instance()->Shake(0.15f, 0.35f);
+			}
 		}
 	}
 }

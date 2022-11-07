@@ -43,6 +43,7 @@ public:
 	virtual HRESULT Render();
 
 	void SetDir(_fvector vDir);
+	void CreateExplosion();
 public:
 	virtual void OnCollisionEnter(CGameObject* pOther, _float fTimeDelta) override;
 	virtual void OnCollisionStay(CGameObject* pOther, _float fTimeDelta) override;

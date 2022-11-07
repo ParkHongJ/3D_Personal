@@ -30,7 +30,7 @@ public:
 
 	void ReleaseTarget();
 	void Shake(_float fTimeDelta);
-	void ShakeStart(_float fShakeStrength = 0.25f);
+	void ShakeStart(_float fShakeTime = 0.15f, _float fShakeStrength = 0.25f);
 private:
 	class CTransform* m_pTargetTransform = nullptr;
 	class CTransform* m_pPlayerTransform = nullptr;

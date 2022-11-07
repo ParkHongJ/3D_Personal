@@ -65,7 +65,10 @@ HRESULT CLevel_GamePlay::Initialize()
 
 void CLevel_GamePlay::Tick(_float fTimeDelta)
 {
+	//_float fNewTimeDelta =  CGameMgr::Get_Instance()->Tick(fTimeDelta);
+
 	__super::Tick(fTimeDelta);
+
 	CUI_Manager::Get_Instance()->Tick(fTimeDelta);
 	
 	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
