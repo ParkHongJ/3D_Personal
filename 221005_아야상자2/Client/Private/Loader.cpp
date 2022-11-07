@@ -325,6 +325,11 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/ShatterdUIResources/ProgressBackGround.png"), 1))))
 		return E_FAIL;
 
+	/* For.Prototype_Component_Texture_ProgressBackGround */
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_LIFEBAR_BOSS"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/ShatterdUIResources/LIFEBAR_BOSS.png"), 1))))
+		return E_FAIL;
+
 	///* For.Prototype_Component_Texture_Sky */
 	//if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Sky"),
 	//	CTexture::Create(m_pGraphic_Device, CTexture::TYPE_CUBEMAP, TEXT("../Bin/Resources/Textures/SkyBox/Sky_%d.dds"), 4))))
@@ -357,9 +362,9 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 
 	/* For.Prototype_Component_Model_Fiona */
 	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
-	if (!pGameInstance->IsOverlapComponent(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Fiona")))
+	if (!pGameInstance->IsOverlapComponent(LEVEL_STATIC, TEXT("Prototype_Component_Model_Fiona")))
 	{
-		if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Fiona"),
+		if (FAILED(pGameInstance->Add_Prototype(LEVEL_STATIC, TEXT("Prototype_Component_Model_Fiona"),
 			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_ANIM, L"../Bin/Resources/Meshes/Fiona/LEVEL_8.txt", PivotMatrix))))
 			return E_FAIL;
 	}
@@ -424,7 +429,7 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 	if (!pGameInstance->IsOverlapComponent(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_ChaudronChain")))
 	{
 		if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_ChaudronChain"),
-			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_ANIM, L"../Bin/Resources/Meshes/Boss/Chaudron/Chaudron.dat", PivotMatrix))))
+			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_ANIM, L"../Bin/Resources/Meshes/Boss/Chaudron/Chaudron.dat", PivotMatrix, true))))
 			return E_FAIL;
 	}
 
@@ -640,6 +645,37 @@ HRESULT CLoader::Loading_ForGameYantariLevel()
 			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/Yantari/YantariWeapon.dat", PivotMatrix, true))))
 			return E_FAIL;
 	}
+
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (!pGameInstance->IsOverlapComponent(LEVEL_YANTARI, TEXT("Prototype_Component_Model_Cube")))
+	{
+		if (FAILED(pGameInstance->Add_Prototype(LEVEL_YANTARI, TEXT("Prototype_Component_Model_Cube"),
+			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/Yantari/Map/Cube.dat", PivotMatrix))))
+			return E_FAIL;
+	}
+
+
+	lstrcpy(m_szLoadingText, TEXT("충돌체를 로딩중입니다. "));
+
+	/* For.Prototype_Component_Collider_AABB */
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_YANTARI, TEXT("Prototype_Component_Collider_AABB"),
+		CAABB::Create(m_pDevice, m_pContext, CCollider::TYPE_AABB))))
+		return E_FAIL;
+
+	/* For.Prototype_Component_Collider_OBB */
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_YANTARI, TEXT("Prototype_Component_Collider_OBB"),
+		COBB::Create(m_pDevice, m_pContext, CCollider::TYPE_OBB))))
+		return E_FAIL;
+
+	/* For.Prototype_Component_Collider_Sphere */
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_YANTARI, TEXT("Prototype_Component_Collider_Sphere"),
+		CSphere::Create(m_pDevice, m_pContext, CCollider::TYPE_SPHERE))))
+		return E_FAIL;
+
+	/* For.Prototype_Component_Navigation */
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_YANTARI, TEXT("Prototype_Component_Navigation"),
+		CNavigation::Create(m_pDevice, m_pContext, TEXT("../Bin/Data/NavigationDataTest.dat")))))
+		return E_FAIL;
 	RELEASE_INSTANCE(CGameInstance);
 
 	m_isFinished = true;

@@ -589,9 +589,6 @@ HRESULT CRas_Samrah::Ready_Hands()
 	m_pHand3->SetRas_Samrah(m_pTransformCom);
 	m_pHand3->Set_OffsetPos(m_pTransformCom);
 
-
-
-
 	RELEASE_INSTANCE(CGameInstance);
 	return S_OK;
 }

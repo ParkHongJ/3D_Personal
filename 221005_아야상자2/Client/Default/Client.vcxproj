@@ -191,6 +191,8 @@
     <ClInclude Include="..\public\Level_Yantari.h" />
     <ClInclude Include="..\Public\Loader.h" />
     <ClInclude Include="..\Public\MainApp.h" />
+    <ClInclude Include="..\public\Mantari.h" />
+    <ClInclude Include="..\public\MantariWeapon.h" />
     <ClInclude Include="..\Public\Monster.h" />
     <ClInclude Include="..\Public\Particle_Rect.h" />
     <ClInclude Include="..\Public\Player.h" />
@@ -244,6 +246,8 @@
     <ClCompile Include="..\private\Level_Yantari.cpp" />
     <ClCompile Include="..\Private\Loader.cpp" />
     <ClCompile Include="..\Private\MainApp.cpp" />
+    <ClCompile Include="..\private\Mantari.cpp" />
+    <ClCompile Include="..\private\MantariWeapon.cpp" />
     <ClCompile Include="..\Private\Monster.cpp" />
     <ClCompile Include="..\Private\Particle_Rect.cpp" />
     <ClCompile Include="..\Private\Player.cpp" />

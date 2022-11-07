@@ -42,8 +42,8 @@ HRESULT CLevel_GamePlay::Initialize()
 	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Ras_Hands3", L"Layer_RasHands")))
 		return E_FAIL;
 
-	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Yantari", L"Layer_Yantari")))
-		return E_FAIL;
+	//if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Yantari", L"Layer_Yantari")))
+	//	return E_FAIL;
 	//Rassamrah
 	if (FAILED(Ready_Layer_Monster(TEXT("Layer_Monster"))))
 		return E_FAIL;
@@ -74,8 +74,8 @@ void CLevel_GamePlay::Tick(_float fTimeDelta)
 	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 	if (pGameInstance->Key_Down(DIK_RETURN))
 	{
-		if (FAILED(pGameInstance->Open_Level(LEVEL_LOADING, CLevel_Loading::Create(m_pDevice, m_pContext, LEVEL_YANTARI))))
-			return;
+		//if (FAILED(pGameInstance->Open_Level(LEVEL_LOADING, CLevel_Loading::Create(m_pDevice, m_pContext, LEVEL_YANTARI))))
+		//	return;
 	}
 	RELEASE_INSTANCE(CGameInstance);
 }

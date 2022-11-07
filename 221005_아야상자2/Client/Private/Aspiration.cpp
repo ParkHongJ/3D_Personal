@@ -65,7 +65,6 @@ void CAspiration::LateTick(_float fTimeDelta)
 
 	m_fTime += fTimeDelta * 5.f;
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
-
 }
 
 HRESULT CAspiration::Render()
