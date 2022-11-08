@@ -332,6 +332,7 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 		{
 			m_pModelCom->Change_Animation(IdleFight);
 			m_eCurrentAnimState = IdleFight;
+			((CSword*)m_Parts[PART_WEAPON])->SetState(CSword::ATTACK);
 		}
 		break;
 	case CPlayer::Projection:
@@ -600,7 +601,7 @@ void CPlayer::Idle_State(_float fTimeDelta)
 	if (pGameInstance->Key_Down(LockON))
 	{
 		//새로운 타겟을 등록
-		Set_Target(LEVEL_GAMEPLAY, L"Layer_Yantari", L"Com_Transform", 0);
+		Set_Target(LEVEL_YANTARI, L"Layer_Yantari", L"Com_Transform", 0);
 
 		m_eCurrentAnimState = IdleFight;
 		m_pModelCom->Change_Animation(IdleFight);
@@ -757,7 +758,7 @@ void CPlayer::Run_State(_float fTimeDelta)
 	if (pGameInstance->Key_Down(LockON))
 	{
 		//새로운 타겟을 등록
-		Set_Target(LEVEL_GAMEPLAY, L"Layer_Yantari", L"Com_Transform", 0);
+		Set_Target(LEVEL_YANTARI, L"Layer_Yantari", L"Com_Transform", 0);
 
 		m_eCurrentAnimState = IdleFight;
 		m_pModelCom->Change_Animation(IdleFight);
@@ -871,6 +872,7 @@ void CPlayer::Idle_Fight_State(_float fTimeDelta)
 	{
 		m_pModelCom->Change_Animation(Parry, 0.0f, false);
 		m_eCurrentAnimState = Parry;
+		((CSword*)m_Parts[PART_WEAPON])->SetState(CSword::PARRY);
 	}
 	else
 	{
@@ -1087,7 +1089,7 @@ HRESULT CPlayer::Ready_Components()
 		return E_FAIL;
 		
 	/* For.Com_Shader */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_AnimModel"), TEXT("Com_Shader"), (CComponent**)&m_pShaderCom)))
+	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Shader_AnimModel"), TEXT("Com_Shader"), (CComponent**)&m_pShaderCom)))
 		return E_FAIL;
 	
 	/* For.Com_Model */
@@ -1101,7 +1103,7 @@ HRESULT CPlayer::Ready_Components()
 
 	ColliderDesc.vSize = _float3(1.f, 2.f, 1.f);
 	ColliderDesc.vCenter = _float3(0.f, ColliderDesc.vSize.y * 0.5f, 0.f);
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_AABB"), TEXT("Com_AABB"), (CComponent**)&m_pColliderCom[COLLIDERTYPE_AABB], &ColliderDesc)))
+	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Collider_AABB"), TEXT("Com_AABB"), (CComponent**)&m_pColliderCom[COLLIDERTYPE_AABB], &ColliderDesc)))
 		return E_FAIL;
 
 	/* For.Com_OBB */	
@@ -1111,7 +1113,7 @@ HRESULT CPlayer::Ready_Components()
 	ColliderDesc.vCenter = _float3(0.f, ColliderDesc.vSize.y * 0.5f, 0.f);
 	/*ColliderDesc.vRotation = _float3(0.f, XMConvertToRadians(45.f), 0.f);*/
 	ColliderDesc.vRotation = _float3(0.f, 0.f, 0.f);
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_OBB"), TEXT("Com_OBB"), (CComponent**)&m_pColliderCom[COLLIDERTYPE_OBB], &ColliderDesc)))
+	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Collider_OBB"), TEXT("Com_OBB"), (CComponent**)&m_pColliderCom[COLLIDERTYPE_OBB], &ColliderDesc)))
 		return E_FAIL;
 
 	/* For.Com_SPHERE */
@@ -1120,7 +1122,7 @@ HRESULT CPlayer::Ready_Components()
 	ColliderDesc.vSize = _float3(1.f, 1.f, 1.f);
 	ColliderDesc.vCenter = _float3(0.f, ColliderDesc.vSize.y * 0.5f, 0.f);
 	ColliderDesc.vRotation = _float3(0.f, XMConvertToRadians(45.f), 0.f);
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_Sphere"), TEXT("Com_SPHERE"), (CComponent**)&m_pColliderCom[COLLIDERTYPE_SPHERE], &ColliderDesc)))
+	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Collider_Sphere"), TEXT("Com_SPHERE"), (CComponent**)&m_pColliderCom[COLLIDERTYPE_SPHERE], &ColliderDesc)))
 		return E_FAIL;
 
 	/* For.Com_Navigation */
@@ -1128,7 +1130,7 @@ HRESULT CPlayer::Ready_Components()
 	ZeroMemory(&NaviDesc, sizeof(CNavigation::NAVIGATIONDESC));
 	NaviDesc.iCurrentIndex = 0;
 
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Navigation"), TEXT("Com_Navigation"), (CComponent**)&m_pNavigationCom, &NaviDesc)))
+	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Navigation"), TEXT("Com_Navigation"), (CComponent**)&m_pNavigationCom, &NaviDesc)))
 		return E_FAIL;
 
 	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);

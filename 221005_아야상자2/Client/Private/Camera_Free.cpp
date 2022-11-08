@@ -1,7 +1,11 @@
 #include "stdafx.h"
+
+#ifdef _DEBUG
 #include "..\Default\Imgui\imgui.h"
 #include "..\Default\Imgui\imgui_impl_dx11.h"
-#include "..\Default\Imgui\imgui_impl_win32.h"
+#include "..\Default\Imgui\imgui_impl_win32.h"  
+#endif // _DEBUG
+
 #include "..\Public\Camera_Free.h"
 #include "GameInstance.h"
 #include "GameMgr.h"
@@ -30,17 +34,6 @@ HRESULT CCamera_Free::Initialize(void * pArg)
 {
 	if (FAILED(__super::Initialize(pArg)))
 		return E_FAIL;
-	/* For.Com_AABB */
-	CCollider::COLLIDERDESC		ColliderDesc;
-	ZeroMemory(&ColliderDesc, sizeof(CCollider::COLLIDERDESC));
-
-	ColliderDesc.vSize = _float3(1.f, 2.f, 1.f);
-	ColliderDesc.vCenter = _float3(0.f, ColliderDesc.vSize.y * 0.5f, 0.f);
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_Sphere"), TEXT("Com_SPHERE"), (CComponent**)&m_pColliderCom, &ColliderDesc)))
-		return E_FAIL;
-
-	
-
 	
 	CGameMgr* pGameMgr = GET_INSTANCE(CGameMgr);
 	pGameMgr->RegisterCamera(this);
@@ -110,12 +103,15 @@ _bool CCamera_Free::Tick(_float fTimeDelta)
 
 	RELEASE_INSTANCE(CGameInstance);
 
+#ifdef _DEBUG
 	ImGui::Begin("Camera");
 	ImGui::DragFloat("MaxShakeTime", &m_fMaxShakeTime, 0.01f, -FLT_MAX, +FLT_MAX);
 	ImGui::DragFloat("ShakeStrength", &m_fShakeStrength, 0.01f, -FLT_MAX, +FLT_MAX);
 	ImGui::DragFloat("TestMaxTime", &m_fAmplitudeMaxTime, 0.001f, -FLT_MAX, +FLT_MAX);
 
 	ImGui::End();
+#endif // _DEBUG
+
 
 	return false;
 }
@@ -124,26 +120,23 @@ void CCamera_Free::LateTick(_float fTimeDelta)
 {
 	if (nullptr != m_pTargetTransform)
 	{
-		if (!m_bShake)
-		{
-			//타겟위치
-			_vector vTargetPos = m_pTargetTransform->Get_State(CTransform::STATE_POSITION);
+		//타겟위치
+		_vector vTargetPos = m_pTargetTransform->Get_State(CTransform::STATE_POSITION);
 
-			//플레이어 위치
-			_vector vPlayerPos = m_pPlayerTransform->Get_State(CTransform::STATE_POSITION);
+		//플레이어 위치
+		_vector vPlayerPos = m_pPlayerTransform->Get_State(CTransform::STATE_POSITION);
 
-			_vector vMyPos = XMLoadFloat3(&m_vPivot);
-			_vector vTarget = m_pPlayerTransform->Get_State(CTransform::STATE_POSITION) + XMVectorSet(0.f, 3.f, 0.f, 0.f);
+		_vector vMyPos = XMLoadFloat3(&m_vPivot);
+		_vector vTarget = m_pPlayerTransform->Get_State(CTransform::STATE_POSITION) + XMVectorSet(0.f, 0.25f, 0.f, 0.f);
 
-			XMStoreFloat3(&m_vPivot, m_pTransformCom->MoveToWards(vMyPos, vTarget, XMVectorGetX(XMVector3Length(vMyPos - vTarget)) * fTimeDelta * 3.f));
+		XMStoreFloat3(&m_vPivot, m_pTransformCom->MoveToWards(vMyPos, vTarget, XMVectorGetX(XMVector3Length(vMyPos - vTarget)) * fTimeDelta * 3.f));
 
-			m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMLoadFloat3(&m_vPivot), 1.f));
+		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMLoadFloat3(&m_vPivot), 1.f));
 
-			m_pTransformCom->LookAt((vTargetPos + vPlayerPos) * 0.5f);
-			vMyPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
-			vMyPos -= XMVector3Normalize(m_pTransformCom->Get_State(CTransform::STATE_LOOK)) * 8.f;
-			m_pTransformCom->Set_State(CTransform::STATE_POSITION, vMyPos);
-		}
+		m_pTransformCom->LookAt((vTargetPos + vPlayerPos) * 0.5f);
+		vMyPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+		vMyPos -= XMVector3Normalize(m_pTransformCom->Get_State(CTransform::STATE_LOOK)) * 8.f;
+		m_pTransformCom->Set_State(CTransform::STATE_POSITION, vMyPos);
 	}
 	else
 	{
@@ -309,6 +302,4 @@ void CCamera_Free::Free()
 		Safe_Release(m_pTargetTransform);
 	if (nullptr != m_pPlayerTransform)
 		Safe_Release(m_pPlayerTransform);
-
-	Safe_Release(m_pColliderCom);
 }

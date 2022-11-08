@@ -257,10 +257,10 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 		CExplosion::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
-	///* For.Prototype_GameObject_Sky */
-	//if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Sky"),
-	//	CSky::Create(m_pGraphic_Device))))
-	//	return E_FAIL;
+	/* For.Prototype_GameObject_Sky */
+	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Sky"),
+		CSky::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 
 	///* For.Prototype_GameObject_Effect */
 	//if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Effect"),
@@ -371,9 +371,9 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 
 	/* For.Prototype_Component_Model_Sword */
 	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
-	if (!pGameInstance->IsOverlapComponent(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Sword")))
+	if (!pGameInstance->IsOverlapComponent(LEVEL_STATIC, TEXT("Prototype_Component_Model_Sword")))
 	{
-		if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Sword"),
+		if (FAILED(pGameInstance->Add_Prototype(LEVEL_STATIC, TEXT("Prototype_Component_Model_Sword"),
 			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Weapon/DurgaSword.txt", PivotMatrix))))
 			return E_FAIL;
 	}
@@ -541,22 +541,6 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 			return E_FAIL;
 	}
 
-	PivotMatrix = XMMatrixScaling(0.025f, 0.025f, 0.025f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
-	if (!pGameInstance->IsOverlapComponent(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Yantari")))
-	{
-		if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Yantari"),
-			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_ANIM, L"../Bin/Resources/Meshes/Boss/Yantari/Yantari.dat", PivotMatrix, true))))
-			return E_FAIL;
-	}
-
-	//YantariWeapon
-	/* For.Prototype_Component_Model_YantariWeapon */
-	if (!pGameInstance->IsOverlapComponent(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_YantariWeapon")))
-	{
-		if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_YantariWeapon"),
-			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/Yantari/YantariWeapon.dat", PivotMatrix, true))))
-			return E_FAIL;
-	}
 	//Explosion
 	/* For.Prototype_Component_Model_YantariWeapon */
 	if (!pGameInstance->IsOverlapComponent(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Explosion")))
@@ -566,49 +550,6 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 			return E_FAIL;
 	}
 
-	//Shader
-
-	/* For.Prototype_Component_Shader_Terrain */
-	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_Terrain"),
-		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxNorTex.hlsl"), VTXNORTEX_DECLARATION::Elements, VTXNORTEX_DECLARATION::iNumElements))))
-		return E_FAIL;
-
-	/* For.Prototype_Component_Shader_Model */
-	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_Model"),
-		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxModel.hlsl"), VTXMODEL_DECLARATION::Elements, VTXMODEL_DECLARATION::iNumElements))))
-		return E_FAIL;
-
-	/* For.Prototype_Component_Shader_AnimModel */
-	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_AnimModel"),
-		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxAnimModel.hlsl"), VTXANIMMODEL_DECLARATION::Elements, VTXANIMMODEL_DECLARATION::iNumElements))))
-		return E_FAIL;
-	
-	/* For.Prototype_Component_Shader_ModelInstance*/
-	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_ModelInstance"),
-		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxModelInstance.hlsl"), VTXMODELINSTANCE_DECLARATION::Elements, VTXMODELINSTANCE_DECLARATION::iNumElements))))
-		return E_FAIL;
-
-	lstrcpy(m_szLoadingText, TEXT("충돌체를 로딩중입니다. "));
-
-	/* For.Prototype_Component_Collider_AABB */
-	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_AABB"),
-		CAABB::Create(m_pDevice, m_pContext, CCollider::TYPE_AABB))))
-		return E_FAIL;
-
-	/* For.Prototype_Component_Collider_OBB */
-	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_OBB"),
-		COBB::Create(m_pDevice, m_pContext, CCollider::TYPE_OBB))))
-		return E_FAIL;
-
-	/* For.Prototype_Component_Collider_Sphere */
-	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_Sphere"),
-		CSphere::Create(m_pDevice, m_pContext, CCollider::TYPE_SPHERE))))
-		return E_FAIL;
-
-	/* For.Prototype_Component_Navigation */
-	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Navigation"),
-		CNavigation::Create(m_pDevice, m_pContext, TEXT("../Bin/Data/NavigationDataTest.dat")))))
-		return E_FAIL;
 
 	lstrcpy(m_szLoadingText, TEXT("로딩이 완료되었습니ㅏㄷ.  "));
 
@@ -625,10 +566,88 @@ HRESULT CLoader::Loading_ForGameYantariLevel()
 
 	_matrix		PivotMatrix = XMMatrixIdentity();
 
-	//Yantari
-	/* For.Prototype_Component_Model_Yantari */
 	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 
+#pragma region Terrain
+	/* For.Prototype_GameObject_Terrain*/
+	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Terrain"),
+		CTerrain::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For.Prototype_Component_VIBuffer_Terrain */
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_VIBuffer_Terrain"),
+		CVIBuffer_Terrain::Create(m_pDevice, m_pContext, 2, 2))))
+		return E_FAIL;
+
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Terrain"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Terrain/Grass_%d.dds"), 2))))
+		return E_FAIL;
+
+	/* For.Prototype_Component_Texture_Brush*/
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Brush"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Terrain/Brush.png"), 1))))
+		return E_FAIL;
+
+	/* For.Prototype_Component_Texture_Filter */
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Filter"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Terrain/Filter.bmp"), 1))))
+		return E_FAIL;
+#pragma endregion
+
+	/* For.Prototype_GameObject_Camera_Free */
+	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Camera_Free"),
+		CCamera_Free::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For.Prototype_GameObject_Yantari */
+	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Yantari"),
+		CYantari::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For.Prototype_GameObject_YantariWeapon */
+	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_YantariWeapon"),
+		CYantariWeapon::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For.Prototype_GameObject_Player*/
+	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Player"),
+		CPlayer::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For.Prototype_GameObject_Sword */
+	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Sword"),
+		CSword::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For.Prototype_GameObject_StaticObject */
+	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_StaticObject"),
+		CStaticObject::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For.Prototype_GameObject_Sky */
+	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Sky"),
+		CSky::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	//Player
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (!pGameInstance->IsOverlapComponent(LEVEL_STATIC, TEXT("Prototype_Component_Model_Fiona")))
+	{
+		if (FAILED(pGameInstance->Add_Prototype(LEVEL_STATIC, TEXT("Prototype_Component_Model_Fiona"),
+			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_ANIM, L"../Bin/Resources/Meshes/Fiona/LEVEL_8.txt", PivotMatrix))))
+			return E_FAIL;
+	}
+
+	//PlayerWeapon
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (!pGameInstance->IsOverlapComponent(LEVEL_STATIC, TEXT("Prototype_Component_Model_Sword")))
+	{
+		if (FAILED(pGameInstance->Add_Prototype(LEVEL_STATIC, TEXT("Prototype_Component_Model_Sword"),
+			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Weapon/DurgaSword.txt", PivotMatrix))))
+			return E_FAIL;
+	}
+
+	//Yantari
 	PivotMatrix = XMMatrixScaling(0.025f, 0.025f, 0.025f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
 	if (!pGameInstance->IsOverlapComponent(LEVEL_YANTARI, TEXT("Prototype_Component_Model_Yantari")))
 	{
@@ -638,7 +657,6 @@ HRESULT CLoader::Loading_ForGameYantariLevel()
 	}
 
 	//YantariWeapon
-	/* For.Prototype_Component_Model_YantariWeapon */
 	if (!pGameInstance->IsOverlapComponent(LEVEL_YANTARI, TEXT("Prototype_Component_Model_YantariWeapon")))
 	{
 		if (FAILED(pGameInstance->Add_Prototype(LEVEL_YANTARI, TEXT("Prototype_Component_Model_YantariWeapon"),
@@ -646,36 +664,24 @@ HRESULT CLoader::Loading_ForGameYantariLevel()
 			return E_FAIL;
 	}
 
+	//YantariMap
 	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
 	if (!pGameInstance->IsOverlapComponent(LEVEL_YANTARI, TEXT("Prototype_Component_Model_Cube")))
 	{
 		if (FAILED(pGameInstance->Add_Prototype(LEVEL_YANTARI, TEXT("Prototype_Component_Model_Cube"),
-			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/Yantari/Map/Cube.dat", PivotMatrix))))
+			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/Yantari/Map/Cube.dat", PivotMatrix, true))))
 			return E_FAIL;
 	}
 
+	//SkyDomeLevel6
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (!pGameInstance->IsOverlapComponent(LEVEL_YANTARI, TEXT("Prototype_Component_Model_SkyDomeLevel6")))
+	{
+		if (FAILED(pGameInstance->Add_Prototype(LEVEL_YANTARI, TEXT("Prototype_Component_Model_SkyDomeLevel6"),
+			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Sky/SkyDomeLevel6.dat", PivotMatrix, true))))
+			return E_FAIL;
+	}
 
-	lstrcpy(m_szLoadingText, TEXT("충돌체를 로딩중입니다. "));
-
-	/* For.Prototype_Component_Collider_AABB */
-	if (FAILED(pGameInstance->Add_Prototype(LEVEL_YANTARI, TEXT("Prototype_Component_Collider_AABB"),
-		CAABB::Create(m_pDevice, m_pContext, CCollider::TYPE_AABB))))
-		return E_FAIL;
-
-	/* For.Prototype_Component_Collider_OBB */
-	if (FAILED(pGameInstance->Add_Prototype(LEVEL_YANTARI, TEXT("Prototype_Component_Collider_OBB"),
-		COBB::Create(m_pDevice, m_pContext, CCollider::TYPE_OBB))))
-		return E_FAIL;
-
-	/* For.Prototype_Component_Collider_Sphere */
-	if (FAILED(pGameInstance->Add_Prototype(LEVEL_YANTARI, TEXT("Prototype_Component_Collider_Sphere"),
-		CSphere::Create(m_pDevice, m_pContext, CCollider::TYPE_SPHERE))))
-		return E_FAIL;
-
-	/* For.Prototype_Component_Navigation */
-	if (FAILED(pGameInstance->Add_Prototype(LEVEL_YANTARI, TEXT("Prototype_Component_Navigation"),
-		CNavigation::Create(m_pDevice, m_pContext, TEXT("../Bin/Data/NavigationDataTest.dat")))))
-		return E_FAIL;
 	RELEASE_INSTANCE(CGameInstance);
 
 	m_isFinished = true;

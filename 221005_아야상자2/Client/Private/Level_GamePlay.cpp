@@ -42,8 +42,6 @@ HRESULT CLevel_GamePlay::Initialize()
 	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Ras_Hands3", L"Layer_RasHands")))
 		return E_FAIL;
 
-	//if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Yantari", L"Layer_Yantari")))
-	//	return E_FAIL;
 	//Rassamrah
 	if (FAILED(Ready_Layer_Monster(TEXT("Layer_Monster"))))
 		return E_FAIL;
@@ -65,8 +63,6 @@ HRESULT CLevel_GamePlay::Initialize()
 
 void CLevel_GamePlay::Tick(_float fTimeDelta)
 {
-	//_float fNewTimeDelta =  CGameMgr::Get_Instance()->Tick(fTimeDelta);
-
 	__super::Tick(fTimeDelta);
 
 	CUI_Manager::Get_Instance()->Tick(fTimeDelta);
@@ -74,8 +70,8 @@ void CLevel_GamePlay::Tick(_float fTimeDelta)
 	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 	if (pGameInstance->Key_Down(DIK_RETURN))
 	{
-		//if (FAILED(pGameInstance->Open_Level(LEVEL_LOADING, CLevel_Loading::Create(m_pDevice, m_pContext, LEVEL_YANTARI))))
-		//	return;
+		if (FAILED(pGameInstance->Open_Level(LEVEL_LOADING, CLevel_Loading::Create(m_pDevice, m_pContext, LEVEL_YANTARI))))
+			return;
 	}
 	RELEASE_INSTANCE(CGameInstance);
 }
@@ -169,8 +165,15 @@ HRESULT CLevel_GamePlay::Ready_Layer_BackGround(const _tchar * pLayerTag)
 	if (FAILED(pGameInstance->Add_GameObjectToLayer(TEXT("Prototype_GameObject_Terrain"), LEVEL_GAMEPLAY, pLayerTag)))
 		return E_FAIL;
 
-
-	if (FAILED(pGameInstance->Add_GameObjectToLayer(TEXT("Prototype_GameObject_Sky"), LEVEL_GAMEPLAY, pLayerTag)))
+	struct  Temp
+	{
+		_tchar pPrototypeTag[MAX_PATH] = L"Prototype_Component_Model_Sky";
+		_uint iNumLevel = LEVEL_END;
+	};
+	Temp tTemp;
+	//wprintf(tTemp.pPrototypeTag, L"Prototype_Component_Model_Sky");
+	tTemp.iNumLevel = LEVEL_GAMEPLAY;
+	if (FAILED(pGameInstance->Add_GameObjectToLayer(TEXT("Prototype_GameObject_Sky"), LEVEL_GAMEPLAY, pLayerTag, &tTemp)))
 		return E_FAIL;
 
 

@@ -99,10 +99,10 @@ HRESULT CModel::Initialize_Prototype(TYPE eType, const _tchar * pModelFilePath, 
 	return S_OK;
 }
 
-HRESULT CModel::Initialize_Prototype(TYPE eType, const _tchar * pModelFilePath, _uint iNumInstance, _fmatrix PivotMatrix)
+HRESULT CModel::Initialize_Prototype(TYPE eType, const _tchar * pModelFilePath, _uint iNumInstance, _fmatrix PivotMatrix, _bool bNewVersion)
 {
 	m_eModelType = eType;
-	LoadBinary(pModelFilePath);
+	LoadBinary(pModelFilePath, bNewVersion);
 	XMStoreFloat4x4(&m_PivotMatrix, PivotMatrix);
 
 
@@ -125,8 +125,7 @@ HRESULT CModel::Initialize_Prototype(TYPE eType, const _tchar * pModelFilePath, 
 	/* keyframe : 어떤시간?, 상태(vScale, vRotation, vPosition) */
 
 	if (m_eModelType == TYPE_ANIM)
-		if (FAILED(Ready_Animations()))
-			return E_FAIL;
+		return E_FAIL;
 
 	return S_OK;
 }
@@ -609,11 +608,11 @@ CModel * CModel::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, 
 	return pInstance;
 }
 
-CModel * CModel::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, TYPE eType, const _tchar * pModelFilePath, _uint iNumInstance, _fmatrix PivotMatrix)
+CModel * CModel::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, TYPE eType, const _tchar * pModelFilePath, _uint iNumInstance, _fmatrix PivotMatrix, _bool bNewVersion)
 {
 	CModel*			pInstance = new CModel(pDevice, pContext);
 
-	if (FAILED(pInstance->Initialize_Prototype(eType, pModelFilePath, iNumInstance, PivotMatrix)))
+	if (FAILED(pInstance->Initialize_Prototype(eType, pModelFilePath, iNumInstance, PivotMatrix, bNewVersion)))
 	{
 		MSG_BOX(TEXT("Failed To Created : CModel"));
 		Safe_Release(pInstance);

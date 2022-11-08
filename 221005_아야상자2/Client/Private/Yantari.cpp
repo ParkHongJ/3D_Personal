@@ -40,9 +40,10 @@ HRESULT CYantari::Initialize(void * pArg)
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, m_pNavigationCom->GetCellPos(1));
 	
 	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
-	m_pTargetTransform = (CTransform*)pGameInstance->Get_ComponentPtr(LEVEL_GAMEPLAY, L"Layer_Player", L"Com_Transform", 0);
+	m_pTargetTransform = (CTransform*)pGameInstance->Get_ComponentPtr(LEVEL_YANTARI, L"Layer_Player", L"Com_Transform", 0);
 	Safe_AddRef(m_pTargetTransform);
 	RELEASE_INSTANCE(CGameInstance);
+	//m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(0.f, 0.f, 0.f, 1.f));
 	return S_OK;
 }
 
@@ -53,7 +54,7 @@ _bool CYantari::Tick(_float fTimeDelta)
 	if (m_bDestroy)
 		return true;
 	Set_State(m_eAnimState, fTimeDelta);
-	
+	m_iPass = 0;
 	//돌진기를 사용 할 수 없다면. 쿨타임적용.
 	if (!m_bCanDashAttack)
 	{
@@ -72,6 +73,7 @@ _bool CYantari::Tick(_float fTimeDelta)
 			m_bHitDelay = false;
 			m_fCurrentHitDelayTime = 0.f;
 		}
+		m_iPass = 2;
 	}
 
 	m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix());
@@ -133,6 +135,8 @@ HRESULT CYantari::Render()
 
 	CGameInstance*		pGameInstance = GET_INSTANCE(CGameInstance);
 
+	if (FAILED(m_pShaderCom->Set_RawValue("g_vCamPosition", &pGameInstance->Get_CamPosition(), sizeof(_float4))))
+		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_WorldMatrix", &m_pTransformCom->Get_WorldFloat4x4_TP(), sizeof(_float4x4))))
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_ViewMatrix", &pGameInstance->Get_TransformFloat4x4_TP(CPipeLine::D3DTS_VIEW), sizeof(_float4x4))))
@@ -153,7 +157,7 @@ HRESULT CYantari::Render()
 		/*if (FAILED(m_pModelCom->SetUp_OnShader(m_pShaderCom, m_pModelCom->Get_MaterialIndex(i), aiTextureType_NORMALS, "g_NormalTexture")))
 			return E_FAIL;*/
 
-		if (FAILED(m_pModelCom->Render(m_pShaderCom, i)))
+		if (FAILED(m_pModelCom->Render(m_pShaderCom, i, m_iPass)))
 			return E_FAIL;
 	}
 
@@ -171,13 +175,14 @@ void CYantari::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
 	{
 		if (!m_bHitDelay)
 		{
-			m_bHitDelay = true;
 			CSword* pSword = ((CSword*)pOther);
 			if (pSword->GetState() == CSword::ATTACK)
 			{
+				m_bHitDelay = true;
 				GetDamage(pSword->GetDamage());
-				CGameMgr::Get_Instance()->SetTimeScale(0.1f, 0.25f);
-				CGameMgr::Get_Instance()->Shake(0.15f, 0.35f);
+				CGameMgr::Get_Instance()->SetTimeScale(0.1f, 0.35f);
+				CGameMgr::Get_Instance()->Shake(0.35f);
+				m_iPass = 2;
 			}
 		}
 	}
@@ -192,7 +197,7 @@ HRESULT CYantari::Ready_Layer_GameObject(const _tchar * pPrototypeTag, const _tc
 {
 	CGameInstance*		pGameInstance = GET_INSTANCE(CGameInstance);
 
-	if (FAILED(pGameInstance->Add_GameObjectToLayer(pPrototypeTag, LEVEL_GAMEPLAY, pLayerTag, pArg)))
+	if (FAILED(pGameInstance->Add_GameObjectToLayer(pPrototypeTag, LEVEL_YANTARI, pLayerTag, pArg)))
 		return E_FAIL;
 
 	RELEASE_INSTANCE(CGameInstance);
@@ -218,7 +223,9 @@ void CYantari::GetDamage(_float fDamage)
 void CYantari::Parried()
 {
 	m_eAnimState = HIT;
-	m_pModelCom->Change_Animation(HIT);
+	m_pModelCom->Change_Animation(HIT, 0.f, false);
+
+	CGameMgr::Get_Instance()->SetTimeScale(0.1f, 0.45f);
 }
 
 void CYantari::Set_State(ANIM_STATE eState, _float fTimeDelta)
@@ -484,6 +491,11 @@ void CYantari::Set_State(ANIM_STATE eState, _float fTimeDelta)
 	case CYantari::GETUP:
 		break;
 	case CYantari::HIT:
+		if (m_bAnimEnd)
+		{
+			m_eAnimState = IDLE;
+			m_pModelCom->Change_Animation(IDLE);
+		}
 		break;
 	case CYantari::HIT_DEBUT:
 		break;
@@ -804,11 +816,11 @@ HRESULT CYantari::Ready_Components()
 		return E_FAIL;
 
 	/* For.Com_Shader */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_AnimModel"), TEXT("Com_Shader"), (CComponent**)&m_pShaderCom)))
+	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Shader_AnimModel"), TEXT("Com_Shader"), (CComponent**)&m_pShaderCom)))
 		return E_FAIL;
 
 	/* For.Com_Model */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Yantari"), TEXT("Com_Model"), (CComponent**)&m_pModelCom)))
+	if (FAILED(__super::Add_Component(LEVEL_YANTARI, TEXT("Prototype_Component_Model_Yantari"), TEXT("Com_Model"), (CComponent**)&m_pModelCom)))
 		return E_FAIL;
 
 	/* For.Com_Sphere */
@@ -818,7 +830,7 @@ HRESULT CYantari::Ready_Components()
 	ColliderDesc.vSize = _float3(1.5f, 4.f, 1.5f);
 	ColliderDesc.vCenter = _float3(0.f, ColliderDesc.vSize.y * 0.5f, 0.f);
 	ColliderDesc.vRotation = _float3(0.f, 0.f, 0.f);
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_OBB"), TEXT("Com_OBB"), (CComponent**)&m_pColliderCom, &ColliderDesc)))
+	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Collider_OBB"), TEXT("Com_OBB"), (CComponent**)&m_pColliderCom, &ColliderDesc)))
 		return E_FAIL;
 
 	/* For.Com_Navigation */
@@ -826,7 +838,7 @@ HRESULT CYantari::Ready_Components()
 	ZeroMemory(&NaviDesc, sizeof(CNavigation::NAVIGATIONDESC));
 	NaviDesc.iCurrentIndex = 0;
 
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Navigation"), TEXT("Com_Navigation"), (CComponent**)&m_pNavigationCom, &NaviDesc)))
+	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Navigation"), TEXT("Com_Navigation"), (CComponent**)&m_pNavigationCom, &NaviDesc)))
 		return E_FAIL;
 
 	return S_OK;

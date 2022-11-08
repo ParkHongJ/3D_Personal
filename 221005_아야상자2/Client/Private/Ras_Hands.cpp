@@ -73,6 +73,8 @@ _bool CRas_Hands::Tick(_float fTimeDelta)
 			m_bHitDelay = false;
 			m_fCurrentDelayTime = 0.f;
 		}
+		//나중에 문제 있을 수 있음
+		m_iPass = 2;
 	}
 
 
@@ -97,6 +99,7 @@ void CRas_Hands::LateTick(_float fTimeDelta)
 	{
 		m_pColliderCom[COLLIDERTYPE_SPHERE]->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom[COLLIDERTYPE_SPHERE]);
 	}
+
 	if (m_bAttackEnabled)
 	{
 		m_pColliderCom[COLLIDERTYPE_OBB]->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom[COLLIDERTYPE_OBB]);
@@ -131,7 +134,7 @@ HRESULT CRas_Hands::Render()
 
 	if (FAILED(m_pShaderCom->Set_RawValue("g_Cut", &m_fCut, sizeof(_float))))
 		return E_FAIL;
-	if (FAILED(m_pShaderCom->Set_RawValue("g_WorldMatrix", &m_pTransformCom->Get_WorldFloat4x4_TP(), sizeof(_float4x4))))
+	if (FAILED(m_pShaderCom->Set_RawValue("g_vCamPosition", &pGameInstance->Get_CamPosition(), sizeof(_float4))))
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_WorldMatrix", &m_pTransformCom->Get_WorldFloat4x4_TP(), sizeof(_float4x4))))
 		return E_FAIL;
@@ -183,6 +186,7 @@ void CRas_Hands::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
 				((CRas_Samrah*)m_pRasTransform->GetOwner())->GetDamaged((pSword)->GetDamage());
 				CGameMgr::Get_Instance()->SetTimeScale(0.1f, 0.25f);
 				CGameMgr::Get_Instance()->Shake(0.35f);
+				m_iPass = 2;
 			}
 		}
 	}
@@ -421,7 +425,7 @@ HRESULT CRas_Hands::Ready_Components()
 		return E_FAIL;
 
 	/* For.Com_Shader */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_AnimModel"), TEXT("Com_Shader"), (CComponent**)&m_pShaderCom)))
+	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Shader_AnimModel"), TEXT("Com_Shader"), (CComponent**)&m_pShaderCom)))
 		return E_FAIL;
 
 	/* For.Com_Model */
@@ -438,7 +442,7 @@ HRESULT CRas_Hands::Ready_Components()
 	ColliderDesc.vSize = _float3(8.f, 3.f, 10.f);
 	ColliderDesc.vCenter = _float3(0.f, -13.f, 25.f);
 	ColliderDesc.vRotation = _float3(0.f, 0.f, 0.f);
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_OBB"), TEXT("Com_OBB"), (CComponent**)&m_pColliderCom[COLLIDERTYPE_OBB], &ColliderDesc)))
+	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Collider_OBB"), TEXT("Com_OBB"), (CComponent**)&m_pColliderCom[COLLIDERTYPE_OBB], &ColliderDesc)))
 		return E_FAIL;
 
 	/* For.Com_SPHERE */
@@ -447,7 +451,7 @@ HRESULT CRas_Hands::Ready_Components()
 	ColliderDesc.vSize = _float3(8.f,8.f, 8.f);
 	ColliderDesc.vCenter = _float3(0.f, -10.f, 25.f);
 	ColliderDesc.vRotation = _float3(0.f, XMConvertToRadians(45.f), 0.f);
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Collider_Sphere"), TEXT("Com_SPHERE"), (CComponent**)&m_pColliderCom[COLLIDERTYPE_SPHERE], &ColliderDesc)))
+	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Collider_Sphere"), TEXT("Com_SPHERE"), (CComponent**)&m_pColliderCom[COLLIDERTYPE_SPHERE], &ColliderDesc)))
 		return E_FAIL;
 
 

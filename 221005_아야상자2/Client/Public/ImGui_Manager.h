@@ -16,7 +16,7 @@ class CImGui_Manager final : public CBase
 {
 	DECLARE_SINGLETON(CImGui_Manager)
 public:
-	enum Tool { TOOL_MAP, TOOL_UNIT, TOOL_CAMERA, TOOL_UI, TOOL_PARTICLE, TOOL_ANIMATION, TOOL_NAVIGATION, TOOL_END };
+	enum Tool { TOOL_MAP, TOOL_UNIT, TOOL_CAMERA, TOOL_UI, TOOL_PARTICLE, TOOL_ANIMATION, TOOL_NAVIGATION, TOOL_POSTPROCESSING, TOOL_END };
 	enum NavMesh { NAV_ADD, NAV_EDIT_POINT, NAV_EDIT_CELL, NAV_END };
 	typedef struct AnimInfo {
 		string name;
@@ -77,20 +77,7 @@ public:
 		_uint iPass;
 		_float fAlpha;
 	}CREATE_UI_INFO;
-	//typedef struct CreateObjInfo
-	//{
-	//	//생성할때 필요한 자료.
-	//	//이름
-	//	//프로토타입 태그
-	//	//레이어 태그
-	//	//레벨
-	//	//모델명
-	//	std::string szName;
-	//	std::wstring pPrototypeTag;
-	//	std::wstring pLayerTag;
-	//	std::wstring pModelTag;
-	//	unsigned int iNumLevel;
-	//}CREATE_INFO;
+
 public:
 	CImGui_Manager();
 	virtual ~CImGui_Manager() = default;
@@ -131,7 +118,7 @@ public:
 		return wstring(src, src + strlen(src));
 	}
 
-	_vector GetRotation(_fmatrix WorldMatrix);
+	void GetLayer(_uint iNumLevel = LEVEL_GAMEPLAY);
 private:
 	ID3D11Device* m_pDevice;
 	ID3D11DeviceContext* m_pContext;
@@ -143,6 +130,9 @@ private:
 
 	_bool	m_bPicking = false;
 	_bool	m_bRenderCell = false;
+
+	_uint	m_iNumLevel = LEVEL_GAMEPLAY;
+
 	//test
 	_float3	vPosition;
 	_float3	vScale;

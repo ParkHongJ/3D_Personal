@@ -147,11 +147,16 @@ void CImGui_Manager::Render()
 			m_eCurrentTool = TOOL_ANIMATION;
 
 		ImGui::Spacing();
-		ImGui::PushStyleColor(ImGuiCol_Button, m_eCurrentTool == CImGui_Manager::TOOL_ANIMATION ? active : inactive);
+		ImGui::PushStyleColor(ImGuiCol_Button, m_eCurrentTool == CImGui_Manager::TOOL_NAVIGATION ? active : inactive);
 		if (ImGui::Button("NavMeshTool", ImVec2(230 - 15, 41)))
 			m_eCurrentTool = TOOL_NAVIGATION;
 
-		ImGui::PopStyleColor(4);
+		ImGui::Spacing();
+		ImGui::PushStyleColor(ImGuiCol_Button, m_eCurrentTool == CImGui_Manager::TOOL_POSTPROCESSING ? active : inactive);
+		if (ImGui::Button("PostProcessing", ImVec2(230 - 15, 41)))
+			m_eCurrentTool = TOOL_POSTPROCESSING;
+
+		ImGui::PopStyleColor(5);
 	}
 
 	ImGui::NextColumn();
@@ -286,7 +291,7 @@ void CImGui_Manager::Render()
 			if (m_pPrototypeComponent == nullptr)
 			{
 				CGameInstance* pGameinstance = GET_INSTANCE(CGameInstance);
-				m_pPrototypeComponent = pGameinstance->GetPrototypeComponent(LEVEL_GAMEPLAY);
+				m_pPrototypeComponent = pGameinstance->GetPrototypeComponent(m_iNumLevel);
 				RELEASE_INSTANCE(CGameInstance);
 			}
 
@@ -364,7 +369,7 @@ void CImGui_Manager::Render()
 				MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, PrototypeName, (_uint)strlen(PrototypeName), tObjInfo.pPrototypeTag, MAX_PATH);
 				MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, TextureName, (_uint)strlen(TextureName), tObjInfo.pTextureTag, MAX_PATH);
 
-				tObjInfo.iNumLevel = LEVEL_GAMEPLAY;
+				tObjInfo.iNumLevel = m_iNumLevel;
 				sprintf_s(tObjInfo.szName, ObjName);
 
 				XMStoreFloat4x4(&tObjInfo.WorldMatrix, XMMatrixIdentity());
@@ -440,6 +445,24 @@ void CImGui_Manager::Render()
 		break;
 		case CImGui_Manager::TOOL_UNIT:
 		{
+			const char* LevelArray[] = { "LEVEL_STATIC", "LEVEL_LOADING", "LEVEL_LOGO", "LEVEL_GAMEPLAY", "LEVEL_YANTARI" };
+			static int item_current = 0;
+			ImGui::Combo("LEVEL", &item_current, LevelArray, IM_ARRAYSIZE(LevelArray));
+						
+			ImGui::SameLine();
+			
+			if (ImGui::Button("GetLayer"))
+			{
+				m_iNumLevel = item_current;
+				//모든 초기화가 이루어져야함
+				GetLayer(m_iNumLevel);
+				CGameInstance* pGameinstance = GET_INSTANCE(CGameInstance);
+				m_pPrototypeComponent = pGameinstance->GetPrototypeComponent(m_iNumLevel);
+				RELEASE_INSTANCE(CGameInstance);
+				m_CreateObj.clear();
+				m_CreateUIObj.clear();
+			}
+
 			if (m_pPrototypeGameObject == nullptr)
 			{
 				CGameInstance* pGameinstance = GET_INSTANCE(CGameInstance);
@@ -450,7 +473,7 @@ void CImGui_Manager::Render()
 			if (m_pPrototypeComponent == nullptr)
 			{
 				CGameInstance* pGameinstance = GET_INSTANCE(CGameInstance);
-				m_pPrototypeComponent = pGameinstance->GetPrototypeComponent(LEVEL_GAMEPLAY);
+				m_pPrototypeComponent = pGameinstance->GetPrototypeComponent(m_iNumLevel);
 				RELEASE_INSTANCE(CGameInstance);
 			}
 
@@ -534,7 +557,7 @@ void CImGui_Manager::Render()
 					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, LayerName, (_uint)strlen(LayerName), tObjInfo.pLayerTag, MAX_PATH);
 					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, ModelName, (_uint)strlen(ModelName), tObjInfo.pModelTag, MAX_PATH);
 
-					tObjInfo.iNumLevel = LEVEL_GAMEPLAY;
+					tObjInfo.iNumLevel = m_iNumLevel;
 					sprintf_s(tObjInfo.szName, ObjName);
 
 					wsprintf(tObjInfo.pLayerTag, L"StaticObject");
@@ -556,7 +579,7 @@ void CImGui_Manager::Render()
 					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, LayerName, (_uint)strlen(LayerName), tObjInfo.pLayerTag, MAX_PATH);
 					MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, ModelName, (_uint)strlen(ModelName), tObjInfo.pModelTag, MAX_PATH);
 
-					tObjInfo.iNumLevel = LEVEL_GAMEPLAY;
+					tObjInfo.iNumLevel = m_iNumLevel;
 					sprintf_s(tObjInfo.szName, ObjName);
 
 					XMStoreFloat4x4(&tObjInfo.WorldMatrix, XMMatrixIdentity());
@@ -633,6 +656,8 @@ void CImGui_Manager::Render()
 		}
 		break;
 		case CImGui_Manager::TOOL_CAMERA:
+			break;
+		case CImGui_Manager::TOOL_POSTPROCESSING:
 			break;
 		case CImGui_Manager::TOOL_PARTICLE:
 			ImGui::DragFloat("Duration", &m_fDuration, 0.005f);
@@ -1424,7 +1449,7 @@ void CImGui_Manager::ShowHierarchy()
 	//레이어 받아오기
 	if (m_pHierarchyList == nullptr)
 	{
-		m_pHierarchyList = CGameInstance::Get_Instance()->GetLayers(LEVEL_GAMEPLAY);
+		GetLayer(m_iNumLevel);
 	}
 
 
@@ -1544,30 +1569,9 @@ void CImGui_Manager::Inspector()
 	}
 }
 
-_vector CImGui_Manager::GetRotation(_fmatrix WorldMatrix)
+void CImGui_Manager::GetLayer(_uint iNumLevel)
 {
-
-	/*if (WorldMatrix.r[0].m128_f32[0] == 1.0f)
-	{
-		Yaw = atan2f(WorldMatrix.r[0].m128_f32[2], WorldMatrix.r[2].m128_f32[3]);
-		Pitch = 0;
-		Roll = 0;
-
-	}
-	else if (WorldMatrix.r[0].m128_f32[0] == -1.0f)
-	{
-		Yaw = atan2f(WorldMatrix.r[0].m128_f32[2], WorldMatrix.r[0].m128_f32[3]);
-		Pitch = 0;
-		Roll = 0;
-	}
-	else
-	{
-
-		Yaw = atan2(-_31, _11);
-		Pitch = asin(_21);
-		Roll = atan2(-_23, _22);
-	}*/
-	return XMVectorSet(1.f, 1.f, 1.f, 1.f);
+	m_pHierarchyList = CGameInstance::Get_Instance()->GetLayers(iNumLevel);
 }
 
 void CImGui_Manager::RenderEnd()

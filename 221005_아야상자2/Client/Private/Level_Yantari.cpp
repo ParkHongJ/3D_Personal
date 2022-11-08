@@ -16,7 +16,23 @@ HRESULT CLevel_Yantari::Initialize()
 	if (FAILED(__super::Initialize()))
 		return E_FAIL;
 	
-	Ready_Layer_GameObject(L"Prototype_GameObject_Yantari", L"Layer_Yantari");
+	if (FAILED(Ready_Lights()))
+		return E_FAIL;
+
+	if (FAILED(Ready_Layer_BackGround(TEXT("Layer_BackGround"))))
+		return E_FAIL;
+
+	if (FAILED(Ready_Layer_Player(TEXT("Layer_Player"))))
+		return E_FAIL;
+
+	if (FAILED(Ready_Layer_Camera(TEXT("Layer_Camera"))))
+		return E_FAIL;
+
+	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Yantari", L"Layer_Yantari")))
+		return E_FAIL;
+	
+
+	
 	return S_OK;
 }
 
@@ -89,7 +105,7 @@ HRESULT CLevel_Yantari::Ready_Layer_Camera(const _tchar * pLayerTag)
 	CameraDesc.TransformDesc.fSpeedPerSec = 5.f;
 	CameraDesc.TransformDesc.fRotationPerSec = XMConvertToRadians(90.0f);
 
-	if (FAILED(pGameInstance->Add_GameObjectToLayer(TEXT("Prototype_GameObject_Camera_Free"), LEVEL_GAMEPLAY, pLayerTag, &CameraDesc)))
+	if (FAILED(pGameInstance->Add_GameObjectToLayer(TEXT("Prototype_GameObject_Camera_Free"), LEVEL_YANTARI, pLayerTag, &CameraDesc)))
 		return E_FAIL;
 
 	Safe_Release(pGameInstance);
@@ -102,7 +118,7 @@ HRESULT CLevel_Yantari::Ready_Layer_Player(const _tchar * pLayerTag)
 	CGameInstance*		pGameInstance = CGameInstance::Get_Instance();
 	Safe_AddRef(pGameInstance);
 
-	if (FAILED(pGameInstance->Add_GameObjectToLayer(TEXT("Prototype_GameObject_Player"), LEVEL_GAMEPLAY, pLayerTag)))
+	if (FAILED(pGameInstance->Add_GameObjectToLayer(TEXT("Prototype_GameObject_Player"), LEVEL_YANTARI, pLayerTag)))
 		return E_FAIL;
 
 
@@ -116,11 +132,17 @@ HRESULT CLevel_Yantari::Ready_Layer_BackGround(const _tchar * pLayerTag)
 	CGameInstance*		pGameInstance = CGameInstance::Get_Instance();
 	Safe_AddRef(pGameInstance);
 
-	if (FAILED(pGameInstance->Add_GameObjectToLayer(TEXT("Prototype_GameObject_Terrain"), LEVEL_GAMEPLAY, pLayerTag)))
+	if (FAILED(pGameInstance->Add_GameObjectToLayer(TEXT("Prototype_GameObject_Terrain"), LEVEL_YANTARI, pLayerTag)))
 		return E_FAIL;
 
-
-	if (FAILED(pGameInstance->Add_GameObjectToLayer(TEXT("Prototype_GameObject_Sky"), LEVEL_GAMEPLAY, pLayerTag)))
+	struct  Temp
+	{
+		_tchar pPrototypeTag[MAX_PATH] = L"Prototype_Component_Model_SkyDomeLevel6";
+		_uint iNumLevel = LEVEL_END;
+	};
+	Temp tTemp;
+	tTemp.iNumLevel = LEVEL_YANTARI;
+	if (FAILED(pGameInstance->Add_GameObjectToLayer(TEXT("Prototype_GameObject_Sky"), LEVEL_YANTARI, pLayerTag, &tTemp)))
 		return E_FAIL;
 
 
@@ -137,7 +159,7 @@ HRESULT CLevel_Yantari::Ready_Layer_Monster(const _tchar * pLayerTag)
 	CGameInstance*		pGameInstance = CGameInstance::Get_Instance();
 	Safe_AddRef(pGameInstance);
 
-	if (FAILED(pGameInstance->Add_GameObjectToLayer(TEXT("Prototype_GameObject_RasSamrah"), LEVEL_GAMEPLAY, pLayerTag)))
+	if (FAILED(pGameInstance->Add_GameObjectToLayer(TEXT("Prototype_GameObject_RasSamrah"), LEVEL_YANTARI, pLayerTag)))
 		return E_FAIL;
 
 	Safe_Release(pGameInstance);

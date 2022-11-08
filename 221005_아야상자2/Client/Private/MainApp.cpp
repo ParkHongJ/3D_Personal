@@ -27,9 +27,6 @@ HRESULT CMainApp::Initialize()
 	GraphicDesc.iWinSizeX = g_iWinSizeX;
 	GraphicDesc.iWinSizeY = g_iWinSizeY;
 
-	if (FAILED(Ready_Gara()))
-		return E_FAIL;
-
 	if (FAILED(m_pGameInstance->Initialize_Engine(LEVEL_END, g_hInst, GraphicDesc, &m_pDevice, &m_pContext)))
 		return E_FAIL;
 
@@ -54,9 +51,6 @@ void CMainApp::Tick(_float fTimeDelta)
 
 #ifdef _DEBUG
 	m_fTimeAcc += fTimeDelta;
-#endif // _DEBUG
-
-#ifdef _DEBUG
 	CImGui_Manager::Get_Instance()->RenderBegin();
 #endif // _DEBUG
 
@@ -142,16 +136,56 @@ HRESULT CMainApp::Ready_Prototype_Component()
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_STATIC, TEXT("Prototype_Component_Transform"),
 		CTransform::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
-
-	//if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_STATIC, TEXT("Prototype_Component_Shader_VtxTex"),
-	//	CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxTex.hlsl"), VTXCUBETEX_DECLARATION::Elements, VTXCUBETEX_DECLARATION::iNumElements))))
-	//	return E_FAIL;
-
+	
 	/* For.Prototype_Component_Shader_VtxTex */
 	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_STATIC, TEXT("Prototype_Component_Shader_VtxTex"),
 		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxTex.hlsl"), VTXTEX_DECLARATION::Elements, VTXTEX_DECLARATION::iNumElements))))
 		return E_FAIL;
 	
+	/* For.Prototype_Component_Shader_AnimModel */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_STATIC, TEXT("Prototype_Component_Shader_AnimModel"),
+		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxAnimModel.hlsl"), VTXANIMMODEL_DECLARATION::Elements, VTXANIMMODEL_DECLARATION::iNumElements))))
+		return E_FAIL;
+
+	//Shader
+
+	/* For.Prototype_Component_Shader_Terrain */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_STATIC, TEXT("Prototype_Component_Shader_Terrain"),
+		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxNorTex.hlsl"), VTXNORTEX_DECLARATION::Elements, VTXNORTEX_DECLARATION::iNumElements))))
+		return E_FAIL;
+
+	/* For.Prototype_Component_Shader_Model */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_STATIC, TEXT("Prototype_Component_Shader_Model"),
+		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxModel.hlsl"), VTXMODEL_DECLARATION::Elements, VTXMODEL_DECLARATION::iNumElements))))
+		return E_FAIL;
+
+
+
+	/* For.Prototype_Component_Shader_ModelInstance*/
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_STATIC, TEXT("Prototype_Component_Shader_ModelInstance"),
+		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxModelInstance.hlsl"), VTXMODELINSTANCE_DECLARATION::Elements, VTXMODELINSTANCE_DECLARATION::iNumElements))))
+		return E_FAIL;
+
+	/* For.Prototype_Component_Collider_AABB */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_STATIC, TEXT("Prototype_Component_Collider_AABB"),
+		CAABB::Create(m_pDevice, m_pContext, CCollider::TYPE_AABB))))
+		return E_FAIL;
+
+	/* For.Prototype_Component_Collider_OBB */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_STATIC, TEXT("Prototype_Component_Collider_OBB"),
+		COBB::Create(m_pDevice, m_pContext, CCollider::TYPE_OBB))))
+		return E_FAIL;
+
+	/* For.Prototype_Component_Collider_Sphere */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_STATIC, TEXT("Prototype_Component_Collider_Sphere"),
+		CSphere::Create(m_pDevice, m_pContext, CCollider::TYPE_SPHERE))))
+		return E_FAIL;
+
+	/* For.Prototype_Component_Navigation */
+	if (FAILED(m_pGameInstance->Add_Prototype(LEVEL_STATIC, TEXT("Prototype_Component_Navigation"),
+		CNavigation::Create(m_pDevice, m_pContext, TEXT("../Bin/Data/NavigationDataTest.dat")))))
+		return E_FAIL;
+
 	Safe_AddRef(m_pRenderer);
 
 	return S_OK;
@@ -159,46 +193,6 @@ HRESULT CMainApp::Ready_Prototype_Component()
 
 HRESULT CMainApp::Ready_Prototype_GameObject()
 {
-
-	return S_OK;
-}
-
-HRESULT CMainApp::Ready_Gara()
-{
-	_ulong		dwByte = 0;
-	HANDLE		hFile = CreateFile(TEXT("../Bin/Data/NavigationData.dat"), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
-	if (0 == hFile)
-		return E_FAIL;
-
-	_float3		vPoints[3];
-
-	/**/
-	ZeroMemory(vPoints, sizeof(_float3) * 3);
-	vPoints[0] = _float3(0.0f, 0.f, 5.f);
-	vPoints[1] = _float3(5.0f, 0.f, 0.f);
-	vPoints[2] = _float3(0.0f, 0.f, 0.f);
-	WriteFile(hFile, vPoints, sizeof(_float3) * 3, &dwByte, nullptr);
-
-	ZeroMemory(vPoints, sizeof(_float3) * 3);
-	vPoints[0] = _float3(0.0f, 0.f, 5.f);
-	vPoints[1] = _float3(5.0f, 0.f, 5.f);
-	vPoints[2] = _float3(5.f, 0.f, 0.f);
-	WriteFile(hFile, vPoints, sizeof(_float3) * 3, &dwByte, nullptr);
-
-	ZeroMemory(vPoints, sizeof(_float3) * 3);
-	vPoints[0] = _float3(0.0f, 0.f, 10.f);
-	vPoints[1] = _float3(5.0f, 0.f, 5.f);
-	vPoints[2] = _float3(0.0f, 0.f, 5.f);
-	WriteFile(hFile, vPoints, sizeof(_float3) * 3, &dwByte, nullptr);
-
-	ZeroMemory(vPoints, sizeof(_float3) * 3);
-	vPoints[0] = _float3(5.f, 0.f, 5.f);
-	vPoints[1] = _float3(10.0f, 0.f, 0.f);
-	vPoints[2] = _float3(5.f, 0.f, 0.f);
-	WriteFile(hFile, vPoints, sizeof(_float3) * 3, &dwByte, nullptr);
-
-	CloseHandle(hFile);
-
 	return S_OK;
 }
 

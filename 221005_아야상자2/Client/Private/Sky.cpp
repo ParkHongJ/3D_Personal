@@ -19,9 +19,9 @@ HRESULT CSky::Initialize_Prototype()
 
 HRESULT CSky::Initialize(void * pArg)
 {
-	if (FAILED(Ready_Components()))
+	if (FAILED(Ready_Components(pArg)))
 		return E_FAIL;
-	
+
 	m_pTransformCom->Set_Scale(XMVectorSet(0.01f, 0.01f, 0.01f, 1.f));
 	return S_OK;
 }
@@ -43,7 +43,7 @@ void CSky::LateTick(_float fTimeDelta)
 
 	RELEASE_INSTANCE(CGameInstance);
 
-	//m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_PRIORITY, this);
+	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_PRIORITY, this);
 }
 
 HRESULT CSky::Render()
@@ -62,7 +62,7 @@ HRESULT CSky::Render()
 		if (FAILED(m_pModelCom->SetUp_OnShader(m_pShaderCom, m_pModelCom->Get_MaterialIndex(i), aiTextureType_DIFFUSE, "g_DiffuseTexture")))
 			return E_FAIL;
 
-		if (FAILED(m_pModelCom->Render(m_pShaderCom, i, 1)))
+		if (FAILED(m_pModelCom->Render(m_pShaderCom, i, 5)))
 			return E_FAIL;
 	}
 
@@ -74,8 +74,15 @@ HRESULT CSky::Render()
 	return S_OK;
 }
 
-HRESULT CSky::Ready_Components()
+HRESULT CSky::Ready_Components(void* pArg)
 {
+	struct Temp {
+		_tchar pPrototypeTag[MAX_PATH] = L"";
+		_uint iNumLevel;
+	};
+	Temp tTemp;
+	memcpy(&tTemp, pArg, sizeof(Temp));
+	
 	/* For.Com_Transform */
 	CTransform::TRANSFORMDESC		TransformDesc;
 	TransformDesc.fSpeedPerSec = 5.f;
@@ -89,11 +96,11 @@ HRESULT CSky::Ready_Components()
 		return E_FAIL;
 
 	/* For.Com_Shader */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Shader_Model"), TEXT("Com_Shader"), (CComponent**)&m_pShaderCom)))
+	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Shader_Model"), TEXT("Com_Shader"), (CComponent**)&m_pShaderCom)))
 		return E_FAIL;
 
 	/* For.Com_Model */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Sky"), TEXT("Com_Model"), (CComponent**)&m_pModelCom)))
+	if (FAILED(__super::Add_Component(tTemp.iNumLevel, tTemp.pPrototypeTag, TEXT("Com_Model"), (CComponent**)&m_pModelCom)))
 		return E_FAIL;
 
 	return S_OK;

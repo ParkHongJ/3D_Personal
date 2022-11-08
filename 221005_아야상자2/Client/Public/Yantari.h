@@ -103,6 +103,7 @@ private:
 	_bool								m_bPartsEnable = false;
 
 	ANIM_STATE							m_eAnimState = ANIM_END;
+	_uint								m_iPass = 0;
 
 public:
 	void Set_State(ANIM_STATE eState, _float fTimeDelta);

@@ -90,6 +90,7 @@ HRESULT CMeshContainerInstance::Initialize_Prototype(_uint iNumInstance, Mesh * 
 		pInstanceVtx[i].vLook = _float4(0.f, 0.f, 0.01f, 0.f);
 		pInstanceVtx[i].vPosition = _float4((_float)(rand() % 31 - 30), 0.f, (_float)(rand() % 31 - 30), 1.f);
 	}
+
 	//rand() % (b - a + 1) + a == > a부터 b의 범위이다.
 	//rand() % (100 - (-100) + 1 ) -100
 	ZeroMemory(&m_SubResourceData, sizeof(D3D11_SUBRESOURCE_DATA));

@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "..\Public\StaticObject.h"
 #include "GameInstance.h"
-#include "ImGui_Manager.h"
 CStaticObject::CStaticObject(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
 {
@@ -72,10 +71,10 @@ HRESULT CStaticObject::Render()
 
 HRESULT CStaticObject::Ready_Components(void* pArg)
 {
-	CImGui_Manager::CREATE_INFO tObjInfo;
+	CREATE_INFO tObjInfo;
 	if (pArg != nullptr)
 	{
-		memcpy(&tObjInfo, pArg, sizeof(CImGui_Manager::CREATE_INFO));
+		memcpy(&tObjInfo, pArg, sizeof(CREATE_INFO));
 		sprintf_s(m_szName, tObjInfo.szName);
 	}
 
@@ -88,7 +87,7 @@ HRESULT CStaticObject::Ready_Components(void* pArg)
 		return E_FAIL;
 
 	/* For.Com_Shader */
-	if (FAILED(__super::Add_Component(tObjInfo.iNumLevel, TEXT("Prototype_Component_Shader_Model"), TEXT("Com_Shader"), (CComponent**)&m_pShaderCom)))
+	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Shader_Model"), TEXT("Com_Shader"), (CComponent**)&m_pShaderCom)))
 		return E_FAIL;
 
 	/* For.Com_Model */
