@@ -115,7 +115,6 @@ HRESULT CTarget_Manager::Render_Debug(const _tchar * pMRTTag, class CVIBuffer* p
 	if (nullptr == pMRTList)
 		return E_FAIL;
 
-
 	for (auto& pRenderTarget : *pMRTList)
 	{
 		pRenderTarget->Render_Debug(pShader, pVIBuffer);

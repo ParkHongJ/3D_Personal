@@ -303,6 +303,9 @@
     <ClInclude Include="..\Public\Target_Manager.h">
       <Filter>04.Utility\05. RenderTargets\Manager</Filter>
     </ClInclude>
+    <ClInclude Include="..\Bin\ShaderFiles\Engine_Shader_Defines.hpp">
+      <Filter>03.Components\01.Renderer\Shader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="99.Defines">
@@ -464,6 +467,15 @@
       <Filter>03.Components\08.Navigation\Cell\Shader</Filter>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_Deferred.hlsl">
+      <Filter>03.Components\01.Renderer\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\SSAO.hlsl">
+      <Filter>03.Components\01.Renderer\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Blur.hlsl">
+      <Filter>03.Components\01.Renderer\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Bloom.hlsl">
       <Filter>03.Components\01.Renderer\Shader</Filter>
     </FxCompile>
   </ItemGroup>
