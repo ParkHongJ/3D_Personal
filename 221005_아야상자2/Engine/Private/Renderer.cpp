@@ -54,15 +54,19 @@ HRESULT CRenderer::Initialize_Prototype()
 		return E_FAIL;
 
 	/* For.Target_BlurX */
-	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_BlurX"), (_uint)ViewportDesc.Width, (_uint)ViewportDesc.Height, DXGI_FORMAT_R8G8B8A8_UNORM, &_float4(1.0f, 0.f, 1.f, 0.f))))
+	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_BlurX"), (_uint)ViewportDesc.Width, (_uint)ViewportDesc.Height, DXGI_FORMAT_R32G32B32A32_FLOAT, &_float4(1.0f, 0.f, 1.f, 0.f))))
 		return E_FAIL;
 
 	/* For.Target_BlurY */
-	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_BlurY"), (_uint)ViewportDesc.Width, (_uint)ViewportDesc.Height, DXGI_FORMAT_R8G8B8A8_UNORM, &_float4(1.0f, 0.f, 1.f, 0.f))))
+	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_BlurY"), (_uint)ViewportDesc.Width, (_uint)ViewportDesc.Height, DXGI_FORMAT_R32G32B32A32_FLOAT, &_float4(1.0f, 0.f, 1.f, 0.f))))
 		return E_FAIL;
 
 	/* For.Target_Bloom */
-	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_Bloom"), (_uint)ViewportDesc.Width, (_uint)ViewportDesc.Height, DXGI_FORMAT_R8G8B8A8_UNORM, &_float4(0.0f, 0.f, 0.f, 0.f))))
+	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_Bloom"), (_uint)ViewportDesc.Width, (_uint)ViewportDesc.Height, DXGI_FORMAT_R32G32B32A32_FLOAT, &_float4(0.0f, 0.f, 0.f, 0.f))))
+		return E_FAIL;
+
+	/* For.Target_BloomTest */
+	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_BloomTest"), (_uint)ViewportDesc.Width, (_uint)ViewportDesc.Height, DXGI_FORMAT_R32G32B32A32_FLOAT, &_float4(0.0f, 0.f, 0.f, 0.f))))
 		return E_FAIL;
 
 	/* For.MRT_Original */
@@ -97,7 +101,9 @@ HRESULT CRenderer::Initialize_Prototype()
 	if (FAILED(m_pTarget_Manager->Add_MRT(TEXT("MRT_Bloom"), TEXT("Target_Bloom"))))
 		return E_FAIL;
 
-
+	/* For.MRT_Bloom*/
+	if (FAILED(m_pTarget_Manager->Add_MRT(TEXT("MRT_BloomTest"), TEXT("Target_BloomTest"))))
+		return E_FAIL;
 #ifdef _DEBUG
 
 	if (FAILED(m_pTarget_Manager->Initialize_Debug(TEXT("Target_Diffuse"), 50.f, 50.f, 100.f, 100.f)))
@@ -117,6 +123,10 @@ HRESULT CRenderer::Initialize_Prototype()
 	if (FAILED(m_pTarget_Manager->Initialize_Debug(TEXT("Target_BlurY"), 500.f, 300.f, 200.f, 200.f)))
 		return E_FAIL;
 	if (FAILED(m_pTarget_Manager->Initialize_Debug(TEXT("Target_Bloom"), 700.f, 100.f, 200.f, 200.f)))
+		return E_FAIL; 
+	if (FAILED(m_pTarget_Manager->Initialize_Debug(TEXT("Target_BloomTest"), 700.f, 300.f, 200.f, 200.f)))
+		return E_FAIL;
+	if (FAILED(m_pTarget_Manager->Initialize_Debug(TEXT("Target_Original"), 700.f, 500.f, 200.f, 200.f)))
 		return E_FAIL;
 
 	m_pShader[SHADER_DEFERRED] = CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_Deferred.hlsl"), VTXTEX_DECLARATION::Elements, VTXTEX_DECLARATION::iNumElements);
@@ -183,13 +193,16 @@ HRESULT CRenderer::Draw()
 	if (FAILED(Render_SSAO()))
 		return E_FAIL;
 
+	if (FAILED(Render_Bloom()))
+		return E_FAIL;
+
 	if (FAILED(Render_BlurX()))
 		return E_FAIL;
 
 	if (FAILED(Render_BlurY()))
 		return E_FAIL;
 
-	if (FAILED(Render_Bloom()))
+	if (FAILED(Render_BloomTest()))
 		return E_FAIL;
 
 	if (FAILED(Render_NonLight()))
@@ -390,7 +403,7 @@ HRESULT CRenderer::Render_BlurX()
 	if (FAILED(m_pShader[SHADER_BLUR]->Set_RawValue("g_ProjMatrix", &m_ProjMatrix, sizeof(_float4x4))))
 		return E_FAIL;
 
-	if (FAILED(m_pTarget_Manager->Bind_SRV(TEXT("Target_Original"), m_pShader[SHADER_BLUR], "g_BlurTexture")))
+	if (FAILED(m_pTarget_Manager->Bind_SRV(TEXT("Target_Bloom"), m_pShader[SHADER_BLUR], "g_BlurTexture")))
 		return E_FAIL;
 
 	m_pShader[SHADER_BLUR]->Begin(0);
@@ -440,50 +453,92 @@ HRESULT CRenderer::Render_BlurY()
 	m_pVIBuffer->Render();
 #endif
 
-	if (FAILED(m_pTarget_Manager->End_MRT(m_pContext)))
-		return E_FAIL;
 
 	return S_OK;
 }
 
 HRESULT CRenderer::Render_Bloom()
 {
-//	if (nullptr == m_pTarget_Manager)
-//		return E_FAIL;
-//
-//	/* Target_Shade타겟에 빛 연산한 결과를 그린다. */
-//	if (FAILED(m_pTarget_Manager->Begin_MRT(m_pContext, TEXT("MRT_Bloom"))))
-//		return E_FAIL;
-//
-//	_float4x4			WorldMatrix;
-//
-//	_uint				iNumViewport = 1;
-//	D3D11_VIEWPORT		ViewportDesc;
-//
-//	m_pContext->RSGetViewports(&iNumViewport, &ViewportDesc);
-//
-//	XMStoreFloat4x4(&WorldMatrix,
-//		XMMatrixTranspose(XMMatrixScaling(ViewportDesc.Width, ViewportDesc.Height, 0.f) * XMMatrixTranslation(0.0f, 0.0f, 0.f)));
-//
-//	if (FAILED(m_pShader[SHADER_BLOOM]->Set_RawValue("g_WorldMatrix", &WorldMatrix, sizeof(_float4x4))))
-//		return E_FAIL;
-//	if (FAILED(m_pShader[SHADER_BLOOM]->Set_RawValue("g_ViewMatrix", &m_ViewMatrix, sizeof(_float4x4))))
-//		return E_FAIL;
-//	if (FAILED(m_pShader[SHADER_BLOOM]->Set_RawValue("g_ProjMatrix", &m_ProjMatrix, sizeof(_float4x4))))
-//		return E_FAIL;
-//
-//	if (FAILED(m_pTarget_Manager->Bind_SRV(TEXT("Target_Original"), m_pShader[SHADER_BLOOM], "g_BlurTexture")))
-//		return E_FAIL;
-//
-//	m_pShader[SHADER_BLOOM]->Begin(0);
-//
-//#ifdef _DEBUG
-//	m_pVIBuffer->Render();
-//#endif
-//
-//	if (FAILED(m_pTarget_Manager->End_MRT(m_pContext)))
-//		return E_FAIL;
-//
+	if (nullptr == m_pTarget_Manager)
+		return E_FAIL;
+
+	/* Target_Shade타겟에 빛 연산한 결과를 그린다. */
+	if (FAILED(m_pTarget_Manager->Begin_MRT(m_pContext, TEXT("MRT_Bloom"))))
+		return E_FAIL;
+
+	_float4x4			WorldMatrix;
+
+	_uint				iNumViewport = 1;
+	D3D11_VIEWPORT		ViewportDesc;
+
+	m_pContext->RSGetViewports(&iNumViewport, &ViewportDesc);
+
+	XMStoreFloat4x4(&WorldMatrix,
+		XMMatrixTranspose(XMMatrixScaling(ViewportDesc.Width, ViewportDesc.Height, 0.f) * XMMatrixTranslation(0.0f, 0.0f, 0.f)));
+
+	if (FAILED(m_pShader[SHADER_BLOOM]->Set_RawValue("g_WorldMatrix", &WorldMatrix, sizeof(_float4x4))))
+		return E_FAIL;
+	if (FAILED(m_pShader[SHADER_BLOOM]->Set_RawValue("g_ViewMatrix", &m_ViewMatrix, sizeof(_float4x4))))
+		return E_FAIL;
+	if (FAILED(m_pShader[SHADER_BLOOM]->Set_RawValue("g_ProjMatrix", &m_ProjMatrix, sizeof(_float4x4))))
+		return E_FAIL;
+
+	if (FAILED(m_pTarget_Manager->Bind_SRV(TEXT("Target_Original"), m_pShader[SHADER_BLOOM], "g_BlurTexture")))
+		return E_FAIL;
+
+	m_pShader[SHADER_BLOOM]->Begin(0);
+
+#ifdef _DEBUG
+	m_pVIBuffer->Render();
+#endif
+
+	if (FAILED(m_pTarget_Manager->End_MRT(m_pContext)))
+		return E_FAIL;
+
+	return S_OK;
+}
+
+HRESULT CRenderer::Render_BloomTest()
+{
+	if (FAILED(m_pTarget_Manager->End_MRT(m_pContext)))
+		return E_FAIL;
+
+	/* Target_Shade타겟에 빛 연산한 결과를 그린다. */
+	if (FAILED(m_pTarget_Manager->Begin_MRT(m_pContext, TEXT("MRT_BloomTest"))))
+		return E_FAIL;
+
+	_float4x4			WorldMatrix;
+
+	_uint				iNumViewport = 1;
+	D3D11_VIEWPORT		ViewportDesc;
+
+	m_pContext->RSGetViewports(&iNumViewport, &ViewportDesc);
+
+	XMStoreFloat4x4(&WorldMatrix,
+		XMMatrixTranspose(XMMatrixScaling(ViewportDesc.Width, ViewportDesc.Height, 0.f) * XMMatrixTranslation(0.0f, 0.0f, 0.f)));
+
+	if (FAILED(m_pShader[SHADER_BLOOM]->Set_RawValue("g_WorldMatrix", &WorldMatrix, sizeof(_float4x4))))
+		return E_FAIL;
+	if (FAILED(m_pShader[SHADER_BLOOM]->Set_RawValue("g_ViewMatrix", &m_ViewMatrix, sizeof(_float4x4))))
+		return E_FAIL;
+	if (FAILED(m_pShader[SHADER_BLOOM]->Set_RawValue("g_ProjMatrix", &m_ProjMatrix, sizeof(_float4x4))))
+		return E_FAIL;
+
+	//if (FAILED(m_pTarget_Manager->Bind_SRV(TEXT("Target_BlurY"), m_pShader[SHADER_BLOOM], "g_BlurTest")))
+	//	return E_FAIL;
+	if (FAILED(m_pTarget_Manager->Bind_SRV(TEXT("Target_Original"), m_pShader[SHADER_BLOOM], "g_OriginalTexture")))
+		return E_FAIL;
+	//if (FAILED(m_pTarget_Manager->Bind_SRV(TEXT("Target_Bloom"), m_pShader[SHADER_BLOOM], "g_BlurOriginTexture")))
+	//	return E_FAIL;
+
+	m_pShader[SHADER_BLOOM]->Begin(1);
+
+#ifdef _DEBUG
+	m_pVIBuffer->Render();
+#endif
+
+	if (FAILED(m_pTarget_Manager->End_MRT(m_pContext)))
+		return E_FAIL;
 	return S_OK;
 }
 
@@ -620,7 +675,9 @@ HRESULT CRenderer::Render_Debug()
 	m_pTarget_Manager->Render_Debug(TEXT("MRT_BlurX"), m_pVIBuffer, m_pShader[SHADER_BLUR]);
 	m_pTarget_Manager->Render_Debug(TEXT("MRT_BlurY"), m_pVIBuffer, m_pShader[SHADER_BLUR]);
 	m_pTarget_Manager->Render_Debug(TEXT("MRT_Bloom"), m_pVIBuffer, m_pShader[SHADER_BLOOM]);
+	m_pTarget_Manager->Render_Debug(TEXT("MRT_BloomTest"), m_pVIBuffer, m_pShader[SHADER_BLOOM]);
 
+	m_pTarget_Manager->Render_Debug(TEXT("MRT_Original"), m_pVIBuffer, m_pShader[SHADER_DEFERRED]);
 	for (auto& pDebugCom : m_DebugObject)
 	{
 		pDebugCom->Render();

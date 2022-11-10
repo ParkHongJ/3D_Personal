@@ -60,6 +60,7 @@ private:
 	HRESULT Render_BlurX();
 	HRESULT Render_BlurY();
 	HRESULT Render_Bloom();
+	HRESULT Render_BloomTest();
 	HRESULT Render_NonLight();
 	HRESULT Render_AlphaBlend();
 	HRESULT Render_UI();
