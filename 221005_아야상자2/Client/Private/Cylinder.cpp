@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "..\Public\Cylinder.h"
 #include "GameInstance.h"
-#include "Sword.h"
+#include "GameMgr.h"
 #include "Ras_Samrah.h"
 CCylinder::CCylinder(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
@@ -35,6 +35,7 @@ HRESULT CCylinder::Initialize(void * pArg)
 
 	/*m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(rand() % 5, 0.f, rand() % 5, 1.f));*/
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMLoadFloat3(&vPos), 1.f));
+	CGameMgr::Get_Instance()->Shake(0.5f, 0.5f);
 	return S_OK;
 }
 

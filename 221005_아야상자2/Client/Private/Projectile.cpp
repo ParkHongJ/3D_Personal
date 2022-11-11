@@ -63,15 +63,12 @@ _bool CProjectile::Tick(_float fTimeDelta)
 			if (XMVector3Equal(XMLoadFloat3(&m_ProjInfo.vOffset), m_pTransformCom->Get_State(CTransform::STATE_POSITION)))
 			{
 				//¹ß¼Ý
-				if (!m_bReady)
-				{
-					CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
-					CTransform* pTarget = (CTransform*)pGameInstance->Get_ComponentPtr(LEVEL_GAMEPLAY, L"Layer_Player", L"Com_Transform", 0);
-					XMStoreFloat3(&m_vDir, XMVector3Normalize(pTarget->Get_State(CTransform::STATE_POSITION) - m_pTransformCom->Get_State(CTransform::STATE_POSITION)));
-					m_ProjInfo.fLimitY = XMVectorGetY(pTarget->Get_State(CTransform::STATE_POSITION));
-					RELEASE_INSTANCE(CGameInstance);
-					m_bReady = true;
-				}
+				CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+				CTransform* pTarget = (CTransform*)pGameInstance->Get_ComponentPtr(LEVEL_GAMEPLAY, L"Layer_Player", L"Com_Transform", 0);
+				XMStoreFloat3(&m_vDir, XMVector3Normalize(pTarget->Get_State(CTransform::STATE_POSITION) - m_pTransformCom->Get_State(CTransform::STATE_POSITION)));
+				m_ProjInfo.fLimitY = XMVectorGetY(pTarget->Get_State(CTransform::STATE_POSITION));
+				RELEASE_INSTANCE(CGameInstance);
+				m_bReady = true;
 			}
 			else
 			{
@@ -96,6 +93,7 @@ _bool CProjectile::Tick(_float fTimeDelta)
 		if (m_ProjInfo.fLimitY > XMVectorGetY(m_pTransformCom->Get_State(CTransform::STATE_POSITION)))
 		{
 			//Æø¹ßÇØ¾ßÇÔ
+			CreateExplosion();
 			m_bDestroy = true;
 			return true;
 		}

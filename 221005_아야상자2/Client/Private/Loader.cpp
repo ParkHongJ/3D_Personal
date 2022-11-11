@@ -682,6 +682,15 @@ HRESULT CLoader::Loading_ForGameYantariLevel()
 			return E_FAIL;
 	}
 
+	//MergeCircle
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (!pGameInstance->IsOverlapComponent(LEVEL_YANTARI, TEXT("Prototype_Component_Model_MergeCircle")))
+	{
+		if (FAILED(pGameInstance->Add_Prototype(LEVEL_YANTARI, TEXT("Prototype_Component_Model_MergeCircle"),
+			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/MantariField/MergeCircle.dat", PivotMatrix, true))))
+			return E_FAIL;
+	}
+
 	RELEASE_INSTANCE(CGameInstance);
 
 	m_isFinished = true;

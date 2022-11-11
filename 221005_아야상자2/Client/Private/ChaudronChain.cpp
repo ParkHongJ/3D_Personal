@@ -36,6 +36,8 @@ HRESULT CChaudronChain::Initialize(void * pArg)
 	strcpy_s(m_szName, "ChaudronChain");
 	m_Tag = L"ChaudronChain";
 
+	m_pModelCom->Set_AnimIndex(FALL);
+
 	return S_OK;
 }
 

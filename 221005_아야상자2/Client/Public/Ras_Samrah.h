@@ -121,7 +121,7 @@ private:
 	//π∞±‚µ’∆–≈œ
 	_bool								m_bCylinder = false;
 	_float								m_fCylinderTime = 0.0f;
-	_float								m_fCylinderTimeMax = 0.7f;
+	_float								m_fCylinderTimeMax = 1.0f;
 	
 	_uint								m_iCylinderCountMax = 7;
 	_uint								m_iCylinderCount = 0;

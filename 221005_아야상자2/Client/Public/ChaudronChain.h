@@ -17,7 +17,9 @@ BEGIN(Client)
 
 class CChaudronChain final : public CGameObject
 {
+public:
 	enum PARTTYPE { CHAUDRON, CHAIN01, CHAIN02, CHAIN03, CHAIN04, PART_END };
+	enum AnimState { FALL, IDLE, ANIM_END };
 private:
 	CChaudronChain(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	CChaudronChain(const CChaudronChain& rhs);
