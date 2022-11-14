@@ -142,6 +142,9 @@
     <ClCompile Include="..\Private\Target_Manager.cpp">
       <Filter>04.Utility\05. RenderTargets\Manager</Filter>
     </ClCompile>
+    <ClCompile Include="..\Private\VIBuffer_Trail.cpp">
+      <Filter>03.Components\02.VIBuffer\Trail</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Public\Engine_Defines.h">
@@ -303,6 +306,9 @@
     <ClInclude Include="..\Bin\ShaderFiles\Engine_Shader_Defines.hpp">
       <Filter>03.Components\01.Renderer\Shader</Filter>
     </ClInclude>
+    <ClInclude Include="..\Public\VIBuffer_Trail.h">
+      <Filter>03.Components\02.VIBuffer\Trail</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="99.Defines">
@@ -457,6 +463,9 @@
     </Filter>
     <Filter Include="04.Utility\00.Timers\00.Manager">
       <UniqueIdentifier>{5d095fe2-8db8-473e-b791-8a35419607a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Components\02.VIBuffer\Trail">
+      <UniqueIdentifier>{38f7aefe-9464-4fe0-b1ed-a8d28c3a3543}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
