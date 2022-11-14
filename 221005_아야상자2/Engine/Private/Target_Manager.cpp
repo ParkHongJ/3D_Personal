@@ -57,6 +57,15 @@ HRESULT CTarget_Manager::Bind_SRV(const _tchar * pTargetTag, CShader * pShader, 
 	return pRenderTarget->Bind_SRV(pShader, pConstantName);
 }
 
+_matrix CTarget_Manager::Get_OrthoMatrix(const _tchar * pTargetTag)
+{
+	CRenderTarget*		pRenderTarget = Find_RenderTarget(pTargetTag);
+	if (nullptr == pRenderTarget)
+		return XMMatrixIdentity();
+
+	return pRenderTarget->GetOrthoMatrix();
+}
+
 HRESULT CTarget_Manager::Begin_MRT(ID3D11DeviceContext * pContext, const _tchar * pMRTTag)
 {
 	list<CRenderTarget*>*		pMRTList = Find_MRT(pMRTTag);
@@ -64,10 +73,12 @@ HRESULT CTarget_Manager::Begin_MRT(ID3D11DeviceContext * pContext, const _tchar 
 		return E_FAIL;
 
 	_uint		iNumViews = 8;
+	//백버퍼의 내용을 가져와서 보관함.
 	pContext->OMGetRenderTargets(iNumViews, m_pOldRenderTargets, &m_pOldDepthStencil);
 
 	_uint			iNumRTVs = 0;
 
+	//장치에 바인딩되어있는 순서대로 실행 후
 	ID3D11RenderTargetView*			RTVs[8] = { nullptr };
 
 	for (auto& pRenderTarget : *pMRTList)
@@ -75,8 +86,6 @@ HRESULT CTarget_Manager::Begin_MRT(ID3D11DeviceContext * pContext, const _tchar 
 		pRenderTarget->Clear();
 		RTVs[iNumRTVs++] = pRenderTarget->Get_RTV();
 	}
-
-
 
 	pContext->OMSetRenderTargets(iNumRTVs, RTVs, m_pOldDepthStencil);
 
@@ -87,6 +96,8 @@ HRESULT CTarget_Manager::End_MRT(ID3D11DeviceContext * pContext)
 {
 	_uint		iNumRTVs = 8;
 
+	
+	//다시 백버퍼를 바인딩.
 	pContext->OMSetRenderTargets(iNumRTVs, m_pOldRenderTargets, m_pOldDepthStencil);
 
 	for (_uint i = 0; i < 8; ++i)
@@ -109,7 +120,7 @@ HRESULT CTarget_Manager::Initialize_Debug(const _tchar * pTargetTag, _float fX, 
 	return pRenderTarget->Initialize_Debug(fX, fY, fSizeX, fSizeY);
 }
 
-HRESULT CTarget_Manager::Render_Debug(const _tchar * pMRTTag, class CVIBuffer* pVIBuffer, class CShader* pShader)
+HRESULT CTarget_Manager::Render_Debug(const _tchar * pMRTTag, class CVIBuffer* pVIBuffer, class CShader* pShader, _uint iPass, const char* szName)
 {
 	list<CRenderTarget*>*		pMRTList = Find_MRT(pMRTTag);
 	if (nullptr == pMRTList)
@@ -117,7 +128,7 @@ HRESULT CTarget_Manager::Render_Debug(const _tchar * pMRTTag, class CVIBuffer* p
 
 	for (auto& pRenderTarget : *pMRTList)
 	{
-		pRenderTarget->Render_Debug(pShader, pVIBuffer);
+		pRenderTarget->Render_Debug(pShader, pVIBuffer, iPass, szName);
 	}
 
 	return S_OK;

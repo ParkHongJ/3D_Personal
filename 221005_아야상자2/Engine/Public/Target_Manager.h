@@ -17,6 +17,8 @@ public:
 
 public:
 	HRESULT Bind_SRV(const _tchar* pTargetTag, class CShader* pShader, const char* pConstantName);
+	_matrix Get_OrthoMatrix(const _tchar* pTargetTag);
+
 
 	/* 기존에 있던 렌더타겟을 빼고, 지정한 렌더타겟들(mrt)을 장치에 순서대로 바인딩한다. */
 	HRESULT Begin_MRT(ID3D11DeviceContext* pContext, const _tchar* pMRTTag);
@@ -27,7 +29,7 @@ public:
 #ifdef _DEBUG
 public:
 	HRESULT Initialize_Debug(const _tchar* pTargetTag, _float fX, _float fY, _float fSizeX, _float fSizeY);
-	HRESULT Render_Debug(const _tchar* pMRTTag, class CVIBuffer* pVIBuffer, class CShader* pShader);
+	HRESULT Render_Debug(const _tchar* pMRTTag, class CVIBuffer* pVIBuffer, class CShader* pShader, _uint iPass = 0, const char* szName = "g_DiffuseTexture");
 #endif // _DEBUG
 
 

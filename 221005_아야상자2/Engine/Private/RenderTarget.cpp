@@ -10,13 +10,17 @@ CRenderTarget::CRenderTarget(ID3D11Device * pDevice, ID3D11DeviceContext * pCont
 	Safe_AddRef(m_pContext);
 }
 
-HRESULT CRenderTarget::Initialize(_uint iSizeX, _uint iSizeY, DXGI_FORMAT eFormat, const _float4 * pClearColor)
+HRESULT CRenderTarget::Initialize(_uint iSizeX, _uint iSizeY, DXGI_FORMAT eFormat, const _float4 * pClearColor, _float fNear, _float fFar)
 {
 	m_vClearColor = *pClearColor;
 
+	XMStoreFloat4x4(&m_OrthoMatrix, XMMatrixOrthographicLH((_float)iSizeX, (_float)iSizeY, fNear, fFar));
+
+	//·»´õÅ¸°Ù ÃÊ±âÈ­
 	D3D11_TEXTURE2D_DESC	TextureDesc;
 	ZeroMemory(&TextureDesc, sizeof(D3D11_TEXTURE2D_DESC));
 
+	//·»´õÅ¸°Ù ¿É¼Ç ¼³Á¤
 	TextureDesc.Width = iSizeX;
 	TextureDesc.Height = iSizeY;
 	TextureDesc.MipLevels = 1;
@@ -31,12 +35,15 @@ HRESULT CRenderTarget::Initialize(_uint iSizeX, _uint iSizeY, DXGI_FORMAT eForma
 	TextureDesc.CPUAccessFlags = 0;
 	TextureDesc.MiscFlags = 0;
 
+	//·»´õÅ¸°Ù ÅØ½ºÃÄ »ý¼º
 	if (FAILED(m_pDevice->CreateTexture2D(&TextureDesc, nullptr, &m_pTexture2D)))
 		return E_FAIL;
 
+	//·»´õÅ¸°Ù ºä »ý¼º
 	if (FAILED(m_pDevice->CreateRenderTargetView(m_pTexture2D, nullptr, &m_pRTV)))
 		return E_FAIL;
 
+	//¼ÎÀÌ´õ ¸®¼Ò½º ºä »ý¼º
 	if (FAILED(m_pDevice->CreateShaderResourceView(m_pTexture2D, nullptr, &m_pSRV)))
 		return E_FAIL;
 
@@ -49,6 +56,7 @@ HRESULT CRenderTarget::Clear()
 	if (nullptr == m_pContext)
 		return E_FAIL;
 
+	//¹öÆÛ¸¦ Áö¿ò.
 	m_pContext->ClearRenderTargetView(m_pRTV, (_float*)&m_vClearColor);
 
 	return S_OK;
@@ -74,15 +82,19 @@ HRESULT CRenderTarget::Initialize_Debug(_float fX, _float fY, _float fSizeX, _fl
 }
 
 
-HRESULT CRenderTarget::Render_Debug(CShader* pShader, CVIBuffer * pVIBuffer)
+HRESULT CRenderTarget::Render_Debug(CShader* pShader, CVIBuffer * pVIBuffer, _uint iPass, const char* szName)
 {
 	pShader->Set_RawValue("g_WorldMatrix", &m_WorldMatrix, sizeof(_float4x4));
 
-	pShader->Set_ShaderResourceView("g_DiffuseTexture", m_pSRV);
+	pShader->Set_ShaderResourceView(szName, m_pSRV);
 
-	pShader->Begin(0);
+	pShader->Begin(iPass);
 
 	return pVIBuffer->Render();
+}
+_matrix CRenderTarget::GetOrthoMatrix()
+{
+	return XMLoadFloat4x4(&m_OrthoMatrix);
 }
 #endif // _DEBUG
 
