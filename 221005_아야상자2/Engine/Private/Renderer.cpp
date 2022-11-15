@@ -81,6 +81,39 @@ HRESULT CRenderer::Initialize_Prototype()
 	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_BloomTest"), (_uint)ViewportDesc.Width, (_uint)ViewportDesc.Height, DXGI_FORMAT_R32G32B32A32_FLOAT, &_float4(0.0f, 0.f, 0.f, 0.f))))
 		return E_FAIL;
 
+	/* For.Target_HDR */
+	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_HDR"), (_uint)ViewportDesc.Width, (_uint)ViewportDesc.Height, DXGI_FORMAT_R32G32B32A32_FLOAT, &_float4(0.0f, 0.f, 0.f, 1.f))))
+		return E_FAIL;
+
+#pragma region Luminance
+	/* For.Target_Luminance1 */
+	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_Luminance1"), 243, 243, DXGI_FORMAT_R32G32_FLOAT, &_float4(0.0f, 0.f, 0.f, 1.f))))
+		return E_FAIL;
+
+	/* For.Target_Luminance2 */
+	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_Luminance2"), 81, 81, DXGI_FORMAT_R32G32_FLOAT, &_float4(0.0f, 0.f, 0.f, 1.f))))
+		return E_FAIL;
+
+	/* For.Target_Luminance3 */
+	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_Luminance3"), 27, 27, DXGI_FORMAT_R32G32_FLOAT, &_float4(0.0f, 0.f, 0.f, 1.f))))
+		return E_FAIL;
+
+	/* For.Target_Luminance4 */
+	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_Luminance4"), 9, 9, DXGI_FORMAT_R32G32_FLOAT, &_float4(0.0f, 0.f, 0.f, 1.f))))
+		return E_FAIL;
+
+	/* For.Target_Luminance5 */
+	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_Luminance5"), 3, 3, DXGI_FORMAT_R32G32_FLOAT, &_float4(0.0f, 0.f, 0.f, 1.f))))
+		return E_FAIL;
+
+	/* For.Target_Luminance6 */
+	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_Luminance6"), 1, 1, DXGI_FORMAT_R32G32_FLOAT, &_float4(0.0f, 0.f, 0.f, 1.f))))
+		return E_FAIL;
+
+#pragma endregion
+
+
+
 	/* For.MRT_Original */
 	if (FAILED(m_pTarget_Manager->Add_MRT(TEXT("MRT_Original"), TEXT("Target_Original"))))
 		return E_FAIL;
@@ -118,6 +151,29 @@ HRESULT CRenderer::Initialize_Prototype()
 	/* For.MRT_Bloom*/
 	if (FAILED(m_pTarget_Manager->Add_MRT(TEXT("MRT_BloomTest"), TEXT("Target_BloomTest"))))
 		return E_FAIL;
+
+	/* For.MRT_HDR */
+	if (FAILED(m_pTarget_Manager->Add_MRT(TEXT("MRT_HDR"), TEXT("Target_HDR"))))
+		return E_FAIL;
+
+	/* For.MRT_Luminance1 */
+	if (FAILED(m_pTarget_Manager->Add_MRT(TEXT("MRT_Luminance1"), TEXT("Target_Luminance1")))) // 243 243
+		return E_FAIL;
+	/* For.MRT_Luminance2 */
+	if (FAILED(m_pTarget_Manager->Add_MRT(TEXT("MRT_Luminance2"), TEXT("Target_Luminance2")))) // 81 81
+		return E_FAIL;
+	/* For.MRT_Luminance3 */
+	if (FAILED(m_pTarget_Manager->Add_MRT(TEXT("MRT_Luminance3"), TEXT("Target_Luminance3")))) // 27 27
+		return E_FAIL;
+	/* For.MRT_Luminance4 */
+	if (FAILED(m_pTarget_Manager->Add_MRT(TEXT("MRT_Luminance4"), TEXT("Target_Luminance4")))) // 9 9
+		return E_FAIL;
+	/* For.MRT_Luminance5 */
+	if (FAILED(m_pTarget_Manager->Add_MRT(TEXT("MRT_Luminance5"), TEXT("Target_Luminance5")))) // 3 3
+		return E_FAIL;
+	/* For.MRT_Luminance6 */
+	if (FAILED(m_pTarget_Manager->Add_MRT(TEXT("MRT_Luminance6"), TEXT("Target_Luminance6")))) // 1 1
+		return E_FAIL;
 #ifdef _DEBUG
 
 	if (FAILED(m_pTarget_Manager->Initialize_Debug(TEXT("Target_Diffuse"), 50.f, 50.f, 100.f, 100.f)))
@@ -143,6 +199,19 @@ HRESULT CRenderer::Initialize_Prototype()
 	if (FAILED(m_pTarget_Manager->Initialize_Debug(TEXT("Target_BlurUpScale"), 700.f, 500.f, 200.f, 200.f)))
 		return E_FAIL;
 
+	if (FAILED(m_pTarget_Manager->Initialize_Debug(TEXT("Target_Luminance1"), 50.f, 350.f, 100.f, 100.f)))
+		return E_FAIL;
+	if (FAILED(m_pTarget_Manager->Initialize_Debug(TEXT("Target_Luminance2"), 50.f, 450.f, 100.f, 100.f)))
+		return E_FAIL;
+	if (FAILED(m_pTarget_Manager->Initialize_Debug(TEXT("Target_Luminance3"), 50.f, 550.f, 100.f, 100.f)))
+		return E_FAIL;
+	if (FAILED(m_pTarget_Manager->Initialize_Debug(TEXT("Target_Luminance4"), 150.f, 350.f, 100.f, 100.f)))
+		return E_FAIL;
+	if (FAILED(m_pTarget_Manager->Initialize_Debug(TEXT("Target_Luminance5"), 150.f, 450.f, 100.f, 100.f)))
+		return E_FAIL;
+	if (FAILED(m_pTarget_Manager->Initialize_Debug(TEXT("Target_Luminance6"), 150.f, 550.f, 100.f, 100.f)))
+		return E_FAIL;
+
 	m_pShader[SHADER_DEFERRED] = CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_Deferred.hlsl"), VTXTEX_DECLARATION::Elements, VTXTEX_DECLARATION::iNumElements);
 	if (nullptr == m_pShader[SHADER_DEFERRED])
 		return E_FAIL;
@@ -165,6 +234,14 @@ HRESULT CRenderer::Initialize_Prototype()
 
 	m_pShader[SHADER_TEST] = CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/TEST.hlsl"), VTXTEX_DECLARATION::Elements, VTXTEX_DECLARATION::iNumElements);
 	if (nullptr == m_pShader[SHADER_TEST])
+		return E_FAIL;
+
+	m_pShader[SHADER_LUMINANCE] = CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Luminance.hlsl"), VTXTEX_DECLARATION::Elements, VTXTEX_DECLARATION::iNumElements);
+	if (nullptr == m_pShader[SHADER_LUMINANCE])
+		return E_FAIL;
+
+	m_pShader[SHADER_HDR] = CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/HDR.hlsl"), VTXTEX_DECLARATION::Elements, VTXTEX_DECLARATION::iNumElements);
+	if (nullptr == m_pShader[SHADER_HDR])
 		return E_FAIL;
 
 	m_pVIBuffer = CVIBuffer_Rect::Create(m_pDevice, m_pContext);
@@ -206,7 +283,6 @@ HRESULT CRenderer::Draw()
 	if (FAILED(Render_NonAlphaBlend()))
 		return E_FAIL;
 
-
 	if (FAILED(Render_SSAO()))
 		return E_FAIL;
 
@@ -216,18 +292,20 @@ HRESULT CRenderer::Draw()
 	if (FAILED(Render_Blend()))
 		return E_FAIL;
 
+	if (FAILED(Render_HDR()))
+		return E_FAIL;
+
+	if (FAILED(Render_LUMINANCE()))
+		return E_FAIL;
 
 	if (FAILED(Render_Bloom()))
 		return E_FAIL;
+
 	if (FAILED(Render_BlurX()))
 		return E_FAIL;
 
 	if (FAILED(Render_BlurY()))
 		return E_FAIL;
-	for (_uint i = 0; i < 8; ++i)
-	{
-		
-	}
 
 	if (FAILED(Render_BloomTest()))
 		return E_FAIL;
@@ -359,6 +437,13 @@ HRESULT CRenderer::Render_Lights()
 	if (FAILED(m_pTarget_Manager->End_MRT(m_pContext)))
 		return E_FAIL;
 
+	ID3D11ShaderResourceView*		pSRVs[8] =
+	{
+		nullptr
+	};
+
+	m_pContext->PSSetShaderResources(0, 8, pSRVs);
+
 	return S_OK;
 }
 
@@ -411,9 +496,6 @@ HRESULT CRenderer::Render_BlurX()
 	if (nullptr == m_pTarget_Manager)
 		return E_FAIL;
 
-	/*for (_uint i = 0; i < 8; ++i)
-	{*/
-	/* Target_Shade타겟에 빛 연산한 결과를 그린다. */
 	if (FAILED(m_pTarget_Manager->Begin_MRT(m_pContext, TEXT("MRT_BlurX"))))
 		return E_FAIL;
 
@@ -437,6 +519,7 @@ HRESULT CRenderer::Render_BlurX()
 		if (FAILED(m_pTarget_Manager->Bind_SRV(TEXT("Target_Bloom"), m_pShader[SHADER_BLURX], "g_BlurTexture")))
 			return E_FAIL;
 
+
 		m_pShader[SHADER_BLURX]->Begin(0);
 
 #ifdef _DEBUG
@@ -445,7 +528,6 @@ HRESULT CRenderer::Render_BlurX()
 	if (FAILED(m_pTarget_Manager->End_MRT(m_pContext)))
 		return E_FAIL;
 
-//	}
 	return S_OK;
 }
 
@@ -486,36 +568,6 @@ HRESULT CRenderer::Render_BlurY()
 	if (FAILED(m_pTarget_Manager->End_MRT(m_pContext)))
 		return E_FAIL;
 
-
-
-//	/* Target_Shade타겟에 빛 연산한 결과를 그린다. */
-//	if (FAILED(m_pTarget_Manager->Begin_MRT(m_pContext, TEXT("MRT_BlurUpScale"))))
-//		return E_FAIL;
-//
-//	iNumViewport = 1;
-//
-//	m_pContext->RSGetViewports(&iNumViewport, &ViewportDesc);
-//
-//	XMStoreFloat4x4(&WorldMatrix,
-//		XMMatrixTranspose(XMMatrixScaling(ViewportDesc.Width, ViewportDesc.Height, 0.f) * XMMatrixTranslation(0.0f, 0.0f, 0.f)));
-//
-//	if (FAILED(m_pShader[SHADER_BLUR]->Set_RawValue("g_WorldMatrix", &WorldMatrix, sizeof(_float4x4))))
-//		return E_FAIL;
-//	if (FAILED(m_pShader[SHADER_BLUR]->Set_RawValue("g_ViewMatrix", &m_ViewMatrix, sizeof(_float4x4))))
-//		return E_FAIL;
-//	if (FAILED(m_pShader[SHADER_BLUR]->Set_RawValue("g_ProjMatrix", &m_ProjMatrix, sizeof(_float4x4))))
-//		return E_FAIL;
-//
-//	if (FAILED(m_pTarget_Manager->Bind_SRV(TEXT("Target_BlurY"), m_pShader[SHADER_BLUR], "g_BlurTexture")))
-//		return E_FAIL;
-//
-//	m_pShader[SHADER_BLUR]->Begin(3);
-//
-//#ifdef _DEBUG
-//	m_pVIBuffer->Render();
-//#endif
-//	if (FAILED(m_pTarget_Manager->End_MRT(m_pContext)))
-//		return E_FAIL;
 	return S_OK;
 }
 
@@ -724,6 +776,112 @@ HRESULT CRenderer::Render_UI()
 	return S_OK;
 }
 
+HRESULT CRenderer::Render_HDR()
+{
+	if (nullptr == m_pTarget_Manager)
+		return E_FAIL;
+	/* Target_Shade타겟에 빛 연산한 결과를 그린다. */
+	if (FAILED(m_pTarget_Manager->Begin_MRT(m_pContext, TEXT("MRT_HDR"))))
+		return E_FAIL;
+
+	_float4x4			WorldMatrix;
+
+	_uint				iNumViewport = 1;
+	D3D11_VIEWPORT		ViewportDesc;
+
+	m_pContext->RSGetViewports(&iNumViewport, &ViewportDesc);
+
+	XMStoreFloat4x4(&WorldMatrix,
+		XMMatrixTranspose(XMMatrixScaling(ViewportDesc.Width, ViewportDesc.Height, 0.f) * XMMatrixTranslation(0.0f, 0.0f, 0.f)));
+
+	if (FAILED(m_pShader[SHADER_HDR]->Set_RawValue("g_WorldMatrix", &WorldMatrix, sizeof(_float4x4))))
+		return E_FAIL;
+	if (FAILED(m_pShader[SHADER_HDR]->Set_RawValue("g_ViewMatrix", &m_ViewMatrix, sizeof(_float4x4))))
+		return E_FAIL;
+	if (FAILED(m_pShader[SHADER_HDR]->Set_RawValue("g_ProjMatrix", &m_ProjMatrix, sizeof(_float4x4))))
+		return E_FAIL;
+
+	if (FAILED(m_pTarget_Manager->Bind_SRV(TEXT("Target_Original"), m_pShader[SHADER_HDR], "g_DiffuseTexture")))
+		return E_FAIL;
+
+	m_pShader[SHADER_HDR]->Begin(0);
+
+#ifdef _DEBUG
+	m_pVIBuffer->Render();
+#endif
+
+	if (FAILED(m_pTarget_Manager->End_MRT(m_pContext)))
+		return E_FAIL;
+	return S_OK;
+}
+
+HRESULT CRenderer::Render_LUMINANCE()
+{
+	if (nullptr == m_pTarget_Manager)
+		return E_FAIL;
+	/* Target_Shade타겟에 빛 연산한 결과를 그린다. */
+	if (FAILED(m_pTarget_Manager->Begin_MRT(m_pContext, TEXT("MRT_Luminance1"))))
+		return E_FAIL;
+	_float4x4			WorldMatrix;
+
+	_uint				iNumViewport = 1;
+	D3D11_VIEWPORT		ViewportDesc;
+
+	m_pContext->RSGetViewports(&iNumViewport, &ViewportDesc);
+
+	XMStoreFloat4x4(&WorldMatrix,
+		XMMatrixTranspose(XMMatrixScaling(243, 243, 0.f) * XMMatrixTranslation(0.0f, 0.0f, 0.f)));
+
+	_matrix MatOrtho = XMMatrixTranspose(m_pTarget_Manager->Get_OrthoMatrix(TEXT("Target_Luminance1")));
+
+	if (FAILED(m_pShader[SHADER_LUMINANCE]->Set_RawValue("g_WorldMatrix", &WorldMatrix, sizeof(_float4x4))))
+		return E_FAIL;
+	if (FAILED(m_pShader[SHADER_LUMINANCE]->Set_RawValue("g_ViewMatrix", &m_ViewMatrix, sizeof(_float4x4))))
+		return E_FAIL;
+	if (FAILED(m_pShader[SHADER_LUMINANCE]->Set_RawValue("g_ProjMatrix", &m_ProjMatrix, sizeof(_float4x4))))
+		return E_FAIL;
+
+	if (FAILED(m_pTarget_Manager->Bind_SRV(TEXT("Target_HDR"), m_pShader[SHADER_LUMINANCE], "g_HDRTexture")))
+		return E_FAIL;
+
+	_float sU = (1.0f / 1280.f);
+	_float sV = (1.0f / 720.f);
+
+	_float4 Offset1 = _float4(-0.5f * sU, 0.5f * sV, 0.0f, 0.0f);
+	_float4 Offset2= _float4(0.5f * sU, 0.5f * sV, 0.0f, 0.0f);
+	_float4 Offset3 = _float4(-0.5f * sU, -0.5f * sV, 0.0f, 0.0f);
+	_float4 Offset4 = _float4(0.5f * sU, -0.5f * sV, 0.0f, 0.0f);
+
+	if (FAILED(m_pShader[SHADER_LUMINANCE]->Set_RawValue("tcLumOffsets1", &Offset1, sizeof(_float4))))
+		return E_FAIL;
+	if (FAILED(m_pShader[SHADER_LUMINANCE]->Set_RawValue("tcLumOffsets2", &Offset2, sizeof(_float4))))
+		return E_FAIL;
+	if (FAILED(m_pShader[SHADER_LUMINANCE]->Set_RawValue("tcLumOffsets3", &Offset3, sizeof(_float4))))
+		return E_FAIL;
+	if (FAILED(m_pShader[SHADER_LUMINANCE]->Set_RawValue("tcLumOffsets4", &Offset4, sizeof(_float4))))
+		return E_FAIL;
+
+	m_pShader[SHADER_LUMINANCE]->Begin(0);
+	
+#ifdef _DEBUG
+	m_pVIBuffer->Render();
+#endif
+
+	if (FAILED(m_pTarget_Manager->End_MRT(m_pContext)))
+		return E_FAIL;
+	return S_OK;
+}
+
+void CRenderer::ResetSRV()
+{
+	ID3D11ShaderResourceView*		pSRVs[8] =
+	{
+		nullptr
+	};
+
+	m_pContext->PSSetShaderResources(0, 8, pSRVs);
+}
+
 #ifdef _DEBUG
 HRESULT CRenderer::Render_Debug()
 {
@@ -736,6 +894,15 @@ HRESULT CRenderer::Render_Debug()
 	m_pTarget_Manager->Render_Debug(TEXT("MRT_SSAO"), m_pVIBuffer, m_pShader[SHADER_SSAO]);
 	m_pTarget_Manager->Render_Debug(TEXT("MRT_BlurX"), m_pVIBuffer, m_pShader[SHADER_BLURX]);
 	m_pTarget_Manager->Render_Debug(TEXT("MRT_BlurY"), m_pVIBuffer, m_pShader[SHADER_BLURY]);
+
+	m_pTarget_Manager->Render_Debug(TEXT("MRT_Luminance1"), m_pVIBuffer, m_pShader[SHADER_LUMINANCE]);
+	m_pTarget_Manager->Render_Debug(TEXT("MRT_Luminance2"), m_pVIBuffer, m_pShader[SHADER_LUMINANCE]);
+	m_pTarget_Manager->Render_Debug(TEXT("MRT_Luminance3"), m_pVIBuffer, m_pShader[SHADER_LUMINANCE]);
+	m_pTarget_Manager->Render_Debug(TEXT("MRT_Luminance4"), m_pVIBuffer, m_pShader[SHADER_LUMINANCE]);
+	m_pTarget_Manager->Render_Debug(TEXT("MRT_Luminance5"), m_pVIBuffer, m_pShader[SHADER_LUMINANCE]);
+	m_pTarget_Manager->Render_Debug(TEXT("MRT_Luminance6"), m_pVIBuffer, m_pShader[SHADER_LUMINANCE]);
+
+	m_pTarget_Manager->Render_Debug(TEXT("MRT_HDR"), m_pVIBuffer, m_pShader[SHADER_HDR]);
 	//MRT_BlurUpScale
 	//m_pTarget_Manager->Render_Debug(TEXT("MRT_BlurUpScale"), m_pVIBuffer, m_pShader[SHADER_BLUR]);
 	//m_pTarget_Manager->Render_Debug(TEXT("MRT_Bloom"), m_pVIBuffer, m_pShader[SHADER_BLOOM]);

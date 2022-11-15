@@ -90,7 +90,16 @@ HRESULT CRenderTarget::Render_Debug(CShader* pShader, CVIBuffer * pVIBuffer, _ui
 
 	pShader->Begin(iPass);
 
-	return pVIBuffer->Render();
+	pVIBuffer->Render();
+
+	ID3D11ShaderResourceView*		pSRVs[8] =
+	{
+		nullptr
+	};
+
+	m_pContext->PSSetShaderResources(0, 8, pSRVs);
+
+	return S_OK;
 }
 _matrix CRenderTarget::GetOrthoMatrix()
 {

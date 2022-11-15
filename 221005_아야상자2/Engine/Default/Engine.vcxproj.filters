@@ -490,5 +490,11 @@
     <FxCompile Include="..\Bin\ShaderFiles\BlurX.hlsl">
       <Filter>03.Components\01.Renderer\Shader</Filter>
     </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Luminance.hlsl">
+      <Filter>03.Components\01.Renderer\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\HDR.hlsl">
+      <Filter>03.Components\01.Renderer\Shader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

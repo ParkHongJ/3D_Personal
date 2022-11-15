@@ -289,6 +289,8 @@
     <FxCompile Include="..\Bin\ShaderFiles\Bloom.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\BlurX.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\BlurY.hlsl" />
+    <FxCompile Include="..\Bin\ShaderFiles\HDR.hlsl" />
+    <FxCompile Include="..\Bin\ShaderFiles\Luminance.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_Cell.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_Deferred.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\SSAO.hlsl" />
