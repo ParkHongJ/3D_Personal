@@ -54,7 +54,7 @@ HRESULT CRenderer::Initialize_Prototype()
 		return E_FAIL;
 
 	/* For.Target_BlurX */
-	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_BlurX"), (_uint)ViewportDesc.Width / 2 , (_uint)ViewportDesc.Height / 2, DXGI_FORMAT_R32G32B32A32_FLOAT, &_float4(0.0f, 0.f, 0.f, 1.f))))
+	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_BlurX"), (_uint)ViewportDesc.Width / 2, (_uint)ViewportDesc.Height / 2, DXGI_FORMAT_R32G32B32A32_FLOAT, &_float4(0.0f, 0.f, 0.f, 1.f))))
 		return E_FAIL;
 
 	/* For.Target_BlurY */
@@ -62,7 +62,7 @@ HRESULT CRenderer::Initialize_Prototype()
 		return E_FAIL;
 
 	/* For.Target_DownSampler */
-	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_DownSampler"), (_uint)ViewportDesc.Width / 2, (_uint)ViewportDesc.Height / 2, DXGI_FORMAT_R32G32B32A32_FLOAT, &_float4(0.0f, 1.f, 0.f, 1.f))))
+	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_DownSampler"), (_uint)ViewportDesc.Width, (_uint)ViewportDesc.Height, DXGI_FORMAT_R32G32B32A32_FLOAT, &_float4(0.0f, 1.f, 0.f, 1.f))))
 		return E_FAIL;
 
 	/* For.Target_UpSampler */
@@ -215,16 +215,19 @@ HRESULT CRenderer::Draw()
 
 	if (FAILED(Render_Blend()))
 		return E_FAIL;
-	
+
 
 	if (FAILED(Render_Bloom()))
 		return E_FAIL;
-
 	if (FAILED(Render_BlurX()))
 		return E_FAIL;
 
 	if (FAILED(Render_BlurY()))
 		return E_FAIL;
+	for (_uint i = 0; i < 8; ++i)
+	{
+		
+	}
 
 	if (FAILED(Render_BloomTest()))
 		return E_FAIL;
@@ -408,39 +411,41 @@ HRESULT CRenderer::Render_BlurX()
 	if (nullptr == m_pTarget_Manager)
 		return E_FAIL;
 
+	/*for (_uint i = 0; i < 8; ++i)
+	{*/
 	/* Target_Shade타겟에 빛 연산한 결과를 그린다. */
 	if (FAILED(m_pTarget_Manager->Begin_MRT(m_pContext, TEXT("MRT_BlurX"))))
 		return E_FAIL;
 
-	_float4x4			WorldMatrix;
+		_float4x4			WorldMatrix;
 
-	_uint				iNumViewport = 1;
-	D3D11_VIEWPORT		ViewportDesc;
+		_uint				iNumViewport = 1;
+		D3D11_VIEWPORT		ViewportDesc;
 
-	m_pContext->RSGetViewports(&iNumViewport, &ViewportDesc);
+		m_pContext->RSGetViewports(&iNumViewport, &ViewportDesc);
 
-	XMStoreFloat4x4(&WorldMatrix,
-		XMMatrixTranspose(XMMatrixScaling(ViewportDesc.Width / 2, ViewportDesc.Height / 2, 0.f) * XMMatrixTranslation(0.0f, 0.0f, 0.f)));
+		XMStoreFloat4x4(&WorldMatrix,
+			XMMatrixTranspose(XMMatrixScaling(ViewportDesc.Width, ViewportDesc.Height, 0.f) * XMMatrixTranslation(0.0f, 0.0f, 0.f)));
 
-	if (FAILED(m_pShader[SHADER_BLURX]->Set_RawValue("g_WorldMatrix", &WorldMatrix, sizeof(_float4x4))))
-		return E_FAIL;
-	if (FAILED(m_pShader[SHADER_BLURX]->Set_RawValue("g_ViewMatrix", &m_ViewMatrix, sizeof(_float4x4))))
-		return E_FAIL;
-	if (FAILED(m_pShader[SHADER_BLURX]->Set_RawValue("g_ProjMatrix", &m_ProjMatrix, sizeof(_float4x4))))
-		return E_FAIL;
+		if (FAILED(m_pShader[SHADER_BLURX]->Set_RawValue("g_WorldMatrix", &WorldMatrix, sizeof(_float4x4))))
+			return E_FAIL;
+		if (FAILED(m_pShader[SHADER_BLURX]->Set_RawValue("g_ViewMatrix", &m_ViewMatrix, sizeof(_float4x4))))
+			return E_FAIL;
+		if (FAILED(m_pShader[SHADER_BLURX]->Set_RawValue("g_ProjMatrix", &m_ProjMatrix, sizeof(_float4x4))))
+			return E_FAIL;
 
-	if (FAILED(m_pTarget_Manager->Bind_SRV(TEXT("Target_Bloom"), m_pShader[SHADER_BLURX], "g_BlurTexture")))
-		return E_FAIL;
+		if (FAILED(m_pTarget_Manager->Bind_SRV(TEXT("Target_Bloom"), m_pShader[SHADER_BLURX], "g_BlurTexture")))
+			return E_FAIL;
 
-	m_pShader[SHADER_BLURX]->Begin(0);
+		m_pShader[SHADER_BLURX]->Begin(0);
 
 #ifdef _DEBUG
-	m_pVIBuffer->Render();
+		m_pVIBuffer->Render();
 #endif
-
 	if (FAILED(m_pTarget_Manager->End_MRT(m_pContext)))
 		return E_FAIL;
 
+//	}
 	return S_OK;
 }
 
@@ -461,7 +466,7 @@ HRESULT CRenderer::Render_BlurY()
 	m_pContext->RSGetViewports(&iNumViewport, &ViewportDesc);
 
 	XMStoreFloat4x4(&WorldMatrix,
-		XMMatrixTranspose(XMMatrixScaling(ViewportDesc.Width / 2, ViewportDesc.Height / 2, 0.f) * XMMatrixTranslation(0.0f, 0.0f, 0.f)));
+		XMMatrixTranspose(XMMatrixScaling(ViewportDesc.Width, ViewportDesc.Height, 0.f) * XMMatrixTranslation(0.0f, 0.0f, 0.f)));
 
 	if (FAILED(m_pShader[SHADER_BLURY]->Set_RawValue("g_WorldMatrix", &WorldMatrix, sizeof(_float4x4))))
 		return E_FAIL;
