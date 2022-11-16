@@ -50,7 +50,12 @@ private:
 #ifdef _DEBUG
 	class CVIBuffer_Rect*					m_pVIBuffer = nullptr;
 #endif // _DEBUG
+	class CPostFX*							m_pPostFX = nullptr;
 
+	// HDR light accumulation buffer
+	ID3D11Texture2D* g_pHDRTexture = nullptr;
+	ID3D11RenderTargetView* g_HDRRTV = nullptr;
+	ID3D11ShaderResourceView* g_HDRSRV = nullptr;
 private:
 	HRESULT Render_Priority();
 	HRESULT Render_NonAlphaBlend();
@@ -66,6 +71,7 @@ private:
 	HRESULT Render_UI();
 	HRESULT Render_HDR();
 	HRESULT Render_LUMINANCE();
+	HRESULT Render_PostProcessing();
 	void ResetSRV();
 #ifdef _DEBUG
 	HRESULT Render_Debug();

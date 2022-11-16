@@ -5,6 +5,7 @@
 #include "VIBuffer_Rect.h"
 #include "Light_Manager.h"
 #include "PipeLine.h"
+#include "PostFX.h"
 
 CRenderer::CRenderer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CComponent(pDevice, pContext)
@@ -18,6 +19,47 @@ CRenderer::CRenderer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 HRESULT CRenderer::Initialize_Prototype()
 {
 	if (nullptr == m_pTarget_Manager)
+		return E_FAIL;
+	
+	_uint iWidth = 1280;
+	_uint iHeight = 720;
+
+	m_pPostFX = CPostFX::Create(m_pDevice, m_pContext, iWidth, iHeight, DXGI_FORMAT_B4G4R4A4_UNORM, &_float4(0.f, 0.f, 0.f, 1.f));
+
+	// Create the HDR render target
+	D3D11_TEXTURE2D_DESC dtd = {
+		1280, //UINT Width;
+		720, //UINT Height;
+		1, //UINT MipLevels;
+		1, //UINT ArraySize;
+		DXGI_FORMAT_R16G16B16A16_TYPELESS, //DXGI_FORMAT Format;
+		1, //DXGI_SAMPLE_DESC SampleDesc;
+		0,
+		D3D11_USAGE_DEFAULT,//D3D11_USAGE Usage;
+		D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE,//UINT BindFlags;
+		0,//UINT CPUAccessFlags;
+		0//UINT MiscFlags;    
+	};
+	if (FAILED(m_pDevice->CreateTexture2D(&dtd, NULL, &g_pHDRTexture)))
+		return E_FAIL;
+
+	D3D11_RENDER_TARGET_VIEW_DESC rtsvd =
+	{
+		DXGI_FORMAT_R16G16B16A16_FLOAT,
+		D3D11_RTV_DIMENSION_TEXTURE2D
+	};
+	if (FAILED(m_pDevice->CreateRenderTargetView(g_pHDRTexture, &rtsvd, &g_HDRRTV)))
+		return E_FAIL;
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC dsrvd =
+	{
+		DXGI_FORMAT_R16G16B16A16_FLOAT,
+		D3D11_SRV_DIMENSION_TEXTURE2D,
+		0,
+		0
+	};
+	dsrvd.Texture2D.MipLevels = 1;
+	if (FAILED(m_pDevice->CreateShaderResourceView(g_pHDRTexture, &dsrvd, &g_HDRSRV)))
 		return E_FAIL;
 
 	_uint		iNumViewport = 1;
@@ -291,6 +333,10 @@ HRESULT CRenderer::Draw()
 
 	if (FAILED(Render_Blend()))
 		return E_FAIL;
+
+	if (FAILED(Render_PostProcessing())
+	{
+	}
 
 	if (FAILED(Render_HDR()))
 		return E_FAIL;
@@ -872,6 +918,12 @@ HRESULT CRenderer::Render_LUMINANCE()
 	return S_OK;
 }
 
+HRESULT CRenderer::Render_PostProcessing()
+{
+	m_pPostFX->PostProcessing(pHDRSRV, pLDRRTV);
+	return S_OK;
+}
+
 void CRenderer::ResetSRV()
 {
 	ID3D11ShaderResourceView*		pSRVs[8] =
@@ -895,20 +947,7 @@ HRESULT CRenderer::Render_Debug()
 	m_pTarget_Manager->Render_Debug(TEXT("MRT_BlurX"), m_pVIBuffer, m_pShader[SHADER_BLURX]);
 	m_pTarget_Manager->Render_Debug(TEXT("MRT_BlurY"), m_pVIBuffer, m_pShader[SHADER_BLURY]);
 
-	m_pTarget_Manager->Render_Debug(TEXT("MRT_Luminance1"), m_pVIBuffer, m_pShader[SHADER_LUMINANCE]);
-	m_pTarget_Manager->Render_Debug(TEXT("MRT_Luminance2"), m_pVIBuffer, m_pShader[SHADER_LUMINANCE]);
-	m_pTarget_Manager->Render_Debug(TEXT("MRT_Luminance3"), m_pVIBuffer, m_pShader[SHADER_LUMINANCE]);
-	m_pTarget_Manager->Render_Debug(TEXT("MRT_Luminance4"), m_pVIBuffer, m_pShader[SHADER_LUMINANCE]);
-	m_pTarget_Manager->Render_Debug(TEXT("MRT_Luminance5"), m_pVIBuffer, m_pShader[SHADER_LUMINANCE]);
-	m_pTarget_Manager->Render_Debug(TEXT("MRT_Luminance6"), m_pVIBuffer, m_pShader[SHADER_LUMINANCE]);
-
 	m_pTarget_Manager->Render_Debug(TEXT("MRT_HDR"), m_pVIBuffer, m_pShader[SHADER_HDR]);
-	//MRT_BlurUpScale
-	//m_pTarget_Manager->Render_Debug(TEXT("MRT_BlurUpScale"), m_pVIBuffer, m_pShader[SHADER_BLUR]);
-	//m_pTarget_Manager->Render_Debug(TEXT("MRT_Bloom"), m_pVIBuffer, m_pShader[SHADER_BLOOM]);
-
-	//m_pTarget_Manager->Render_Debug(TEXT("MRT_BloomTest"), m_pVIBuffer, m_pShader[SHADER_TEST]);
-
 	m_pTarget_Manager->Render_Debug(TEXT("MRT_Original"), m_pVIBuffer, m_pShader[SHADER_DEFERRED]);
 	for (auto& pDebugCom : m_DebugObject)
 	{
@@ -963,6 +1002,7 @@ void CRenderer::Free()
 	Safe_Release(m_pVIBuffer);
 #endif // _DEBUG
 
+	Safe_Release(m_pPostFX);
 	Safe_Release(m_pLight_Manager);
 	Safe_Release(m_pTarget_Manager);
 }
