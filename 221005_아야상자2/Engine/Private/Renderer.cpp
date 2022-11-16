@@ -25,42 +25,9 @@ HRESULT CRenderer::Initialize_Prototype()
 	_uint iHeight = 720;
 
 	m_pPostFX = CPostFX::Create(m_pDevice, m_pContext, iWidth, iHeight, DXGI_FORMAT_B4G4R4A4_UNORM, &_float4(0.f, 0.f, 0.f, 1.f));
-
-	// Create the HDR render target
-	D3D11_TEXTURE2D_DESC dtd = {
-		1280, //UINT Width;
-		720, //UINT Height;
-		1, //UINT MipLevels;
-		1, //UINT ArraySize;
-		DXGI_FORMAT_R16G16B16A16_TYPELESS, //DXGI_FORMAT Format;
-		1, //DXGI_SAMPLE_DESC SampleDesc;
-		0,
-		D3D11_USAGE_DEFAULT,//D3D11_USAGE Usage;
-		D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE,//UINT BindFlags;
-		0,//UINT CPUAccessFlags;
-		0//UINT MiscFlags;    
-	};
-	if (FAILED(m_pDevice->CreateTexture2D(&dtd, NULL, &g_pHDRTexture)))
+	if (nullptr == m_pPostFX)
 		return E_FAIL;
-
-	D3D11_RENDER_TARGET_VIEW_DESC rtsvd =
-	{
-		DXGI_FORMAT_R16G16B16A16_FLOAT,
-		D3D11_RTV_DIMENSION_TEXTURE2D
-	};
-	if (FAILED(m_pDevice->CreateRenderTargetView(g_pHDRTexture, &rtsvd, &g_HDRRTV)))
-		return E_FAIL;
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC dsrvd =
-	{
-		DXGI_FORMAT_R16G16B16A16_FLOAT,
-		D3D11_SRV_DIMENSION_TEXTURE2D,
-		0,
-		0
-	};
-	dsrvd.Texture2D.MipLevels = 1;
-	if (FAILED(m_pDevice->CreateShaderResourceView(g_pHDRTexture, &dsrvd, &g_HDRSRV)))
-		return E_FAIL;
+	
 
 	_uint		iNumViewport = 1;
 	D3D11_VIEWPORT		ViewportDesc;
@@ -68,7 +35,7 @@ HRESULT CRenderer::Initialize_Prototype()
 	m_pContext->RSGetViewports(&iNumViewport, &ViewportDesc);
 
 	/* For.Target_Original */
-	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_Original"), (_uint)ViewportDesc.Width, (_uint)ViewportDesc.Height, DXGI_FORMAT_R32G32B32A32_FLOAT, &_float4(0.0f, 0.f, 0.f, 0.f))))
+	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_Original"), (_uint)ViewportDesc.Width, (_uint)ViewportDesc.Height, DXGI_FORMAT_R32G32B32A32_FLOAT, &_float4(0.0f, 0.f, 0.f, 0.f), true)))
 		return E_FAIL;
 
 	/* For.Target_Diffuse */
@@ -334,9 +301,8 @@ HRESULT CRenderer::Draw()
 	if (FAILED(Render_Blend()))
 		return E_FAIL;
 
-	if (FAILED(Render_PostProcessing())
-	{
-	}
+	if (FAILED(Render_PostProcessing()))
+		return E_FAIL;
 
 	if (FAILED(Render_HDR()))
 		return E_FAIL;
@@ -368,10 +334,8 @@ HRESULT CRenderer::Draw()
 
 #ifdef _DEBUG
 
-
 	if (FAILED(Render_Debug()))
 		return E_FAIL;
-
 
 #endif
 
@@ -380,6 +344,14 @@ HRESULT CRenderer::Draw()
 }
 
 #ifdef _DEBUG
+void CRenderer::SetParameters(_float fMiddleGrey, _float fWhite)
+{
+	m_pPostFX->SetParameters(fMiddleGrey, fWhite);
+}
+void CRenderer::GetParameters(_float & fMiddleGrey, _float & fWhite)
+{
+	m_pPostFX->GetParameters(fMiddleGrey, fWhite);
+}
 HRESULT CRenderer::Add_DebugGroup(CComponent* pDebugCom)
 {
 	m_DebugObject.push_back(pDebugCom);
@@ -920,7 +892,7 @@ HRESULT CRenderer::Render_LUMINANCE()
 
 HRESULT CRenderer::Render_PostProcessing()
 {
-	m_pPostFX->PostProcessing(pHDRSRV, pLDRRTV);
+	m_pPostFX->PostProcessing(m_pTarget_Manager->Get_SRV(L"Target_Original"));
 	return S_OK;
 }
 

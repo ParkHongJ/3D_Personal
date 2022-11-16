@@ -12,11 +12,12 @@ public:
 	virtual ~CTarget_Manager() = default;
 
 public:
-	HRESULT Add_RenderTarget(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, const _tchar* pTargetTag, _uint iSizeX, _uint iSizeY, DXGI_FORMAT eFormat, const _float4* pClearColor);
+	HRESULT Add_RenderTarget(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, const _tchar* pTargetTag, _uint iSizeX, _uint iSizeY, DXGI_FORMAT eFormat, const _float4* pClearColor, _bool bHDR = false);
 	HRESULT Add_MRT(const _tchar* pMRTTag, const _tchar* pTargetTag);
 
 public:
 	HRESULT Bind_SRV(const _tchar* pTargetTag, class CShader* pShader, const char* pConstantName);
+	ID3D11ShaderResourceView*	Get_SRV(const _tchar* pTargetTag);
 	_matrix Get_OrthoMatrix(const _tchar* pTargetTag);
 
 

@@ -65,13 +65,14 @@ _bool CCamera_Free::Tick(_float fTimeDelta)
 	{
 		m_pTransformCom->Go_Right(fTimeDelta);
 	}
+	if (pGameInstance->Key_Down(DIK_NUMPAD7))
+	{
+		m_bZoom = true;
+	}
 
-	//if (pGameInstance->Key_Down(DIK_NUMPAD7))
-	//{
-	//	//Shake
-	//	m_bShake = true;
-	//	
-	//}
+	Zoom(fTimeDelta);
+	
+
 	_long	MouseMove = 0;
 
 	/*if (pGameInstance->Get_DIMKeyState(DIMK_RBUTTON))
@@ -263,6 +264,46 @@ void CCamera_Free::ShakeStart(_float fShakeTime, _float fShakeStrength)
 		m_bShake = true;
 		m_fShakeStrength = fShakeStrength;
 		m_fMaxShakeTime = fShakeTime;
+	}
+}
+
+void CCamera_Free::Zoom(_float fTimeDelta)
+{
+	if (m_bZoom)
+	{
+		m_fZoomTime += fTimeDelta;
+		if (m_fZoomTime >= m_fZoomTimeMax)
+		{
+			m_fZoomTime = 0.0f;
+			m_bZoom = false;
+			m_bZoomDelay = true;
+			if (m_iSign < 0) //다멀어졌다면
+			{
+				m_iSign = 1;
+				m_CameraDesc.fFovy = XMConvertToRadians(60.0f);
+				m_bZoomDelay = false;
+			}
+		}
+		else
+		{
+			m_CameraDesc.fFovy -= 0.2f * fTimeDelta * 5.f * m_iSign;
+		}
+	}
+	if (m_bZoomDelay)
+	{
+		//다 땡겨졌을 때 0.6635f
+		m_fZoomTime += fTimeDelta;
+		if (m_fZoomTime >= m_fZoomDelayMax)
+		{
+			m_bZoomDelay = false;
+			m_fZoomTime = 0.0f;
+			if (m_iSign > 0)
+			{
+				m_bZoom = true;
+				m_iSign = -1;
+			}
+		}
+		//XMVectorLerp()
 	}
 }
 

@@ -29,6 +29,8 @@ public:
 
 #ifdef _DEBUG
 public:
+	void SetParameters(_float fMiddleGrey, _float fWhite);
+	void GetParameters(_float& fMiddleGrey, _float& fWhite);
 	HRESULT Add_DebugGroup(class CComponent* pDebugCom);
 #endif // _DEBUG
 private:

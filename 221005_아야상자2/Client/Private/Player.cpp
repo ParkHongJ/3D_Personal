@@ -1,4 +1,9 @@
 #include "stdafx.h"
+#ifdef _DEBUG
+#include "..\Default\Imgui\imgui.h"
+#include "..\Default\Imgui\imgui_impl_dx11.h"
+#include "..\Default\Imgui\imgui_impl_win32.h"
+#endif // _DEBUG
 #include "..\Public\Player.h"
 #include "GameInstance.h"
 #include "HierarchyNode.h"
@@ -66,6 +71,20 @@ _bool CPlayer::Tick(_float fTimeDelta)
 		IncreaseStamina(fTimeDelta, 70.f);
 	}
 	Update_Weapon();
+
+#ifdef _DEBUG
+	static _float fWhite = 1.5f;
+	static _float fMiddleGrey = 1.5f;
+
+	m_pRendererCom->GetParameters(fMiddleGrey, fWhite);
+	ImGui::Begin("PostProcess");
+	//ImGui::SliderFloat("slider float", &f1, 0.0f, 1.0f, "ratio = %.3f");
+	ImGui::DragFloat("fMiddleGrey", &fMiddleGrey, 0.001f, 0.1f, 6.0f);
+	ImGui::DragFloat("fWhite", &fWhite, 0.001f, 0.1f, 6.0f);
+	ImGui::End();
+	m_pRendererCom->SetParameters(fMiddleGrey, fWhite);
+#endif // _DEBUG
+
 
 	for (auto& pPart : m_Parts)
 		pPart->Tick(fTimeDelta);

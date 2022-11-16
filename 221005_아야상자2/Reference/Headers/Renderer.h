@@ -29,6 +29,8 @@ public:
 
 #ifdef _DEBUG
 public:
+	void SetParameters(_float fMiddleGrey, _float fWhite);
+	void GetParameters(_float& fMiddleGrey, _float& fWhite);
 	HRESULT Add_DebugGroup(class CComponent* pDebugCom);
 #endif // _DEBUG
 private:
@@ -71,6 +73,7 @@ private:
 	HRESULT Render_UI();
 	HRESULT Render_HDR();
 	HRESULT Render_LUMINANCE();
+	HRESULT Render_PostProcessing();
 	void ResetSRV();
 #ifdef _DEBUG
 	HRESULT Render_Debug();

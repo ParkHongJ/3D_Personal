@@ -11,12 +11,12 @@ CTarget_Manager::CTarget_Manager()
 
 
 
-HRESULT CTarget_Manager::Add_RenderTarget(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, const _tchar * pTargetTag, _uint iSizeX, _uint iSizeY, DXGI_FORMAT eFormat, const _float4 * pClearColor)
+HRESULT CTarget_Manager::Add_RenderTarget(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, const _tchar * pTargetTag, _uint iSizeX, _uint iSizeY, DXGI_FORMAT eFormat, const _float4 * pClearColor, _bool bHDR)
 {
 	if (nullptr != Find_RenderTarget(pTargetTag))
 		return E_FAIL;
 
-	CRenderTarget*		pRenderTarget = CRenderTarget::Create(pDevice, pContext, iSizeX, iSizeY, eFormat, pClearColor);
+	CRenderTarget*		pRenderTarget = CRenderTarget::Create(pDevice, pContext, iSizeX, iSizeY, eFormat, pClearColor, bHDR);
 	if (nullptr == pRenderTarget)
 		return E_FAIL;
 
@@ -55,6 +55,14 @@ HRESULT CTarget_Manager::Bind_SRV(const _tchar * pTargetTag, CShader * pShader, 
 		return E_FAIL;
 
 	return pRenderTarget->Bind_SRV(pShader, pConstantName);
+}
+
+ID3D11ShaderResourceView * CTarget_Manager::Get_SRV(const _tchar * pTargetTag)
+{
+	CRenderTarget*		pRenderTarget = Find_RenderTarget(pTargetTag);
+	if (nullptr == pRenderTarget)
+		return nullptr;
+	return pRenderTarget->Get_SRV();
 }
 
 _matrix CTarget_Manager::Get_OrthoMatrix(const _tchar * pTargetTag)

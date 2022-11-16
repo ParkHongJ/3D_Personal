@@ -5,7 +5,7 @@
 
 //HRESULT CompileShader(PWCHAR strPath, D3D10_SHADER_MACRO* pMacros, char* strEntryPoint, char* strProfile, DWORD dwShaderFlags, ID3DBlob** ppVertexShaderBuffer);
 
-CPostFX::CPostFX(ID3D11Device * pDevice, ID3D11DeviceContext * pContext) : m_fMiddleGrey(0.0025f), m_fWhite(1.5f),
+CPostFX::CPostFX(ID3D11Device * pDevice, ID3D11DeviceContext * pContext) : m_fMiddleGrey(5.f), m_fWhite(2.2f),
 m_pDownScale1DBuffer(NULL), m_pDownScale1DUAV(NULL), m_pDownScale1DSRV(NULL),
 m_pDownScaleCB(NULL), m_pFinalPassCB(NULL),
 m_pAvgLumBuffer(NULL), m_pAvgLumUAV(NULL), m_pAvgLumSRV(NULL),
@@ -19,8 +19,7 @@ m_pDownScaleFirstPassCS(NULL), m_pDownScaleSecondPassCS(NULL), m_pFullScreenQuad
 
 HRESULT CPostFX::Initialize(_uint iSizeX, _uint iSizeY)
 {
-	Deinit();
-
+	//샘플링 옵션설정
 	D3D11_SAMPLER_DESC samDesc;
 	ZeroMemory(&samDesc, sizeof(samDesc));
 	samDesc.AddressU = samDesc.AddressV = samDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -28,6 +27,9 @@ HRESULT CPostFX::Initialize(_uint iSizeX, _uint iSizeY)
 	samDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 	samDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	samDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+
+	//샘플러 생성
+	//이걸로 HDR텍스쳐 샘플링할거임
 	if (FAILED(m_pDevice->CreateSamplerState(&samDesc, &g_pSampPoint)))
 		return E_FAIL;
 
@@ -46,17 +48,19 @@ HRESULT CPostFX::Initialize(_uint iSizeX, _uint iSizeY)
 	// Allocate down scaled luminance buffer
 	D3D11_BUFFER_DESC bufferDesc;
 	ZeroMemory( &bufferDesc, sizeof(bufferDesc) );
+	//D3D11_BIND_UNORDERED_ACCESS : Pixel셰이더나 컴퓨트셰이더에서 병렬적으로 실행하는 버퍼
 	bufferDesc.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
 	bufferDesc.StructureByteStride = sizeof(float);
 	bufferDesc.ByteWidth = m_nDownScaleGroups * bufferDesc.StructureByteStride;
 	bufferDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+	
 	if (FAILED(m_pDevice->CreateBuffer(&bufferDesc, NULL, &m_pDownScale1DBuffer)))
 		return E_FAIL;
 
 	D3D11_UNORDERED_ACCESS_VIEW_DESC DescUAV;
 	ZeroMemory( &DescUAV, sizeof(D3D11_UNORDERED_ACCESS_VIEW_DESC) );
 	DescUAV.Format = DXGI_FORMAT_UNKNOWN;
-	DescUAV.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+	DescUAV.ViewDimension = D3D11_UAV_DIMENSION_BUFFER; //컴퓨트셰이더상에서 이 버퍼를 일반적인 버퍼로 보겠다. (샘플링을 하지않음, 어떠한 수정도 없다)
 	DescUAV.Buffer.NumElements = m_nDownScaleGroups;
 	if (FAILED((m_pDevice->CreateUnorderedAccessView(m_pDownScale1DBuffer, &DescUAV, &m_pDownScale1DUAV))))
 		return E_FAIL;
@@ -87,7 +91,7 @@ HRESULT CPostFX::Initialize(_uint iSizeX, _uint iSizeY)
 	ZeroMemory( &bufferDesc, sizeof(bufferDesc) );
 	bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE; // 이 버퍼는 CPU가 액세스 할 수 있다.
 	bufferDesc.ByteWidth = sizeof(TDownScaleCB);
 	if (FAILED((m_pDevice->CreateBuffer(&bufferDesc, NULL, &m_pDownScaleCB))))
 		return E_FAIL;
@@ -157,6 +161,7 @@ HRESULT CPostFX::Initialize(_uint iSizeX, _uint iSizeY)
 
 void CPostFX::Deinit()
 {
+	Safe_Release( g_pSampPoint );
 	Safe_Release( m_pDownScale1DBuffer );
 	Safe_Release( m_pDownScale1DUAV );
 	Safe_Release( m_pDownScale1DSRV );
@@ -171,24 +176,36 @@ void CPostFX::Deinit()
 	Safe_Release( m_pFinalPassPS );
 }
 
-void CPostFX::PostProcessing(ID3D11ShaderResourceView* pHDRSRV, ID3D11RenderTargetView* pLDRRTV)
+void CPostFX::PostProcessing(ID3D11ShaderResourceView* pHDRSRV)
 {
+	ID3D11RenderTargetView*	pOldRenderTargets[8] = { nullptr };
+	ID3D11DepthStencilView*	pOldDepthStencil = nullptr;
+
+	_uint		iNumViews = 8;
+	//백버퍼의 내용을 가져와서 보관함.
+	m_pContext->OMGetRenderTargets(iNumViews, pOldRenderTargets, &pOldDepthStencil);
+
 	// Down scale the HDR image
 	ID3D11RenderTargetView* rt[1] = { NULL };
 	m_pContext->OMSetRenderTargets( 1, rt, NULL );
 	DownScale(pHDRSRV);
 
 	// Do the final pass
-	rt[0] = pLDRRTV;
+	rt[0] = pOldRenderTargets[0];
 	m_pContext->OMSetRenderTargets( 1, rt, NULL );
 	FinalPass(pHDRSRV);
+
+	for (_uint i = 0; i < 8; ++i)
+		Safe_Release(pOldRenderTargets[i]);
+
+	Safe_Release(pOldDepthStencil);
 }
 
 void CPostFX::DownScale(ID3D11ShaderResourceView* pHDRSRV)
 {
 	// Output
 	ID3D11UnorderedAccessView* arrUAVs[1] = { m_pDownScale1DUAV };
-	m_pContext->CSSetUnorderedAccessViews( 0, 1, arrUAVs, (UINT*)(&arrUAVs) );
+	m_pContext->CSSetUnorderedAccessViews( 0, 1, arrUAVs, (UINT*)(&arrUAVs) ); //뷰에 바인딩
 
 	// Input
 	ID3D11ShaderResourceView* arrViews[1] = {pHDRSRV};
@@ -208,9 +225,13 @@ void CPostFX::DownScale(ID3D11ShaderResourceView* pHDRSRV)
 
 
 	// Shader
+	//파이프라인 스테이지에 바인딩
 	m_pContext->CSSetShader( m_pDownScaleFirstPassCS, NULL, 0 );
 
 	// Execute the downscales first pass with enough groups to cover the entire full res HDR buffer
+
+	//스레드 그룹생성 m_nDownScaleGroups * 1 * 1 개
+	//GPU에게 현재 바인딩된 내용을 바탕으로 연산해줄 것을 요청
 	m_pContext->Dispatch(m_nDownScaleGroups, 1, 1);
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -300,6 +321,9 @@ CPostFX * CPostFX::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext
 void CPostFX::Free()
 {
 	Deinit();
+
+	Safe_Release(m_pDevice);
+	Safe_Release(m_pContext);
 }
 
 //HRESULT CompileShader(PWCHAR strPath, D3D10_SHADER_MACRO * pMacros, char * strEntryPoint, char * strProfile, DWORD dwShaderFlags, ID3DBlob ** ppVertexShaderBuffer)

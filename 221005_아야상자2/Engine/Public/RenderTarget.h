@@ -20,9 +20,10 @@ public:
 	}
 
 public:
-	HRESULT Initialize(_uint iSizeX, _uint iSizeY, DXGI_FORMAT eFormat, const _float4* pClearColor, _float fNear = 0, _float fFar = 300.f);
+	HRESULT Initialize(_uint iSizeX, _uint iSizeY, DXGI_FORMAT eFormat, const _float4* pClearColor, _bool bHDR, _float fNear = 0, _float fFar = 300.f);
 	HRESULT Clear();
 	HRESULT Bind_SRV(class CShader* pShader, const char* pConstantName);
+	ID3D11ShaderResourceView* Get_SRV() { return m_pSRV; }
 #ifdef _DEBUG
 public:
 	HRESULT Initialize_Debug(_float fX, _float fY, _float fSizeX, _float fSizeY);
@@ -52,7 +53,7 @@ private:
 #endif // _DEBUG
 
 public:
-	static CRenderTarget* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, _uint iSizeX, _uint iSizeY, DXGI_FORMAT eFormat, const _float4* pClearColor);
+	static CRenderTarget* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, _uint iSizeX, _uint iSizeY, DXGI_FORMAT eFormat, const _float4* pClearColor, _bool bHDR);
 	virtual void Free() override;
 };
 

@@ -28,6 +28,13 @@ public:
 	void ReleaseTarget();
 	void Shake(_float fTimeDelta);
 	void ShakeStart(_float fShakeTime = 0.15f, _float fShakeStrength = 0.25f);
+	void Zoom(_float fTimeDelta);
+	void SetZoom(_bool bZoom) {
+		if (m_bZoom) //이미 참이라면 return;
+			return;
+		m_fOldFov = m_CameraDesc.fFovy;
+		m_bZoom = bZoom;
+	}
 private:
 	class CTransform* m_pTargetTransform = nullptr;
 	class CTransform* m_pPlayerTransform = nullptr;
@@ -45,6 +52,16 @@ private:
 	_float	m_fAmplitude = 0.f;
 	_float  m_fAmplitudeMaxTime = 0.005f;
 	_bool	m_bShake = false;
+
+	//확대
+	_bool	m_bZoom = false;
+	_float	m_fZoomTime = 0.0f;
+	_float  m_fZoomTimeMax = 0.4f;
+	_float  m_fOldFov;
+
+	_bool	m_bZoomDelay = false;
+	_float	m_fZoomDelayMax = 2.f;
+	_int	m_iSign = 1;//양수음수 부호
 public:
 	static CCamera_Free* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg);
