@@ -355,6 +355,8 @@ void CImGui_Manager::Render()
 			ImGui::DragFloat("Alpha", &fAlpha, 0.1f, 0.f, 1.f);
 			static int iPass = 1;
 			ImGui::DragInt("Pass", &iPass, 1, 0, 2);
+
+			
 			//게임오브젝트 추가하기
 			if (ImGui::Button("AddGameUI"))
 			{
@@ -448,7 +450,7 @@ void CImGui_Manager::Render()
 			const char* LevelArray[] = { "LEVEL_STATIC", "LEVEL_LOADING", "LEVEL_LOGO", "LEVEL_GAMEPLAY", "LEVEL_YANTARI" };
 			static int item_current = 0;
 			ImGui::Combo("LEVEL", &item_current, LevelArray, IM_ARRAYSIZE(LevelArray));
-						
+			m_iNumLevel = item_current;
 			ImGui::SameLine();
 			
 			if (ImGui::Button("GetLayer"))

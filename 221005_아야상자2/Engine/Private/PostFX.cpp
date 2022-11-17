@@ -5,7 +5,7 @@
 
 //HRESULT CompileShader(PWCHAR strPath, D3D10_SHADER_MACRO* pMacros, char* strEntryPoint, char* strProfile, DWORD dwShaderFlags, ID3DBlob** ppVertexShaderBuffer);
 
-CPostFX::CPostFX(ID3D11Device * pDevice, ID3D11DeviceContext * pContext) : m_fMiddleGrey(5.f), m_fWhite(2.2f),
+CPostFX::CPostFX(ID3D11Device * pDevice, ID3D11DeviceContext * pContext) : m_fMiddleGrey(0.5f), m_fWhite(5.7f),
 m_pDownScale1DBuffer(NULL), m_pDownScale1DUAV(NULL), m_pDownScale1DSRV(NULL),
 m_pDownScaleCB(NULL), m_pFinalPassCB(NULL),
 m_pAvgLumBuffer(NULL), m_pAvgLumUAV(NULL), m_pAvgLumSRV(NULL),
