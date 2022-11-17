@@ -288,17 +288,11 @@
     <ClInclude Include="..\Public\VIBuffer_Trail.h" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\Bin\ShaderFiles\Bloom.hlsl" />
-    <FxCompile Include="..\Bin\ShaderFiles\BlurX.hlsl" />
-    <FxCompile Include="..\Bin\ShaderFiles\BlurY.hlsl" />
-    <FxCompile Include="..\Bin\ShaderFiles\HDR.hlsl" />
-    <FxCompile Include="..\Bin\ShaderFiles\Luminance.hlsl" />
+    <FxCompile Include="..\Bin\ShaderFiles\Blur.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\PostDownScaleFX.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\PostFX.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_Cell.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_Deferred.hlsl" />
-    <FxCompile Include="..\Bin\ShaderFiles\SSAO.hlsl" />
-    <FxCompile Include="..\Bin\ShaderFiles\TEST.hlsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

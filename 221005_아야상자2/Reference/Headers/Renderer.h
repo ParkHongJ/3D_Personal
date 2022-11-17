@@ -11,7 +11,7 @@ class ENGINE_DLL CRenderer final : public CComponent
 {
 public: /* 그려지는 순서에 따른 정의 */
 	enum RENDERGROUP { RENDER_PRIORITY, RENDER_NONALPHABLEND, RENDER_NONLIGHT, RENDER_ALPHABLEND, RENDER_UI, RENDER_END };
-	enum SHADERTYPE { SHADER_DEFERRED, SHADER_SSAO, SHADER_LUMINANCE, SHADER_HDR, SHADER_BLURX, SHADER_BLURY, SHADER_BLOOM, SHADER_TEST, SHADER_END };
+	enum SHADERTYPE { SHADER_DEFERRED, SHADER_END };
 
 private:
 	CRenderer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
@@ -63,16 +63,9 @@ private:
 	HRESULT Render_NonAlphaBlend();
 	HRESULT Render_Lights();
 	HRESULT Render_Blend();
-	HRESULT Render_SSAO();
-	HRESULT Render_BlurX();
-	HRESULT Render_BlurY();
-	HRESULT Render_Bloom();
-	HRESULT Render_BloomTest();
 	HRESULT Render_NonLight();
 	HRESULT Render_AlphaBlend();
 	HRESULT Render_UI();
-	HRESULT Render_HDR();
-	HRESULT Render_LUMINANCE();
 	HRESULT Render_PostProcessing();
 	void ResetSRV();
 #ifdef _DEBUG

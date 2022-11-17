@@ -484,31 +484,13 @@
     <FxCompile Include="..\Bin\ShaderFiles\Shader_Deferred.hlsl">
       <Filter>03.Components\01.Renderer\Shader</Filter>
     </FxCompile>
-    <FxCompile Include="..\Bin\ShaderFiles\SSAO.hlsl">
-      <Filter>03.Components\01.Renderer\Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Bin\ShaderFiles\Bloom.hlsl">
-      <Filter>03.Components\01.Renderer\Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Bin\ShaderFiles\TEST.hlsl">
-      <Filter>03.Components\01.Renderer\Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Bin\ShaderFiles\BlurY.hlsl">
-      <Filter>03.Components\01.Renderer\Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Bin\ShaderFiles\BlurX.hlsl">
-      <Filter>03.Components\01.Renderer\Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Bin\ShaderFiles\Luminance.hlsl">
-      <Filter>03.Components\01.Renderer\Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Bin\ShaderFiles\HDR.hlsl">
-      <Filter>03.Components\01.Renderer\Shader</Filter>
-    </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\PostDownScaleFX.hlsl">
       <Filter>03.Components\01.Renderer\Shader</Filter>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\PostFX.hlsl">
+      <Filter>03.Components\01.Renderer\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Blur.hlsl">
       <Filter>03.Components\01.Renderer\Shader</Filter>
     </FxCompile>
   </ItemGroup>
