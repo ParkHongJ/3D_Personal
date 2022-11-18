@@ -57,6 +57,11 @@ HRESULT CTarget_Manager::Bind_SRV(const _tchar * pTargetTag, CShader * pShader, 
 	return pRenderTarget->Bind_SRV(pShader, pConstantName);
 }
 
+HRESULT CTarget_Manager::Bind_SRV(ID3D11ShaderResourceView * pSRV, CShader * pShader, const char * pConstantName)
+{
+	return E_NOTIMPL;
+}
+
 ID3D11ShaderResourceView * CTarget_Manager::Get_SRV(const _tchar * pTargetTag)
 {
 	CRenderTarget*		pRenderTarget = Find_RenderTarget(pTargetTag);

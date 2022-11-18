@@ -15,7 +15,7 @@ public:
 	// Entry point for post processing
 	void PostProcessing(ID3D11ShaderResourceView* pHDRSRV);
 
-	void SetParameters(float fMiddleGrey, float fWhite) { m_fMiddleGrey = fMiddleGrey; m_fWhite = fWhite; }
+	void SetParameters(_float fMiddleGrey, _float fWhite) { m_fMiddleGrey = fMiddleGrey; m_fWhite = fWhite; }
 	void GetParameters(_float &fMiddleGrey, _float &fWhite)
 	{
 		fMiddleGrey = m_fMiddleGrey;

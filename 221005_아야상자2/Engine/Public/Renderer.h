@@ -31,6 +31,11 @@ public:
 public:
 	void SetParameters(_float fMiddleGrey, _float fWhite);
 	void GetParameters(_float& fMiddleGrey, _float& fWhite);
+
+public:
+	void SetParameters(_uint iSampRadius, _float fRadius, _bool bSSao);
+	void GetParameters(_uint &iSampRadius, _float &fRadius, _bool bSSao);
+
 	HRESULT Add_DebugGroup(class CComponent* pDebugCom);
 #endif // _DEBUG
 private:
@@ -53,6 +58,7 @@ private:
 	class CVIBuffer_Rect*					m_pVIBuffer = nullptr;
 #endif // _DEBUG
 	class CPostFX*							m_pPostFX = nullptr;
+	class CScreenSpaceFX*					m_pScreenFX = nullptr;
 
 	// HDR light accumulation buffer
 	ID3D11Texture2D* g_pHDRTexture = nullptr;
@@ -67,6 +73,7 @@ private:
 	HRESULT Render_AlphaBlend();
 	HRESULT Render_UI();
 	HRESULT Render_PostProcessing();
+	HRESULT Compute_SSAO();
 	void ResetSRV();
 #ifdef _DEBUG
 	HRESULT Render_Debug();

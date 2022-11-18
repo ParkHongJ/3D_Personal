@@ -214,6 +214,7 @@
     <ClCompile Include="..\Private\PostFX.cpp" />
     <ClCompile Include="..\Private\Renderer.cpp" />
     <ClCompile Include="..\Private\RenderTarget.cpp" />
+    <ClCompile Include="..\private\ScreenSpaceFX.cpp" />
     <ClCompile Include="..\private\Shader.cpp" />
     <ClCompile Include="..\Private\Sphere.cpp" />
     <ClCompile Include="..\Private\Target_Manager.cpp" />
@@ -272,6 +273,7 @@
     <ClInclude Include="..\Public\PostFX.h" />
     <ClInclude Include="..\Public\Renderer.h" />
     <ClInclude Include="..\Public\RenderTarget.h" />
+    <ClInclude Include="..\public\ScreenSpaceFX.h" />
     <ClInclude Include="..\public\Shader.h" />
     <ClInclude Include="..\Public\Sphere.h" />
     <ClInclude Include="..\Public\Target_Manager.h" />
@@ -293,6 +295,7 @@
     <FxCompile Include="..\Bin\ShaderFiles\PostFX.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_Cell.hlsl" />
     <FxCompile Include="..\Bin\ShaderFiles\Shader_Deferred.hlsl" />
+    <FxCompile Include="..\Bin\ShaderFiles\SSAO.hlsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

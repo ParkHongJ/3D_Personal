@@ -76,13 +76,23 @@ _bool CPlayer::Tick(_float fTimeDelta)
 	static _float fWhite = 1.5f;
 	static _float fMiddleGrey = 1.5f;
 
-	m_pRendererCom->GetParameters(fMiddleGrey, fWhite);
-	ImGui::Begin("PostProcess");
-	//ImGui::SliderFloat("slider float", &f1, 0.0f, 1.0f, "ratio = %.3f");
-	ImGui::DragFloat("fMiddleGrey", &fMiddleGrey, 0.001f, 0.1f, 6.0f);
-	ImGui::DragFloat("fWhite", &fWhite, 0.001f, 0.1f, 6.0f);
-	ImGui::End();
-	m_pRendererCom->SetParameters(fMiddleGrey, fWhite);
+	static _uint iSampRadius = 10;
+	static _float fRadius = 13.f;
+	//m_pRendererCom->GetParameters(fMiddleGrey, fWhite);
+	//m_pRendererCom->GetParameters(iSampRadius, fRadius, true);
+	//ImGui::Begin("PostProcess");
+	////ImGui::SliderFloat("slider float", &f1, 0.0f, 1.0f, "ratio = %.3f");
+	//ImGui::DragFloat("fMiddleGrey", &fMiddleGrey, 0.001f, 0.1f, 6.0f);
+	//ImGui::DragFloat("fWhite", &fWhite, 0.001f, 0.1f, 6.0f);
+
+	//static _int  test = iSampRadius;
+	//ImGui::DragInt("iSampRadius", &test, 1, 0, 20);
+	//iSampRadius = test;
+	//
+	//ImGui::DragFloat("fRadius", &fRadius, 0.001f, 0.1f, 50.0f);
+	//ImGui::End();
+	//m_pRendererCom->SetParameters(fMiddleGrey, fWhite);
+	//m_pRendererCom->SetParameters(iSampRadius, fRadius, true);
 #endif // _DEBUG
 
 

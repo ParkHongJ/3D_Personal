@@ -17,6 +17,7 @@ public:
 
 public:
 	HRESULT Bind_SRV(const _tchar* pTargetTag, class CShader* pShader, const char* pConstantName);
+	HRESULT Bind_SRV(ID3D11ShaderResourceView* pSRV, class CShader* pShader, const char* pConstantName);
 	ID3D11ShaderResourceView*	Get_SRV(const _tchar* pTargetTag);
 	_matrix Get_OrthoMatrix(const _tchar* pTargetTag);
 

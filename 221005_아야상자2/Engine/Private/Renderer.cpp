@@ -6,7 +6,7 @@
 #include "Light_Manager.h"
 #include "PipeLine.h"
 #include "PostFX.h"
-
+#include "ScreenSpaceFX.h"
 CRenderer::CRenderer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CComponent(pDevice, pContext)
 	, m_pTarget_Manager(CTarget_Manager::Get_Instance())
@@ -24,10 +24,13 @@ HRESULT CRenderer::Initialize_Prototype()
 	_uint iWidth = 1280;
 	_uint iHeight = 720;
 
-	m_pPostFX = CPostFX::Create(m_pDevice, m_pContext, iWidth, iHeight, DXGI_FORMAT_B4G4R4A4_UNORM, &_float4(0.f, 0.f, 0.f, 1.f));
-	if (nullptr == m_pPostFX)
-		return E_FAIL;
+//	m_pPostFX = CPostFX::Create(m_pDevice, m_pContext, iWidth, iHeight, DXGI_FORMAT_B4G4R4A4_UNORM, &_float4(0.f, 0.f, 0.f, 1.f));
+//	if (nullptr == m_pPostFX)
+//		return E_FAIL;
 	
+//	m_pScreenFX = CScreenSpaceFX::Create(m_pDevice, m_pContext, iWidth, iHeight);
+//	if (nullptr == m_pScreenFX)
+//		return E_FAIL;
 
 	_uint		iNumViewport = 1;
 	D3D11_VIEWPORT		ViewportDesc;
@@ -131,14 +134,17 @@ HRESULT CRenderer::Draw()
 	if (FAILED(Render_NonAlphaBlend()))
 		return E_FAIL;
 
+	//if (FAILED(Compute_SSAO()))
+	//	return E_FAIL;
+
 	if (FAILED(Render_Lights()))
 		return E_FAIL;
 
 	if (FAILED(Render_Blend()))
 		return E_FAIL;
 
-	if (FAILED(Render_PostProcessing()))
-		return E_FAIL;
+//	if (FAILED(Render_PostProcessing()))
+	//	return E_FAIL;
 
 	if (FAILED(Render_NonLight()))
 		return E_FAIL;
@@ -169,6 +175,14 @@ void CRenderer::SetParameters(_float fMiddleGrey, _float fWhite)
 void CRenderer::GetParameters(_float & fMiddleGrey, _float & fWhite)
 {
 	m_pPostFX->GetParameters(fMiddleGrey, fWhite);
+}
+void CRenderer::SetParameters(_uint iSampRadius, _float fRadius, _bool bSSao)
+{
+	m_pScreenFX->SetParameters(iSampRadius, fRadius);
+}
+void CRenderer::GetParameters(_uint & iSampRadius, _float & fRadius, _bool bSSao)
+{
+	m_pScreenFX->GetParameters(iSampRadius, fRadius);
 }
 HRESULT CRenderer::Add_DebugGroup(CComponent* pDebugCom)
 {
@@ -265,8 +279,8 @@ HRESULT CRenderer::Render_Lights()
 		return E_FAIL;
 	if (FAILED(m_pTarget_Manager->Bind_SRV(TEXT("Target_Depth"), m_pShader[SHADER_DEFERRED], "g_DepthTexture")))
 		return E_FAIL;
-	//if (FAILED(m_pTarget_Manager->Bind_SRV(TEXT("Target_SSAO"), m_pShader[SHADER_DEFERRED], "g_SSAOTexture")))
-	//	return E_FAIL;
+
+	//m_pShader[SHADER_DEFERRED]->Set_ShaderResourceView("g_SSAOTexture", m_pScreenFX->GetSSAOSRV());
 
 	m_pLight_Manager->Render(m_pShader[SHADER_DEFERRED], m_pVIBuffer);
 
@@ -409,6 +423,13 @@ HRESULT CRenderer::Render_PostProcessing()
 	return S_OK;
 }
 
+HRESULT CRenderer::Compute_SSAO()
+{
+	m_pScreenFX->Compute(m_pTarget_Manager->Get_SRV(L"Target_Depth"), m_pTarget_Manager->Get_SRV(L"Target_Normal"));
+
+	return S_OK;
+}
+
 void CRenderer::ResetSRV()
 {
 	ID3D11ShaderResourceView*		pSRVs[8] =
@@ -481,7 +502,8 @@ void CRenderer::Free()
 	Safe_Release(m_pVIBuffer);
 #endif // _DEBUG
 
-	Safe_Release(m_pPostFX);
+	//Safe_Release(m_pScreenFX);
+	//Safe_Release(m_pPostFX);
 	Safe_Release(m_pLight_Manager);
 	Safe_Release(m_pTarget_Manager);
 }
