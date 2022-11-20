@@ -155,7 +155,7 @@ HRESULT CYantariWeapon::Ready_Components()
 	CCollider::COLLIDERDESC		ColliderDesc;
 	ZeroMemory(&ColliderDesc, sizeof(CCollider::COLLIDERDESC));
 
-	ColliderDesc.vSize = _float3(2.5f, 2.5f, 2.5f);
+	ColliderDesc.vSize = _float3(3.f, 3.f, 3.f);
 	ColliderDesc.vCenter = _float3(0.f, 2.75f, 0.f);
 	ColliderDesc.vRotation = _float3(0.f, 0.f, 0.f);
 	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Collider_Sphere"), TEXT("Com_SPHERE"), (CComponent**)&m_pColliderCom, &ColliderDesc)))

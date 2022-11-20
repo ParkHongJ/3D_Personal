@@ -61,6 +61,7 @@ public:
 	void Jump(_float fTimeDelta);
 	void MoveControl(_float fTimeDelta);
 
+	void SetParry(_bool bParry);
 public:
 	HRESULT Set_Camera(class CCamera_Free* pCamera);
 	HRESULT Set_Target(_uint iLevel, const _tchar* pLayerTag, const _tchar* pComponentTag, _uint iLayerIndex);

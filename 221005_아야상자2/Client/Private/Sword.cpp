@@ -118,6 +118,7 @@ void CSword::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
 	if (pOther->CompareTag(L"YantariWeapon") && m_pPlayer->CanParry())
 	{
 		((CYantariWeapon*)pOther)->SetParry();
+		m_pPlayer->SetParry(true);
 	}
 }
 

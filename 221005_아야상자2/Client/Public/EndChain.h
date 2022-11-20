@@ -44,10 +44,13 @@ public:
 
 	void Broken();
 	void GetDamaged(_float fDamage);
+	void SetHp(_float fHP) {
+		m_fMaxHp = m_fHp = fHP;
+	}
 private:
 	_bool m_bEnable = true;
+	_float m_fMaxHp = 25.f;
 	_float m_fHp = 25.f;
-	const _float m_fMaxHp = 25.f;
 
 	_float3					m_vColor = { 0.8f, 0.8f, 0.8f };
 private:

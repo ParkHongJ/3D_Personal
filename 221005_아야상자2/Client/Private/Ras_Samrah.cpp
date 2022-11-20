@@ -6,6 +6,7 @@
 #include "Ras_Hands2.h"
 #include "Ras_Hands3.h"
 #include "Cell.h"
+#include "ChaudronChain.h"
 #include "Projectile.h"
 CRas_Samrah::CRas_Samrah(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
@@ -238,7 +239,7 @@ void CRas_Samrah::OnCollisionExit(CGameObject * pOther, _float fTimeDelta)
 void CRas_Samrah::GetDamaged(_float fDamage)
 {
 	m_fHp -= fDamage;
-	if (50 >= m_fHp)
+	if (m_fMaxHP * 0.5f >= m_fHp)
 	{
 		if (m_ePhase != PHASE_2)
 		{
@@ -264,6 +265,12 @@ void CRas_Samrah::GetDamaged(_float fDamage)
 		m_fHp = 0.f;
 		m_eCurrentAnimState = Death;
 		m_pModelCom->Change_Animation(Death);
+
+		CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+		
+		CChaudronChain* pChain = (CChaudronChain*)(pGameInstance->Get_ComponentPtr(LEVEL_GAMEPLAY, L"Layer_ChaudronChain", L"Com_Transform", 0)->GetOwner());
+		pChain->SetDead();
+		RELEASE_INSTANCE(CGameInstance);
 	}
 	else
 	{

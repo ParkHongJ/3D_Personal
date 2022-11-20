@@ -64,6 +64,7 @@ public:
 	void Compute(ID3D11ShaderResourceView* pDepthSRV, ID3D11ShaderResourceView* pNormalsSRV);
 	void SetParameters(int iSSAOSampRadius, float fRadius) { m_iSSAOSampRadius = iSSAOSampRadius; m_fRadius = fRadius; }
 	ID3D11ShaderResourceView* GetSSAOSRV() { return m_pSSAO_SRV; }
+	ID3D11ShaderResourceView* GetMiniDepthSRV() { return m_pSSAO_SRV; }
 
 private:
 	void DownscaleDepth(ID3D11ShaderResourceView* pDepthSRV, ID3D11ShaderResourceView* pNormalsSRV);

@@ -351,6 +351,7 @@ void CRas_Hands::Set_State(STATE_ANIM eState, _float fTimeDelta)
 
 void CRas_Hands::Set_Death()
 {
+	m_bHitEnabled = false;
 	m_eState = HAND_DEATH;
 	m_bAnimEnd = false;
 	m_pModelCom->Change_Animation(HAND_DEATH, 0.25f, false);

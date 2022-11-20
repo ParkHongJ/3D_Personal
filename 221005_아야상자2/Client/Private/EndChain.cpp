@@ -115,6 +115,7 @@ void CEndChain::OnCollisionEnter(CGameObject * pOther, _float fTimeDelta)
 	{
 		_float fDamage = ((CSword*)pOther)->GetDamage();
 
+		//처음 맞았다면.( 보스가 등록되기 전이라면 )
 		if (nullptr == m_pRasSamrah)
 		{
 			CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
@@ -122,15 +123,13 @@ void CEndChain::OnCollisionEnter(CGameObject * pOther, _float fTimeDelta)
 			Safe_AddRef(m_pRasSamrah);
 			RELEASE_INSTANCE(CGameInstance);
 
+			SetHp((m_pRasSamrah->GetMaxHP() * 0.5f) * 0.5f);
 			GetDamaged(fDamage);
-			m_pRasSamrah->GetDamaged(fDamage);
 		}
 		else
 		{
 			GetDamaged(fDamage);
-			m_pRasSamrah->GetDamaged(fDamage);
-		}
-		
+		}		
 	}
 }
 
@@ -155,11 +154,13 @@ void CEndChain::Broken()
 
 void CEndChain::GetDamaged(_float fDamage)
 {
-
+	_float fPrevHP = m_fHp;
 	m_fHp -= fDamage;
 
+	fPrevHP -= m_fHp;
 	//보스에게도 데미지
 
+	m_pRasSamrah->GetDamaged(fPrevHP);
 	//최대 체력보다 낮으면
 	if (m_fHp <= 0.0f)
 	{

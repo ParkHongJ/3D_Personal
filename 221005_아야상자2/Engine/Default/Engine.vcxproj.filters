@@ -151,6 +151,9 @@
     <ClCompile Include="..\private\ScreenSpaceFX.cpp">
       <Filter>03.Components\01.Renderer\ScreenSpaceFX</Filter>
     </ClCompile>
+    <ClCompile Include="..\private\SSLR_Manager.cpp">
+      <Filter>03.Components\01.Renderer\ScreenSpaceFX</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Public\Engine_Defines.h">
@@ -319,6 +322,9 @@
       <Filter>03.Components\01.Renderer\PostFX</Filter>
     </ClInclude>
     <ClInclude Include="..\public\ScreenSpaceFX.h">
+      <Filter>03.Components\01.Renderer\ScreenSpaceFX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\SSLR_Manager.h">
       <Filter>03.Components\01.Renderer\ScreenSpaceFX</Filter>
     </ClInclude>
   </ItemGroup>
@@ -503,6 +509,9 @@
       <Filter>03.Components\01.Renderer\Shader</Filter>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\SSAO.hlsl">
+      <Filter>03.Components\01.Renderer\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\SSLR.hlsl">
       <Filter>03.Components\01.Renderer\Shader</Filter>
     </FxCompile>
   </ItemGroup>

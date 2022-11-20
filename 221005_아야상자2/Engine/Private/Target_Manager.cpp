@@ -70,6 +70,14 @@ ID3D11ShaderResourceView * CTarget_Manager::Get_SRV(const _tchar * pTargetTag)
 	return pRenderTarget->Get_SRV();
 }
 
+ID3D11RenderTargetView * CTarget_Manager::Get_RTV(const _tchar * pTargetTag)
+{
+	CRenderTarget*		pRenderTarget = Find_RenderTarget(pTargetTag);
+	if (nullptr == pRenderTarget)
+		return nullptr;
+	return pRenderTarget->Get_RTV();
+}
+
 _matrix CTarget_Manager::Get_OrthoMatrix(const _tchar * pTargetTag)
 {
 	CRenderTarget*		pRenderTarget = Find_RenderTarget(pTargetTag);

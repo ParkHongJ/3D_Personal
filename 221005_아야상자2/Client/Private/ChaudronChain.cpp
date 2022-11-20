@@ -36,7 +36,8 @@ HRESULT CChaudronChain::Initialize(void * pArg)
 	strcpy_s(m_szName, "ChaudronChain");
 	m_Tag = L"ChaudronChain";
 
-	m_pModelCom->Set_AnimIndex(FALL);
+	m_eState = IDLE;
+	m_pModelCom->Set_AnimIndex(m_eState);
 
 	return S_OK;
 }
@@ -47,6 +48,20 @@ _bool CChaudronChain::Tick(_float fTimeDelta)
 
 	for (auto& pPart : m_Parts)
 		pPart->Tick(fTimeDelta);
+
+	switch (m_eState)
+	{
+	case CChaudronChain::FALL:
+		if (m_bAnimEnd)
+		{
+			m_bActive = false;
+		}
+		break;
+	case CChaudronChain::IDLE:
+		break;
+	default:
+		break;
+	}
 
 	return false;
 }
@@ -127,6 +142,12 @@ void CChaudronChain::CheckChain()
 		}
 		i++;
 	}
+}
+
+void CChaudronChain::SetDead()
+{
+	m_eState = FALL;
+	m_pModelCom->Change_Animation(m_eState, 0.25f, false);
 }
 
 HRESULT CChaudronChain::Ready_Components()

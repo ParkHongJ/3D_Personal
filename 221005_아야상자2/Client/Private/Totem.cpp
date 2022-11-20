@@ -148,7 +148,7 @@ HRESULT CTotem::Ready_Components()
 	/* For.Com_SPHERE */
 	ZeroMemory(&ColliderDesc, sizeof(CCollider::COLLIDERDESC));
 
-	ColliderDesc.vSize = _float3(100.f, 100.f, 100.f);
+	ColliderDesc.vSize = _float3(150.f, 150.f, 150.f);
 	ColliderDesc.vCenter = _float3(0.f, 0.f, 0.f);
 	ColliderDesc.vRotation = _float3(0.f, 0.f, 0.f);
 	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Collider_Sphere"), TEXT("Com_SPHERE"), (CComponent**)&m_pColliderCom, &ColliderDesc)))

@@ -29,8 +29,8 @@ public:
 
 #ifdef _DEBUG
 public:
-	void SetParameters(_float fMiddleGrey, _float fWhite);
-	void GetParameters(_float& fMiddleGrey, _float& fWhite);
+	void SetParameters(_float fMiddleGrey, _float fWhite, _float fBloomThreshold, _float fBloomScale);
+	void GetParameters(_float &fMiddleGrey, _float &fWhite, _float& fBloomThreshold, _float& fBloomScale);
 
 public:
 	void SetParameters(_uint iSampRadius, _float fRadius, _bool bSSao);
@@ -49,7 +49,7 @@ private:
 private:
 	class CTarget_Manager*					m_pTarget_Manager = nullptr;
 	class CLight_Manager*					m_pLight_Manager = nullptr;
-
+	
 
 private:
 	class CShader*							m_pShader[SHADER_END] = { nullptr };
@@ -59,6 +59,7 @@ private:
 #endif // _DEBUG
 	class CPostFX*							m_pPostFX = nullptr;
 	class CScreenSpaceFX*					m_pScreenFX = nullptr;
+	class CSSLR_Manager*					m_pSSLR = nullptr;
 
 	// HDR light accumulation buffer
 	ID3D11Texture2D* g_pHDRTexture = nullptr;

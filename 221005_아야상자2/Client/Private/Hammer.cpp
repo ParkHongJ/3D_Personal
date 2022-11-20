@@ -37,6 +37,9 @@ HRESULT CHammer::Initialize(void * pArg)
 _bool CHammer::Tick(_float fTimeDelta)
 {
 	m_pColliderCom->Update(m_pParentTransformCom->Get_WorldMatrix());
+
+
+		
 	return false;
 }
 
@@ -48,6 +51,24 @@ void CHammer::LateTick(_float fTimeDelta)
 	if (m_bEnable)
 		m_pColliderCom->Add_CollisionGroup(CCollider_Manager::PLAYER, m_pColliderCom);
 
+	if (m_bDissolve)
+	{
+		m_fCut += fTimeDelta* m_fDissolveSpeed;
+		m_iPass = 4;
+		if (m_fCut >= 1.f)
+		{
+			m_bActive = false;
+		}
+	}
+	else
+	{
+		m_fCut -= fTimeDelta * m_fDissolveSpeed;
+		m_iPass = 4;
+		if (m_fCut <= 0.f)
+		{
+			m_iPass = 0;
+		}
+	}
 #ifdef _DEBUG
 	m_pRendererCom->Add_DebugGroup(m_pColliderCom);
 #endif
@@ -65,6 +86,8 @@ HRESULT CHammer::Render()
 
 	XMStoreFloat4x4(&WorldMatrix, XMMatrixTranspose(m_pTransformCom->Get_WorldMatrix() * m_pParentTransformCom->Get_WorldMatrix()));
 
+	if (FAILED(m_pShaderCom->Set_RawValue("g_Cut", &m_fCut, sizeof(_float))))
+		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_WorldMatrix", &WorldMatrix, sizeof(_float4x4))))
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_ViewMatrix", &pGameInstance->Get_TransformFloat4x4_TP(CPipeLine::D3DTS_VIEW), sizeof(_float4x4))))
@@ -84,7 +107,7 @@ HRESULT CHammer::Render()
 			return E_FAIL;
 		/*if (FAILED(m_pModelCom->SetUp_OnShader(m_pShaderCom, m_pModelCom->Get_MaterialIndex(i), aiTextureType_NORMALS, "g_NormalTexture")))
 			return E_FAIL;*/
-		if (FAILED(m_pModelCom->Render(m_pShaderCom, i)))
+		if (FAILED(m_pModelCom->Render(m_pShaderCom, i, m_iPass)))
 			return E_FAIL;
 	}
 	return S_OK;

@@ -38,8 +38,7 @@ public:
 	void SetEnable(_bool bEnable) {
 		m_bEnable = bEnable;
 	}
-private:
-	_bool m_bEnable = true;
+
 private:
 	CShader*				m_pShaderCom = nullptr;
 	CCollider*				m_pColliderCom = nullptr;
@@ -48,7 +47,12 @@ private:
 	CTransform*				m_pParentTransformCom = nullptr;
 	CModel*					m_pModelCom = nullptr;
 
-
+private:
+	_bool					m_bEnable = true;
+	_bool					m_bDissolve = false;
+	_uint					m_iPass = 0;
+	_float					m_fCut = 1.f;
+	_float					m_fDissolveSpeed = 2.5f;
 
 private:
 	HRESULT Ready_Components();

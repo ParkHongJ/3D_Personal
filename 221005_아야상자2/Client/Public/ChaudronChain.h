@@ -39,6 +39,7 @@ public:
 
 public:
 	void CheckChain();
+	void SetDead();
 
 private:
 	CShader*				m_pShaderCom = nullptr;
@@ -51,7 +52,7 @@ private:
 	vector<class CHierarchyNode*>		m_Sockets;
 	vector<CGameObject*>				m_Parts;
 	typedef vector<CGameObject*>		PARTS;
-
+	AnimState							m_eState = ANIM_END;
 private:
 	HRESULT Ready_Components();
 	HRESULT Ready_Sockets();

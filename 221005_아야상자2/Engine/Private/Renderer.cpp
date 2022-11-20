@@ -7,6 +7,7 @@
 #include "PipeLine.h"
 #include "PostFX.h"
 #include "ScreenSpaceFX.h"
+#include "SSLR_Manager.h"
 CRenderer::CRenderer(ID3D11Device* pDevice, ID3D11DeviceContext* pContext)
 	: CComponent(pDevice, pContext)
 	, m_pTarget_Manager(CTarget_Manager::Get_Instance())
@@ -24,13 +25,17 @@ HRESULT CRenderer::Initialize_Prototype()
 	_uint iWidth = 1280;
 	_uint iHeight = 720;
 
-//	m_pPostFX = CPostFX::Create(m_pDevice, m_pContext, iWidth, iHeight, DXGI_FORMAT_B4G4R4A4_UNORM, &_float4(0.f, 0.f, 0.f, 1.f));
-//	if (nullptr == m_pPostFX)
-//		return E_FAIL;
-	
-//	m_pScreenFX = CScreenSpaceFX::Create(m_pDevice, m_pContext, iWidth, iHeight);
-//	if (nullptr == m_pScreenFX)
-//		return E_FAIL;
+	m_pPostFX = CPostFX::Create(m_pDevice, m_pContext, iWidth, iHeight, DXGI_FORMAT_B4G4R4A4_UNORM, &_float4(0.f, 0.f, 0.f, 1.f));
+	if (nullptr == m_pPostFX)
+		return E_FAIL;
+
+	m_pScreenFX = CScreenSpaceFX::Create(m_pDevice, m_pContext, iWidth, iHeight);
+	if (nullptr == m_pScreenFX)
+		return E_FAIL;
+
+	m_pSSLR = CSSLR_Manager::Create(m_pDevice, m_pContext, iWidth, iHeight);
+	if (nullptr == m_pSSLR)
+		return E_FAIL;
 
 	_uint		iNumViewport = 1;
 	D3D11_VIEWPORT		ViewportDesc;
@@ -134,8 +139,8 @@ HRESULT CRenderer::Draw()
 	if (FAILED(Render_NonAlphaBlend()))
 		return E_FAIL;
 
-	//if (FAILED(Compute_SSAO()))
-	//	return E_FAIL;
+	if (FAILED(Compute_SSAO()))
+		return E_FAIL;
 
 	if (FAILED(Render_Lights()))
 		return E_FAIL;
@@ -143,8 +148,8 @@ HRESULT CRenderer::Draw()
 	if (FAILED(Render_Blend()))
 		return E_FAIL;
 
-//	if (FAILED(Render_PostProcessing()))
-	//	return E_FAIL;
+	if (FAILED(Render_PostProcessing()))
+		return E_FAIL;
 
 	if (FAILED(Render_NonLight()))
 		return E_FAIL;
@@ -168,13 +173,13 @@ HRESULT CRenderer::Draw()
 }
 
 #ifdef _DEBUG
-void CRenderer::SetParameters(_float fMiddleGrey, _float fWhite)
+void CRenderer::SetParameters(_float fMiddleGrey, _float fWhite, _float fBloomThreshold, _float fBloomScale)
 {
-	m_pPostFX->SetParameters(fMiddleGrey, fWhite);
+	m_pPostFX->SetParameters(fMiddleGrey, fWhite, fBloomThreshold, fBloomScale);
 }
-void CRenderer::GetParameters(_float & fMiddleGrey, _float & fWhite)
+void CRenderer::GetParameters(_float &fMiddleGrey, _float &fWhite, _float& fBloomThreshold, _float& fBloomScale)
 {
-	m_pPostFX->GetParameters(fMiddleGrey, fWhite);
+	m_pPostFX->GetParameters(fMiddleGrey, fWhite, fBloomThreshold, fBloomScale);
 }
 void CRenderer::SetParameters(_uint iSampRadius, _float fRadius, _bool bSSao)
 {
@@ -280,7 +285,7 @@ HRESULT CRenderer::Render_Lights()
 	if (FAILED(m_pTarget_Manager->Bind_SRV(TEXT("Target_Depth"), m_pShader[SHADER_DEFERRED], "g_DepthTexture")))
 		return E_FAIL;
 
-	//m_pShader[SHADER_DEFERRED]->Set_ShaderResourceView("g_SSAOTexture", m_pScreenFX->GetSSAOSRV());
+	m_pShader[SHADER_DEFERRED]->Set_ShaderResourceView("g_SSAOTexture", m_pScreenFX->GetSSAOSRV());
 
 	m_pLight_Manager->Render(m_pShader[SHADER_DEFERRED], m_pVIBuffer);
 
@@ -419,7 +424,20 @@ HRESULT CRenderer::Render_UI()
 
 HRESULT CRenderer::Render_PostProcessing()
 {
+	/*0.024
+		- 0.152
+		0.987
+
+		0.2
+		0.2
+		0.17*/
+	_float3 vSunDir = _float3(0.024f, -0.152f, 0.987f);
+
+	_float3 vSunColor = _float3(0.2f, 0.2f, 0.17f);
+	//m_pSSLR->Render(m_pTarget_Manager->Get_RTV(L"Target_Original"), m_pScreenFX->GetMiniDepthSRV(), vSunDir, vSunColor);
+
 	m_pPostFX->PostProcessing(m_pTarget_Manager->Get_SRV(L"Target_Original"));
+	
 	return S_OK;
 }
 
@@ -502,8 +520,9 @@ void CRenderer::Free()
 	Safe_Release(m_pVIBuffer);
 #endif // _DEBUG
 
-	//Safe_Release(m_pScreenFX);
-	//Safe_Release(m_pPostFX);
+	Safe_Release(m_pSSLR);
+	Safe_Release(m_pScreenFX);
+	Safe_Release(m_pPostFX);
 	Safe_Release(m_pLight_Manager);
 	Safe_Release(m_pTarget_Manager);
 }

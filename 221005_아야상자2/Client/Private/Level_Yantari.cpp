@@ -31,8 +31,13 @@ HRESULT CLevel_Yantari::Initialize()
 	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Yantari", L"Layer_Yantari")))
 		return E_FAIL;
 	
+	Load();
+	for (auto& iter : m_CreateObj)
+	{
+		if (FAILED(Ready_Layer_GameObject(iter.pPrototypeTag, iter.pLayerTag, &iter)))
+			return E_FAIL;
+	}
 
-	
 	return S_OK;
 }
 
@@ -234,7 +239,7 @@ HRESULT CLevel_Yantari::Ready_Layer_GameObject(const _tchar * pPrototypeTag, con
 
 HRESULT CLevel_Yantari::Load()
 {
-	HANDLE		hFile = CreateFile(TEXT("../Bin/Data/MapStaticInfo.dat"), GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+	HANDLE		hFile = CreateFile(TEXT("../Bin/Data/MapStaticInfoYantari.dat"), GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 
 	if (INVALID_HANDLE_VALUE == hFile)
 		return E_FAIL;

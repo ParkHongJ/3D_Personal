@@ -28,13 +28,15 @@ public:
 	void ReleaseTarget();
 	void Shake(_float fTimeDelta);
 	void ShakeStart(_float fShakeTime = 0.15f, _float fShakeStrength = 0.25f);
-	void Zoom(_float fTimeDelta);
 	void SetZoom(_bool bZoom) {
 		if (m_bZoom) //이미 참이라면 return;
 			return;
 		m_fOldFov = m_CameraDesc.fFovy;
 		m_bZoom = bZoom;
 	}
+private:
+	void Zoom(_float fTimeDelta);
+
 private:
 	class CTransform* m_pTargetTransform = nullptr;
 	class CTransform* m_pPlayerTransform = nullptr;

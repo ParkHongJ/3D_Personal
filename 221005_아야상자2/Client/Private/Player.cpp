@@ -78,21 +78,26 @@ _bool CPlayer::Tick(_float fTimeDelta)
 
 	static _uint iSampRadius = 10;
 	static _float fRadius = 13.f;
-	//m_pRendererCom->GetParameters(fMiddleGrey, fWhite);
-	//m_pRendererCom->GetParameters(iSampRadius, fRadius, true);
-	//ImGui::Begin("PostProcess");
-	////ImGui::SliderFloat("slider float", &f1, 0.0f, 1.0f, "ratio = %.3f");
-	//ImGui::DragFloat("fMiddleGrey", &fMiddleGrey, 0.001f, 0.1f, 6.0f);
-	//ImGui::DragFloat("fWhite", &fWhite, 0.001f, 0.1f, 6.0f);
+	static _float fBloomScale = 0.0f;
+	static _float fBloomThreshHold = 0.0f;
+	m_pRendererCom->GetParameters(fMiddleGrey, fWhite, fBloomThreshHold, fBloomScale);
+	m_pRendererCom->GetParameters(iSampRadius, fRadius, true);
+	ImGui::Begin("PostProcess");
+	//ImGui::SliderFloat("slider float", &f1, 0.0f, 1.0f, "ratio = %.3f");
+	ImGui::DragFloat("fMiddleGrey", &fMiddleGrey, 0.001f, 0.1f, 6.0f);
+	ImGui::DragFloat("fWhite", &fWhite, 0.001f, 0.1f, 6.0f);
 
-	//static _int  test = iSampRadius;
-	//ImGui::DragInt("iSampRadius", &test, 1, 0, 20);
-	//iSampRadius = test;
-	//
-	//ImGui::DragFloat("fRadius", &fRadius, 0.001f, 0.1f, 50.0f);
-	//ImGui::End();
-	//m_pRendererCom->SetParameters(fMiddleGrey, fWhite);
-	//m_pRendererCom->SetParameters(iSampRadius, fRadius, true);
+	static _int  test = iSampRadius;
+	ImGui::DragInt("iSampRadius", &test, 1, 0, 20);
+	iSampRadius = test;
+
+	ImGui::DragFloat("fRadius", &fRadius, 0.001f, 0.1f, 50.0f);
+
+	ImGui::DragFloat("ThreshHold", &fBloomThreshHold, 0.001f, 0.1f, 10.f);
+	ImGui::DragFloat("fBloomScale", &fBloomScale, 0.001f, 0.1f, 10.f);
+	ImGui::End();
+	m_pRendererCom->SetParameters(fMiddleGrey, fWhite, fBloomThreshHold, fBloomScale);
+	m_pRendererCom->SetParameters(iSampRadius, fRadius, true);
 #endif // _DEBUG
 
 
@@ -343,6 +348,7 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 			m_pModelCom->Change_Animation(IdleFight);
 			m_eCurrentAnimState = IdleFight;
 			m_bCanParry = false;
+			m_bParry = false;
 		}
 		else
 		{
@@ -999,6 +1005,12 @@ void CPlayer::MoveControl(_float fTimeDelta)
 		m_pTransformCom->Go_Straight(fTimeDelta, m_pNavigationCom);
 	}
 	RELEASE_INSTANCE(CGameInstance);
+}
+
+void CPlayer::SetParry(_bool bParry)
+{
+	m_bParry = bParry;
+	m_pCamera->SetZoom(true);
 }
 
 HRESULT CPlayer::Set_Camera(CCamera_Free * pCamera)

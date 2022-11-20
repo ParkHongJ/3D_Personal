@@ -14,14 +14,21 @@ private:
 public:
 	// Entry point for post processing
 	void PostProcessing(ID3D11ShaderResourceView* pHDRSRV);
-
-	void SetParameters(_float fMiddleGrey, _float fWhite) { m_fMiddleGrey = fMiddleGrey; m_fWhite = fWhite; }
-	void GetParameters(_float &fMiddleGrey, _float &fWhite)
+	//m_fBloomThreshold(1.1f), m_fBloomScale(0.74f),
+	void SetParameters(_float fMiddleGrey, _float fWhite, _float fBloomThreshold, _float fBloomScale)
+	{ 
+		m_fMiddleGrey = fMiddleGrey; 
+		m_fWhite = fWhite;
+		m_fBloomThreshold = fBloomThreshold;
+		m_fBloomScale = fBloomScale;
+	}
+	void GetParameters(_float &fMiddleGrey, _float &fWhite, _float& fBloomThreshold, _float& fBloomScale)
 	{
 		fMiddleGrey = m_fMiddleGrey;
 		fWhite = m_fWhite;
+		fBloomThreshold = m_fBloomThreshold;
+		fBloomScale = m_fBloomScale;
 	}
-
 private:
 	HRESULT Ready_DownScale();
 	HRESULT Ready_Shaders();
