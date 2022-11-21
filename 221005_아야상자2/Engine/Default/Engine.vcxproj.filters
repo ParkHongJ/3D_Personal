@@ -154,6 +154,9 @@
     <ClCompile Include="..\private\SSLR_Manager.cpp">
       <Filter>03.Components\01.Renderer\ScreenSpaceFX</Filter>
     </ClCompile>
+    <ClCompile Include="..\Private\VIBuffer_Point.cpp">
+      <Filter>03.Components\02.VIBuffer\Point</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Public\Engine_Defines.h">
@@ -327,6 +330,9 @@
     <ClInclude Include="..\public\SSLR_Manager.h">
       <Filter>03.Components\01.Renderer\ScreenSpaceFX</Filter>
     </ClInclude>
+    <ClInclude Include="..\Public\VIBuffer_Point.h">
+      <Filter>03.Components\02.VIBuffer\Point</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="99.Defines">
@@ -490,6 +496,9 @@
     </Filter>
     <Filter Include="03.Components\01.Renderer\ScreenSpaceFX">
       <UniqueIdentifier>{daeeb0a9-6217-4fb4-af4b-dfe04288be1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Components\02.VIBuffer\Point">
+      <UniqueIdentifier>{5af8e235-fe0e-42d6-9d76-8b2fe51f94d3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

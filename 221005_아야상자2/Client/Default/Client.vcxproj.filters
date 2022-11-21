@@ -142,6 +142,9 @@
     <Filter Include="02.GameObjects\Boss\Mantari\Weapon">
       <UniqueIdentifier>{0f221fe9-235e-445c-92e6-8020efd5aa63}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\Effects">
+      <UniqueIdentifier>{d615c0a8-396a-4030-ab12-015d04399a56}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -312,6 +315,9 @@
     <ClInclude Include="..\public\Mantari.h">
       <Filter>02.GameObjects\Boss\Mantari</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\Effect.h">
+      <Filter>02.GameObjects\Effects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -470,6 +476,9 @@
     <ClCompile Include="..\private\Mantari.cpp">
       <Filter>02.GameObjects\Boss\Mantari</Filter>
     </ClCompile>
+    <ClCompile Include="..\private\Effect.cpp">
+      <Filter>02.GameObjects\Effects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Client.ico">
@@ -507,6 +516,9 @@
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
     <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxModelInstance.hlsl">
+      <Filter>97.ShaderFiles</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Bin\ShaderFiles\Shader_VtxPoint.hlsl">
       <Filter>97.ShaderFiles</Filter>
     </FxCompile>
   </ItemGroup>

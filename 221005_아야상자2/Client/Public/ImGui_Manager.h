@@ -96,6 +96,7 @@ public:
 
 	//Load
 	HRESULT LoadObject();
+	HRESULT YantariLoadObject();
 
 	//Cell
 	void RenderGizmo();

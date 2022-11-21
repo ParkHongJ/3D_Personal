@@ -6,7 +6,6 @@
 BEGIN(Engine)
 class CModel;
 class CShader;
-class CTexture;
 class CCollider;
 class CRenderer;
 class CTransform;
@@ -80,7 +79,6 @@ private:
 	CModel*					m_pModelCom = nullptr;
 	CCollider*				m_pColliderCom[COLLILDERTYPE_END] = { nullptr };
 	CNavigation*			m_pNavigationCom = nullptr;
-
 private:
 	vector<CGameObject*>				m_Parts;
 	typedef vector<CGameObject*>		PARTS;

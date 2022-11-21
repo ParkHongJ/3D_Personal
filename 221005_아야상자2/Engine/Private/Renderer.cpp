@@ -431,9 +431,9 @@ HRESULT CRenderer::Render_PostProcessing()
 		0.2
 		0.2
 		0.17*/
-	_float3 vSunDir = _float3(0.024f, -0.152f, 0.987f);
+	_float3 vSunDir = _float3(1.f, -1.f, 1.f);
 
-	_float3 vSunColor = _float3(0.2f, 0.2f, 0.17f);
+	_float3 vSunColor = _float3(1.0f, 0.0f, 0.0f);
 	//m_pSSLR->Render(m_pTarget_Manager->Get_RTV(L"Target_Original"), m_pScreenFX->GetMiniDepthSRV(), vSunDir, vSunColor);
 
 	m_pPostFX->PostProcessing(m_pTarget_Manager->Get_SRV(L"Target_Original"));

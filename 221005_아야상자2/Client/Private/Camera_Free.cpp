@@ -141,14 +141,14 @@ void CCamera_Free::LateTick(_float fTimeDelta)
 	}
 	else
 	{
-		XMStoreFloat3(&m_vPivot, m_pTransformCom->Get_State(CTransform::STATE_POSITION));
+		/*XMStoreFloat3(&m_vPivot, m_pTransformCom->Get_State(CTransform::STATE_POSITION));
 		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(m_pPlayerTransform->Get_State(CTransform::STATE_POSITION), 1.f));
-		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMVector3TransformCoord(XMLoadFloat3(&m_vCamPosition), m_pTransformCom->Get_WorldMatrix()), 1.f));
+		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMVector3TransformCoord(XMLoadFloat3(&m_vCamPosition), m_pTransformCom->Get_WorldMatrix()), 1.f));*/
 	}
 
 	if (m_bShake)
 	{
-		Shake(fTimeDelta);
+		 Shake(fTimeDelta);
 	}
 
 	__super::Tick(fTimeDelta);

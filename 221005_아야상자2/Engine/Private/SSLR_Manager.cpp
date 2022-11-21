@@ -179,7 +179,7 @@ void CSSLR_Manager::PrepareOcclusion(ID3D11ShaderResourceView * pMiniDepthSRV)
 	// Shader
 	m_pContext->CSSetShader(m_pOcclusionCS, NULL, 0);
 
-	// Execute the downscales first pass with enough groups to cover the entire full res HDR buffer
+	// 전체 풀 해상도 HDR 버퍼를 커버하기에 충분한 그룹으로 다운스케일 첫 번째 패스를 실행합니다.
 	m_pContext->Dispatch((UINT)ceil((float)(m_nWidth * m_nHeight) / 1024.0f), 1, 1);
 
 	// Cleanup
@@ -263,6 +263,17 @@ void CSSLR_Manager::RayTrace(const _float2 & vSunPosSS, const _float3 & vSunColo
 
 void CSSLR_Manager::Combine(ID3D11RenderTargetView * pLightAccumRTV)
 {
+	ID3D11RenderTargetView*	pOldRenderTargets[8] = { nullptr };
+	ID3D11DepthStencilView*	pOldDepthStencil = nullptr;
+
+	//백버퍼의 내용을 가져와서 보관함.
+	_uint		iNumViews = 8;
+	m_pContext->OMGetRenderTargets(iNumViews, pOldRenderTargets, &pOldDepthStencil);
+	for (_uint i = 0; i < 8; ++i)
+		Safe_Release(pOldRenderTargets[i]);
+
+	Safe_Release(pOldDepthStencil);
+
 	ID3D11BlendState* pPrevBlendState;
 	FLOAT prevBlendFactor[4];
 	UINT prevSampleMask;
@@ -303,8 +314,8 @@ void CSSLR_Manager::Combine(ID3D11RenderTargetView * pLightAccumRTV)
 
 void CSSLR_Manager::Render(ID3D11RenderTargetView * pLightAccumRTV, ID3D11ShaderResourceView * pMiniDepthSRV, const _float3 & vSunDir, const _float3 & vSunColor)
 {
-	// No need to do anything if the camera is facing away from the sun
-	// This will not work if the FOV is close to 180 or higher
+	// 카메라가 태양을 향하지 않는 경우 아무것도 할 필요가 없습니다.
+	// FOV가 180 이상에 가까우면 작동하지 않습니다.
 	CPipeLine* pPipeLine = GET_INSTANCE(CPipeLine);
 
 	//카메라 룩
@@ -335,15 +346,15 @@ void CSSLR_Manager::Render(ID3D11RenderTargetView * pLightAccumRTV, ID3D11Shader
 
 	_float3 vSunPosSS;
 	XMStoreFloat3(&vSunPosSS, XMVector3TransformCoord(XMLoadFloat3(&vSunPos), XMLoadFloat4x4(&mViewProjection)));
-
-	// If the sun is too far out of view we just want to turn off the effect
+	
+	// 태양이 시야에서 너무 멀리 떨어져 있으면 효과를 끄고 싶을 뿐입니다.
 	static const float fMaxSunDist = 1.3f;
 	if (fabs(vSunPosSS.x) >= fMaxSunDist || fabs(vSunPosSS.y) >= fMaxSunDist)
 	{
 		return;
 	}
 
-	// Attenuate the sun color based on how far the sun is from the view
+	// 태양이 뷰에서 얼마나 멀리 떨어져 있는지에 따라 태양 색상을 감쇠합니다.
 	_float3 vSunColorAtt = vSunColor;
 	float fMaxDist = max(fabs(vSunPosSS.x), fabs(vSunPosSS.y));
 	if (fMaxDist >= 1.0f)

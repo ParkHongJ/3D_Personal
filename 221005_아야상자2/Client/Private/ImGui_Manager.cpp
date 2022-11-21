@@ -460,9 +460,12 @@ void CImGui_Manager::Render()
 				GetLayer(m_iNumLevel);
 				CGameInstance* pGameinstance = GET_INSTANCE(CGameInstance);
 				m_pPrototypeComponent = pGameinstance->GetPrototypeComponent(m_iNumLevel);
-				RELEASE_INSTANCE(CGameInstance);
 				m_CreateObj.clear();
 				m_CreateUIObj.clear();
+
+				//나중에 이거 수정해라
+				YantariLoadObject();
+				RELEASE_INSTANCE(CGameInstance);
 			}
 
 			if (m_pPrototypeGameObject == nullptr)
@@ -980,6 +983,8 @@ void CImGui_Manager::ClearPickPos()
 
 HRESULT CImGui_Manager::LoadObject()
 {
+	m_CreateObj.clear();
+
 	HANDLE		hFile = CreateFile(TEXT("../Bin/Data/MapStaticInfo.dat"), GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 
 	if (INVALID_HANDLE_VALUE == hFile)
@@ -1040,7 +1045,6 @@ HRESULT CImGui_Manager::LoadObject()
 
 	while (true)
 	{
-
 		_float3			vPoints[3];
 
 		ReadFile(hFile, vPoints, sizeof(_float3) * 3, &dwByte, nullptr);
@@ -1054,6 +1058,59 @@ HRESULT CImGui_Manager::LoadObject()
 
 		m_Cells.push_back(pCell);
 	}
+	CloseHandle(hFile);
+	return S_OK;
+}
+
+HRESULT CImGui_Manager::YantariLoadObject()
+{
+	HANDLE		hFile = CreateFile(TEXT("../Bin/Data/MapStaticInfoYantari.dat"), GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+
+	if (INVALID_HANDLE_VALUE == hFile)
+		return E_FAIL;
+
+	//읽은 바이트 
+	DWORD	dwByte = 0;
+	DWORD	dwStrByte = 0;
+
+	//프로토타입
+	//레이어
+	//모델
+	//이름(char)
+	//레벨
+	//매트릭스
+	while (true)
+	{
+		//프로토타입 로드
+		CREATE_INFO tObjInfo;
+		ReadFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
+		ReadFile(hFile, tObjInfo.pPrototypeTag, dwStrByte, &dwByte, nullptr);
+
+		//레이어 로드
+		ReadFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
+		ReadFile(hFile, tObjInfo.pLayerTag, dwStrByte, &dwByte, nullptr);
+
+		//모델 로드
+		ReadFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
+		ReadFile(hFile, tObjInfo.pModelTag, dwStrByte, &dwByte, nullptr);
+
+		//이름 로드
+		ReadFile(hFile, &dwStrByte, sizeof(DWORD), &dwByte, nullptr);
+		ReadFile(hFile, tObjInfo.szName, dwStrByte, &dwByte, nullptr);
+
+		//레벨 로드
+		ReadFile(hFile, &tObjInfo.iNumLevel, sizeof(_uint), &dwByte, nullptr);
+
+		//매트릭스 로드
+		ReadFile(hFile, &tObjInfo.WorldMatrix, sizeof(_float4x4), &dwByte, nullptr);
+
+		if (0 == dwByte)
+		{
+			break;
+		}
+		m_CreateObj.push_back(tObjInfo);
+	}
+
 	CloseHandle(hFile);
 	return S_OK;
 }

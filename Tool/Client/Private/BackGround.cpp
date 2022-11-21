@@ -22,8 +22,8 @@ HRESULT CBackGround::Initialize(void * pArg)
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
 
-	m_fSizeX = g_iWinSizeX;
-	m_fSizeY = g_iWinSizeY;
+	m_fSizeX = 150.f;//g_iWinSizeX;
+	m_fSizeY = 150.f;//g_iWinSizeY;
 
 	m_fX = m_fSizeX * 0.5f;
 	m_fY = m_fSizeY * 0.5f;
@@ -43,6 +43,12 @@ void CBackGround::Tick(_float fTimeDelta)
 	m_TempTime = 100.f / 100.f;
 	m_pShaderCom->Set_RawValue("g_Offset", &m_TempTime, sizeof(_float));
 
+	m_iCurrentTex += fTimeDelta * 24.f;
+	if (m_iCurrentTex >= 16.f)
+	{
+		m_iCurrentTex = 0.f;
+	}
+
 }
 
 void CBackGround::LateTick(_float fTimeDelta)
@@ -51,6 +57,10 @@ void CBackGround::LateTick(_float fTimeDelta)
 		return;
 
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_PRIORITY, this);
+
+	_uint iIndex = (_uint)m_iCurrentTex;
+	m_pShaderCom->Set_RawValue("g_iCount", &iIndex, sizeof(_uint));
+	m_pShaderCom->Set_RawValue("g_Time", &fTimeDelta, sizeof(_float));
 }
 
 HRESULT CBackGround::Render()
@@ -62,7 +72,6 @@ HRESULT CBackGround::Render()
 	m_pShaderCom->Set_RawValue("g_WorldMatrix", &m_pTransformCom->Get_WorldFloat4x4_TP(), sizeof(_float4x4));
 	m_pShaderCom->Set_RawValue("g_ViewMatrix", &m_ViewMatrix, sizeof(_float4x4));
 	m_pShaderCom->Set_RawValue("g_ProjMatrix", &m_ProjMatrix, sizeof(_float4x4));
-
 	if (FAILED(m_pTextureCom->Set_SRV(m_pShaderCom, "g_DiffuseTexture", 0)))
 		return E_FAIL;
 

@@ -286,8 +286,13 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 		return E_FAIL;
 
 	/* For.Prototype_Component_Texture_Noise */
-	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Noise"),
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_STATIC, TEXT("Prototype_Component_Texture_Noise"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Dissolve/T_NoisyClouds.png"), 1))))
+		return E_FAIL;
+
+	/* For.Prototype_Component_Texture_Explosion*/
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Explosion"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/T_Explosion.png"), 1))))
 		return E_FAIL;
 
 	/* For.Prototype_Component_Texture_BurnNoise */
@@ -691,6 +696,39 @@ HRESULT CLoader::Loading_ForGameYantariLevel()
 			return E_FAIL;
 	}
 
+	//Circle
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (!pGameInstance->IsOverlapComponent(LEVEL_YANTARI, TEXT("Prototype_Component_Model_Circle")))
+	{
+		if (FAILED(pGameInstance->Add_Prototype(LEVEL_YANTARI, TEXT("Prototype_Component_Model_Circle"),
+			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Maps/Circle.dat", PivotMatrix, true))))
+			return E_FAIL;
+	}
+	//Gate
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (!pGameInstance->IsOverlapComponent(LEVEL_YANTARI, TEXT("Prototype_Component_Model_Gate")))
+	{
+		if (FAILED(pGameInstance->Add_Prototype(LEVEL_YANTARI, TEXT("Prototype_Component_Model_Gate"),
+			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Maps/Gate.dat", PivotMatrix, true))))
+			return E_FAIL;
+	}
+	//Lab
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (!pGameInstance->IsOverlapComponent(LEVEL_YANTARI, TEXT("Prototype_Component_Model_Lab")))
+	{
+		if (FAILED(pGameInstance->Add_Prototype(LEVEL_YANTARI, TEXT("Prototype_Component_Model_Lab"),
+			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Maps/Lab.dat", PivotMatrix, true))))
+			return E_FAIL;
+	}
+
+	//Tower
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (!pGameInstance->IsOverlapComponent(LEVEL_YANTARI, TEXT("Prototype_Component_Model_Tower")))
+	{
+		if (FAILED(pGameInstance->Add_Prototype(LEVEL_YANTARI, TEXT("Prototype_Component_Model_Tower"),
+			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Maps/Tower.dat", PivotMatrix, true))))
+			return E_FAIL;
+	}
 	RELEASE_INSTANCE(CGameInstance);
 
 	m_isFinished = true;
