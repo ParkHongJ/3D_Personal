@@ -16,8 +16,6 @@ public:
 	virtual HRESULT Initialize(void* pArg);
 
 public:
-	virtual HRESULT Render();
-public:
 	static CVIBuffer_Point* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CComponent* Clone(void* pArg);
 	virtual void Free();

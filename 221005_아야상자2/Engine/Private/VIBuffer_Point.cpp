@@ -106,9 +106,22 @@ HRESULT CVIBuffer_Point::Initialize(void * pArg)
 	return S_OK;
 }
 
-HRESULT CVIBuffer_Point::Render()
+void CVIBuffer_Point::SetSize(_float fX, _float fY)
 {
-	return S_OK;
+	D3D11_MAPPED_SUBRESOURCE		MappedSubResource;
+	ZeroMemory(&MappedSubResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
+
+	m_pContext->Map(m_pVB, 0, D3D11_MAP_WRITE_NO_OVERWRITE, 0, &MappedSubResource);
+	//TDownscaleCB* pDownscale = (TDownscaleCB*)MappedResource.pData;
+	((VTXPOINT*)MappedSubResource.pData)->vSize = _float2(fX, fY);
+	/*for (_uint i = 0; i < m_iNumInstance; ++i)
+	{
+		((VTXINSTANCE*)MappedSubResource.pData)[i].vPosition.y += m_pInstanceSpeeds[i] * fTimeDelta;
+		if (3.0f <= ((VTXINSTANCE*)MappedSubResource.pData)[i].vPosition.y)
+			((VTXINSTANCE*)MappedSubResource.pData)[i].vPosition.y = 0.f;
+	}*/
+
+	m_pContext->Unmap(m_pVB, 0);
 }
 
 CVIBuffer_Point * CVIBuffer_Point::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)

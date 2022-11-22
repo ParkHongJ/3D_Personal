@@ -85,6 +85,10 @@ HRESULT CLoader::Loading_ForLogoLevel()
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Default1.png")))))
 		return E_FAIL;
 
+	/* For.Prototype_Component_Texture_Default2 */
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_LOGO, TEXT("Prototype_Component_Texture_Default2"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Default3.jpg")))))
+		return E_FAIL;
 	lstrcpy(m_szLoadingText, TEXT("모델을 로딩중입니다. "));	
 	/* 모델를 로드한다. */
 

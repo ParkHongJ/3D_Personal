@@ -29,7 +29,7 @@
 #include "Hit_Rect.h"
 #include "ProgressBar.h"
 #include "Explosion.h"
-//#include "Effect.h"
+#include "Effect.h"
 //#include "UI.h"
 
 
@@ -262,10 +262,10 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 		CSky::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
-	///* For.Prototype_GameObject_Effect */
-	//if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Effect"),
-	//	CEffect::Create(m_pGraphic_Device))))
-	//	return E_FAIL;
+	/* For.Prototype_GameObject_Effect */
+	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Effect"),
+		CEffect::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 
 	lstrcpy(m_szLoadingText, TEXT("텍스쳐를 로딩중입니다. "));
 	/* 텍스쳐를 로드한다. */
@@ -286,12 +286,12 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 		return E_FAIL;
 
 	/* For.Prototype_Component_Texture_Noise */
-	if (FAILED(pGameInstance->Add_Prototype(LEVEL_STATIC, TEXT("Prototype_Component_Texture_Noise"),
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Noise"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Dissolve/T_NoisyClouds.png"), 1))))
 		return E_FAIL;
 
 	/* For.Prototype_Component_Texture_Explosion*/
-	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Explosion"),
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_STATIC , TEXT("Prototype_Component_Texture_Explosion"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/T_Explosion.png"), 1))))
 		return E_FAIL;
 
@@ -354,6 +354,10 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 		CVIBuffer_Terrain::Create(m_pDevice, m_pContext, 2, 2))))
 		return E_FAIL;
 
+	/* For.Prototype_Component_VIBuffer_Point */
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_STATIC, TEXT("Prototype_Component_VIBuffer_Point"),
+		CVIBuffer_Point::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
 	_matrix		PivotMatrix = XMMatrixIdentity();
 
 	/* For.Prototype_Component_Model_Homunculus */

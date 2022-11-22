@@ -22,8 +22,11 @@ HRESULT CBackGround::Initialize(void * pArg)
 	if (FAILED(Ready_Components()))
 		return E_FAIL;
 
-	m_fSizeX = 150.f;//g_iWinSizeX;
-	m_fSizeY = 150.f;//g_iWinSizeY;
+	//m_fSizeX = 150.f;//g_iWinSizeX;
+	//m_fSizeY = 150.f;//g_iWinSizeY;
+
+	m_fSizeX = g_iWinSizeX;
+	m_fSizeY = g_iWinSizeY;
 
 	m_fX = m_fSizeX * 0.5f;
 	m_fY = m_fSizeY * 0.5f;
@@ -37,6 +40,10 @@ HRESULT CBackGround::Initialize(void * pArg)
 
 void CBackGround::Tick(_float fTimeDelta)
 {
+	if (m_fTime >= 3.f)
+	{
+		m_fTime = 0.0f;
+	}
 	m_pTransformCom->Set_Scale(XMVectorSet(m_fSizeX, m_fSizeY, 1.f, 0.f));
 	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(m_fX - g_iWinSizeX * 0.5f, -m_fY + g_iWinSizeY * 0.5f, 0.0f, 1.f));
 	//m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(0.f,0.f, 0.0f, 1.f));
@@ -59,8 +66,9 @@ void CBackGround::LateTick(_float fTimeDelta)
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_PRIORITY, this);
 
 	_uint iIndex = (_uint)m_iCurrentTex;
+	m_fTime += fTimeDelta;
 	m_pShaderCom->Set_RawValue("g_iCount", &iIndex, sizeof(_uint));
-	m_pShaderCom->Set_RawValue("g_Time", &fTimeDelta, sizeof(_float));
+	m_pShaderCom->Set_RawValue("g_Time", &m_fTime, sizeof(_float));
 }
 
 HRESULT CBackGround::Render()
@@ -74,7 +82,8 @@ HRESULT CBackGround::Render()
 	m_pShaderCom->Set_RawValue("g_ProjMatrix", &m_ProjMatrix, sizeof(_float4x4));
 	if (FAILED(m_pTextureCom->Set_SRV(m_pShaderCom, "g_DiffuseTexture", 0)))
 		return E_FAIL;
-
+	if (FAILED(m_pTextureCom2->Set_SRV(m_pShaderCom, "g_DistortionTexture", 0)))
+		return E_FAIL;
 	if (FAILED(m_pShaderCom->Begin(0)))
 		return E_FAIL;
 
@@ -105,7 +114,9 @@ HRESULT CBackGround::Ready_Components()
 	/* For.Com_Texture */
 	if (FAILED(__super::Add_Component(LEVEL_LOGO, TEXT("Prototype_Component_Texture_Default"), TEXT("Com_Texture"), (CComponent**)&m_pTextureCom)))
 		return E_FAIL;
-
+	/* For.Com_Texture */
+	if (FAILED(__super::Add_Component(LEVEL_LOGO, TEXT("Prototype_Component_Texture_Default2"), TEXT("Com_Texture2"), (CComponent**)&m_pTextureCom2)))
+		return E_FAIL;
 	return S_OK;
 }
 
@@ -138,7 +149,7 @@ CGameObject * CBackGround::Clone(void * pArg)
 void CBackGround::Free()
 {
 	__super::Free();
-
+	Safe_Release(m_pTextureCom2);
 	Safe_Release(m_pTextureCom);
 	Safe_Release(m_pVIBufferCom);
 	Safe_Release(m_pShaderCom);

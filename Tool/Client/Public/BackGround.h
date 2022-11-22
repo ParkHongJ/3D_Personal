@@ -30,6 +30,7 @@ public:
 private:
 	CShader*				m_pShaderCom = nullptr;
 	CTexture*				m_pTextureCom = nullptr;
+	CTexture*				m_pTextureCom2 = nullptr;
 	CRenderer*				m_pRendererCom = nullptr;
 	CTransform*				m_pTransformCom = nullptr;
 	CVIBuffer_Rect*			m_pVIBufferCom = nullptr;
@@ -44,6 +45,7 @@ private:
 
 	_uint					m_iNumTex = 15;
 	_float					m_iCurrentTex = 0.f;
+	_float					m_fTime = 0.0f;
 public:
 	static CBackGround* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	virtual CGameObject* Clone(void* pArg);

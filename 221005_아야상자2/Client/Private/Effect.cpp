@@ -18,16 +18,39 @@ HRESULT CEffect::Initialize_Prototype()
 
 HRESULT CEffect::Initialize(void * pArg)
 {
+	if (FAILED(Ready_Components()))
+		return E_FAIL;
+
+	if (nullptr != pArg)
+	{
+		_float3 vPos;
+		memcpy(&vPos, pArg, sizeof(_float3));
+		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMLoadFloat3(&vPos), 1.f));
+	}
+	else
+	{
+		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(0.f, 0.f, 0.f, 1.f));
+	}
+
 	return S_OK;
 }
 
 _bool CEffect::Tick(_float fTimeDelta)
 {
+	m_iCurrentTex += fTimeDelta * 24.f;
+	if (m_iCurrentTex >= 16.f)
+	{
+		m_iCurrentTex = 0.f;
+		return true;
+	}
 	return false;
 }
 
 void CEffect::LateTick(_float fTimeDelta)
 {
+	_uint iIndex = (_uint)m_iCurrentTex;
+	m_pShaderCom->Set_RawValue("g_iCount", &iIndex, sizeof(_uint));
+	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONLIGHT, this);
 }
 
 HRESULT CEffect::Render()
@@ -48,7 +71,7 @@ HRESULT CEffect::Render()
 	if (FAILED(m_pTextureCom->Set_SRV(m_pShaderCom, "g_DiffuseTexture", 0)))
 		return E_FAIL;
 
-	if (FAILED(m_pShaderCom->Begin(0)))
+	if (FAILED(m_pShaderCom->Begin(m_iPass)))
 		return E_FAIL;
 
 	if (FAILED(m_pVIBufferCom->Render()))
@@ -73,6 +96,10 @@ HRESULT CEffect::Ready_Components()
 
 	/* For.Com_Texture */
 	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Texture_Explosion"), TEXT("Com_Texture"), (CComponent**)&m_pTextureCom)))
+		return E_FAIL;
+
+	/* For.Com_VIBuffer */
+	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_VIBuffer_Point"), TEXT("Com_VIBuffer"), (CComponent**)&m_pVIBufferCom)))
 		return E_FAIL;
 
 	return S_OK;

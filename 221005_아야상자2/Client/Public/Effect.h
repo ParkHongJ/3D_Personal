@@ -38,6 +38,7 @@ private:
 	_float					m_fSpeed = 2.f;
 	_uint					m_iNumTex = 15;
 	_float					m_iCurrentTex = 0.f;
+	_uint					m_iPass = 0;
 private:
 	HRESULT Ready_Components();
 
