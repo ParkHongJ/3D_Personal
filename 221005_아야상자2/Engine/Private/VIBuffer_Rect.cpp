@@ -12,7 +12,7 @@ CVIBuffer_Rect::CVIBuffer_Rect(const CVIBuffer_Rect & rhs)
 
 }
 
-HRESULT CVIBuffer_Rect::Initialize_Prototype()
+HRESULT CVIBuffer_Rect::Initialize_Prototype(_float fSize)
 {
 #pragma region VERTEXBUFFER
 	m_iNumVertexBuffers = 1;
@@ -22,24 +22,28 @@ HRESULT CVIBuffer_Rect::Initialize_Prototype()
 	ZeroMemory(&m_BufferDesc, sizeof(D3D11_BUFFER_DESC));
 	m_BufferDesc.ByteWidth = m_iNumVertices * m_iStride;
 	m_BufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	m_BufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	m_BufferDesc.CPUAccessFlags = 0;
+	//m_BufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	//m_BufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	m_BufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	m_BufferDesc.MiscFlags = 0;
 	m_BufferDesc.StructureByteStride = m_iStride;
 
 	VTXTEX*		pVertices = new VTXTEX[4];
 	ZeroMemory(pVertices, sizeof(VTXTEX) * 4);
 
-	pVertices[0].vPosition = _float3(-0.5f, 0.5f, 0.f);
+	//_float fSize = 0.5f;
+	//_float fSize = 3.f;
+	pVertices[0].vPosition = _float3(-fSize, fSize, 0.f);
 	pVertices[0].vTexture = _float2(0.f, 0.f);
 
-	pVertices[1].vPosition = _float3(0.5f, 0.5f, 0.f);
+	pVertices[1].vPosition = _float3(fSize, fSize, 0.f);
 	pVertices[1].vTexture = _float2(1.f, 0.f);
 
-	pVertices[2].vPosition = _float3(0.5f, -0.5f, 0.f);
+	pVertices[2].vPosition = _float3(fSize, -fSize, 0.f);
 	pVertices[2].vTexture = _float2(1.f, 1.f);
 
-	pVertices[3].vPosition = _float3(-0.5f, -0.5f, 0.f);
+	pVertices[3].vPosition = _float3(-fSize, -fSize, 0.f);
 	pVertices[3].vTexture = _float2(0.f, 1.f);
 
 	ZeroMemory(&m_SubResourceData, sizeof(D3D11_SUBRESOURCE_DATA));
@@ -98,11 +102,46 @@ HRESULT CVIBuffer_Rect::Initialize(void * pArg)
 	return S_OK;
 }
 
-CVIBuffer_Rect * CVIBuffer_Rect::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
+void CVIBuffer_Rect::SetSize(_float fX, _float fY)
+{
+	D3D11_MAPPED_SUBRESOURCE		MappedSubResource;
+	ZeroMemory(&MappedSubResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
+
+	m_pContext->Map(m_pVB, 0, D3D11_MAP_WRITE_DISCARD, 0, &MappedSubResource);
+	
+	/*pVertices[0].vPosition = _float3(-0.5f, 0.5f, 0.f);
+	pVertices[0].vTexture = _float2(0.f, 0.f);
+
+	pVertices[1].vPosition = _float3(0.5f, 0.5f, 0.f);
+	pVertices[1].vTexture = _float2(1.f, 0.f);
+
+	pVertices[2].vPosition = _float3(0.5f, -0.5f, 0.f);
+	pVertices[2].vTexture = _float2(1.f, 1.f);
+
+	pVertices[3].vPosition = _float3(-0.5f, -0.5f, 0.f);
+	pVertices[3].vTexture = _float2(0.f, 1.f);*/
+	/*XMStoreFloat3(&((VTXCOL*)MappedSubResource.pData)[iNumIndex].vPosition,
+		XMLoadFloat3(&((VTXCOL*)MappedSubResource.pData)[iNumIndex].vPosition) +
+		XMLoadFloat3(&vPos));*/
+	((VTXTEX*)MappedSubResource.pData)[0].vPosition = _float3(-fX, fY, 0.f);
+	((VTXTEX*)MappedSubResource.pData)[1].vPosition = _float3(fX, fY, 0.f);
+	((VTXTEX*)MappedSubResource.pData)[2].vPosition = _float3(fX, -fY, 0.f);
+	((VTXTEX*)MappedSubResource.pData)[3].vPosition = _float3(-fX, -fY, 0.f);
+	/*for (_uint i = 0; i < 4; ++i)
+	{
+		((VTXTEX*)MappedSubResource.pData)[i].vPosition.y += m_pInstanceSpeeds[i] * fTimeDelta;
+		if (3.0f <= ((VTXTEX*)MappedSubResource.pData)[i].vPosition.y)
+			((VTXTEX*)MappedSubResource.pData)[i].vPosition.y = 0.f;
+	}*/
+
+	m_pContext->Unmap(m_pVB, 0);
+}
+
+CVIBuffer_Rect * CVIBuffer_Rect::Create(ID3D11Device * pDevice, ID3D11DeviceContext * pContext, _float fSize)
 {
 	CVIBuffer_Rect*			pInstance = new CVIBuffer_Rect(pDevice, pContext);
 
-	if (FAILED(pInstance->Initialize_Prototype()))
+	if (FAILED(pInstance->Initialize_Prototype(fSize)))
 	{
 		MSG_BOX(TEXT("Failed To Created : CVIBuffer_Rect"));
 		Safe_Release(pInstance);

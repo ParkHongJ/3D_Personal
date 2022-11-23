@@ -93,6 +93,8 @@ public: /* For.Light_Manager */
 public: /* For.Frustum */
 	_bool isIn_Frustum_WorldSpace(_fvector vWorldPos, float fRadius = 0.f);
 
+public: /* For.TargetManager*/
+	ID3D11ShaderResourceView*	Get_SRV(const _tchar* pTargetTag);
 private:
 	_bool m_bKeyState[256] = { false };
 

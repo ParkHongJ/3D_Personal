@@ -9,6 +9,7 @@ class CTexture;
 class CRenderer;
 class CTransform;
 class CVIBuffer_Point;
+class CVIBuffer_Rect;
 END
 
 BEGIN(Client)
@@ -32,13 +33,17 @@ private:
 	CRenderer*				m_pRendererCom = nullptr;
 	CTransform*				m_pTransformCom = nullptr;
 	CTexture*				m_pTextureCom = nullptr;
-	CVIBuffer_Point*		m_pVIBufferCom = nullptr;
+	//CVIBuffer_Point*		m_pVIBufferCom = nullptr;
+
+	CVIBuffer_Rect*			m_pVIBufferCom = nullptr;
 
 private:
 	_float					m_fSpeed = 2.f;
 	_uint					m_iNumTex = 15;
 	_float					m_iCurrentTex = 0.f;
 	_uint					m_iPass = 0;
+	_float					m_fTime = 0.0f;
+
 private:
 	HRESULT Ready_Components();
 

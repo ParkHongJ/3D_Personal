@@ -67,7 +67,7 @@ _bool CPlayer::Tick(_float fTimeDelta)
 	
 	if (pGameInstance->Key_Down(DIK_NUMPAD8))
 	{
-		pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Effect", LEVEL_GAMEPLAY, L"Effect");
+		pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Effect", LEVEL_GAMEPLAY, L"Effect", &m_pTransformCom->Get_State(CTransform::STATE_POSITION));
 	}
 	RELEASE_INSTANCE(CGameInstance);
 	if (m_bIncreaseStamina)

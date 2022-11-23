@@ -66,6 +66,10 @@ HRESULT CRenderer::Initialize_Prototype()
 	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_Specular"), (_uint)ViewportDesc.Width, (_uint)ViewportDesc.Height, DXGI_FORMAT_R16G16B16A16_FLOAT, &_float4(0.0f, 0.f, 0.f, 0.f))))
 		return E_FAIL;
 
+	/* For.Target_Test */
+	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_Test"), (_uint)ViewportDesc.Width, (_uint)ViewportDesc.Height, DXGI_FORMAT_R16G16B16A16_FLOAT, &_float4(0.0f, 0.f, 0.f, 0.f))))
+		return E_FAIL;
+
 	/* For.MRT_Original */
 	if (FAILED(m_pTarget_Manager->Add_MRT(TEXT("MRT_Original"), TEXT("Target_Original"))))
 		return E_FAIL;
@@ -82,6 +86,10 @@ HRESULT CRenderer::Initialize_Prototype()
 	if (FAILED(m_pTarget_Manager->Add_MRT(TEXT("MRT_LightAcc"), TEXT("Target_Shade"))))
 		return E_FAIL;
 	if (FAILED(m_pTarget_Manager->Add_MRT(TEXT("MRT_LightAcc"), TEXT("Target_Specular"))))
+		return E_FAIL;
+
+	/* For.MRT_Test */
+	if (FAILED(m_pTarget_Manager->Add_MRT(TEXT("MRT_Test"), TEXT("Target_Test"))))
 		return E_FAIL;
 #ifdef _DEBUG
 
@@ -139,17 +147,21 @@ HRESULT CRenderer::Draw()
 	if (FAILED(Render_NonAlphaBlend()))
 		return E_FAIL;
 
+
 	if (FAILED(Compute_SSAO()))
 		return E_FAIL;
 
 	if (FAILED(Render_Lights()))
 		return E_FAIL;
 
+	if (FAILED(Render_Effect()))
+		return E_FAIL;
+
 	if (FAILED(Render_Blend()))
 		return E_FAIL;
 
-	if (FAILED(Render_PostProcessing()))
-		return E_FAIL;
+	//if (FAILED(Render_PostProcessing()))
+	//	return E_FAIL;
 
 	if (FAILED(Render_NonLight()))
 		return E_FAIL;
@@ -406,6 +418,61 @@ HRESULT CRenderer::Render_AlphaBlend()
 	m_RenderObjects[RENDER_ALPHABLEND].clear();
 
 	return S_OK;
+}
+
+HRESULT CRenderer::Render_Effect()
+{
+
+	if (nullptr == m_pTarget_Manager)
+		return E_FAIL;
+
+	for (auto& pRenderObject : m_RenderObjects[RENDER_EFFECT])
+	{
+		if (nullptr != pRenderObject)
+			pRenderObject->Render();
+
+		Safe_Release(pRenderObject);
+	}
+	m_RenderObjects[RENDER_EFFECT].clear();
+
+	return S_OK;
+
+//	if (nullptr == m_pTarget_Manager)
+//		return E_FAIL;
+//	/* Target_Shade타겟에 빛 연산한 결과를 그린다. */
+//	if (FAILED(m_pTarget_Manager->Begin_MRT(m_pContext, TEXT("MRT_Test"))))
+//		return E_FAIL;
+//
+//	_float4x4			WorldMatrix;
+//
+//	_uint				iNumViewport = 1;
+//	D3D11_VIEWPORT		ViewportDesc;
+//
+//	m_pContext->RSGetViewports(&iNumViewport, &ViewportDesc);
+//
+//	XMStoreFloat4x4(&WorldMatrix,
+//		XMMatrixTranspose(XMMatrixScaling(ViewportDesc.Width, ViewportDesc.Height, 0.f) * XMMatrixTranslation(0.0f, 0.0f, 0.f)));
+//
+//	if (FAILED(m_pShader[SHADER_DEFERRED]->Set_RawValue("g_WorldMatrix", &WorldMatrix, sizeof(_float4x4))))
+//		return E_FAIL;
+//	if (FAILED(m_pShader[SHADER_DEFERRED]->Set_RawValue("g_ViewMatrix", &m_ViewMatrix, sizeof(_float4x4))))
+//		return E_FAIL;
+//	if (FAILED(m_pShader[SHADER_DEFERRED]->Set_RawValue("g_ProjMatrix", &m_ProjMatrix, sizeof(_float4x4))))
+//		return E_FAIL;
+//
+//	if (FAILED(m_pTarget_Manager->Bind_SRV(TEXT("Target_Original"), m_pShader[SHADER_DEFERRED], "g_DiffuseTexture")))
+//		return E_FAIL;
+//
+//	m_pShader[SHADER_DEFERRED]->Begin(0);
+//
+//#ifdef _DEBUG
+//	m_pVIBuffer->Render();
+//#endif
+//
+//	if (FAILED(m_pTarget_Manager->End_MRT(m_pContext)))
+//		return E_FAIL;
+//
+//	return S_OK;
 }
 
 HRESULT CRenderer::Render_UI()

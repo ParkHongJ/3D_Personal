@@ -66,8 +66,8 @@ void CBackGround::LateTick(_float fTimeDelta)
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_PRIORITY, this);
 
 	_uint iIndex = (_uint)m_iCurrentTex;
-	m_fTime += fTimeDelta;
 	m_pShaderCom->Set_RawValue("g_iCount", &iIndex, sizeof(_uint));
+	m_fTime += fTimeDelta;
 	m_pShaderCom->Set_RawValue("g_Time", &m_fTime, sizeof(_float));
 }
 
