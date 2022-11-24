@@ -143,7 +143,7 @@ void CScreenSpaceFX::Compute(ID3D11ShaderResourceView * pDepthSRV, ID3D11ShaderR
 	arrSRV[0] = m_pSSAO_SRV;
 
 	//다시 백버퍼를 바인딩
-	m_pContext->OMSetRenderTargets(1, pOldRenderTargets, NULL);
+	m_pContext->OMSetRenderTargets(1, pOldRenderTargets, pOldDepthStencil);
 
 	for (_uint i = 0; i < 8; ++i)
 		Safe_Release(pOldRenderTargets[i]);

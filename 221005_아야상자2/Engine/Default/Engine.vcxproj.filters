@@ -127,9 +127,6 @@
     <ClCompile Include="..\Private\VIBuffer_Cube.cpp">
       <Filter>03.Components\02.VIBuffer\Cube</Filter>
     </ClCompile>
-    <ClCompile Include="..\Private\VIBuffer_Rect_Instance.cpp">
-      <Filter>03.Components\02.VIBuffer\Instancing</Filter>
-    </ClCompile>
     <ClCompile Include="..\private\MeshContainerInstance.cpp">
       <Filter>03.Components\06.Model\InstanceModel</Filter>
     </ClCompile>
@@ -156,6 +153,12 @@
     </ClCompile>
     <ClCompile Include="..\Private\VIBuffer_Point.cpp">
       <Filter>03.Components\02.VIBuffer\Point</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\VIBuffer_Rect_Instance.cpp">
+      <Filter>03.Components\02.VIBuffer\Instancing\Rect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\VIBuffer_Point_Instance.cpp">
+      <Filter>03.Components\02.VIBuffer\Instancing\Point</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -300,9 +303,6 @@
     <ClInclude Include="..\Public\VIBuffer_Cube.h">
       <Filter>03.Components\02.VIBuffer\Cube</Filter>
     </ClInclude>
-    <ClInclude Include="..\Public\VIBuffer_Rect_Instance.h">
-      <Filter>03.Components\02.VIBuffer\Instancing</Filter>
-    </ClInclude>
     <ClInclude Include="..\public\MeshContainerInstance.h">
       <Filter>03.Components\06.Model\InstanceModel</Filter>
     </ClInclude>
@@ -332,6 +332,12 @@
     </ClInclude>
     <ClInclude Include="..\Public\VIBuffer_Point.h">
       <Filter>03.Components\02.VIBuffer\Point</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\VIBuffer_Rect_Instance.h">
+      <Filter>03.Components\02.VIBuffer\Instancing\Rect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\VIBuffer_Point_Instance.h">
+      <Filter>03.Components\02.VIBuffer\Instancing\Point</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -499,6 +505,12 @@
     </Filter>
     <Filter Include="03.Components\02.VIBuffer\Point">
       <UniqueIdentifier>{5af8e235-fe0e-42d6-9d76-8b2fe51f94d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Components\02.VIBuffer\Instancing\Rect">
+      <UniqueIdentifier>{3b55cd01-75d8-4da2-b8fa-9c52f6f772c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="03.Components\02.VIBuffer\Instancing\Point">
+      <UniqueIdentifier>{a4fc92b5-01e3-4c11-a251-9967d14eed74}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

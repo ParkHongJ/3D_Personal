@@ -9,7 +9,7 @@ class CTexture;
 class CRenderer;
 class CCollider;
 class CTransform;
-class CModel;
+class CVIBuffer_Rect;
 END
 
 BEGIN(Client)
@@ -53,8 +53,9 @@ private:
 	CShader*				m_pShaderCom = nullptr;
 	CRenderer*				m_pRendererCom = nullptr;
 	CTransform*				m_pTransformCom = nullptr;
-	CModel*					m_pModelCom = nullptr;
 	CCollider*				m_pColliderCom = nullptr;
+	CTexture*				m_pTextureCom = nullptr;
+	CVIBuffer_Rect*		m_pVIBufferCom = nullptr;
 
 	
 private:

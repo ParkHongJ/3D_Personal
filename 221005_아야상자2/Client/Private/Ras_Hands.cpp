@@ -187,6 +187,13 @@ void CRas_Hands::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
 				CGameMgr::Get_Instance()->SetTimeScale(0.1f, 0.25f);
 				CGameMgr::Get_Instance()->Shake(0.35f);
 				m_iPass = 2;
+
+				_float3 vTemp = _float3(0.f, -10.f, 25.f);
+				XMStoreFloat3(&vTemp, XMVectorSetW(XMVector3TransformCoord(XMLoadFloat3(&vTemp), m_pTransformCom->Get_WorldMatrix()), 1.f)); 
+
+				CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+				pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Effect", LEVEL_GAMEPLAY, L"Effect", &vTemp/*&m_pTransformCom->Get_State(CTransform::STATE_POSITION)*/);
+				RELEASE_INSTANCE(CGameInstance);
 			}
 		}
 	}
@@ -451,7 +458,7 @@ HRESULT CRas_Hands::Ready_Components()
 
 	ColliderDesc.vSize = _float3(8.f,8.f, 8.f);
 	ColliderDesc.vCenter = _float3(0.f, -10.f, 25.f);
-	ColliderDesc.vRotation = _float3(0.f, XMConvertToRadians(45.f), 0.f);
+	ColliderDesc.vRotation = _float3(0.f, 0.f, 0.f);
 	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Collider_Sphere"), TEXT("Com_SPHERE"), (CComponent**)&m_pColliderCom[COLLIDERTYPE_SPHERE], &ColliderDesc)))
 		return E_FAIL;
 

@@ -183,6 +183,14 @@ void CYantari::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
 				CGameMgr::Get_Instance()->SetTimeScale(0.1f, 0.35f);
 				CGameMgr::Get_Instance()->Shake(0.35f);
 				m_iPass = 2;
+				CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+
+				_float3 vPos;
+			 	XMStoreFloat3(&vPos, m_pTransformCom->Get_State(CTransform::STATE_POSITION));
+				vPos.y += 1.f;
+
+				pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Effect", LEVEL_YANTARI, L"Effect", &vPos);
+				RELEASE_INSTANCE(CGameInstance);
 			}
 		}
 	}

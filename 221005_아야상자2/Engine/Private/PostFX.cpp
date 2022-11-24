@@ -177,7 +177,7 @@ void CPostFX::PostProcessing(ID3D11ShaderResourceView* pHDRSRV)
 
 	// Down scale the HDR image
 	ID3D11RenderTargetView* rt[1] = { NULL };
-	m_pContext->OMSetRenderTargets(1, rt, NULL);
+	m_pContext->OMSetRenderTargets(1, rt, pOldDepthStencil);
 	DownScale(pHDRSRV);
 
 	// Bloom
@@ -193,7 +193,7 @@ void CPostFX::PostProcessing(ID3D11ShaderResourceView* pHDRSRV)
 
 	// Do the final pass
 	rt[0] = pOldRenderTargets[0];
-	m_pContext->OMSetRenderTargets(1, rt, NULL);
+	m_pContext->OMSetRenderTargets(1, rt, pOldDepthStencil);
 
 	FinalPass(pHDRSRV);
 
@@ -372,7 +372,7 @@ void CPostFX::DownScale(ID3D11ShaderResourceView* pHDRSRV)
 {
 	// Output
 	ID3D11UnorderedAccessView* arrUAVs[2] = { m_pDownScale1DUAV, m_pDownScaleUAV };
-	m_pContext->CSSetUnorderedAccessViews(0, 2, arrUAVs, nullptr); //뷰에 바인딩
+	m_pContext->CSSetUnorderedAccessViews(0, 2, arrUAVs, NULL); //뷰에 바인딩
 
 	// Input
 	ID3D11ShaderResourceView* arrViews[2] = { pHDRSRV, NULL };

@@ -145,6 +145,12 @@
     <Filter Include="02.GameObjects\Effects">
       <UniqueIdentifier>{d615c0a8-396a-4030-ab12-015d04399a56}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\Effects\Distortion">
+      <UniqueIdentifier>{19093e13-20c0-4c2a-b853-8e7fc3dcc25b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="02.GameObjects\Effects\Particle">
+      <UniqueIdentifier>{1818306d-4d67-4625-a9e9-f881ae74df42}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -316,7 +322,10 @@
       <Filter>02.GameObjects\Boss\Mantari</Filter>
     </ClInclude>
     <ClInclude Include="..\public\Effect.h">
-      <Filter>02.GameObjects\Effects</Filter>
+      <Filter>02.GameObjects\Effects\Distortion</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Particle_Point.h">
+      <Filter>02.GameObjects\Effects\Particle</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -477,7 +486,10 @@
       <Filter>02.GameObjects\Boss\Mantari</Filter>
     </ClCompile>
     <ClCompile Include="..\private\Effect.cpp">
-      <Filter>02.GameObjects\Effects</Filter>
+      <Filter>02.GameObjects\Effects\Distortion</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Particle_Point.cpp">
+      <Filter>02.GameObjects\Effects\Particle</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -47,7 +47,18 @@ _bool CEffect::Tick(_float fTimeDelta)
 	//	m_iCurrentTex = 0.f;
 	//	//return true;
 	//}
-	if (m_fTime >= 1.f)
+	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+
+	_float4 vCamPos = pGameInstance->Get_CamPosition();
+	
+	_float3 vPos;
+	XMStoreFloat3(&vPos, m_pTransformCom->Get_State(CTransform::STATE_POSITION));
+
+	m_pTransformCom->LookAt(XMVectorSetW(XMLoadFloat4(&vCamPos), 1.f));
+	//m_pTransformCom->LookDir(XMLoadFloat4(&vCamPos) - XMLoadFloat3(&vPos));
+	RELEASE_INSTANCE(CGameInstance);
+
+	if (m_fTime >= 0.5f)
 	{
 		m_fTime = 0.0f;
 		return true;
@@ -60,7 +71,7 @@ void CEffect::LateTick(_float fTimeDelta)
 {
 	_uint iIndex = (_uint)m_iCurrentTex;
 	m_pShaderCom->Set_RawValue("g_iCount", &iIndex, sizeof(_uint));
-	m_fTime -= fTimeDelta;
+	m_fTime += fTimeDelta;
 	m_pShaderCom->Set_RawValue("g_Time", &m_fTime, sizeof(_float));
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONLIGHT, this);
 }
@@ -82,9 +93,6 @@ HRESULT CEffect::Render()
 		return E_FAIL;
 	
 	RELEASE_INSTANCE(CGameInstance);
-
-	//if (FAILED(m_pTextureCom->Set_SRV(m_pShaderCom, "g_DiffuseTexture", 0)))
-	//	return E_FAIL;
 
 	if (FAILED(m_pShaderCom->Begin(3)))
 		return E_FAIL;
@@ -109,10 +117,6 @@ HRESULT CEffect::Ready_Components()
 	/*if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Shader_VtxPoint"), TEXT("Com_Shader"), (CComponent**)&m_pShaderCom)))
 		return E_FAIL;*/
 	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Shader_VtxTex"), TEXT("Com_Shader"), (CComponent**)&m_pShaderCom)))
-		return E_FAIL;
-
-	/* For.Com_Texture */
-	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Texture_Explosion"), TEXT("Com_Texture"), (CComponent**)&m_pTextureCom)))
 		return E_FAIL;
 
 	/* For.Com_VIBuffer */
@@ -155,7 +159,6 @@ void CEffect::Free()
 	__super::Free();
 	
 	Safe_Release(m_pShaderCom);
-	Safe_Release(m_pTextureCom);
 	Safe_Release(m_pVIBufferCom);
 	Safe_Release(m_pRendererCom);
 	Safe_Release(m_pTransformCom);
