@@ -10,6 +10,7 @@ class CRenderer;
 class CCollider;
 class CTransform;
 class CVIBuffer_Rect;
+class CVIBuffer_Point;
 END
 
 BEGIN(Client)
@@ -55,8 +56,8 @@ private:
 	CTransform*				m_pTransformCom = nullptr;
 	CCollider*				m_pColliderCom = nullptr;
 	CTexture*				m_pTextureCom = nullptr;
-	CVIBuffer_Rect*		m_pVIBufferCom = nullptr;
-
+	CVIBuffer_Rect*			m_pVIBufferCom = nullptr;
+	//CVIBuffer_Point*		m_pVIBufferCom = nullptr;
 	
 private:
 	//투사체 속도
@@ -73,6 +74,8 @@ private:
 	const _float			m_fMaxExplodeTime = 2.f;
 	_float					m_fCurrentExplodeTime = 0.0f;
 	PROJECTILEINFO			m_ProjInfo;
+
+	_float					m_fFrame = 0.0f;
 	
 private:
 	HRESULT Ready_Components();

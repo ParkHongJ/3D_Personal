@@ -3,6 +3,7 @@
 #include "GameInstance.h"
 #include "Ras_Samrah.h"
 #include "Sword.h"
+#include "Effect.h"
 #include "GameMgr.h"
 CRas_Hands::CRas_Hands(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
@@ -188,11 +189,17 @@ void CRas_Hands::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
 				CGameMgr::Get_Instance()->Shake(0.35f);
 				m_iPass = 2;
 
-				_float3 vTemp = _float3(0.f, -10.f, 25.f);
-				XMStoreFloat3(&vTemp, XMVectorSetW(XMVector3TransformCoord(XMLoadFloat3(&vTemp), m_pTransformCom->Get_WorldMatrix()), 1.f)); 
+				_float4 vTemp = _float4(0.f, -10.f, 25.f, 1.f);
+				XMStoreFloat4(&vTemp, XMVectorSetW(XMVector3TransformCoord(XMLoadFloat4(&vTemp), m_pTransformCom->Get_WorldMatrix()), 1.f)); 
 
 				CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
-				pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Effect", LEVEL_GAMEPLAY, L"Effect", &vTemp/*&m_pTransformCom->Get_State(CTransform::STATE_POSITION)*/);
+
+				CEffect::EFFECT_DESC EffectDesc;
+				EffectDesc.vPosition = vTemp;
+				EffectDesc.vScale = _float4(10.f, 10.f, 10.f, 0.f);
+				EffectDesc.eSign = CEffect::DistortionType::SPREAD;
+
+				pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Effect", LEVEL_GAMEPLAY, L"Effect", &EffectDesc/*&m_pTransformCom->Get_State(CTransform::STATE_POSITION)*/);
 				RELEASE_INSTANCE(CGameInstance);
 			}
 		}

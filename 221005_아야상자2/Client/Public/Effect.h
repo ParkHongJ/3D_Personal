@@ -15,6 +15,16 @@ BEGIN(Client)
 
 class CEffect final : public CGameObject
 {
+public:
+	enum DistortionType {
+		DEFAULT = -1,
+		SPREAD = 1
+	};
+	typedef struct Effect_Desc {
+		_float4 vPosition;
+		_float4 vScale;
+		DistortionType	eSign; //모일건지 퍼질건지
+	}EFFECT_DESC;
 private:
 	CEffect(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
 	CEffect(const CEffect& rhs);
@@ -41,6 +51,8 @@ private:
 	_float					m_iCurrentTex = 0.f;
 	_uint					m_iPass = 0;
 	_float					m_fTime = 0.0f;
+
+	EFFECT_DESC				m_tEffectDesc;
 
 private:
 	HRESULT Ready_Components();

@@ -17,7 +17,7 @@ HRESULT CVIBuffer_Point::Initialize_Prototype()
 #pragma region VERTEXBUFFER
 	m_iNumVertexBuffers = 1;
 	m_iNumVertices = 1;
-	m_iStride = sizeof(VTXTEX);
+	m_iStride = sizeof(VTXPOINT);
 
 	ZeroMemory(&m_BufferDesc, sizeof(D3D11_BUFFER_DESC));
 	m_BufferDesc.ByteWidth = m_iNumVertices * m_iStride;
@@ -45,7 +45,7 @@ HRESULT CVIBuffer_Point::Initialize_Prototype()
 	VTXPOINT*		pVertices = new VTXPOINT;
 
 	pVertices->vPosition = _float3(0.0f, 0.0f, 0.f);
-	pVertices->vSize = _float2(0.5f, 0.5f);
+	pVertices->vSize = _float2(1.5f, 1.5f);
 
 	ZeroMemory(&m_SubResourceData, sizeof(D3D11_SUBRESOURCE_DATA));
 	m_SubResourceData.pSysMem = pVertices;
@@ -84,8 +84,10 @@ HRESULT CVIBuffer_Point::Initialize_Prototype()
 	//pIndices[1]._1 = 2;
 	//pIndices[1]._2 = 3;
 
-	_ushort*		pIndices = new _ushort[m_iNumPrimitives];
-	ZeroMemory(pIndices, sizeof(_ushort) * m_iNumPrimitives);
+	/*_ushort*		pIndices = new _ushort[m_iNumPrimitives];
+	ZeroMemory(pIndices, sizeof(_ushort) * m_iNumPrimitives);*/
+	FACEINDICES16*		pIndices = new FACEINDICES16[m_iNumPrimitives];
+	ZeroMemory(pIndices, sizeof(FACEINDICES16) * m_iNumPrimitives);
 
 	ZeroMemory(&m_SubResourceData, sizeof(D3D11_SUBRESOURCE_DATA));
 	m_SubResourceData.pSysMem = pIndices;

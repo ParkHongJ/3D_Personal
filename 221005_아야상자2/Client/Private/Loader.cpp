@@ -270,10 +270,16 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 	lstrcpy(m_szLoadingText, TEXT("텍스쳐를 로딩중입니다. "));
 	/* 텍스쳐를 로드한다. */
 
-	/* For.Prototype_Component_Texture_Terrain */
+	/* For.Prototype_Component_Texture_BlueFire */
 	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_BlueFire"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/FX/T_BlueFire.png"), 1))))
 		return E_FAIL;
+
+	/* For.Prototype_Component_Texture_Aura */
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Aura"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/FX/Aura_%d.png"), 30))))
+		return E_FAIL;
+
 
 	/* For.Prototype_Component_Texture_Terrain */
 	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Terrain"),

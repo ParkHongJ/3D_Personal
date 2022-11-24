@@ -99,6 +99,11 @@ _bool CProjectile::Tick(_float fTimeDelta)
 		}
 	}
 
+	m_fFrame += 30.f * fTimeDelta;
+
+	if (m_fFrame >= 30.f)
+		m_fFrame = 0.f;
+
 	m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix());
 	return false;
 }
@@ -129,12 +134,12 @@ HRESULT CProjectile::Render()
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_ProjMatrix", &pGameInstance->Get_TransformFloat4x4_TP(CPipeLine::D3DTS_PROJ), sizeof(_float4x4))))
 		return E_FAIL;
-	//if (FAILED(m_pShaderCom->Set_RawValue("g_vCamPosition", &pGameInstance->Get_CamPosition(), sizeof(_float4))))
-	//	return E_FAIL;
+	/*if (FAILED(m_pShaderCom->Set_RawValue("g_vCamPosition", &pGameInstance->Get_CamPosition(), sizeof(_float4))))
+		return E_FAIL;*/
 
 	RELEASE_INSTANCE(CGameInstance);
 
-	if (FAILED(m_pTextureCom->Set_SRV(m_pShaderCom, "g_DiffuseTexture", 0)))
+	if (FAILED(m_pTextureCom->Set_SRV(m_pShaderCom, "g_DiffuseTexture", (_uint)m_fFrame)))
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Begin(0)))
 		return E_FAIL;
@@ -209,12 +214,15 @@ HRESULT CProjectile::Ready_Components()
 		return E_FAIL;
 
 	/* For.Com_Texture */
-	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_BlueFire"), TEXT("Com_Texture"), (CComponent**)&m_pTextureCom)))
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Aura"), TEXT("Com_Texture"), (CComponent**)&m_pTextureCom)))
 		return E_FAIL;
 
 	/* For.Com_VIBuffer */
 	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_VIBuffer_Rect"), TEXT("Com_VIBuffer"), (CComponent**)&m_pVIBufferCom)))
 		return E_FAIL;
+
+	/*if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_VIBuffer_Point"), TEXT("Com_VIBuffer"), (CComponent**)&m_pVIBufferCom)))
+		return E_FAIL;*/
 
 	/* For.Com_SPHERE */
 	CCollider::COLLIDERDESC		ColliderDesc;

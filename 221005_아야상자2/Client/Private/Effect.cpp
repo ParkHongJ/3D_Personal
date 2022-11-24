@@ -23,10 +23,14 @@ HRESULT CEffect::Initialize(void * pArg)
 
 	if (nullptr != pArg)
 	{
-		_float3 vPos;
+		/*_float3 vPos;
 		memcpy(&vPos, pArg, sizeof(_float3));
 		vPos.y += 1.f;
 		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMLoadFloat3(&vPos), 1.f));
+*/
+		ZeroMemory(&m_tEffectDesc, sizeof(EFFECT_DESC));
+		memcpy(&m_tEffectDesc, pArg, sizeof(EFFECT_DESC));
+		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMLoadFloat4(&m_tEffectDesc.vPosition));
 	}
 	else
 	{
@@ -50,9 +54,7 @@ _bool CEffect::Tick(_float fTimeDelta)
 	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 
 	_float4 vCamPos = pGameInstance->Get_CamPosition();
-	
-	_float3 vPos;
-	XMStoreFloat3(&vPos, m_pTransformCom->Get_State(CTransform::STATE_POSITION));
+
 
 	m_pTransformCom->LookAt(XMVectorSetW(XMLoadFloat4(&vCamPos), 1.f));
 	//m_pTransformCom->LookDir(XMLoadFloat4(&vCamPos) - XMLoadFloat3(&vPos));
@@ -69,9 +71,7 @@ _bool CEffect::Tick(_float fTimeDelta)
 
 void CEffect::LateTick(_float fTimeDelta)
 {
-	_uint iIndex = (_uint)m_iCurrentTex;
-	m_pShaderCom->Set_RawValue("g_iCount", &iIndex, sizeof(_uint));
-	m_fTime += fTimeDelta;
+	m_fTime += fTimeDelta * m_tEffectDesc.eSign;
 	m_pShaderCom->Set_RawValue("g_Time", &m_fTime, sizeof(_float));
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONLIGHT, this);
 }
