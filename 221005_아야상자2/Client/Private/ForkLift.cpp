@@ -24,8 +24,16 @@ HRESULT CForkLift::Initialize(void * pArg)
 
 	//m_pModelCom->Set_AnimIndex(rand() % 20);
 
-	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet((_float)(rand() % 10), 0.f, (_float)(rand() % 10), 1.f));
 
+	if (nullptr != pArg)
+	{
+		_float3 vPos;
+		memcpy(&vPos, pArg, sizeof(_float3));
+	
+		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMLoadFloat3(&vPos), 1.f));
+	}
+	else
+		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet((_float)(rand() % 10), 0.f, (_float)(rand() % 10), 1.f));
 
 	return S_OK;
 }

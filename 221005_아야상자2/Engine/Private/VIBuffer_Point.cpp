@@ -58,11 +58,11 @@ HRESULT CVIBuffer_Point::Initialize_Prototype()
 #pragma endregion
 
 #pragma region INDEXBUFFER
-	m_iNumPrimitives = 2;
-	m_iIndexSizeofPrimitive = sizeof(FACEINDICES16);
-	m_iNumIndicesofPrimitive = 3;
+	m_iNumPrimitives = 1;
+	m_iIndexSizeofPrimitive = sizeof(_ushort);
+	m_iNumIndicesofPrimitive = 1;
 	m_eIndexFormat = DXGI_FORMAT_R16_UINT;
-	m_eTopology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	m_eTopology = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
 
 	ZeroMemory(&m_BufferDesc, sizeof(D3D11_BUFFER_DESC));
 	m_BufferDesc.ByteWidth = m_iNumPrimitives * m_iIndexSizeofPrimitive;
@@ -84,10 +84,10 @@ HRESULT CVIBuffer_Point::Initialize_Prototype()
 	//pIndices[1]._1 = 2;
 	//pIndices[1]._2 = 3;
 
-	/*_ushort*		pIndices = new _ushort[m_iNumPrimitives];
-	ZeroMemory(pIndices, sizeof(_ushort) * m_iNumPrimitives);*/
-	FACEINDICES16*		pIndices = new FACEINDICES16[m_iNumPrimitives];
-	ZeroMemory(pIndices, sizeof(FACEINDICES16) * m_iNumPrimitives);
+	_ushort*		pIndices = new _ushort[m_iNumPrimitives];
+	ZeroMemory(pIndices, sizeof(_ushort) * m_iNumPrimitives);
+	/*FACEINDICES16*		pIndices = new FACEINDICES16[m_iNumPrimitives];
+	ZeroMemory(pIndices, sizeof(FACEINDICES16) * m_iNumPrimitives);*/
 
 	ZeroMemory(&m_SubResourceData, sizeof(D3D11_SUBRESOURCE_DATA));
 	m_SubResourceData.pSysMem = pIndices;

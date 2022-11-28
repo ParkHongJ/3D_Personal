@@ -1,5 +1,5 @@
 #include "..\Public\VIBuffer_Point_Instance.h"
-
+#include <time.h>
 CVIBuffer_Point_Instance::CVIBuffer_Point_Instance(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CVIBuffer(pDevice, pContext)
 {
@@ -11,8 +11,11 @@ CVIBuffer_Point_Instance::CVIBuffer_Point_Instance(const CVIBuffer_Point_Instanc
 	, m_iNumInstance(rhs.m_iNumInstance)
 	, m_iInstanceStride(rhs.m_iInstanceStride)
 	, m_pInstanceSpeeds(rhs.m_pInstanceSpeeds)
+	, m_vDirection(rhs.m_vDirection)
+	, m_fJumpTime(rhs.m_fJumpTime)
 {
 	Safe_AddRef(m_pVBInstance);
+	srand(_uint(time(NULL)));
 }
 
 HRESULT CVIBuffer_Point_Instance::Initialize_Prototype(_uint iNumInstance)
@@ -112,7 +115,10 @@ HRESULT CVIBuffer_Point_Instance::Initialize_Prototype(_uint iNumInstance)
 
 #pragma endregion
 
-
+	m_vDirection.reserve(m_iNumInstance);
+	m_fJumpTime.reserve(m_iNumInstance);
+	m_fJumpTime.assign(m_iNumInstance, 0.f);
+	ResetParticle(0);
 	return S_OK;
 }
 
@@ -130,12 +136,90 @@ void CVIBuffer_Point_Instance::Update(_float fTimeDelta)
 
 	for (_uint i = 0; i < m_iNumInstance; ++i)
 	{
-		((VTXINSTANCE*)MappedSubResource.pData)[i].vPosition.y += m_pInstanceSpeeds[i] * fTimeDelta;
-		if (3.0f <= ((VTXINSTANCE*)MappedSubResource.pData)[i].vPosition.y)
-			((VTXINSTANCE*)MappedSubResource.pData)[i].vPosition.y = 0.f;
+		//_float height = (m_fJumpTime * m_fJumpTime * (-m_fGravity) * 0.5f) + (m_fJumpTime * m_fJumpPower);
+
+		//_fvector vPos = m_pTransformCom->Get_State(CTransform::STATE_POSITION);
+
+		//m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(XMVectorGetX(vPos), m_fPosY + height, XMVectorGetZ(vPos), 1.f));
+		////점프시간을 증가시킨다.
+		//m_fJumpTime += fTimeDelta;
+
+		////처음의 높이 보다 더 내려 갔을때 => 점프전 상태로 복귀한다.
+		//if (height < m_pNavigationCom->GetHeight(m_pTransformCom->Get_State(CTransform::STATE_POSITION)))
+		//{
+		//	m_bJumping = false;
+		//	m_fJumpTime = 0.0f;
+		//	m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSet(XMVectorGetX(vPos), m_fPosY, XMVectorGetZ(vPos), 1.f));
+
+		//	m_pModelCom->Change_Animation(JumpCloth_Land, 0.05f, false);
+		//	m_eCurrentAnimState = JumpCloth_Land;
+		//}
+		/*((VTXINSTANCE*)MappedSubResource.pData)[i].vPosition.y += m_pInstanceSpeeds[i] * fTimeDelta;*/
+		((VTXINSTANCE*)MappedSubResource.pData)[i].vPosition.x += m_vDirection[i].x * fTimeDelta * m_fSpeed;
+		((VTXINSTANCE*)MappedSubResource.pData)[i].vPosition.y += m_vDirection[i].y * fTimeDelta * m_fSpeed;
+		((VTXINSTANCE*)MappedSubResource.pData)[i].vPosition.z += m_vDirection[i].z * fTimeDelta * m_fSpeed;
+
+		_float height = (m_fJumpTime[i] * m_fJumpTime[i] * (-9.8f) * 0.5f) + (m_fJumpTime[i] * 1.3f);
+		m_fJumpTime[i] += fTimeDelta;
+		((VTXINSTANCE*)MappedSubResource.pData)[i].vPosition.y += height;
+
+		if (5.f <= XMVectorGetX(XMVector4Length(XMLoadFloat4(& ((VTXINSTANCE*)MappedSubResource.pData)[i].vPosition))))
+		{
+			((VTXINSTANCE*)MappedSubResource.pData)[i].vPosition = _float4(0.f, 0.f, 0.f, 1.f);
+			m_fJumpTime[i] = 0.0f;
+		}
+		//if (3.0f <= ((VTXINSTANCE*)MappedSubResource.pData)[i].vPosition.y)
+		//{
+		//	/*((VTXINSTANCE*)MappedSubResource.pData)[i].vPosition.y = (((_float)rand() - (_float)rand()) / RAND_MAX) * m_fParticleDeviationY;
+		//	
+		//	((VTXINSTANCE*)MappedSubResource.pData)[i].vPosition.x = (((_float)rand() - (_float)rand()) / RAND_MAX) * m_fParticleDeviationX;
+		//	((VTXINSTANCE*)MappedSubResource.pData)[i].vPosition.z = (((_float)rand() - (_float)rand()) / RAND_MAX) * m_fParticleDeviationZ;
+		//	*/
+		//	
+		//	((VTXINSTANCE*)MappedSubResource.pData)[i].vPosition.x += m_vDirection.x * fTimeDelta * m_fSpeed;
+		//	((VTXINSTANCE*)MappedSubResource.pData)[i].vPosition.y += m_vDirection.y * fTimeDelta * m_fSpeed;
+		//	((VTXINSTANCE*)MappedSubResource.pData)[i].vPosition.z += m_vDirection.z * fTimeDelta * m_fSpeed;
+
+		//}
 	}
 
 	m_pContext->Unmap(m_pVBInstance, 0);
+}
+
+_float CVIBuffer_Point_Instance::GetRandomFloat(_float fLowBound, _float fHighBound)
+{
+	//https://slidesplayer.org/slide/15076755/
+	//잘못된 입력
+	if (fLowBound >= fHighBound)
+		return fLowBound;
+
+	//0,1범위의 임의의 float을 얻음
+	_float f = (rand() % 10000) * 0.0001f;
+
+	return (f * (fHighBound - fLowBound)) + fLowBound;
+}
+
+void CVIBuffer_Point_Instance::GetRandomVector(_float3 * vOut, _float3 * vMin, _float3 * vMax)
+{
+	vOut->x = GetRandomFloat(vMin->x, vMax->x);
+	vOut->y = GetRandomFloat(vMin->y, vMax->y);
+	vOut->z = GetRandomFloat(vMin->z, vMax->z);
+}
+
+void CVIBuffer_Point_Instance::ResetParticle(_uint iIndex)
+{
+	_float3 vMin = _float3(-1.0f, -1.0f, -1.0f);
+	_float3 vMax = _float3(1.0f, 1.0f, 1.0f);
+
+	for (_uint i = 0; i < m_iNumInstance; i++)
+	{
+		_float3 vRandomDir;
+		GetRandomVector(&vRandomDir, &vMin, &vMax);
+
+		XMStoreFloat3(&vRandomDir, XMVector3Normalize(XMLoadFloat3(&vRandomDir)));
+
+		m_vDirection.push_back(vRandomDir);
+	}
 }
 
 HRESULT CVIBuffer_Point_Instance::Render()
@@ -200,7 +284,8 @@ void CVIBuffer_Point_Instance::Free()
 	__super::Free();
 
 	if (false == m_isCloned)
+	{
 		Safe_Delete_Array(m_pInstanceSpeeds);
-
+	}
 	Safe_Release(m_pVBInstance);
 }

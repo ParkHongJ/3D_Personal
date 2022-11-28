@@ -102,6 +102,16 @@ _bool CPlayer::Tick(_float fTimeDelta)
 	ImGui::End();
 	m_pRendererCom->SetParameters(fMiddleGrey, fWhite, fBloomThreshHold, fBloomScale);
 	m_pRendererCom->SetParameters(iSampRadius, fRadius, true);
+	CGameInstance* pGameInstance2 = GET_INSTANCE(CGameInstance);
+	if (pGameInstance2->Key_Down(DIK_F1))
+	{
+		m_pRendererCom->SetPostProcessing(false);
+	}
+	if (pGameInstance2->Key_Down(DIK_F2))
+	{
+		m_pRendererCom->SetPostProcessing(true);
+	}
+	RELEASE_INSTANCE(CGameInstance);
 #endif // _DEBUG
 
 

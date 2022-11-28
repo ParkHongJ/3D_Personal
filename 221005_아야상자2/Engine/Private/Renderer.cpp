@@ -89,7 +89,7 @@ HRESULT CRenderer::Initialize_Prototype()
 		return E_FAIL;
 
 	/* For.MRT_Test */
-	if (FAILED(m_pTarget_Manager->Add_MRT(TEXT("MRT_Test"), TEXT("Target_Test"))))
+	if (FAILED(m_pTarget_Manager->Add_MRT(TEXT("MRT_Deferred"), TEXT("Target_Test"))))
 		return E_FAIL;
 #ifdef _DEBUG
 
@@ -159,8 +159,11 @@ HRESULT CRenderer::Draw()
 	if (FAILED(Render_Effect()))
 		return E_FAIL;
 
-	if (FAILED(Render_PostProcessing()))
-		return E_FAIL;
+	if (m_bEnable)
+	{
+		if (FAILED(Render_PostProcessing()))
+			return E_FAIL;
+	}
 
 	if (FAILED(Render_NonLight()))
 		return E_FAIL;

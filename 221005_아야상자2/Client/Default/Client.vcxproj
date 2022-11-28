@@ -195,6 +195,7 @@
     <ClInclude Include="..\public\Mantari.h" />
     <ClInclude Include="..\public\MantariWeapon.h" />
     <ClInclude Include="..\Public\Monster.h" />
+    <ClInclude Include="..\public\Particle_Mesh.h" />
     <ClInclude Include="..\public\Particle_Point.h" />
     <ClInclude Include="..\Public\Particle_Rect.h" />
     <ClInclude Include="..\Public\Player.h" />
@@ -252,6 +253,7 @@
     <ClCompile Include="..\private\Mantari.cpp" />
     <ClCompile Include="..\private\MantariWeapon.cpp" />
     <ClCompile Include="..\Private\Monster.cpp" />
+    <ClCompile Include="..\private\Particle_Mesh.cpp" />
     <ClCompile Include="..\private\Particle_Point.cpp" />
     <ClCompile Include="..\Private\Particle_Rect.cpp" />
     <ClCompile Include="..\Private\Player.cpp" />

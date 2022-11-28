@@ -5,7 +5,7 @@
 #include "Sword.h"
 #include "YantariWeapon.h"
 #include "GameMgr.h"
-
+#include "Effect.h"
 CYantari::CYantari(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
 {
@@ -185,9 +185,18 @@ void CYantari::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
 				m_iPass = 2;
 				CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 
-				_float3 vPos;
-			 	XMStoreFloat3(&vPos, m_pTransformCom->Get_State(CTransform::STATE_POSITION));
+				_float4 vPos;
+			 	XMStoreFloat4(&vPos, m_pTransformCom->Get_State(CTransform::STATE_POSITION));
 				vPos.y += 1.f;
+
+				CEffect::EFFECT_DESC EffectDesc;
+				
+				
+				EffectDesc.vPosition = vPos;
+				EffectDesc.vScale = _float4(5.f, 5.f, 5.f, 0.f);
+				EffectDesc.eSign = CEffect::DistortionType::SPREAD;
+				EffectDesc.ePass = CEffect::EffectPass::DISTORTION;
+				pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Effect", LEVEL_GAMEPLAY, L"Effect", &EffectDesc/*&m_pTransformCom->Get_State(CTransform::STATE_POSITION)*/);
 
 				pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Effect", LEVEL_YANTARI, L"Effect", &vPos);
 				RELEASE_INSTANCE(CGameInstance);

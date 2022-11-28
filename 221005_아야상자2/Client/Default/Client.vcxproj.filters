@@ -151,6 +151,9 @@
     <Filter Include="02.GameObjects\Effects\Particle">
       <UniqueIdentifier>{1818306d-4d67-4625-a9e9-f881ae74df42}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\Effects\Particle\Particle_Mesh">
+      <UniqueIdentifier>{29897ff6-ee08-4a1a-a6d4-6c02b970e800}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -327,6 +330,9 @@
     <ClInclude Include="..\public\Particle_Point.h">
       <Filter>02.GameObjects\Effects\Particle</Filter>
     </ClInclude>
+    <ClInclude Include="..\public\Particle_Mesh.h">
+      <Filter>02.GameObjects\Effects\Particle\Particle_Mesh</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp">
@@ -490,6 +496,9 @@
     </ClCompile>
     <ClCompile Include="..\private\Particle_Point.cpp">
       <Filter>02.GameObjects\Effects\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\Particle_Mesh.cpp">
+      <Filter>02.GameObjects\Effects\Particle\Particle_Mesh</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

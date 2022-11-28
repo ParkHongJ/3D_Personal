@@ -109,12 +109,13 @@ namespace Engine
 		static const unsigned int iNumElements = 6;
 		static const D3D11_INPUT_ELEMENT_DESC Elements[iNumElements];
 	}VTXPOINTINSTANCE_DECLARATION;
-
+	
 	typedef struct ENGINE_DLL tagVertexModelInstance_Declaration
 	{
 		static const unsigned int iNumElements = 8;
 		static const D3D11_INPUT_ELEMENT_DESC Elements[iNumElements];
 	}VTXMODELINSTANCE_DECLARATION;
+
 	/* 인스턴싱으로 그려지는 각각의 인스턴스 각각의
 	로컬영역에서의 상태를 표현하기위한 행렬정보를 포함한다. */
 	typedef struct tagVertexInstance

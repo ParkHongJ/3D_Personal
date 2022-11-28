@@ -54,18 +54,29 @@ _bool CEffect::Tick(_float fTimeDelta)
 	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 
 	_float4 vCamPos = pGameInstance->Get_CamPosition();
-
-
-	m_pTransformCom->LookAt(XMVectorSetW(XMLoadFloat4(&vCamPos), 1.f));
-	//m_pTransformCom->LookDir(XMLoadFloat4(&vCamPos) - XMLoadFloat3(&vPos));
-	RELEASE_INSTANCE(CGameInstance);
-
-	if (m_fTime >= 0.5f)
+	if (m_tEffectDesc.ePass == CEffect::IMPACT)
 	{
-		m_fTime = 0.0f;
-		return true;
+		m_iCurrentTex += /*(_float)m_iNumTex * */fTimeDelta * 70.f;
+		if (m_iCurrentTex >= m_iNumTex)
+		{
+			m_iCurrentTex = 0.0f;
+
+			RELEASE_INSTANCE(CGameInstance);
+			return true;
+		}
 	}
-	//m_pTransformCom->Turn(XMVectorSet(0.f, 1.f, 0.f, 0.f), fTimeDelta);
+	else
+	{
+		m_fTime += fTimeDelta;
+		if (m_fTime >= 0.5f)
+		{
+			m_fTime = 0.0f;
+			RELEASE_INSTANCE(CGameInstance);
+			return true;
+		}
+	}
+	RELEASE_INSTANCE(CGameInstance);
+	m_pTransformCom->LookAt(XMVectorSetW(XMLoadFloat4(&vCamPos), 1.f));
 	return false;
 }
 
@@ -86,15 +97,22 @@ HRESULT CEffect::Render()
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_ProjMatrix", &pGameInstance->Get_TransformFloat4x4_TP(CPipeLine::D3DTS_PROJ), sizeof(_float4x4))))
 		return E_FAIL;
-	//if (FAILED(m_pShaderCom->Set_RawValue("g_vCamPosition", &pGameInstance->Get_CamPosition(), sizeof(_float4))))
-	//	return E_FAIL;
-
-	if (FAILED(m_pShaderCom->Set_ShaderResourceView("g_DiffuseTexture", pGameInstance->Get_SRV(L"Target_Original"))))
-		return E_FAIL;
-	
+	/*if (FAILED(m_pShaderCom->Set_RawValue("g_vCamPosition", &pGameInstance->Get_CamPosition(), sizeof(_float4))))
+		return E_FAIL;*/
+		
+	if (m_tEffectDesc.ePass == IMPACT)
+	{
+		if (FAILED(m_pTextureCom->Set_SRV(m_pShaderCom, "g_DiffuseTexture", (_uint)m_iCurrentTex)))
+			return E_FAIL;
+	}
+	else
+	{
+		if (FAILED(m_pShaderCom->Set_ShaderResourceView("g_DiffuseTexture", pGameInstance->Get_SRV(L"Target_Original"))))
+			return E_FAIL;
+	}
 	RELEASE_INSTANCE(CGameInstance);
 
-	if (FAILED(m_pShaderCom->Begin(3)))
+	if (FAILED(m_pShaderCom->Begin(m_tEffectDesc.ePass)))
 		return E_FAIL;
 
 	if (FAILED(m_pVIBufferCom->Render()))
@@ -125,6 +143,8 @@ HRESULT CEffect::Ready_Components()
 	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_VIBuffer_Rect"), TEXT("Com_VIBuffer"), (CComponent**)&m_pVIBufferCom)))
 		return E_FAIL;
 
+	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Texture_Hit"), TEXT("Com_Texture"), (CComponent**)&m_pTextureCom)))
+		return E_FAIL;
 	return S_OK;
 }
 
@@ -158,6 +178,7 @@ void CEffect::Free()
 {
 	__super::Free();
 	
+	Safe_Release(m_pTextureCom);
 	Safe_Release(m_pShaderCom);
 	Safe_Release(m_pVIBufferCom);
 	Safe_Release(m_pRendererCom);

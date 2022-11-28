@@ -18,6 +18,10 @@ public:
 public:
 	void Update(_float fTimeDelta);
 
+	_float GetRandomFloat(_float fLowBound, _float fHighBound);
+	void GetRandomVector(_float3* vOut, _float3* vMin, _float3* vMax);
+
+	void ResetParticle(_uint iIndex);
 public:
 	virtual HRESULT Render();
 
@@ -27,7 +31,14 @@ private:
 	ID3D11Buffer*			m_pVBInstance = nullptr;
 
 	_float*					m_pInstanceSpeeds = nullptr;
+	
+	_float					m_fParticleDeviationX = 0.5f;
+	_float					m_fParticleDeviationY = 0.1f;
+	_float					m_fParticleDeviationZ = 2.0f;
 
+	_float					m_fSpeed = 10.0f;
+	vector<_float3>			m_vDirection;
+	vector<_float>			m_fJumpTime;
 public:
 	static CVIBuffer_Point_Instance* Create(ID3D11Device* pDevice, ID3D11DeviceContext* pContext, _uint iNumInstance);
 	virtual CComponent* Clone(void* pArg);

@@ -9,6 +9,7 @@ class CRenderer;
 class CTransform;
 class CVIBuffer_Point;
 class CVIBuffer_Rect;
+class CTexture;
 END
 
 BEGIN(Client)
@@ -20,10 +21,15 @@ public:
 		DEFAULT = -1,
 		SPREAD = 1
 	};
+	enum EffectPass {
+		IMPACT = 4,
+		DISTORTION = 3
+	};
 	typedef struct Effect_Desc {
-		_float4 vPosition;
-		_float4 vScale;
+		_float4			vPosition;
+		_float4			vScale;
 		DistortionType	eSign; //모일건지 퍼질건지
+		EffectPass		ePass;
 	}EFFECT_DESC;
 private:
 	CEffect(ID3D11Device* pDevice, ID3D11DeviceContext* pContext);
@@ -42,12 +48,12 @@ private:
 	CRenderer*				m_pRendererCom = nullptr;
 	CTransform*				m_pTransformCom = nullptr;
 	//CVIBuffer_Point*		m_pVIBufferCom = nullptr;
-
+	CTexture*				m_pTextureCom = nullptr;
 	CVIBuffer_Rect*			m_pVIBufferCom = nullptr;
 
 private:
 	_float					m_fSpeed = 2.f;
-	_uint					m_iNumTex = 15;
+	_uint					m_iNumTex = 8;
 	_float					m_iCurrentTex = 0.f;
 	_uint					m_iPass = 0;
 	_float					m_fTime = 0.0f;

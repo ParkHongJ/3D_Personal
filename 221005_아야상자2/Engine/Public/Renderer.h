@@ -37,6 +37,9 @@ public:
 	void GetParameters(_uint &iSampRadius, _float &fRadius, _bool bSSao);
 
 	HRESULT Add_DebugGroup(class CComponent* pDebugCom);
+	void SetPostProcessing(_bool bEnable) {
+		m_bEnable = bEnable;
+	};
 #endif // _DEBUG
 private:
 	list<class CGameObject*>				m_RenderObjects[RENDER_END];
@@ -50,7 +53,7 @@ private:
 	class CTarget_Manager*					m_pTarget_Manager = nullptr;
 	class CLight_Manager*					m_pLight_Manager = nullptr;
 	
-
+	_bool									m_bEnable = true;
 private:
 	class CShader*							m_pShader[SHADER_END] = { nullptr };
 	_float4x4								m_ViewMatrix, m_ProjMatrix;

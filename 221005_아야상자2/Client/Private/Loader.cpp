@@ -30,6 +30,8 @@
 #include "ProgressBar.h"
 #include "Explosion.h"
 #include "Effect.h"
+#include "Particle_Point.h"
+#include "Particle_Mesh.h"
 //#include "UI.h"
 
 
@@ -126,6 +128,26 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 	/* For.Prototype_GameObject_Terrain*/
 	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Terrain"), 
 		CTerrain::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For.Prototype_GameObject_Particle_Mesh*/
+	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Mesh"),
+		CParticle_Mesh::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For.Prototype_GameObject_Particle_Point*/
+	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Particle_Point"),
+		CParticle_Point::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
+	/* For.Prototype_Component_VIBuffer_Point_Instance */
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_STATIC, TEXT("Prototype_Component_VIBuffer_Point_Instance"),
+		CVIBuffer_Point_Instance::Create(m_pDevice, m_pContext, 1000))))
+		return E_FAIL;
+
+	/* For.Prototype_Component_Shader_PointInstance*/
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_STATIC, TEXT("Prototype_Component_Shader_PointInstance"),
+		CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_VtxPointInstance.hlsl"), VTXPOINTINSTANCE_DECLARATION::Elements, VTXPOINTINSTANCE_DECLARATION::iNumElements))))
 		return E_FAIL;
 
 	/* For.Prototype_GameObject_ForkLift */
@@ -270,6 +292,11 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 	lstrcpy(m_szLoadingText, TEXT("텍스쳐를 로딩중입니다. "));
 	/* 텍스쳐를 로드한다. */
 
+	/* For.Prototype_Component_Texture_Hit */
+	if (FAILED(pGameInstance->Add_Prototype(LEVEL_STATIC, TEXT("Prototype_Component_Texture_Hit"),
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/FX/Hit/Frame%d.png"), 8))))
+		return E_FAIL;
+
 	/* For.Prototype_Component_Texture_BlueFire */
 	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_BlueFire"),
 		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/FX/T_BlueFire.png"), 1))))
@@ -370,6 +397,72 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 		CVIBuffer_Point::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 	_matrix		PivotMatrix = XMMatrixIdentity();
+
+#pragma region Rock1~7
+	//Rock01
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (!pGameInstance->IsOverlapComponent(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Rock01")))
+	{
+		if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Rock01"),
+			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Effect/Particle/Rock01.dat", PivotMatrix, true))))
+			return E_FAIL;
+	}
+	
+	//Rock02
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (!pGameInstance->IsOverlapComponent(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Rock02")))
+	{
+		if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Rock02"),
+			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Effect/Particle/Rock02.dat", PivotMatrix, true))))
+			return E_FAIL;
+	}
+
+	//Rock03
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (!pGameInstance->IsOverlapComponent(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Rock03")))
+	{
+		if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Rock03"),
+			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Effect/Particle/Rock03.dat", PivotMatrix, true))))
+			return E_FAIL;
+	}
+
+	//Rock04
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (!pGameInstance->IsOverlapComponent(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Rock04")))
+	{
+		if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Rock04"),
+			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Effect/Particle/Rock04.dat", PivotMatrix, true))))
+			return E_FAIL;
+	}
+
+	//Rock05
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (!pGameInstance->IsOverlapComponent(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Rock05")))
+	{
+		if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Rock05"),
+			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Effect/Particle/Rock05.dat", PivotMatrix, true))))
+			return E_FAIL;
+	}
+
+	//Rock06
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (!pGameInstance->IsOverlapComponent(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Rock06")))
+	{
+		if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Rock06"),
+			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Effect/Particle/Rock06.dat", PivotMatrix, true))))
+			return E_FAIL;
+	}
+	
+	//Rock07
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (!pGameInstance->IsOverlapComponent(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Rock07")))
+	{
+		if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Rock07"),
+			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Effect/Particle/Rock07.dat", PivotMatrix, true))))
+			return E_FAIL;
+	}
+#pragma endregion Rock1~7
+	
 
 	/* For.Prototype_Component_Model_Homunculus */
 	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));

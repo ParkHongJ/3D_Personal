@@ -80,10 +80,11 @@ private:
 	CModel*					m_pModelCom = nullptr;
 	CNavigation*			m_pNavigationCom = nullptr;
 	CTexture*				m_pTextureCom = nullptr;
+
 private:
 	CGameObject*						m_Parts = nullptr;
 	vector<class CHierarchyNode*>		m_Sockets;
-	const _float						m_fMaxHP = 150.f;
+	const _float						m_fMaxHP = 300.f;
 	_float								m_fHp = m_fMaxHP;
 
 	STATE_ANIM							m_eCurrentAnimState = ANIM_END;

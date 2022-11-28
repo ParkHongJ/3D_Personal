@@ -42,6 +42,9 @@ HRESULT CLevel_GamePlay::Initialize()
 	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Ras_Hands3", L"Layer_RasHands")))
 		return E_FAIL;
 
+	if (FAILED(Ready_Layer_GameObject(L"Prototype_GameObject_Particle_Point", L"Layer_Point")))
+		return E_FAIL;
+
 	//Rassamrah
 	if (FAILED(Ready_Layer_Monster(TEXT("Layer_Monster"))))
 		return E_FAIL;

@@ -198,8 +198,19 @@ void CRas_Hands::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
 				EffectDesc.vPosition = vTemp;
 				EffectDesc.vScale = _float4(10.f, 10.f, 10.f, 0.f);
 				EffectDesc.eSign = CEffect::DistortionType::SPREAD;
-
+				EffectDesc.ePass = CEffect::EffectPass::DISTORTION;
 				pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Effect", LEVEL_GAMEPLAY, L"Effect", &EffectDesc/*&m_pTransformCom->Get_State(CTransform::STATE_POSITION)*/);
+				
+				vTemp = _float4(0.f, -10.f, 26.f, 1.f);
+				XMStoreFloat4(&vTemp, XMVectorSetW(XMVector3TransformCoord(XMLoadFloat4(&vTemp), m_pTransformCom->Get_WorldMatrix()), 1.f));
+
+				EffectDesc.vPosition = vTemp;
+				EffectDesc.vScale = _float4(100.f, 100.f, 100.f, 0.f);
+				EffectDesc.eSign = CEffect::DistortionType::SPREAD;
+				EffectDesc.ePass = CEffect::EffectPass::IMPACT;
+				pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Effect", LEVEL_GAMEPLAY, L"Effect", &EffectDesc/*&m_pTransformCom->Get_State(CTransform::STATE_POSITION)*/);
+
+
 				RELEASE_INSTANCE(CGameInstance);
 			}
 		}
@@ -243,6 +254,16 @@ void CRas_Hands::Set_State(STATE_ANIM eState, _float fTimeDelta)
 			{
 				m_bAttackEnabled = true;
 				CGameMgr::Get_Instance()->Shake(0.4f, 0.55f);
+				
+				_float4 vTemp = _float4(0.f, -10.f, 25.f, 1.f);
+				XMStoreFloat4(&vTemp, XMVectorSetW(XMVector3TransformCoord(XMLoadFloat4(&vTemp), m_pTransformCom->Get_WorldMatrix()), 1.f));
+
+				CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+				for (_uint i = 0; i < 30; ++i)
+				{
+					pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Particle_Mesh", LEVEL_GAMEPLAY, L"Effect", &vTemp);
+				}
+				RELEASE_INSTANCE(CGameInstance);
 			}
 			m_fAttackTime += fTimeDelta;
 
