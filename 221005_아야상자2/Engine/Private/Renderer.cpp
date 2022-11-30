@@ -146,14 +146,14 @@ HRESULT CRenderer::Add_RenderGroup(RENDERGROUP eRenderGroup, CGameObject * pGame
 
 HRESULT CRenderer::Draw()
 {
-	if (FAILED(Render_Priority()))
-		return E_FAIL;
+	//if (FAILED(Render_Priority()))
+	//	return E_FAIL;
 
 	if (FAILED(Render_NonAlphaBlend()))
 		return E_FAIL;
 
-	if (FAILED(Compute_SSAO()))
-		return E_FAIL;
+	/*if (FAILED(Compute_SSAO()))
+		return E_FAIL;*/
 
 	if (FAILED(Render_Lights()))
 		return E_FAIL;

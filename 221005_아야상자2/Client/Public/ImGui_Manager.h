@@ -9,6 +9,7 @@ class CComponent;
 class CModel;
 class CAnimation;
 class CCell;
+class CRenderer;
 END
 BEGIN(Client)
 
@@ -123,6 +124,8 @@ public:
 private:
 	ID3D11Device* m_pDevice;
 	ID3D11DeviceContext* m_pContext;
+
+	CRenderer*			m_pRendererCom;
 
 	list<CREATE_INFO> m_CreateObj;
 	list<CREATE_UI_INFO> m_CreateUIObj;

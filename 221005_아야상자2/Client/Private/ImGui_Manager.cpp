@@ -1052,11 +1052,11 @@ HRESULT CImGui_Manager::LoadObject()
 		if (0 == dwByte)
 			break;
 
-		CCell*			pCell = CCell::Create(m_pDevice, m_pContext, vPoints, (_int)m_Cells.size());
-		if (nullptr == pCell)
-			return E_FAIL;
+		//CCell*			pCell = CCell::Create(m_pDevice, m_pContext, vPoints, (_int)m_Cells.size());
+		//if (nullptr == pCell)
+		//	return E_FAIL;
 
-		m_Cells.push_back(pCell);
+		//m_Cells.push_back(pCell);
 	}
 	CloseHandle(hFile);
 	return S_OK;
