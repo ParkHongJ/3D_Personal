@@ -13,7 +13,7 @@ private:
 
 public:
 	// Entry point for post processing
-	void PostProcessing(ID3D11ShaderResourceView* pHDRSRV);
+	void PostProcessing(ID3D11ShaderResourceView* pHDRSRV, ID3D11RenderTargetView* pOutRTV);
 	//m_fBloomThreshold(1.1f), m_fBloomScale(0.74f),
 	void SetParameters(_float fMiddleGrey, _float fWhite, _float fBloomThreshold, _float fBloomScale)
 	{ 

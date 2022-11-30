@@ -1120,7 +1120,7 @@ void CImGui_Manager::RenderGizmo()
 	if (!m_bRenderCell)
 		return;
 
-for (auto& pCell : m_Cells)
+	for (auto& pCell : m_Cells)
 	{
 		if (nullptr != pCell)
 			pCell->Render_Cell();

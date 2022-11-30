@@ -13,9 +13,6 @@
     <ClCompile Include="..\Private\GameObject.cpp">
       <Filter>02.GameObjects</Filter>
     </ClCompile>
-    <ClCompile Include="..\Private\Level.cpp">
-      <Filter>01.Levels</Filter>
-    </ClCompile>
     <ClCompile Include="..\Private\Input_Device.cpp">
       <Filter>05.System\01.Input</Filter>
     </ClCompile>
@@ -36,9 +33,6 @@
     </ClCompile>
     <ClCompile Include="..\Private\Layer.cpp">
       <Filter>02.GameObjects\00.Manager\Layer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Private\Level_Manager.cpp">
-      <Filter>01.Levels\00.Manager</Filter>
     </ClCompile>
     <ClCompile Include="..\Private\Graphic_Device.cpp">
       <Filter>05.System\00.Graphic</Filter>
@@ -160,6 +154,12 @@
     <ClCompile Include="..\private\VIBuffer_Point_Instance.cpp">
       <Filter>03.Components\02.VIBuffer\Instancing\Point</Filter>
     </ClCompile>
+    <ClCompile Include="..\Private\Level_Manager.cpp">
+      <Filter>01.Levels\00.Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Private\Level.cpp">
+      <Filter>01.Levels</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Public\Engine_Defines.h">
@@ -192,9 +192,6 @@
     <ClInclude Include="..\Public\GameObject.h">
       <Filter>02.GameObjects</Filter>
     </ClInclude>
-    <ClInclude Include="..\Public\Level.h">
-      <Filter>01.Levels</Filter>
-    </ClInclude>
     <ClInclude Include="..\Public\Input_Device.h">
       <Filter>05.System\01.Input</Filter>
     </ClInclude>
@@ -215,9 +212,6 @@
     </ClInclude>
     <ClInclude Include="..\Public\Layer.h">
       <Filter>02.GameObjects\00.Manager\Layer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Public\Level_Manager.h">
-      <Filter>01.Levels\00.Manager</Filter>
     </ClInclude>
     <ClInclude Include="..\Public\Graphic_Device.h">
       <Filter>05.System\00.Graphic</Filter>
@@ -339,6 +333,12 @@
     <ClInclude Include="..\public\VIBuffer_Point_Instance.h">
       <Filter>03.Components\02.VIBuffer\Instancing\Point</Filter>
     </ClInclude>
+    <ClInclude Include="..\Public\Level.h">
+      <Filter>01.Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Public\Level_Manager.h">
+      <Filter>01.Levels\00.Manager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="99.Defines">
@@ -346,9 +346,6 @@
     </Filter>
     <Filter Include="00.GameInstance">
       <UniqueIdentifier>{d0010270-825c-4de9-84fa-fe82a559c1ab}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="01.Levels">
-      <UniqueIdentifier>{c3e76c45-763a-45b5-805e-3573a8ed71ea}</UniqueIdentifier>
     </Filter>
     <Filter Include="02.GameObjects">
       <UniqueIdentifier>{a7a62618-2403-49fa-b848-ec88c5bd7604}</UniqueIdentifier>
@@ -385,9 +382,6 @@
     </Filter>
     <Filter Include="02.GameObjects\00.Manager\Layer">
       <UniqueIdentifier>{9cf1daff-c2fd-4f95-9184-816284805fb8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="01.Levels\00.Manager">
-      <UniqueIdentifier>{806d3ec3-9c07-47f2-86d7-e1a85acffdb3}</UniqueIdentifier>
     </Filter>
     <Filter Include="03.Components\02.VIBuffer">
       <UniqueIdentifier>{374bd992-290a-4f6c-acdd-2010061da930}</UniqueIdentifier>
@@ -511,6 +505,12 @@
     </Filter>
     <Filter Include="03.Components\02.VIBuffer\Instancing\Point">
       <UniqueIdentifier>{a4fc92b5-01e3-4c11-a251-9967d14eed74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Levels">
+      <UniqueIdentifier>{66effebe-2d1e-4dfc-b539-dfce3b66321c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="01.Levels\00.Manager">
+      <UniqueIdentifier>{618b8bf1-0f6f-4ff3-b216-2f153fb94936}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

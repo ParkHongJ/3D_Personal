@@ -17,7 +17,7 @@ HRESULT CVIBuffer_Point::Initialize_Prototype()
 #pragma region VERTEXBUFFER
 	m_iNumVertexBuffers = 1;
 	m_iNumVertices = 1;
-	m_iStride = sizeof(VTXPOINT);
+	m_iStride = sizeof(VTXPOINT2);
 
 	ZeroMemory(&m_BufferDesc, sizeof(D3D11_BUFFER_DESC));
 	m_BufferDesc.ByteWidth = m_iNumVertices * m_iStride;
@@ -42,7 +42,7 @@ HRESULT CVIBuffer_Point::Initialize_Prototype()
 	//pVertices[3].vPosition = _float3(-0.5f, -0.5f, 0.f);
 	//pVertices[3].vTexture = _float2(0.f, 1.f);
 
-	VTXPOINT*		pVertices = new VTXPOINT;
+	VTXPOINT2*		pVertices = new VTXPOINT2;
 
 	pVertices->vPosition = _float3(0.0f, 0.0f, 0.f);
 	pVertices->vSize = _float2(1.5f, 1.5f);
@@ -63,7 +63,7 @@ HRESULT CVIBuffer_Point::Initialize_Prototype()
 	m_iNumIndicesofPrimitive = 1;
 	m_eIndexFormat = DXGI_FORMAT_R16_UINT;
 	m_eTopology = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
-
+	
 	ZeroMemory(&m_BufferDesc, sizeof(D3D11_BUFFER_DESC));
 	m_BufferDesc.ByteWidth = m_iNumPrimitives * m_iIndexSizeofPrimitive;
 	m_BufferDesc.Usage = D3D11_USAGE_DEFAULT;

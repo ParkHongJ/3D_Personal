@@ -33,7 +33,6 @@ HRESULT CProjectile::Initialize(void * pArg)
 	{
 		XMStoreFloat3(&m_vDistance, XMLoadFloat3(&m_ProjInfo.vPos));
 	}
-
 	return S_OK;
 }
 
@@ -141,7 +140,7 @@ HRESULT CProjectile::Render()
 
 	if (FAILED(m_pTextureCom->Set_SRV(m_pShaderCom, "g_DiffuseTexture", (_uint)m_fFrame)))
 		return E_FAIL;
-	if (FAILED(m_pShaderCom->Begin(0)))
+	if (FAILED(m_pShaderCom->Begin(4)))
 		return E_FAIL;
 	if (FAILED(m_pVIBufferCom->Render()))
 		return E_FAIL;
@@ -213,6 +212,9 @@ HRESULT CProjectile::Ready_Components()
 	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Shader_VtxTex"), TEXT("Com_Shader"), (CComponent**)&m_pShaderCom)))
 		return E_FAIL;
 
+	/*if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Shader_VtxPoint"), TEXT("Com_Shader"), (CComponent**)&m_pShaderCom)))
+		return E_FAIL;*/
+
 	/* For.Com_Texture */
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Aura"), TEXT("Com_Texture"), (CComponent**)&m_pTextureCom)))
 		return E_FAIL;
@@ -228,9 +230,9 @@ HRESULT CProjectile::Ready_Components()
 	CCollider::COLLIDERDESC		ColliderDesc;
 	ZeroMemory(&ColliderDesc, sizeof(CCollider::COLLIDERDESC));
 
-	ColliderDesc.vSize = _float3(1.f, 1.f, 1.f);
+	ColliderDesc.vSize = _float3(0.2f, 0.2f, 0.2f);
 	ColliderDesc.vCenter = _float3(0.f, ColliderDesc.vSize.y * 0.5f, 0.f);
-	ColliderDesc.vRotation = _float3(0.f, XMConvertToRadians(45.f), 0.f);
+	ColliderDesc.vRotation = _float3(0.f, 0.f, 0.f);
 	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Collider_Sphere"), TEXT("Com_SPHERE"), (CComponent**)&m_pColliderCom, &ColliderDesc)))
 		return E_FAIL;
 

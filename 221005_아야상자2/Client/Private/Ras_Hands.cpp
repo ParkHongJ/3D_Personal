@@ -135,6 +135,9 @@ HRESULT CRas_Hands::Render()
 
 	if (FAILED(m_pShaderCom->Set_RawValue("g_Cut", &m_fCut, sizeof(_float))))
 		return E_FAIL;
+
+	if (FAILED(m_pTextureCom->Set_SRV(m_pShaderCom, "g_DissolveTexture")))
+		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_vCamPosition", &pGameInstance->Get_CamPosition(), sizeof(_float4))))
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_WorldMatrix", &m_pTransformCom->Get_WorldFloat4x4_TP(), sizeof(_float4x4))))
@@ -142,8 +145,6 @@ HRESULT CRas_Hands::Render()
 	if (FAILED(m_pShaderCom->Set_RawValue("g_ViewMatrix", &pGameInstance->Get_TransformFloat4x4_TP(CPipeLine::D3DTS_VIEW), sizeof(_float4x4))))
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_ProjMatrix", &pGameInstance->Get_TransformFloat4x4_TP(CPipeLine::D3DTS_PROJ), sizeof(_float4x4))))
-		return E_FAIL;
-	if (FAILED(m_pTextureCom->Set_SRV(m_pShaderCom, "g_DissolveTexture")))
 		return E_FAIL;
 	
 	RELEASE_INSTANCE(CGameInstance);
@@ -205,7 +206,7 @@ void CRas_Hands::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
 				XMStoreFloat4(&vTemp, XMVectorSetW(XMVector3TransformCoord(XMLoadFloat4(&vTemp), m_pTransformCom->Get_WorldMatrix()), 1.f));
 
 				EffectDesc.vPosition = vTemp;
-				EffectDesc.vScale = _float4(100.f, 100.f, 100.f, 0.f);
+				EffectDesc.vScale = _float4(50.f, 50.f, 50.f, 0.f);
 				EffectDesc.eSign = CEffect::DistortionType::SPREAD;
 				EffectDesc.ePass = CEffect::EffectPass::IMPACT;
 				pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Effect", LEVEL_GAMEPLAY, L"Effect", &EffectDesc/*&m_pTransformCom->Get_State(CTransform::STATE_POSITION)*/);

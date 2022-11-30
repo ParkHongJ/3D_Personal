@@ -154,6 +154,9 @@
     <Filter Include="02.GameObjects\Effects\Particle\Particle_Mesh">
       <UniqueIdentifier>{29897ff6-ee08-4a1a-a6d4-6c02b970e800}</UniqueIdentifier>
     </Filter>
+    <Filter Include="02.GameObjects\Boss\Yantari\YantariHead">
+      <UniqueIdentifier>{7bada0ab-5f27-42b6-8302-206ab5182e07}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -288,9 +291,6 @@
     <ClInclude Include="..\Public\Sky.h">
       <Filter>02.GameObjects\Sky</Filter>
     </ClInclude>
-    <ClInclude Include="..\public\Homonculus.h">
-      <Filter>02.GameObjects\Monster\Homonculus</Filter>
-    </ClInclude>
     <ClInclude Include="..\public\Totem.h">
       <Filter>02.GameObjects\Boss\Ras_Samrah\Totem</Filter>
     </ClInclude>
@@ -332,6 +332,12 @@
     </ClInclude>
     <ClInclude Include="..\public\Particle_Mesh.h">
       <Filter>02.GameObjects\Effects\Particle\Particle_Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\Homonculus.h">
+      <Filter>02.GameObjects\Monster\Homonculus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\public\YantariHead.h">
+      <Filter>02.GameObjects\Boss\Yantari\YantariHead</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -499,6 +505,9 @@
     </ClCompile>
     <ClCompile Include="..\private\Particle_Mesh.cpp">
       <Filter>02.GameObjects\Effects\Particle\Particle_Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="..\private\YantariHead.cpp">
+      <Filter>02.GameObjects\Boss\Yantari\YantariHead</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

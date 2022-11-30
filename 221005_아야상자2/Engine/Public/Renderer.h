@@ -73,6 +73,7 @@ private:
 	HRESULT Render_NonAlphaBlend();
 	HRESULT Render_Lights();
 	HRESULT Render_Blend();
+	HRESULT Render_EffectBlend();
 	HRESULT Render_NonLight();
 	HRESULT Render_AlphaBlend();
 	HRESULT Render_Effect();

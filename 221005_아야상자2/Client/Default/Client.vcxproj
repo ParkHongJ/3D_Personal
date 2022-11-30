@@ -214,6 +214,7 @@
     <ClInclude Include="..\public\Totem.h" />
     <ClInclude Include="..\public\UI_Manager.h" />
     <ClInclude Include="..\public\Yantari.h" />
+    <ClInclude Include="..\public\YantariHead.h" />
     <ClInclude Include="..\public\YantariWeapon.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="Imgui\imconfig.h" />
@@ -294,6 +295,7 @@
     <ClCompile Include="..\private\Totem.cpp" />
     <ClCompile Include="..\private\UI_Manager.cpp" />
     <ClCompile Include="..\private\Yantari.cpp" />
+    <ClCompile Include="..\private\YantariHead.cpp" />
     <ClCompile Include="..\private\YantariWeapon.cpp" />
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="Imgui\imgui.cpp">

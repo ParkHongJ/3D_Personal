@@ -44,6 +44,17 @@ _bool CHomonculus::Tick(_float fTimeDelta)
 	if (!m_bActive)
 		return false;
 
+	if (m_bDissolve)
+	{
+		m_fCut += fTimeDelta* m_fDissolveSpeed;
+		m_iPass = 1;
+		if (m_fCut >= 1.f)
+		{
+			m_bActive = false;
+			return true;
+		}
+	}
+
 	Set_State(m_eState, fTimeDelta);
 
 	m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix());
@@ -77,6 +88,8 @@ HRESULT CHomonculus::Render()
 
 	CGameInstance*		pGameInstance = GET_INSTANCE(CGameInstance);
 
+	if (FAILED(m_pShaderCom->Set_RawValue("g_Cut", &m_fCut, sizeof(_float))))
+		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_WorldMatrix", &m_pTransformCom->Get_WorldFloat4x4_TP(), sizeof(_float4x4))))
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_ViewMatrix", &pGameInstance->Get_TransformFloat4x4_TP(CPipeLine::D3DTS_VIEW), sizeof(_float4x4))))
@@ -84,6 +97,8 @@ HRESULT CHomonculus::Render()
 	if (FAILED(m_pShaderCom->Set_RawValue("g_ProjMatrix", &pGameInstance->Get_TransformFloat4x4_TP(CPipeLine::D3DTS_PROJ), sizeof(_float4x4))))
 		return E_FAIL;
 
+	if (FAILED(m_pTextureCom->Set_SRV(m_pShaderCom, "g_DissolveTexture")))
+		return E_FAIL;
 	RELEASE_INSTANCE(CGameInstance);
 
 
@@ -98,7 +113,7 @@ HRESULT CHomonculus::Render()
 		return E_FAIL;*/
 
 
-		if (FAILED(m_pModelCom->Render(m_pShaderCom, i)))
+		if (FAILED(m_pModelCom->Render(m_pShaderCom, i, m_iPass)))
 			return E_FAIL;
 	}
 
@@ -144,7 +159,8 @@ void CHomonculus::Set_State(ANIM_STATE eState, _float fTimeDelta)
 	case CHomonculus::Death_01:
 		if (m_bAnimEnd)
 		{
-			m_bActive = false;
+			//m_bActive = false;
+			m_bDissolve = true;
 		}
 		break;
 	case CHomonculus::Death_02:
@@ -254,6 +270,9 @@ HRESULT CHomonculus::Ready_Components()
 	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Homonculus"), TEXT("Com_Model"), (CComponent**)&m_pModelCom)))
 		return E_FAIL;
 
+	/* For.Com_Texture */
+	if (FAILED(__super::Add_Component(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Texture_Noise"), TEXT("Com_Texture"), (CComponent**)&m_pTextureCom)))
+		return E_FAIL;
 
 	CCollider::COLLIDERDESC		ColliderDesc;
 	ZeroMemory(&ColliderDesc, sizeof(CCollider::COLLIDERDESC));
@@ -305,6 +324,7 @@ void CHomonculus::Free()
 {
 	__super::Free();
 
+	Safe_Release(m_pTextureCom);
 	Safe_Release(m_pTarget);
 	Safe_Release(m_pModelCom);
 	Safe_Release(m_pShaderCom);

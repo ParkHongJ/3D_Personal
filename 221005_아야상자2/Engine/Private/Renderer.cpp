@@ -70,6 +70,10 @@ HRESULT CRenderer::Initialize_Prototype()
 	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_Test"), (_uint)ViewportDesc.Width, (_uint)ViewportDesc.Height, DXGI_FORMAT_R16G16B16A16_FLOAT, &_float4(0.0f, 0.f, 0.f, 0.f))))
 		return E_FAIL;
 
+	/* For.Target_Effect */
+	if (FAILED(m_pTarget_Manager->Add_RenderTarget(m_pDevice, m_pContext, TEXT("Target_Effect"), (_uint)ViewportDesc.Width, (_uint)ViewportDesc.Height, DXGI_FORMAT_R16G16B16A16_FLOAT, &_float4(0.0f, 0.f, 0.f, 0.f), true)))
+		return E_FAIL;
+
 	/* For.MRT_Original */
 	if (FAILED(m_pTarget_Manager->Add_MRT(TEXT("MRT_Original"), TEXT("Target_Original"))))
 		return E_FAIL;
@@ -91,6 +95,7 @@ HRESULT CRenderer::Initialize_Prototype()
 	/* For.MRT_Test */
 	if (FAILED(m_pTarget_Manager->Add_MRT(TEXT("MRT_Deferred"), TEXT("Target_Test"))))
 		return E_FAIL;
+
 #ifdef _DEBUG
 
 	if (FAILED(m_pTarget_Manager->Initialize_Debug(TEXT("Target_Diffuse"), 50.f, 50.f, 100.f, 100.f)))
@@ -155,15 +160,15 @@ HRESULT CRenderer::Draw()
 
 	if (FAILED(Render_Blend()))
 		return E_FAIL;
+	
+	if (m_bEnable)
+	{
+		/*if (FAILED(Render_PostProcessing()))
+			return E_FAIL;*/
+	}
 
 	if (FAILED(Render_Effect()))
 		return E_FAIL;
-
-	if (m_bEnable)
-	{
-		if (FAILED(Render_PostProcessing()))
-			return E_FAIL;
-	}
 
 	if (FAILED(Render_NonLight()))
 		return E_FAIL;
@@ -389,6 +394,49 @@ HRESULT CRenderer::Render_Blend()
 	return S_OK;
 }
 
+HRESULT CRenderer::Render_EffectBlend()
+{
+	if (nullptr == m_pTarget_Manager)
+		return E_FAIL;
+	/* Target_Shade타겟에 빛 연산한 결과를 그린다. */
+	if (FAILED(m_pTarget_Manager->Begin_MRT(m_pContext, TEXT("MRT_EffectBlend"))))
+		return E_FAIL;
+
+	_float4x4			WorldMatrix;
+
+	_uint				iNumViewport = 1;
+	D3D11_VIEWPORT		ViewportDesc;
+
+	m_pContext->RSGetViewports(&iNumViewport, &ViewportDesc);
+
+	XMStoreFloat4x4(&WorldMatrix,
+		XMMatrixTranspose(XMMatrixScaling(ViewportDesc.Width, ViewportDesc.Height, 0.f) * XMMatrixTranslation(0.0f, 0.0f, 0.f)));
+
+	if (FAILED(m_pShader[SHADER_DEFERRED]->Set_RawValue("g_WorldMatrix", &WorldMatrix, sizeof(_float4x4))))
+		return E_FAIL;
+	if (FAILED(m_pShader[SHADER_DEFERRED]->Set_RawValue("g_ViewMatrix", &m_ViewMatrix, sizeof(_float4x4))))
+		return E_FAIL;
+	if (FAILED(m_pShader[SHADER_DEFERRED]->Set_RawValue("g_ProjMatrix", &m_ProjMatrix, sizeof(_float4x4))))
+		return E_FAIL;
+
+	if (FAILED(m_pTarget_Manager->Bind_SRV(TEXT("Target_Original"), m_pShader[SHADER_DEFERRED], "g_DiffuseTexture")))
+		return E_FAIL;
+
+	if (FAILED(m_pTarget_Manager->Bind_SRV(TEXT("Target_Effect"), m_pShader[SHADER_DEFERRED], "g_EffectTexture")))
+		return E_FAIL;
+
+	m_pShader[SHADER_DEFERRED]->Begin(4);
+
+#ifdef _DEBUG
+	m_pVIBuffer->Render();
+#endif
+
+	if (FAILED(m_pTarget_Manager->End_MRT(m_pContext)))
+		return E_FAIL;
+
+	return S_OK;
+}
+
 HRESULT CRenderer::Render_NonLight()
 {
 	for (auto& pRenderObject : m_RenderObjects[RENDER_NONLIGHT])
@@ -399,7 +447,7 @@ HRESULT CRenderer::Render_NonLight()
 		Safe_Release(pRenderObject);
 	}
 	m_RenderObjects[RENDER_NONLIGHT].clear();
-
+	
 	return S_OK;
 }
 
@@ -468,8 +516,31 @@ HRESULT CRenderer::Render_PostProcessing()
 	_float3 vSunColor = _float3(1.0f, 0.0f, 0.0f);
 	//m_pSSLR->Render(m_pTarget_Manager->Get_RTV(L"Target_Original"), m_pScreenFX->GetMiniDepthSRV(), vSunDir, vSunColor);
 
-	m_pPostFX->PostProcessing(m_pTarget_Manager->Get_SRV(L"Target_Original"));
-	
+	m_pPostFX->PostProcessing(m_pTarget_Manager->Get_SRV(L"Target_Original"), m_pTarget_Manager->Get_RTV(L"Target_Effect"));
+
+	_float4x4			WorldMatrix;
+
+	_uint				iNumViewport = 1;
+	D3D11_VIEWPORT		ViewportDesc;
+
+	m_pContext->RSGetViewports(&iNumViewport, &ViewportDesc);
+
+	XMStoreFloat4x4(&WorldMatrix,
+		XMMatrixTranspose(XMMatrixScaling(ViewportDesc.Width, ViewportDesc.Height, 0.f) * XMMatrixTranslation(0.0f, 0.0f, 0.f)));
+
+	if (FAILED(m_pShader[SHADER_DEFERRED]->Set_RawValue("g_WorldMatrix", &WorldMatrix, sizeof(_float4x4))))
+		return E_FAIL;
+	if (FAILED(m_pShader[SHADER_DEFERRED]->Set_RawValue("g_ViewMatrix", &m_ViewMatrix, sizeof(_float4x4))))
+		return E_FAIL;
+	if (FAILED(m_pShader[SHADER_DEFERRED]->Set_RawValue("g_ProjMatrix", &m_ProjMatrix, sizeof(_float4x4))))
+		return E_FAIL;
+
+	if (FAILED(m_pTarget_Manager->Bind_SRV(TEXT("Target_Effect"), m_pShader[SHADER_DEFERRED], "g_DiffuseTexture")))
+		return E_FAIL;
+
+	m_pShader[SHADER_DEFERRED]->Begin(4);
+
+	m_pVIBuffer->Render();
 	return S_OK;
 }
 

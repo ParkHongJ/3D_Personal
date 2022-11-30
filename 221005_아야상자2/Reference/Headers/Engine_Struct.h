@@ -110,6 +110,14 @@ namespace Engine
 		static const D3D11_INPUT_ELEMENT_DESC Elements[iNumElements];
 	}VTXPOINTINSTANCE_DECLARATION;
 	
+	typedef struct ENGINE_DLL tagVertexPoint_Declaration
+	{
+		/* 내가 그릴려고 했던 정점(VTXTEX)과 해당 모델의 로컬 상탤르 ㄹ표현하는
+		VTXINSTANCE의 정보가 함께 셰이더로 전달되어야한다. */
+		static const unsigned int iNumElements = 6;
+		static const D3D11_INPUT_ELEMENT_DESC Elements[iNumElements];
+	}VTXPOINT_DECLARATION;
+
 	typedef struct ENGINE_DLL tagVertexModelInstance_Declaration
 	{
 		static const unsigned int iNumElements = 8;
@@ -184,6 +192,11 @@ namespace Engine
 		XMFLOAT2			vSize;
 	}VTXPOINT;
 
+	typedef struct tagVertexPoint2
+	{
+		XMFLOAT3			vPosition;
+		XMFLOAT2			vSize;
+	}VTXPOINT2;
 	typedef struct tagGraphicDesc
 	{
 		enum WINMODE { MODE_FULL, MODE_WIN, MODE_END };

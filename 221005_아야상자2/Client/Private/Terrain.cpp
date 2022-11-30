@@ -67,7 +67,7 @@ HRESULT CTerrain::Render()
 
 #ifdef _DEBUG
 
-	m_pNavigationCom->Render();
+	//m_pNavigationCom->Render();
 
 #endif
 	if (FAILED(SetUp_ShaderResources()))

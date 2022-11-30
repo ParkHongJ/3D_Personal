@@ -32,6 +32,7 @@
 #include "Effect.h"
 #include "Particle_Point.h"
 #include "Particle_Mesh.h"
+#include "YantariHead.h"
 //#include "UI.h"
 
 
@@ -727,6 +728,11 @@ HRESULT CLoader::Loading_ForGameYantariLevel()
 		CYantariWeapon::Create(m_pDevice, m_pContext))))
 		return E_FAIL;
 
+	/* For.Prototype_GameObject_YantariHead */
+	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_YantariHead"),
+		CYantariHead::Create(m_pDevice, m_pContext))))
+		return E_FAIL;
+
 	/* For.Prototype_GameObject_Player*/
 	if (FAILED(pGameInstance->Add_Prototype(TEXT("Prototype_GameObject_Player"),
 		CPlayer::Create(m_pDevice, m_pContext))))
@@ -779,6 +785,14 @@ HRESULT CLoader::Loading_ForGameYantariLevel()
 	{
 		if (FAILED(pGameInstance->Add_Prototype(LEVEL_YANTARI, TEXT("Prototype_Component_Model_YantariWeapon"),
 			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/Yantari/YantariWeapon.dat", PivotMatrix, true))))
+			return E_FAIL;
+	}
+
+	//YantariHead
+	if (!pGameInstance->IsOverlapComponent(LEVEL_YANTARI, TEXT("Prototype_Component_Model_YantariHead")))
+	{
+		if (FAILED(pGameInstance->Add_Prototype(LEVEL_YANTARI, TEXT("Prototype_Component_Model_YantariHead"),
+			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Boss/Yantari/YantariHead.dat", PivotMatrix, true))))
 			return E_FAIL;
 	}
 

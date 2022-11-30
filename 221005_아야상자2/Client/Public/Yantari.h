@@ -17,7 +17,7 @@ BEGIN(Client)
 class CYantari final : public CGameObject
 {
 public:
-	enum PARTTYPE { PART_WEAPON, PART_END };
+	enum PARTTYPE { PART_WEAPON, PART_HEAD, PART_END };
 public:
 	enum ANIM_STATE {
 		ATTACK1_2, ATTACK1_3, ATTACK1_4, ATTACK1_6, ATTACK1_7, ATTACK1_8, ATTACK1_9, 

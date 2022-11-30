@@ -149,7 +149,7 @@ HRESULT CPostFX::Initialize(_uint iSizeX, _uint iSizeY)
 	return S_OK;
 }
 
-void CPostFX::PostProcessing(ID3D11ShaderResourceView* pHDRSRV)
+void CPostFX::PostProcessing(ID3D11ShaderResourceView* pHDRSRV, ID3D11RenderTargetView* pOutRTV)
 {
 	ID3D11RenderTargetView*	pOldRenderTargets[8] = { nullptr };
 	ID3D11DepthStencilView*	pOldDepthStencil = nullptr;
@@ -192,7 +192,11 @@ void CPostFX::PostProcessing(ID3D11ShaderResourceView* pHDRSRV)
 
 
 	// Do the final pass
-	rt[0] = pOldRenderTargets[0];
+	rt[0] = pOutRTV;//pOldRenderTargets[0];
+
+	_float4 vClearColor = _float4(0.f, 0.f, 0.f, 0.f);
+	m_pContext->ClearRenderTargetView(rt[0], (_float*)&vClearColor);
+
 	m_pContext->OMSetRenderTargets(1, rt, pOldDepthStencil);
 
 	FinalPass(pHDRSRV);
@@ -208,10 +212,25 @@ void CPostFX::PostProcessing(ID3D11ShaderResourceView* pHDRSRV)
 	m_pPrevAvgLumUAV = pTempUAV;
 	m_pPrevAvgLumSRV = p_TempSRV;
 
+	rt[0] = pOldRenderTargets[0];
+	m_pContext->OMSetRenderTargets(1, rt, pOldDepthStencil);
+
 	for (_uint i = 0; i < 8; ++i)
 		Safe_Release(pOldRenderTargets[i]);
 
 	Safe_Release(pOldDepthStencil);
+
+
+
+	/*m_pContext->OMGetRenderTargets(iNumViews, pOldRenderTargets, &pOldDepthStencil);
+
+	rt[0] = pOldRenderTargets[0];
+	m_pContext->OMSetRenderTargets(1, rt, pOldDepthStencil);
+
+	for (_uint i = 0; i < 8; ++i)
+		Safe_Release(pOldRenderTargets[i]);
+
+	Safe_Release(pOldDepthStencil);*/
 }
 
 HRESULT CPostFX::Ready_DownScale()

@@ -198,7 +198,6 @@ void CYantari::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
 				EffectDesc.ePass = CEffect::EffectPass::DISTORTION;
 				pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Effect", LEVEL_GAMEPLAY, L"Effect", &EffectDesc/*&m_pTransformCom->Get_State(CTransform::STATE_POSITION)*/);
 
-				pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Effect", LEVEL_YANTARI, L"Effect", &vPos);
 				RELEASE_INSTANCE(CGameInstance);
 			}
 		}
@@ -778,6 +777,12 @@ HRESULT CYantari::Ready_Sockets()
 
 	m_Sockets.push_back(pWeaponSocket);
 
+	pWeaponSocket = m_pModelCom->Get_HierarchyNode("Yantari-Head");
+	if (nullptr == pWeaponSocket)
+		return E_FAIL;
+
+	m_Sockets.push_back(pWeaponSocket);
+
 	return S_OK;
 }
 
@@ -792,6 +797,15 @@ HRESULT CYantari::Ready_Parts()
 		return E_FAIL;
 
 	((CYantariWeapon*)pGameObject)->SetYantari(this);
+
+	m_Parts.push_back(pGameObject);
+
+
+	/* For.YantariHead */
+	pGameObject = pGameInstance->Clone_GameObject(TEXT("Prototype_GameObject_YantariHead"));
+
+	if (nullptr == pGameObject)
+		return E_FAIL;
 
 	m_Parts.push_back(pGameObject);
 
@@ -814,6 +828,13 @@ HRESULT CYantari::Update_Weapon()
 		* m_pTransformCom->Get_WorldMatrix();
 
 	m_Parts[PART_WEAPON]->SetUp_State(WeaponMatrix);
+
+	/*WeaponMatrix = m_Sockets[PART_HEAD]->Get_CombinedTransformation()
+		* m_pModelCom->Get_PivotMatrix()
+		* m_pTransformCom->Get_WorldMatrix();
+
+	m_Parts[PART_HEAD]->SetUp_State(WeaponMatrix);*/
+
 	return S_OK;
 }
 

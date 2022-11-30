@@ -156,13 +156,12 @@ _int CCell::GetLine(_fvector vPosition)
 #ifdef _DEBUG
 void CCell::Update(_float2 vPickPos)
 {
-	/*m_pCollider[0]->Collision()*/
-	//m_pVIBuffer->Picking(vPickPos);
+	/*m_pCollider[0]->Collision();*/
+	/*m_pVIBuffer->Picking(vPickPos);*/
 }
 HRESULT CCell::Render_Cell(_float fHeight, _float4 vColor)
 {
-	
-	/*CPipeLine*			pPipeLine = GET_INSTANCE(CPipeLine);
+	CPipeLine*			pPipeLine = GET_INSTANCE(CPipeLine);
 	_float4x4			WorldMatrix;
 	XMStoreFloat4x4(&WorldMatrix, XMMatrixIdentity());
 	if (m_eType == CANTMOVE)
@@ -202,7 +201,7 @@ HRESULT CCell::Render_Cell(_float fHeight, _float4 vColor)
 
 		m_pCollider[i]->Update(XMLoadFloat4x4(&mat));
 		m_pCollider[i]->Render();
-	}*/
+	}
 	return S_OK;
 }
 _bool CCell::Picking(_uint* iNumPoint)

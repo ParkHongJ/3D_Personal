@@ -10,6 +10,8 @@ class CCollider;
 class CTransform;
 class CModel;
 class CNavigation;
+class CTexture;
+
 END
 
 BEGIN(Client)
@@ -42,6 +44,7 @@ private:
 	CModel*					m_pModelCom = nullptr;
 	CCollider*				m_pColliderCom = nullptr;
 	CNavigation*			m_pNavigationCom = nullptr;
+	CTexture*				m_pTextureCom = nullptr;
 
 private:
 	ANIM_STATE				m_eState = STATE_END;
@@ -49,7 +52,10 @@ private:
 	_float					m_fHp = 25.f;
 	const _float			m_fMaxHp = 25.f;
 	_bool					m_bAnimEnd = false;
-
+	_bool					m_bDissolve = false;
+	_float					m_fCut = 0.0f;
+	_uint					m_iPass = 0;
+	_float					m_fDissolveSpeed = 2.0f;
 public:
 	void SetNaviIndex(_uint iIndex);
 	void Set_State(ANIM_STATE eState, _float fTimeDelta);

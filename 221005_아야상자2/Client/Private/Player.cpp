@@ -157,8 +157,9 @@ HRESULT CPlayer::Render()
 		return E_FAIL;
 
 	//3¹ø : ¾Æ¿ô¶óÀÎ
+
 	CGameInstance*		pGameInstance = GET_INSTANCE(CGameInstance);
-	
+
 	if (FAILED(m_pShaderCom->Set_RawValue("g_WorldMatrix", &m_pTransformCom->Get_WorldFloat4x4_TP(), sizeof(_float4x4))))
 		return E_FAIL;
 	if (FAILED(m_pShaderCom->Set_RawValue("g_ViewMatrix", &pGameInstance->Get_TransformFloat4x4_TP(CPipeLine::D3DTS_VIEW), sizeof(_float4x4))))
@@ -169,14 +170,13 @@ HRESULT CPlayer::Render()
 	RELEASE_INSTANCE(CGameInstance);
 
 	_uint		iNumMeshes = m_pModelCom->Get_NumMeshes();
+	
+	iNumMeshes = m_pModelCom->Get_NumMeshes();
 
 	for (_uint i = 0; i < iNumMeshes; ++i)
 	{
 		if (FAILED(m_pModelCom->SetUp_OnShader(m_pShaderCom, m_pModelCom->Get_MaterialIndex(i), aiTextureType_DIFFUSE, "g_DiffuseTexture")))
 			return E_FAIL;
-		/*if (FAILED(m_pModelCom->SetUp_OnShader(m_pShaderCom, m_pModelCom->Get_MaterialIndex(i), aiTextureType_NORMALS, "g_NormalTexture")))
-		return E_FAIL;*/
-
 
 		if (FAILED(m_pModelCom->Render(m_pShaderCom, i)))
 			return E_FAIL;

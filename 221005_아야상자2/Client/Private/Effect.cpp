@@ -107,7 +107,7 @@ HRESULT CEffect::Render()
 	}
 	else
 	{
-		if (FAILED(m_pShaderCom->Set_ShaderResourceView("g_DiffuseTexture", pGameInstance->Get_SRV(L"Target_Original"))))
+		if (FAILED(m_pShaderCom->Set_ShaderResourceView("g_DiffuseTexture", pGameInstance->Get_SRV(L"Target_Effect"))))
 			return E_FAIL;
 	}
 	RELEASE_INSTANCE(CGameInstance);
