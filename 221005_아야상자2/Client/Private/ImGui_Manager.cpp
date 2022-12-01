@@ -622,7 +622,7 @@ void CImGui_Manager::Render()
 				_ulong		dwByte = 0;
 				DWORD		dwStrByte = 0;
 
-				HANDLE		hFile = CreateFile(TEXT("../Bin/Data/MapStaticInfoYantari.dat"), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+				HANDLE		hFile = CreateFile(TEXT("../Bin/Data/MapStaticInfo.dat"), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
 				if (0 == hFile)
 					return;
 
@@ -1043,21 +1043,21 @@ HRESULT CImGui_Manager::LoadObject()
 	dwByte = 0;
 	dwStrByte = 0;
 
-	while (true)
-	{
-		_float3			vPoints[3];
+	//while (true)
+	//{
+	//	_float3			vPoints[3];
 
-		ReadFile(hFile, vPoints, sizeof(_float3) * 3, &dwByte, nullptr);
+	//	ReadFile(hFile, vPoints, sizeof(_float3) * 3, &dwByte, nullptr);
 
-		if (0 == dwByte)
-			break;
+	//	if (0 == dwByte)
+	//		break;
 
-		//CCell*			pCell = CCell::Create(m_pDevice, m_pContext, vPoints, (_int)m_Cells.size());
-		//if (nullptr == pCell)
-		//	return E_FAIL;
+	//	//CCell*			pCell = CCell::Create(m_pDevice, m_pContext, vPoints, (_int)m_Cells.size());
+	//	//if (nullptr == pCell)
+	//	//	return E_FAIL;
 
-		//m_Cells.push_back(pCell);
-	}
+	//	//m_Cells.push_back(pCell);
+	//}
 	CloseHandle(hFile);
 	return S_OK;
 }
@@ -1464,7 +1464,7 @@ void CImGui_Manager::ShowNavMesh() {
 	if (ImGui::Button("SaveNav"))
 	{
 		_ulong		dwByte = 0;
-		HANDLE		hFile = CreateFile(TEXT("../Bin/Data/NavigationDataTest.dat"), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+		HANDLE		hFile = CreateFile(TEXT("../Bin/Data/NavigationDataYantari.dat"), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
 		if (0 == hFile)
 			return;
 

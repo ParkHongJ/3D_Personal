@@ -70,12 +70,13 @@ HRESULT CMainApp::Render()
 
 	m_pGameInstance->Clear_BackBuffer_View(_float4(0.f, 0.f, 1.f, 1.f));
 	m_pGameInstance->Clear_DepthStencil_View();
-	
+
+
+	m_pRenderer->Draw();
+
 #ifdef _DEBUG
 	CImGui_Manager::Get_Instance()->RenderGizmo();
 #endif // _DEBUG
-
-	m_pRenderer->Draw();
 	m_pGameInstance->Render_Level();
 
 #ifdef _DEBUG

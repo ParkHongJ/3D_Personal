@@ -101,7 +101,7 @@ HRESULT CLoader::Loading_ForLogoLevel()
 
 	/* For.Prototype_Component_Texture_Default */
 	if (FAILED(pGameInstance->Add_Prototype(LEVEL_LOGO, TEXT("Prototype_Component_Texture_Default"),
-		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Default%d.jpg"), 2))))
+		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/BackGround.png"), 1))))
 		return E_FAIL;
 
 
@@ -399,6 +399,15 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 		return E_FAIL;
 	_matrix		PivotMatrix = XMMatrixIdentity();
 
+	//Rock02
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (!pGameInstance->IsOverlapComponent(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_ArenaCircle")))
+	{
+		if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_ArenaCircle"),
+			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Maps/ArenaCircle.dat", PivotMatrix, true))))
+			return E_FAIL;
+	}
+
 #pragma region Rock1~7
 	//Rock01
 	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
@@ -417,7 +426,14 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Effect/Particle/Rock02.dat", PivotMatrix, true))))
 			return E_FAIL;
 	}
-
+	//Rock02
+	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
+	if (!pGameInstance->IsOverlapComponent(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Rock02")))
+	{
+		if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Rock02"),
+			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Effect/Particle/Rock02.dat", PivotMatrix, true))))
+			return E_FAIL;
+	}
 	//Rock03
 	PivotMatrix = XMMatrixScaling(0.01f, 0.01f, 0.01f) * XMMatrixRotationY(XMConvertToRadians(180.0f));
 	if (!pGameInstance->IsOverlapComponent(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_Rock03")))

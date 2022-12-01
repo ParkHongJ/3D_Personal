@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "..\Public\Projectile.h"
 #include "GameInstance.h"
+#include "Player.h"
 #include <time.h>
 CProjectile::CProjectile(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
@@ -180,12 +181,17 @@ void CProjectile::CreateExplosion()
 
 void CProjectile::OnCollisionEnter(CGameObject * pOther, _float fTimeDelta)
 {
-	int a = 10;
+	if (pOther->CompareTag(L"Player"))
+	{
+		int a = 10;
+		((CPlayer*)pOther)->SetHP(40.f);
+	}
 }
 
 void CProjectile::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
 {
 	int a = 10;
+
 }
 
 void CProjectile::OnCollisionExit(CGameObject * pOther, _float fTimeDelta)
@@ -230,7 +236,7 @@ HRESULT CProjectile::Ready_Components()
 	CCollider::COLLIDERDESC		ColliderDesc;
 	ZeroMemory(&ColliderDesc, sizeof(CCollider::COLLIDERDESC));
 
-	ColliderDesc.vSize = _float3(0.2f, 0.2f, 0.2f);
+	ColliderDesc.vSize = _float3(2.2f, 2.2f, 2.2f);
 	ColliderDesc.vCenter = _float3(0.f, ColliderDesc.vSize.y * 0.5f, 0.f);
 	ColliderDesc.vRotation = _float3(0.f, 0.f, 0.f);
 	if (FAILED(__super::Add_Component(LEVEL_STATIC, TEXT("Prototype_Component_Collider_Sphere"), TEXT("Com_SPHERE"), (CComponent**)&m_pColliderCom, &ColliderDesc)))

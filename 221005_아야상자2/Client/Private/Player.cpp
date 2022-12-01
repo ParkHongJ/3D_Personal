@@ -44,6 +44,8 @@ HRESULT CPlayer::Initialize(void * pArg)
 
 	strcpy_s(m_szName, "Player");
 
+	m_Tag = L"Player";
+
 	CGameMgr* pGameMgr = GET_INSTANCE(CGameMgr);
 	pGameMgr->RegisterPlayer(this);
 	RELEASE_INSTANCE(CGameMgr);
@@ -62,7 +64,7 @@ _bool CPlayer::Tick(_float fTimeDelta)
 	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 	if (pGameInstance->Key_Down(DIK_Y))
 	{
-		pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Hit_Effect", LEVEL_GAMEPLAY, L"Effect");
+		//pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Hit_Effect", LEVEL_GAMEPLAY, L"Effect");
 	}
 	
 	if (pGameInstance->Key_Down(DIK_NUMPAD8))
@@ -140,7 +142,7 @@ void CPlayer::LateTick(_float fTimeDelta)
 	{
 		m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, pPart);
 	}
-	m_pColliderCom[COLLIDERTYPE_OBB]->Add_CollisionGroup(CCollider_Manager::MONSTER, m_pColliderCom[COLLIDERTYPE_OBB]);
+	m_pColliderCom[COLLIDERTYPE_OBB]->Add_CollisionGroup(CCollider_Manager::PLAYER, m_pColliderCom[COLLIDERTYPE_OBB]);
 	m_pRendererCom->Add_RenderGroup(CRenderer::RENDER_NONALPHABLEND, this);
 
 #ifdef _DEBUG
@@ -1076,6 +1078,33 @@ void CPlayer::GetDamage(_float fDamage)
 	}
 }
 
+void CPlayer::SetHP(_float fDamage)
+{
+	if (m_fStamina <= 0.f)
+		return;
+
+	//인자로 들어온 값으로 비율을 구해서 넘겨줄거임.
+	m_fHP -= fDamage;
+	if (m_fHP <= 0.f)
+	{
+		//0보다 작으면 UI매니저에 0던짐
+		m_fHP = 0.f;
+		CUI_Manager::Get_Instance()->SetValue("HealthBar", m_fHP);
+
+		m_pModelCom->Change_Animation(Death, 0.25f, false);
+		m_eCurrentAnimState = Death;
+	}
+	else
+	{
+		CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+		pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Hit_Effect", LEVEL_GAMEPLAY, L"Effect");
+		RELEASE_INSTANCE(CGameInstance);
+
+		_float fCurrentRatio = m_fHP / m_fMaxHp;
+		CUI_Manager::Get_Instance()->SetValue("HealthBar", fCurrentRatio);
+	}
+}
+
 _bool CPlayer::SetStamina(_float fValue)
 {
 	if (m_fStamina <= 0.f)
@@ -1125,7 +1154,7 @@ void CPlayer::OnCollisionExit(CGameObject * pOther, _float fTimeDelta)
 	int a = 10;
 }
 
-HRESULT CPlayer::Ready_Components()
+HRESULT CPlayer::Ready_Components(void* pArg)
 {
 	/* For.Com_Transform */
 	CTransform::TRANSFORMDESC		TransformDesc;

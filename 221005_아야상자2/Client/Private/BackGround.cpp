@@ -66,7 +66,7 @@ HRESULT CBackGround::Render()
 	if (FAILED(m_pTextureCom->Set_SRV(m_pShaderCom, "g_DiffuseTexture", 0)))
 		return E_FAIL;
 
-	if (FAILED(m_pShaderCom->Begin(1)))
+	if (FAILED(m_pShaderCom->Begin(0)))
 		return E_FAIL;
 
 	if (FAILED(m_pVIBufferCom->Render()))
@@ -94,7 +94,7 @@ HRESULT CBackGround::Ready_Components()
 		return E_FAIL;
 
 	/* For.Com_Texture */
-	if (FAILED(__super::Add_Component(LEVEL_LOGO, TEXT("Prototype_Component_Texture_Inventory"), TEXT("Com_Texture"), (CComponent**)&m_pTextureCom)))
+	if (FAILED(__super::Add_Component(LEVEL_LOGO, TEXT("Prototype_Component_Texture_Default"), TEXT("Com_Texture"), (CComponent**)&m_pTextureCom)))
 		return E_FAIL;
 
 	return S_OK;

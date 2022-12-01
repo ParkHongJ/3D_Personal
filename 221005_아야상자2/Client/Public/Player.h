@@ -66,6 +66,7 @@ public:
 	HRESULT Set_Target(_uint iLevel, const _tchar* pLayerTag, const _tchar* pComponentTag, _uint iLayerIndex);
 	void GetDamage(_float fDamage);
 
+	void SetHP(_float fDamage);
 	_bool SetStamina(_float fValue);
 	void IncreaseStamina(_float fTimeDelta, _float fIncreaseSpeed);
 
@@ -151,7 +152,7 @@ public:
 	virtual void OnCollisionExit(CGameObject* pOther, _float fTimeDelta)override;
 
 private:
-	HRESULT Ready_Components();
+	HRESULT Ready_Components(void* pArg = nullptr);
 
 	HRESULT Ready_Sockets();
 	HRESULT Ready_PlayerParts();
