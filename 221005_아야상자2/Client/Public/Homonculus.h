@@ -55,6 +55,11 @@ private:
 	_bool					m_bDissolve = false;
 	_float					m_fCut = 0.0f;
 	_uint					m_iPass = 0;
+
+	_bool					m_bHitDelay = false;
+	_float					m_fCurrentDelayTime = 0.0f;
+	_float					m_fMaxDelayTime = 0.2f;
+
 	_float					m_fDissolveSpeed = 2.0f;
 public:
 	void SetNaviIndex(_uint iIndex);

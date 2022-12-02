@@ -136,7 +136,7 @@ private:
 	_float					m_fPosY = 0.0f;
 
 	//Roll
-	_float					m_fRollTimeMax  = 1.3f;
+	_float					m_fRollTimeMax  = 1.0f;
 	_float					m_fRollTime = 0.f;
 	_bool					m_bWeaponEnable = false;
 	

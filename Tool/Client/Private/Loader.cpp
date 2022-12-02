@@ -81,14 +81,14 @@ HRESULT CLoader::Loading_ForLogoLevel()
 	//	return E_FAIL;
 
 	/* For.Prototype_Component_Texture_Default */
-	if (FAILED(pGameInstance->Add_Prototype(LEVEL_LOGO, TEXT("Prototype_Component_Texture_Default"),
-		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Default1.png")))))
-		return E_FAIL;
+	//if (FAILED(pGameInstance->Add_Prototype(LEVEL_LOGO, TEXT("Prototype_Component_Texture_Default"),
+	//	CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Default1.png")))))
+	//	return E_FAIL;
 
-	/* For.Prototype_Component_Texture_Default2 */
-	if (FAILED(pGameInstance->Add_Prototype(LEVEL_LOGO, TEXT("Prototype_Component_Texture_Default2"),
-		CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Default3.jpg")))))
-		return E_FAIL;
+	///* For.Prototype_Component_Texture_Default2 */
+	//if (FAILED(pGameInstance->Add_Prototype(LEVEL_LOGO, TEXT("Prototype_Component_Texture_Default2"),
+	//	CTexture::Create(m_pDevice, m_pContext, TEXT("../Bin/Resources/Textures/Default3.jpg")))))
+	//	return E_FAIL;
 	lstrcpy(m_szLoadingText, TEXT("모델을 로딩중입니다. "));	
 	/* 모델를 로드한다. */
 
@@ -203,7 +203,7 @@ HRESULT CLoader::Loading_ForGamePlayLevel()
 	/* For.Prototype_Component_Model_ForkLift */
 	PivotMatrix = /*XMMatrixScaling(0.01f, 0.01f, 0.01f) **/XMMatrixRotationY(XMConvertToRadians(180.0f));
 	if (FAILED(pGameInstance->Add_Prototype(LEVEL_GAMEPLAY, TEXT("Prototype_Component_Model_ForkLift"),
-		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Meshes/Maps/", "ArenaCircle.fbx", L"../Bin/Resources/Meshes/Maps/", L"ArenaCircle.dat", PivotMatrix))))
+		CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, "../Bin/Resources/Meshes/Maps/", "TransCube.fbx", L"../Bin/Resources/Meshes/Maps/", L"TransCube.dat", PivotMatrix))))
 		return E_FAIL;
 
 

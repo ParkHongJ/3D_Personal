@@ -264,7 +264,7 @@ void CRas_Samrah::GetDamaged(_float fDamage)
 	{
 		m_fHp = 0.f;
 		m_eCurrentAnimState = Death;
-		m_pModelCom->Change_Animation(Death);
+		m_pModelCom->Change_Animation(Death, 0.25f, false);
 
 		CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 		
@@ -272,15 +272,15 @@ void CRas_Samrah::GetDamaged(_float fDamage)
 		pChain->SetDead();
 		RELEASE_INSTANCE(CGameInstance);
 	}
-	else
-	{
-		if (m_ePhase == PHASE_2)
-		{
-			//나중에 이거 수정해라
-			m_eCurrentAnimState = Jug_FlyHit1;
-			m_pModelCom->Change_Animation(Jug_FlyHit1);
-		}
-	}
+	//else
+	//{
+	//	if (m_ePhase == PHASE_2)
+	//	{
+	//		//나중에 이거 수정해라
+	//		m_eCurrentAnimState = Jug_FlyHit1;
+	//		m_pModelCom->Change_Animation(Jug_FlyHit1);
+	//	}
+	//}
 }
 
 void CRas_Samrah::SetNaviTypes()

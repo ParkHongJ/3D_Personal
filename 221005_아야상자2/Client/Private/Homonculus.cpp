@@ -3,6 +3,9 @@
 #include "GameInstance.h"
 #include "Sword.h"
 #include "Ras_Hands2.h"
+#include "Effect.h"
+
+#include "GameMgr.h"
 CHomonculus::CHomonculus(ID3D11Device * pDevice, ID3D11DeviceContext * pContext)
 	: CGameObject(pDevice, pContext)
 {
@@ -54,7 +57,15 @@ _bool CHomonculus::Tick(_float fTimeDelta)
 			return true;
 		}
 	}
-
+	if (m_bHitDelay)
+	{
+		m_fCurrentDelayTime += fTimeDelta;
+		if (m_fCurrentDelayTime > m_fMaxDelayTime)
+		{
+			m_bHitDelay = false;
+			m_fCurrentDelayTime = 0.f;
+		}
+	}
 	Set_State(m_eState, fTimeDelta);
 
 	m_pColliderCom->Update(m_pTransformCom->Get_WorldMatrix());
@@ -131,7 +142,44 @@ void CHomonculus::OnCollisionEnter(CGameObject * pOther, _float fTimeDelta)
 
 void CHomonculus::OnCollisionStay(CGameObject * pOther, _float fTimeDelta)
 {
-	int a = 10;
+	if (pOther->CompareTag(L"Player_Sword"))
+	{
+		if (!m_bHitDelay)
+		{
+			m_bHitDelay = true;
+			CSword* pSword = (CSword*)pOther;
+			if (pSword->GetState() == CSword::ATTACK)
+			{
+				CGameMgr::Get_Instance()->SetTimeScale(0.1f, 0.25f);
+				CGameMgr::Get_Instance()->Shake(0.35f);
+				//m_iPass = 2;
+
+				_float4 vTemp = _float4(0.f, 5.f, 0.f, 1.f);
+				XMStoreFloat4(&vTemp, XMVectorSetW(XMVector3TransformCoord(XMLoadFloat4(&vTemp), m_pTransformCom->Get_WorldMatrix()), 1.f));
+
+				CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+
+				CEffect::EFFECT_DESC EffectDesc;
+				EffectDesc.vPosition = vTemp;
+				EffectDesc.vScale = _float4(10.f, 10.f, 10.f, 0.f);
+				EffectDesc.eSign = CEffect::DistortionType::SPREAD;
+				EffectDesc.ePass = CEffect::EffectPass::DISTORTION;
+				pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Effect", LEVEL_GAMEPLAY, L"Effect", &EffectDesc/*&m_pTransformCom->Get_State(CTransform::STATE_POSITION)*/);
+
+				vTemp = _float4(0.f, 5.f, 0.f, 1.f);
+				XMStoreFloat4(&vTemp, XMVectorSetW(XMVector3TransformCoord(XMLoadFloat4(&vTemp), m_pTransformCom->Get_WorldMatrix()), 1.f));
+
+				EffectDesc.vPosition = vTemp;
+				EffectDesc.vScale = _float4(25.f, 25.f, 25.f, 0.f);
+				EffectDesc.eSign = CEffect::DistortionType::SPREAD;
+				EffectDesc.ePass = CEffect::EffectPass::IMPACT;
+				pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Effect", LEVEL_GAMEPLAY, L"Effect", &EffectDesc/*&m_pTransformCom->Get_State(CTransform::STATE_POSITION)*/);
+
+
+				RELEASE_INSTANCE(CGameInstance);
+			}
+		}
+	}
 }
 
 void CHomonculus::OnCollisionExit(CGameObject * pOther, _float fTimeDelta)

@@ -622,7 +622,7 @@ void CImGui_Manager::Render()
 				_ulong		dwByte = 0;
 				DWORD		dwStrByte = 0;
 
-				HANDLE		hFile = CreateFile(TEXT("../Bin/Data/MapStaticInfo.dat"), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+				HANDLE		hFile = CreateFile(TEXT("../Bin/Data/MapStaticInfoYantari.dat"), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
 				if (0 == hFile)
 					return;
 

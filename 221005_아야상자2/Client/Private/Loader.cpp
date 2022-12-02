@@ -804,6 +804,22 @@ HRESULT CLoader::Loading_ForGameYantariLevel()
 			return E_FAIL;
 	}
 
+	//MergeCube
+	if (!pGameInstance->IsOverlapComponent(LEVEL_YANTARI, TEXT("Prototype_Component_Model_MergedCube")))
+	{
+		if (FAILED(pGameInstance->Add_Prototype(LEVEL_YANTARI, TEXT("Prototype_Component_Model_MergedCube"),
+			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Maps/MergedCube.dat", PivotMatrix, true))))
+			return E_FAIL;
+	}
+
+	//TransCube
+	if (!pGameInstance->IsOverlapComponent(LEVEL_YANTARI, TEXT("Prototype_Component_Model_TransCube")))
+	{
+		if (FAILED(pGameInstance->Add_Prototype(LEVEL_YANTARI, TEXT("Prototype_Component_Model_TransCube"),
+			CModel::Create(m_pDevice, m_pContext, CModel::TYPE_NONANIM, L"../Bin/Resources/Meshes/Maps/TransCube.dat", PivotMatrix, true))))
+			return E_FAIL;
+	}
+
 	//YantariHead
 	if (!pGameInstance->IsOverlapComponent(LEVEL_YANTARI, TEXT("Prototype_Component_Model_YantariHead")))
 	{

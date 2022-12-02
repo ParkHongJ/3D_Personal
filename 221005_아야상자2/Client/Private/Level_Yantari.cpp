@@ -38,12 +38,16 @@ HRESULT CLevel_Yantari::Initialize()
 			return E_FAIL;
 	}
 
+	CUI_Manager::Get_Instance()->Initialize();
 	return S_OK;
 }
 
 void CLevel_Yantari::Tick(_float fTimeDelta)
 {
 	__super::Tick(fTimeDelta);
+
+	CUI_Manager::Get_Instance()->Tick(fTimeDelta);
+
 	CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 	if (pGameInstance->Key_Down(DIK_RETURN))
 	{
@@ -57,6 +61,7 @@ HRESULT CLevel_Yantari::Render()
 	if (FAILED(__super::Render()))
 		return E_FAIL;
 
+	CUI_Manager::Get_Instance()->Render();
 	SetWindowText(g_hWnd, TEXT("LEVEL_YANTARI"));
 
 	return S_OK;

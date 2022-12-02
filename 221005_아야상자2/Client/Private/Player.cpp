@@ -399,6 +399,7 @@ void CPlayer::SetState(STATE_ANIM eState, _float fTimeDelta)
 		}
 		else
 		{
+			m_pModelCom->SetSpeed(RolL2, 40.f);
 			m_fRollTime += fTimeDelta;
 			if (m_fRollTime <= m_fRollTimeMax)
 			{
@@ -851,7 +852,7 @@ void CPlayer::Idle_Fight_State(_float fTimeDelta)
 	}
 #pragma endregion
 
-
+	
 	if (pGameInstance->Key_Pressing(MoveForward) && pGameInstance->Key_Down(DIK_SPACE))
 	{
 		m_pModelCom->Change_Animation(DashFront);
