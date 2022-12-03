@@ -102,6 +102,10 @@ _bool CCamera_Free::Tick(_float fTimeDelta)
 
 	}
 
+	if (pGameInstance->Key_Down(DIK_F3))
+	{
+		m_bDebug = !m_bDebug;
+	}
 	RELEASE_INSTANCE(CGameInstance);
 
 #ifdef _DEBUG
@@ -112,7 +116,7 @@ _bool CCamera_Free::Tick(_float fTimeDelta)
 
 	ImGui::End();
 #endif // _DEBUG
-
+	
 
 	return false;
 }
@@ -141,9 +145,12 @@ void CCamera_Free::LateTick(_float fTimeDelta)
 	}
 	else
 	{
-		/*XMStoreFloat3(&m_vPivot, m_pTransformCom->Get_State(CTransform::STATE_POSITION));
-		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(m_pPlayerTransform->Get_State(CTransform::STATE_POSITION), 1.f));
-		m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMVector3TransformCoord(XMLoadFloat3(&m_vCamPosition), m_pTransformCom->Get_WorldMatrix()), 1.f));*/
+		if (!m_bDebug)
+		{
+			XMStoreFloat3(&m_vPivot, m_pTransformCom->Get_State(CTransform::STATE_POSITION));
+			m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(m_pPlayerTransform->Get_State(CTransform::STATE_POSITION), 1.f));
+			m_pTransformCom->Set_State(CTransform::STATE_POSITION, XMVectorSetW(XMVector3TransformCoord(XMLoadFloat3(&m_vCamPosition), m_pTransformCom->Get_WorldMatrix()), 1.f));
+		}
 	}
 
 	if (m_bShake)

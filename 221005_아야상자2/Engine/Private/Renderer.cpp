@@ -98,7 +98,7 @@ HRESULT CRenderer::Initialize_Prototype()
 
 #ifdef _DEBUG
 
-	if (FAILED(m_pTarget_Manager->Initialize_Debug(TEXT("Target_Diffuse"), 50.f, 50.f, 100.f, 100.f)))
+	/*if (FAILED(m_pTarget_Manager->Initialize_Debug(TEXT("Target_Diffuse"), 50.f, 50.f, 100.f, 100.f)))
 		return E_FAIL;
 	if (FAILED(m_pTarget_Manager->Initialize_Debug(TEXT("Target_Normal"), 50.f, 150.f, 100.f, 100.f)))
 		return E_FAIL;
@@ -107,7 +107,7 @@ HRESULT CRenderer::Initialize_Prototype()
 	if (FAILED(m_pTarget_Manager->Initialize_Debug(TEXT("Target_Shade"), 150.f, 50.f, 100.f, 100.f)))
 		return E_FAIL;
 	if (FAILED(m_pTarget_Manager->Initialize_Debug(TEXT("Target_Specular"), 150.f, 150.f, 100.f, 100.f)))
-		return E_FAIL;
+		return E_FAIL;*/
 
 	m_pShader[SHADER_DEFERRED] = CShader::Create(m_pDevice, m_pContext, TEXT("../Bin/ShaderFiles/Shader_Deferred.hlsl"), VTXTEX_DECLARATION::Elements, VTXTEX_DECLARATION::iNumElements);
 	if (nullptr == m_pShader[SHADER_DEFERRED])
@@ -182,8 +182,8 @@ HRESULT CRenderer::Draw()
 
 #ifdef _DEBUG
 
-	if (FAILED(Render_Debug()))
-		return E_FAIL;
+	//if (FAILED(Render_Debug()))
+	//	return E_FAIL;
 
 #endif
 
@@ -572,7 +572,7 @@ HRESULT CRenderer::Render_Debug()
 	m_pTarget_Manager->Render_Debug(TEXT("MRT_Original"), m_pVIBuffer, m_pShader[SHADER_DEFERRED]);
 	for (auto& pDebugCom : m_DebugObject)
 	{
-		pDebugCom->Render();
+		//pDebugCom->Render();
 		Safe_Release(pDebugCom);
 	}
 

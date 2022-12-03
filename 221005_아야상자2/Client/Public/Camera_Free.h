@@ -38,6 +38,7 @@ private:
 	void Zoom(_float fTimeDelta);
 
 private:
+	_bool				m_bDebug = false;
 	class CTransform* m_pTargetTransform = nullptr;
 	class CTransform* m_pPlayerTransform = nullptr;
 	_float3 m_vCamPosition;

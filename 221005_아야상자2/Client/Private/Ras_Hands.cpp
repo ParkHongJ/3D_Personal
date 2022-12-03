@@ -259,12 +259,12 @@ void CRas_Hands::Set_State(STATE_ANIM eState, _float fTimeDelta)
 				_float4 vTemp = _float4(0.f, -10.f, 25.f, 1.f);
 				XMStoreFloat4(&vTemp, XMVectorSetW(XMVector3TransformCoord(XMLoadFloat4(&vTemp), m_pTransformCom->Get_WorldMatrix()), 1.f));
 
-				CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
+				/*CGameInstance* pGameInstance = GET_INSTANCE(CGameInstance);
 				for (_uint i = 0; i < 30; ++i)
 				{
 					pGameInstance->Add_GameObjectToLayer(L"Prototype_GameObject_Particle_Mesh", LEVEL_GAMEPLAY, L"Effect", &vTemp);
 				}
-				RELEASE_INSTANCE(CGameInstance);
+				RELEASE_INSTANCE(CGameInstance);*/
 			}
 			m_fAttackTime += fTimeDelta;
 
